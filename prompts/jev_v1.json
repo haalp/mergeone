@@ -1,0 +1,14 @@
+{
+  "will_be_reverted": {
+    "type": "noul",
+    "instructions": "This merged pull request to the Kubernetes main branch will be reverted within the next 30 days because it caused a regression, broke tests or CI, introduced a bug, or was otherwise judged unsafe to keep. Judge from the title, message, changed files and diff."
+  },
+  "touches_sensitive_area": {
+    "type": "noul",
+    "instructions": "This pull request modifies files in security-critical or API-critical directories of Kubernetes: API type definitions (pkg/apis, k8s.io/api), the API server or API machinery (k8s.io/apiserver, k8s.io/apimachinery), the kubelet (pkg/kubelet), the control plane (pkg/controlplane), storage registries (pkg/registry), authentication or authorization (plugin/pkg/auth, pkg/auth), or client-go (k8s.io/client-go)."
+  },
+  "large_blast_radius": {
+    "type": "noul",
+    "instructions": "This pull request changes more than ten files and those files span more than three distinct top-level areas of the repository (for example several different packages under pkg/, cmd/, staging/, test/)."
+  }
+}

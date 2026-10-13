@@ -1,0 +1,6 @@
+{
+  "_note": "List prices on the run date. USD per million tokens. Update and record the date when re-running.",
+  "recorded_on": "2026-10-13",
+  "haiku": {"model": "claude-haiku-5-5", "input_per_mtok": 0.10, "output_per_mtok": 0.50, "source": "https://platform.claude.com/docs/en/models/haiku-5-5/overview (tiered, 'from')"},
+  "jev": {"model": "jev-latest", "input_per_mtok": 0.042, "output_per_mtok": 0.0, "source": "https://typesafe.ai ($42 per billion input tokens, output free)"}
+}

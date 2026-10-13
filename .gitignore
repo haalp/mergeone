@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+data/raw/
+data/*.jsonl
+results/*/predictions_*.jsonl
+.env
