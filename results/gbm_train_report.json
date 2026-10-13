@@ -1,20 +1,23 @@
 {
   "will_be_reverted": {
-    "val_pr_auc": 0.015020797515804332,
-    "best_iter": 516,
-    "num_leaves": 7,
-    "lr": 0.1
+    "val_pr_auc": 0.009484843419463165,
+    "best_iter": 27,
+    "num_leaves": 3,
+    "lr": 0.1,
+    "scale_pos_weight": 1.0
   },
   "touches_sensitive_area": {
     "val_pr_auc": 1.0,
-    "best_iter": 571,
-    "num_leaves": 7,
-    "lr": 0.03
+    "best_iter": 800,
+    "num_leaves": 3,
+    "lr": 0.01,
+    "scale_pos_weight": 1.0
   },
   "large_blast_radius": {
     "val_pr_auc": 1.0,
-    "best_iter": 599,
-    "num_leaves": 7,
-    "lr": 0.03
+    "best_iter": 800,
+    "num_leaves": 3,
+    "lr": 0.01,
+    "scale_pos_weight": 1.0
   }
 }

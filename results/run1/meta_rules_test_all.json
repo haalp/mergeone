@@ -1,0 +1,12 @@
+{
+  "model": "rules",
+  "split": "test",
+  "variant": "all",
+  "n": 7553,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": null,
+  "finished_at": "2026-10-13T21:10:10.845964+00:00",
+  "host": "vm",
+  "python": "3.13.16"
+}

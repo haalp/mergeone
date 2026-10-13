@@ -47,21 +47,22 @@ class GBMModel:
             pos_w = (len(y_tr) - y_tr.sum()) / max(y_tr.sum(), 1)
             best = None
             # Small grid; selection on validation PR-AUC. Deliberately modest.
-            for leaves in (7, 15, 31):
-                for lr in (0.03, 0.1):
-                    params = dict(objective="binary", num_leaves=leaves, learning_rate=lr, min_data_in_leaf=20,
-                                  feature_fraction=0.9, bagging_fraction=0.9, bagging_freq=1, scale_pos_weight=pos_w,
-                                  verbose=-1, seed=seed, deterministic=True)
+            for leaves in (3, 7, 15):
+              for lr in (0.01, 0.03, 0.1):
+                for spw in (1.0, pos_w):
+                    params = dict(objective="binary", num_leaves=leaves, learning_rate=lr, min_data_in_leaf=50,
+                                  feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=1, scale_pos_weight=spw,
+                                  lambda_l2=5.0, verbose=-1, seed=seed, deterministic=True)
                     dtr = lgb.Dataset(X_tr, y_tr)
                     dva = lgb.Dataset(X_va, y_va, reference=dtr)
-                    b = lgb.train(params, dtr, num_boost_round=600, valid_sets=[dva],
-                                  callbacks=[lgb.early_stopping(50, verbose=False)])
+                    b = lgb.train(params, dtr, num_boost_round=800, valid_sets=[dva],
+                                  callbacks=[lgb.early_stopping(80, verbose=False)])
                     ap = average_precision_score(y_va, b.predict(X_va, num_iteration=b.best_iteration))
                     if best is None or ap > best[0]:
                         best = (ap, b, params, b.best_iteration)
             ap, b, params, it = best
             self.boosters[name] = b
-            report[name] = {"val_pr_auc": float(ap), "best_iter": int(it), "num_leaves": params["num_leaves"], "lr": params["learning_rate"]}
+            report[name] = {"val_pr_auc": float(ap), "best_iter": int(it), "num_leaves": params["num_leaves"], "lr": params["learning_rate"], "scale_pos_weight": float(params["scale_pos_weight"])}
         self.version = f"gbm_v1_seed{seed}"
         return report
 
