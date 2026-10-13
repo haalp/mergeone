@@ -3,5 +3,6 @@ __pycache__/
 .venv/
 data/raw/
 data/*.jsonl
-results/*/predictions_*.jsonl
+
 .env
+results/gbm.pkl

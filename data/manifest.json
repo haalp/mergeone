@@ -2,29 +2,29 @@
   "repo": "kubernetes/kubernetes",
   "branch": "master",
   "source": "git history only (merge commits on first-parent chain)",
-  "n_merged_prs_total": 14815,
-  "window_start": "2021-07-08T21:01:19+00:00",
+  "n_merged_prs_total": 39665,
+  "window_start": "2017-01-23T09:16:25+00:00",
   "window_end": "2026-10-13T20:02:52+00:00",
-  "first_merge_sha": "b814b833927666d4a6b6b9acf9f8c3aafa3943ff",
+  "first_merge_sha": "5356a16f019ded860c83fc626e8d96ee00e4fe0a",
   "last_merge_sha": "2db820a6d4c566bd6e457b61e53436488ad06cf8",
   "splits": {
     "train": {
-      "n": 8889,
-      "start": "2021-07-08T21:01:19+00:00",
-      "end": "2024-10-01T01:23:50+00:00",
-      "positives": 64
+      "n": 23799,
+      "start": "2017-01-23T09:16:25+00:00",
+      "end": "2021-04-11T13:21:59+00:00",
+      "positives": 96
     },
     "val": {
-      "n": 2963,
-      "start": "2024-10-01T04:17:49+00:00",
-      "end": "2025-11-03T17:34:05+00:00",
-      "positives": 27
+      "n": 7933,
+      "start": "2021-04-11T17:18:01+00:00",
+      "end": "2023-12-19T13:23:48+00:00",
+      "positives": 55
     },
     "test": {
-      "n": 2583,
-      "start": "2025-11-03T17:34:12+00:00",
+      "n": 7553,
+      "start": "2023-12-19T16:43:45+00:00",
       "end": "2026-09-12T20:05:12+00:00",
-      "positives": 12
+      "positives": 57
     }
   },
   "test_dropped_incomplete_horizon": 380,
@@ -45,5 +45,5 @@
     "large_blast_radius": "> 10 files and > 3 top-level areas"
   },
   "diff_char_limit": 4000,
-  "prepared_at": "2026-10-13T20:50:29.317660+00:00"
+  "prepared_at": "2026-10-13T21:09:51.607678+00:00"
 }

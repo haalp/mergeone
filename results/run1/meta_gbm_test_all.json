@@ -1,0 +1,12 @@
+{
+  "model": "gbm",
+  "split": "test",
+  "variant": "all",
+  "n": 7553,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "gbm_v1_seed7",
+  "finished_at": "2026-10-13T21:11:33.610658+00:00",
+  "host": "vm",
+  "python": "3.13.16"
+}
