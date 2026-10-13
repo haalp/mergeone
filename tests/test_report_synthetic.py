@@ -2,7 +2,7 @@
 import json, math, random, sys, tempfile
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scmbench.eval.report import run
+from mergeone.eval.report import run
 
 def make(run_dir, model, split, variant, n, signal, cost, lat, seed):
     rng = random.Random(seed)

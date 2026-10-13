@@ -1,4 +1,4 @@
-"""python -m scmbench.data.extract_cli --repo PATH [--max-merges N]"""
+"""python -m mergeone.data.extract_cli --repo PATH [--max-merges N]"""
 import argparse, time
 from pathlib import Path
 from .extract import extract, label_reverts, write_jsonl

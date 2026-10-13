@@ -1,8 +1,12 @@
-# scm-decision-bench
+# mergeone
 
-**How well do System One decision models work as the decision layer of agent-scale source control?**
+**One decision per merge, at swarm scale.**
 
-A pre-registered, reproducible benchmark that pits [TypeSafe AI's Jev](https://typesafe.ai) (a "System One" model that returns typed probabilities instead of text) against Claude Haiku 5.5, gradient-boosted trees, and hand-written rules on a real source-control decision: *will this merged pull request be reverted within 30 days?*
+`mergeone` is a merge gateway for agent-scale source control: a fast, cheap, calibrated decision layer that sits where a merge queue used to be. This repository currently holds **gatebench**, the pre-registered experiment that tests whether such a layer works, using TypeSafe AI's Jev (a "System One" model that returns typed probabilities instead of text) against Claude Haiku 5.5, gradient-boosted trees, and hand-written rules.
+
+**Research question:** how well do System One decision models work as the decision layer of agent-scale source control?
+
+The benchmark is reproducible end to end and asks one real source-control question first: *will this merged pull request be reverted within 30 days?* ([Jev](https://typesafe.ai), [Haiku 5.5](https://platform.claude.com/docs/en/models/haiku-5-5/overview))
 
 Motivation and framing come from Anthropic's [*Redesigning source control at Anthropic*](https://www.anthropic.com/engineering/redesigning-source-control): at >30,000 merges/day, the merge queue is gone, testing moves post-merge, and the pipeline is full of small typed decisions that must be fast, cheap and calibrated. Anthropic will not release Scion; this repo tests the *decision layer* such a system needs, on top of plain git.
 
@@ -12,7 +16,7 @@ Read [PROTOCOL.md](PROTOCOL.md) first. It was frozen before any model call, and 
 
 | | |
 |---|---|
-| Dataset | `kubernetes/kubernetes` master, most recent 15,000 merged PRs, built from git history only (no GitHub API, no working copy) |
+| Dataset | `kubernetes/kubernetes` master, most recent 15,000 merged PRs (Jul 2021 – Oct 2026), built from git history only (no GitHub API, no working copy) |
 | Primary decision | `will_be_reverted` within 30 days (labels from later `Revert "..."` PRs) |
 | Secondary decisions | `touches_sensitive_area`, `large_blast_radius` (mechanical ground truth; tests "typed guardrail" ability and the cost of asking several questions at once) |
 | Systems | `rules`, `gbm` (LightGBM), `haiku` (Claude Haiku 5.5, thinking off, strict JSON), `jev` (TypeSafe Jev, noul questions), `cascade` (jev → haiku on low confidence) |
@@ -27,29 +31,29 @@ export ANTHROPIC_API_KEY=...   # for haiku
 export TYPESAFE_API_KEY=...    # for jev
 
 # 1. data (needs a clone of kubernetes/kubernetes with enough first-parent history)
-python -m scmbench.data.extract_cli --repo /path/to/kubernetes --max-merges 15000   # or see scripts/extract.sh
-scmbench prepare
+python -m mergeone.data.extract_cli --repo /path/to/kubernetes --max-merges 15000   # or see scripts/extract.sh
+mergeone prepare
 
 # 2. baselines
-scmbench train-gbm
-scmbench predict --model rules --split val && scmbench predict --model rules --split test
-scmbench predict --model gbm   --split val && scmbench predict --model gbm   --split test
+mergeone train-gbm
+mergeone predict --model rules --split val && mergeone predict --model rules --split test
+mergeone predict --model gbm   --split val && mergeone predict --model gbm   --split test
 
 # 3. API models (primary-only and all-three-questions variants; --words is the numbers-as-words ablation)
 for s in val test; do
-  scmbench predict --model jev   --split $s --questions primary
-  scmbench predict --model jev   --split $s --questions all
-  scmbench predict --model jev   --split $s --questions all --words
-  scmbench predict --model haiku --split $s --questions primary
-  scmbench predict --model haiku --split $s --questions all
+  mergeone predict --model jev   --split $s --questions primary
+  mergeone predict --model jev   --split $s --questions all
+  mergeone predict --model jev   --split $s --questions all --words
+  mergeone predict --model haiku --split $s --questions primary
+  mergeone predict --model haiku --split $s --questions all
 done
 
 # 4. stress replay
-for k in 1 10 100; do scmbench loadtest --model jev --multiplier $k; scmbench loadtest --model haiku --multiplier $k; done
+for k in 1 10 100; do mergeone loadtest --model jev --multiplier $k; mergeone loadtest --model haiku --multiplier $k; done
 
 # 5. label audit + report
-scmbench handcheck --n 50      # then fill results/handcheck_sample.jsonl by hand
-scmbench report results/run1
+mergeone handcheck --n 50      # then fill results/handcheck_sample.jsonl by hand
+mergeone report results/run1
 ```
 
 Raw per-example predictions, token counts, timings and the price sheet are committed under `results/run1/` so every table can be rebuilt without re-spending API calls.
@@ -67,9 +71,9 @@ Raw per-example predictions, token counts, timings and the price sheet are commi
 PROTOCOL.md            pre-registered protocol (frozen)
 CHANGELOG.md           any deviation from the protocol, with reason
 prompts/               frozen prompt (haiku_v1.md) and question set (jev_v1.json)
-scmbench/data/         git-history extraction, labels, features, state rendering
-scmbench/models/       rules, gbm, haiku, jev, cascade — one interface
-scmbench/eval/         metrics, report, figures
+mergeone/data/         git-history extraction, labels, features, state rendering
+mergeone/models/       rules, gbm, haiku, jev, cascade — one interface
+mergeone/eval/         metrics, report, figures
 results/run1/          raw predictions + metrics.json + tables.md + figures
 data/manifest.json     exact SHA window, split boundaries, label rules
 ```

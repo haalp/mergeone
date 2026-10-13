@@ -222,7 +222,7 @@ def cmd_loadtest(args):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="scmbench")
+    ap = argparse.ArgumentParser(prog="mergeone")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("prepare").set_defaults(fn=cmd_prepare)
     sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
@@ -250,7 +250,7 @@ def main(argv=None):
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")
     r.add_argument("run_dir")
-    r.set_defaults(fn=lambda a: __import__("scmbench.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
     args = ap.parse_args(argv)
     args.fn(args)
 

@@ -2,7 +2,7 @@
 
 **Status:** frozen before any model was run. Changes after this point are recorded in `CHANGELOG.md` with a reason; the evaluation thresholds below are not changed after results are seen.
 
-**Project:** scm-decision-bench
+**Project:** mergeone (experiment: gatebench)
 **Authors:** Hasan Alp Temiz (with Claude as coding assistant)
 **Date frozen:** 2026-10-13
 
@@ -100,7 +100,7 @@ Thresholds for `cascade` and for `R@FPR5` are selected on the validation split a
 - `results/<run_id>/`: raw per-example predictions for every system, token counts, timings, prices, environment info.
 - Model versions pinned: `claude-haiku-5-5`; Jev version string recorded from the first response.
 - Random seeds fixed where applicable (GBM, sampling for hand-check).
-- One command reproduces the tables and figures from the raw predictions: `python -m scmbench.report results/<run_id>`.
+- One command reproduces the tables and figures from the raw predictions: `python -m mergeone.report results/<run_id>`.
 
 ## 9. Publication commitment
 
