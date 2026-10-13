@@ -8,4 +8,4 @@ if [ ! -d "$REPO/.git" ]; then
 fi
 # ~15k merges on master is roughly 1.5 years; deepen until we have enough.
 git -C "$REPO" fetch --depth=200000 origin master || true
-python -m scmbench.data.extract_cli --repo "$REPO" --max-merges "$N"
+python -m mergeone.data.extract_cli --repo "$REPO" --max-merges "$N"

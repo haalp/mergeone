@@ -261,7 +261,8 @@ def _tables(r: dict) -> str:
                 s = b["secondary"]
                 sec.append(f"| {m} | {v} | {_f(s['touches_sensitive_area']['accuracy'])} | {_f(s['touches_sensitive_area']['ece'])} | {_f(s['large_blast_radius']['accuracy'])} | {_f(s['large_blast_radius']['ece'])} |")
     if sec:
-        lines += ["## Secondary decisions (test)", "", "| model | variant | sensitive acc | sensitive ECE | blast acc | blast ECE |", "|---|---|---|---|---|---|", *sec, ""]
+        lines += ["## Secondary decisions (test)", "", "`rules` and `gbm` compute these from the same structural features that define the ground truth, so their scores are by construction and not comparable; the rows that matter are the models that must infer the rule from text.", "",
+                  "| model | variant | sensitive acc | sensitive ECE | blast acc | blast ECE |", "|---|---|---|---|---|---|", *sec, ""]
     if r["cascade"]:
         lines += ["## Cascade (jev → haiku)", "", "| variant | escalation | PR-AUC | R@FPR5 | ECE | p50/p99 ms | USD / 1k |", "|---|---|---|---|---|---|---|"]
         for k, c in r["cascade"].items():

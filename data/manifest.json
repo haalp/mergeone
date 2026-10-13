@@ -1,0 +1,49 @@
+{
+  "repo": "kubernetes/kubernetes",
+  "branch": "master",
+  "source": "git history only (merge commits on first-parent chain)",
+  "n_merged_prs_total": 14815,
+  "window_start": "2021-07-08T21:01:19+00:00",
+  "window_end": "2026-10-13T20:02:52+00:00",
+  "first_merge_sha": "b814b833927666d4a6b6b9acf9f8c3aafa3943ff",
+  "last_merge_sha": "2db820a6d4c566bd6e457b61e53436488ad06cf8",
+  "splits": {
+    "train": {
+      "n": 8889,
+      "start": "2021-07-08T21:01:19+00:00",
+      "end": "2024-10-01T01:23:50+00:00",
+      "positives": 64
+    },
+    "val": {
+      "n": 2963,
+      "start": "2024-10-01T04:17:49+00:00",
+      "end": "2025-11-03T17:34:05+00:00",
+      "positives": 27
+    },
+    "test": {
+      "n": 2583,
+      "start": "2025-11-03T17:34:12+00:00",
+      "end": "2026-09-12T20:05:12+00:00",
+      "positives": 12
+    }
+  },
+  "test_dropped_incomplete_horizon": 380,
+  "label_rules": {
+    "primary": "reverted on master within 30 days by a merged PR titled Revert ... referencing the PR number, merge SHA, PR title or any of the PR's commit subjects; reverts of reverts excluded; revert PRs themselves excluded from the dataset",
+    "touches_sensitive_area": [
+      "pkg/apis/",
+      "staging/src/k8s.io/api/",
+      "staging/src/k8s.io/apiserver/",
+      "staging/src/k8s.io/apimachinery/",
+      "pkg/kubelet/",
+      "pkg/controlplane/",
+      "pkg/registry/",
+      "plugin/pkg/auth/",
+      "pkg/auth/",
+      "staging/src/k8s.io/client-go/"
+    ],
+    "large_blast_radius": "> 10 files and > 3 top-level areas"
+  },
+  "diff_char_limit": 4000,
+  "prepared_at": "2026-10-13T20:50:29.317660+00:00"
+}
