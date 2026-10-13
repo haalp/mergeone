@@ -1,0 +1,25 @@
+[project]
+name = "scm-decision-bench"
+version = "0.1.0"
+description = "Benchmark of System One decision models vs fast LLMs vs classical ML on source-control decisions at agent-scale merge volume."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scikit-learn>=1.4",
+  "lightgbm>=4.3",
+  "httpx>=0.27",
+  "anthropic>=0.40",
+  "matplotlib>=3.8",
+  "tqdm>=4.66",
+]
+
+[project.scripts]
+scmbench = "scmbench.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["scmbench*"]

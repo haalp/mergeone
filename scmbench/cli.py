@@ -1,0 +1,259 @@
+"""Command line: prepare -> train-gbm -> predict -> report (-> loadtest, handcheck)."""
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import os
+import platform
+import random
+import sys
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
+from pathlib import Path
+
+from .data.extract import read_jsonl, MergedPR
+from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
+from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
+from .models.base import DECISIONS, PRIMARY, Decision
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "data"
+RESULTS = ROOT / "results"
+
+
+# ----------------------------------------------------------------- dataset
+
+def _dataset_rows(prs: list[MergedPR]) -> list[dict]:
+    rows = []
+    for p in prs:
+        sec = secondary_labels(p)
+        rows.append({
+            "pr_number": p.pr_number,
+            "merge_sha": p.merge_sha,
+            "merged_at": p.merged_at,
+            "labels": {PRIMARY: bool(p.reverted), **sec},
+            "label_complete": p.label_complete,
+            "is_revert_pr": p.is_revert_pr,
+            "reverted_by_pr": p.reverted_by_pr,
+            "days_to_revert": p.days_to_revert,
+            "features": structural_features(p),
+            "state": render_state(p),
+            "state_words": render_state(p, numbers_as_words=True),
+        })
+    return rows
+
+
+def cmd_prepare(args):
+    prs = read_jsonl(DATA / "raw" / "k8s_merges.jsonl")
+    # Revert PRs themselves are not decision targets (a revert is a response, not a change to judge)
+    prs = [p for p in prs if not p.is_revert_pr]
+    splits = split_chronological(prs)
+    # Drop the incomplete-horizon tail from test so every test label is observed.
+    test_full = [p for p in splits["test"] if p.label_complete]
+    dropped = len(splits["test"]) - len(test_full)
+    splits["test"] = test_full
+    out = DATA / "dataset.jsonl"
+    with out.open("w") as f:
+        for name, group in splits.items():
+            for row in _dataset_rows(group):
+                row["split"] = name
+                f.write(json.dumps(row) + "\n")
+    manifest = {
+        "repo": "kubernetes/kubernetes",
+        "branch": "master",
+        "source": "git history only (merge commits on first-parent chain)",
+        "n_merged_prs_total": len(prs),
+        "window_start": prs[0].merged_at,
+        "window_end": prs[-1].merged_at,
+        "first_merge_sha": prs[0].merge_sha,
+        "last_merge_sha": prs[-1].merge_sha,
+        "splits": {k: {"n": len(v), "start": v[0].merged_at if v else None, "end": v[-1].merged_at if v else None,
+                       "positives": sum(1 for p in v if p.reverted)} for k, v in splits.items()},
+        "test_dropped_incomplete_horizon": dropped,
+        "label_rules": {
+            "primary": f"reverted on master within {REVERT_HORIZON_DAYS} days by a merged PR titled Revert ... referencing the PR number, merge SHA, PR title or any of the PR's commit subjects; reverts of reverts excluded; revert PRs themselves excluded from the dataset",
+            "touches_sensitive_area": list(SENSITIVE_PREFIXES),
+            "large_blast_radius": f"> {BLAST_FILES} files and > {BLAST_TOPDIRS} top-level areas",
+        },
+        "diff_char_limit": DIFF_CHAR_LIMIT,
+        "prepared_at": datetime.now(timezone.utc).isoformat(),
+    }
+    (DATA / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    print(json.dumps(manifest["splits"], indent=2))
+    print("dropped from test (incomplete horizon):", dropped)
+
+
+def load_dataset(split: str | None = None, limit: int | None = None) -> list[dict]:
+    rows = [json.loads(l) for l in (DATA / "dataset.jsonl").open()]
+    if split:
+        rows = [r for r in rows if r["split"] == split]
+    if limit:
+        rows = rows[:limit]
+    return rows
+
+
+# ----------------------------------------------------------------- models
+
+def load_prices() -> dict:
+    p = RESULTS / "prices.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def build_model(name: str):
+    if name == "rules":
+        from .models.rules import RulesModel
+        return RulesModel()
+    if name == "gbm":
+        from .models.gbm import GBMModel
+        return GBMModel(RESULTS / "gbm.pkl")
+    if name == "haiku":
+        from .models.haiku import HaikuModel
+        return HaikuModel(load_prices())
+    if name == "jev":
+        from .models.jev import JevModel
+        return JevModel(load_prices())
+    raise SystemExit(f"unknown model {name}")
+
+
+def cmd_train_gbm(args):
+    from .models.gbm import GBMModel
+    tr, va = load_dataset("train"), load_dataset("val")
+    m = GBMModel()
+    rep = m.fit([r["features"] for r in tr], {d: [int(r["labels"][d]) for r in tr] for d in DECISIONS},
+                [r["features"] for r in va], {d: [int(r["labels"][d]) for r in va] for d in DECISIONS})
+    m.save(RESULTS / "gbm.pkl")
+    (RESULTS / "gbm_train_report.json").write_text(json.dumps(rep, indent=2))
+    print(json.dumps(rep, indent=2))
+
+
+def cmd_predict(args):
+    rows = load_dataset(args.split, args.limit)
+    if args.only_errors_from:
+        done = {json.loads(l)["pr_number"] for l in Path(args.only_errors_from).open() if json.loads(l)["decision"].get("error") is None}
+        rows = [r for r in rows if r["pr_number"] not in done]
+    model = build_model(args.model)
+    questions = DECISIONS if args.questions == "all" else (PRIMARY,)
+    state_key = "state_words" if args.words else "state"
+    run_dir = RESULTS / args.run
+    run_dir.mkdir(parents=True, exist_ok=True)
+    variant = f"{args.questions}{'_words' if args.words else ''}"
+    out_path = run_dir / f"predictions_{args.model}_{args.split}_{variant}.jsonl"
+    mode = "a" if args.append else "w"
+    t0 = time.time()
+    n_err = 0
+
+    def work(r):
+        d = model.decide(r[state_key], r["features"], questions)
+        return r, d
+
+    with out_path.open(mode) as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+        futs = [ex.submit(work, r) for r in rows]
+        for i, fut in enumerate(as_completed(futs), 1):
+            r, d = fut.result()
+            if d.error:
+                n_err += 1
+            f.write(json.dumps({"pr_number": r["pr_number"], "split": r["split"], "labels": r["labels"], "decision": d.to_dict(),
+                                "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
+            if i % 50 == 0 or i == len(rows):
+                print(f"{args.model} {args.split} {variant}: {i}/{len(rows)} errors={n_err} elapsed={time.time()-t0:.0f}s", flush=True)
+    meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
+            "concurrency": args.concurrency, "model_version": getattr(model, "pinned", None) or getattr(model, "version", None),
+            "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
+    (run_dir / f"meta_{args.model}_{args.split}_{variant}.json").write_text(json.dumps(meta, indent=2))
+    print(json.dumps(meta, indent=2))
+
+
+def cmd_handcheck(args):
+    rows = load_dataset()
+    rng = random.Random(42)
+    pos = [r for r in rows if r["labels"][PRIMARY]]
+    neg = [r for r in rows if not r["labels"][PRIMARY] and r["label_complete"]]
+    sample = rng.sample(pos, min(args.n, len(pos))) + rng.sample(neg, min(args.n, len(neg)))
+    rng.shuffle(sample)
+    out = RESULTS / "handcheck_sample.jsonl"
+    with out.open("w") as f:
+        for r in sample:
+            f.write(json.dumps({"pr_number": r["pr_number"], "merge_sha": r["merge_sha"], "label": r["labels"][PRIMARY],
+                                "reverted_by_pr": r["reverted_by_pr"], "days_to_revert": r["days_to_revert"],
+                                "url": f"https://github.com/kubernetes/kubernetes/pull/{r['pr_number']}",
+                                "revert_url": f"https://github.com/kubernetes/kubernetes/pull/{r['reverted_by_pr']}" if r["reverted_by_pr"] else None,
+                                "verdict": None, "note": ""}) + "\n")
+    print(f"wrote {len(sample)} rows to {out}; fill `verdict` with 'correct'/'wrong'/'unclear'")
+
+
+def cmd_loadtest(args):
+    """Replay the test-split merge stream at k× its historical rate."""
+    rows = load_dataset("test", args.limit)
+    model = build_model(args.model)
+    questions = (PRIMARY,)
+    ts = [datetime.fromisoformat(r["merged_at"]).timestamp() for r in rows]
+    t_start = ts[0]
+    offsets = [(t - t_start) / args.multiplier for t in ts]
+    # compress so the whole test window replays within --max-seconds while keeping relative spacing
+    scale = min(1.0, args.max_seconds / max(offsets[-1], 1e-9))
+    offsets = [o * scale for o in offsets]
+    effective_rate = len(rows) / max(offsets[-1], 1e-9)
+    print(f"replaying {len(rows)} decisions at ~{effective_rate:.2f}/s (historical window {(ts[-1]-ts[0])/3600:.1f}h, multiplier {args.multiplier}x, compression {1/scale:.1f}x)")
+    results = []
+    t0 = time.perf_counter()
+
+    def work(i):
+        r = rows[i]
+        wait = offsets[i] - (time.perf_counter() - t0)
+        if wait > 0:
+            time.sleep(wait)
+        d = model.decide(r["state"], r["features"], questions)
+        return {"i": i, "scheduled_s": offsets[i], "latency_ms": d.latency_ms, "error": d.error}
+
+    with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+        for fut in as_completed([ex.submit(work, i) for i in range(len(rows))]):
+            results.append(fut.result())
+    lat = sorted(r["latency_ms"] for r in results if r["error"] is None)
+    errs = sum(1 for r in results if r["error"])
+    summary = {"model": args.model, "multiplier": args.multiplier, "n": len(rows), "effective_rate_per_s": effective_rate,
+               "p50_ms": lat[len(lat)//2] if lat else None, "p99_ms": lat[int(len(lat)*0.99)] if lat else None,
+               "error_rate": errs / len(rows), "concurrency": args.concurrency, "finished_at": datetime.now(timezone.utc).isoformat()}
+    run_dir = RESULTS / args.run
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / f"loadtest_{args.model}_x{args.multiplier}.json").write_text(json.dumps({"summary": summary, "samples": results}, indent=1))
+    print(json.dumps(summary, indent=2))
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="scmbench")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("prepare").set_defaults(fn=cmd_prepare)
+    sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
+    p = sub.add_parser("predict")
+    p.add_argument("--model", required=True, choices=["rules", "gbm", "haiku", "jev"])
+    p.add_argument("--split", required=True, choices=["train", "val", "test"])
+    p.add_argument("--run", default="run1")
+    p.add_argument("--limit", type=int)
+    p.add_argument("--concurrency", type=int, default=8)
+    p.add_argument("--questions", choices=["primary", "all"], default="all")
+    p.add_argument("--words", action="store_true", help="numbers-as-words ablation state")
+    p.add_argument("--append", action="store_true")
+    p.add_argument("--only-errors-from")
+    p.set_defaults(fn=cmd_predict)
+    h = sub.add_parser("handcheck")
+    h.add_argument("--n", type=int, default=50)
+    h.set_defaults(fn=cmd_handcheck)
+    l = sub.add_parser("loadtest")
+    l.add_argument("--model", required=True)
+    l.add_argument("--multiplier", type=float, required=True)
+    l.add_argument("--limit", type=int, default=600)
+    l.add_argument("--max-seconds", type=float, default=600)
+    l.add_argument("--concurrency", type=int, default=32)
+    l.add_argument("--run", default="run1")
+    l.set_defaults(fn=cmd_loadtest)
+    r = sub.add_parser("report")
+    r.add_argument("run_dir")
+    r.set_defaults(fn=lambda a: __import__("scmbench.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
+    args = ap.parse_args(argv)
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()
