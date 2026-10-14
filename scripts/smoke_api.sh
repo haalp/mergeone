@@ -2,9 +2,9 @@
 # 20-example smoke test of both APIs before spending money. Writes to results/smoke/.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-python -m mergeone.cli predict --model jev   --split val --run smoke --limit 20 --questions all
-python -m mergeone.cli predict --model haiku --split val --run smoke --limit 20 --questions all
-python - <<'PY'
+python3 -m mergeone.cli predict --model jev   --split val --run smoke --limit 20 --questions all
+python3 -m mergeone.cli predict --model haiku --split val --run smoke --limit 20 --questions all
+python3 - <<'PY'
 import json, glob
 for f in sorted(glob.glob("results/smoke/predictions_*.jsonl")):
     rows=[json.loads(l) for l in open(f)]

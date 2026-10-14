@@ -9,14 +9,14 @@ RUN="${RUN:-run1}"
 C="${CONCURRENCY:-8}"
 cd "$(dirname "$0")/.."
 for s in val test; do
-  python -m mergeone.cli predict --model jev   --split $s --run $RUN --questions primary --concurrency $C
-  python -m mergeone.cli predict --model jev   --split $s --run $RUN --questions all     --concurrency $C
-  python -m mergeone.cli predict --model jev   --split $s --run $RUN --questions all --words --concurrency $C
-  python -m mergeone.cli predict --model haiku --split $s --run $RUN --questions primary --concurrency $C
-  python -m mergeone.cli predict --model haiku --split $s --run $RUN --questions all     --concurrency $C
+  python3 -m mergeone.cli predict --model jev   --split $s --run $RUN --questions primary --concurrency $C
+  python3 -m mergeone.cli predict --model jev   --split $s --run $RUN --questions all     --concurrency $C
+  python3 -m mergeone.cli predict --model jev   --split $s --run $RUN --questions all --words --concurrency $C
+  python3 -m mergeone.cli predict --model haiku --split $s --run $RUN --questions primary --concurrency $C
+  python3 -m mergeone.cli predict --model haiku --split $s --run $RUN --questions all     --concurrency $C
 done
 for k in 1 10 100; do
-  python -m mergeone.cli loadtest --model jev   --multiplier $k --run $RUN
-  python -m mergeone.cli loadtest --model haiku --multiplier $k --run $RUN
+  python3 -m mergeone.cli loadtest --model jev   --multiplier $k --run $RUN
+  python3 -m mergeone.cli loadtest --model haiku --multiplier $k --run $RUN
 done
-python -m mergeone.cli report results/$RUN
+python3 -m mergeone.cli report results/$RUN
