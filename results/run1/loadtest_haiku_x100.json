@@ -1,0 +1,4818 @@
+{
+ "summary": {
+  "model": "haiku",
+  "multiplier": 100.0,
+  "base_rate_per_s": 0.3472222222222222,
+  "rate_per_s": 34.72222222222222,
+  "n": 600,
+  "p50_ms": 1223.4739810000974,
+  "p99_ms": 9661.733844000082,
+  "p99_schedule_lag_s": 0.21584359200011072,
+  "error_rate": 0.36,
+  "concurrency": 64,
+  "wall_s": 27.02354767399993,
+  "finished_at": "2026-10-14T18:28:58.528005+00:00"
+ },
+ "samples": [
+  {
+   "i": 5,
+   "scheduled_s": 0.14400000000000002,
+   "started_s": 0.14418595999995887,
+   "lag_s": 0.00018595999995885126,
+   "latency_ms": 714.5179380004265,
+   "error": null
+  },
+  {
+   "i": 9,
+   "scheduled_s": 0.2592,
+   "started_s": 0.25936988100056624,
+   "lag_s": 0.0001698810005662521,
+   "latency_ms": 646.1928579992673,
+   "error": null
+  },
+  {
+   "i": 4,
+   "scheduled_s": 0.1152,
+   "started_s": 0.11537471000065125,
+   "lag_s": 0.00017471000065125142,
+   "latency_ms": 802.5725269999384,
+   "error": null
+  },
+  {
+   "i": 13,
+   "scheduled_s": 0.3744,
+   "started_s": 0.37462843299999804,
+   "lag_s": 0.00022843299999802946,
+   "latency_ms": 711.4043000001402,
+   "error": null
+  },
+  {
+   "i": 16,
+   "scheduled_s": 0.4608,
+   "started_s": 0.46103858400056197,
+   "lag_s": 0.00023858400056198104,
+   "latency_ms": 666.8364920005843,
+   "error": null
+  },
+  {
+   "i": 11,
+   "scheduled_s": 0.3168,
+   "started_s": 0.3169768120005756,
+   "lag_s": 0.00017681200057556579,
+   "latency_ms": 817.6131710006302,
+   "error": null
+  },
+  {
+   "i": 2,
+   "scheduled_s": 0.0576,
+   "started_s": 0.05844553899987659,
+   "lag_s": 0.0008455389998765911,
+   "latency_ms": 1085.8756299994639,
+   "error": null
+  },
+  {
+   "i": 1,
+   "scheduled_s": 0.0288,
+   "started_s": 0.02892659100052697,
+   "lag_s": 0.00012659100052696964,
+   "latency_ms": 1132.8742039995632,
+   "error": null
+  },
+  {
+   "i": 14,
+   "scheduled_s": 0.4032,
+   "started_s": 0.4033442350000769,
+   "lag_s": 0.0001442350000768755,
+   "latency_ms": 759.6199070003422,
+   "error": null
+  },
+  {
+   "i": 12,
+   "scheduled_s": 0.3456,
+   "started_s": 0.3457076450004024,
+   "lag_s": 0.00010764500040238989,
+   "latency_ms": 906.3620130000345,
+   "error": null
+  },
+  {
+   "i": 18,
+   "scheduled_s": 0.5184,
+   "started_s": 0.5185747770001399,
+   "lag_s": 0.00017477700013990294,
+   "latency_ms": 735.7553729998472,
+   "error": null
+  },
+  {
+   "i": 8,
+   "scheduled_s": 0.2304,
+   "started_s": 0.23058653800035245,
+   "lag_s": 0.00018653800035245416,
+   "latency_ms": 1053.9496700002928,
+   "error": null
+  },
+  {
+   "i": 21,
+   "scheduled_s": 0.6048,
+   "started_s": 0.6049733440004275,
+   "lag_s": 0.00017334400042745557,
+   "latency_ms": 687.4855400001252,
+   "error": null
+  },
+  {
+   "i": 24,
+   "scheduled_s": 0.6912,
+   "started_s": 0.6913280660000964,
+   "lag_s": 0.00012806600009640512,
+   "latency_ms": 612.2021639994273,
+   "error": null
+  },
+  {
+   "i": 6,
+   "scheduled_s": 0.1728,
+   "started_s": 0.17299227500006964,
+   "lag_s": 0.0001922750000696305,
+   "latency_ms": 1144.0158559998963,
+   "error": null
+  },
+  {
+   "i": 15,
+   "scheduled_s": 0.432,
+   "started_s": 0.4321659550005279,
+   "lag_s": 0.00016595500052790646,
+   "latency_ms": 911.5153129996543,
+   "error": null
+  },
+  {
+   "i": 10,
+   "scheduled_s": 0.28800000000000003,
+   "started_s": 0.2882171740002377,
+   "lag_s": 0.0002171740002376854,
+   "latency_ms": 1083.9243460004582,
+   "error": null
+  },
+  {
+   "i": 25,
+   "scheduled_s": 0.72,
+   "started_s": 0.7201775000003181,
+   "lag_s": 0.0001775000003181315,
+   "latency_ms": 685.6017430000065,
+   "error": null
+  },
+  {
+   "i": 23,
+   "scheduled_s": 0.6624,
+   "started_s": 0.6625170799998159,
+   "lag_s": 0.00011707999981591666,
+   "latency_ms": 757.6920239998799,
+   "error": null
+  },
+  {
+   "i": 28,
+   "scheduled_s": 0.8064,
+   "started_s": 0.8065655450000122,
+   "lag_s": 0.00016554500001220163,
+   "latency_ms": 683.2318679998934,
+   "error": null
+  },
+  {
+   "i": 22,
+   "scheduled_s": 0.6336,
+   "started_s": 0.6337519830003657,
+   "lag_s": 0.00015198300036567414,
+   "latency_ms": 886.8343330004791,
+   "error": null
+  },
+  {
+   "i": 19,
+   "scheduled_s": 0.5472,
+   "started_s": 0.547374296000271,
+   "lag_s": 0.00017429600027096814,
+   "latency_ms": 1052.4906609998652,
+   "error": null
+  },
+  {
+   "i": 17,
+   "scheduled_s": 0.48960000000000004,
+   "started_s": 0.4897127750000436,
+   "lag_s": 0.00011277500004358565,
+   "latency_ms": 1138.9628529996116,
+   "error": null
+  },
+  {
+   "i": 20,
+   "scheduled_s": 0.5760000000000001,
+   "started_s": 0.5761720970003807,
+   "lag_s": 0.00017209700038067766,
+   "latency_ms": 1127.2935460001463,
+   "error": null
+  },
+  {
+   "i": 35,
+   "scheduled_s": 1.008,
+   "started_s": 1.008136545000525,
+   "lag_s": 0.0001365450005250679,
+   "latency_ms": 707.5192230004177,
+   "error": null
+  },
+  {
+   "i": 40,
+   "scheduled_s": 1.1520000000000001,
+   "started_s": 1.1521619730001476,
+   "lag_s": 0.00016197300014741955,
+   "latency_ms": 566.6617169999881,
+   "error": null
+  },
+  {
+   "i": 39,
+   "scheduled_s": 1.1232,
+   "started_s": 1.1233989250004015,
+   "lag_s": 0.0001989250004015286,
+   "latency_ms": 649.7692270004336,
+   "error": null
+  },
+  {
+   "i": 44,
+   "scheduled_s": 1.2672,
+   "started_s": 1.26736302000063,
+   "lag_s": 0.00016302000062995425,
+   "latency_ms": 574.8927679996996,
+   "error": null
+  },
+  {
+   "i": 37,
+   "scheduled_s": 1.0656,
+   "started_s": 1.0657510040000489,
+   "lag_s": 0.00015100400004874892,
+   "latency_ms": 832.4921459998222,
+   "error": null
+  },
+  {
+   "i": 27,
+   "scheduled_s": 0.7776000000000001,
+   "started_s": 0.7784491200000048,
+   "lag_s": 0.0008491200000046994,
+   "latency_ms": 1145.8217689996673,
+   "error": null
+  },
+  {
+   "i": 42,
+   "scheduled_s": 1.2096,
+   "started_s": 1.2097113790005096,
+   "lag_s": 0.00011137900050961491,
+   "latency_ms": 776.881231000516,
+   "error": null
+  },
+  {
+   "i": 47,
+   "scheduled_s": 1.3536000000000001,
+   "started_s": 1.353743303000556,
+   "lag_s": 0.00014330300055576117,
+   "latency_ms": 689.516100000219,
+   "error": null
+  },
+  {
+   "i": 43,
+   "scheduled_s": 1.2384,
+   "started_s": 1.2385729770003309,
+   "lag_s": 0.00017297700033092056,
+   "latency_ms": 830.9004980001191,
+   "error": null
+  },
+  {
+   "i": 36,
+   "scheduled_s": 1.0368,
+   "started_s": 1.0369678900005965,
+   "lag_s": 0.0001678900005965822,
+   "latency_ms": 1049.9748000002,
+   "error": null
+  },
+  {
+   "i": 45,
+   "scheduled_s": 1.296,
+   "started_s": 1.2961207289999948,
+   "lag_s": 0.00012072899999471254,
+   "latency_ms": 806.1876259998826,
+   "error": null
+  },
+  {
+   "i": 29,
+   "scheduled_s": 0.8352,
+   "started_s": 0.8411829070000749,
+   "lag_s": 0.005982907000074866,
+   "latency_ms": 1305.942431999938,
+   "error": null
+  },
+  {
+   "i": 7,
+   "scheduled_s": 0.2016,
+   "started_s": 0.2018014850000327,
+   "lag_s": 0.00020148500003269731,
+   "latency_ms": 2044.345567000164,
+   "error": null
+  },
+  {
+   "i": 56,
+   "scheduled_s": 1.6128,
+   "started_s": 1.6129934740001772,
+   "lag_s": 0.00019347400017721839,
+   "latency_ms": 653.0823069997496,
+   "error": null
+  },
+  {
+   "i": 58,
+   "scheduled_s": 1.6704,
+   "started_s": 1.6705943420001859,
+   "lag_s": 0.00019434200018575432,
+   "latency_ms": 695.0544369992713,
+   "error": null
+  },
+  {
+   "i": 46,
+   "scheduled_s": 1.3248,
+   "started_s": 1.3249250039998515,
+   "lag_s": 0.0001250039998514918,
+   "latency_ms": 1062.27338699955,
+   "error": null
+  },
+  {
+   "i": 48,
+   "scheduled_s": 1.3824,
+   "started_s": 1.3826113700006317,
+   "lag_s": 0.0002113700006316499,
+   "latency_ms": 1005.5500190001112,
+   "error": null
+  },
+  {
+   "i": 33,
+   "scheduled_s": 0.9504,
+   "started_s": 0.9506510870005513,
+   "lag_s": 0.00025108700055131994,
+   "latency_ms": 1454.8233329996947,
+   "error": null
+  },
+  {
+   "i": 68,
+   "scheduled_s": 1.9584000000000001,
+   "started_s": 1.9586303350006347,
+   "lag_s": 0.0002303350006345184,
+   "latency_ms": 535.0688539992916,
+   "error": null
+  },
+  {
+   "i": 61,
+   "scheduled_s": 1.7568000000000001,
+   "started_s": 1.7569851910002399,
+   "lag_s": 0.00018519100023972612,
+   "latency_ms": 742.2242510001524,
+   "error": null
+  },
+  {
+   "i": 49,
+   "scheduled_s": 1.4112,
+   "started_s": 1.4113407430004372,
+   "lag_s": 0.00014074300043720456,
+   "latency_ms": 1161.5460220000386,
+   "error": null
+  },
+  {
+   "i": 65,
+   "scheduled_s": 1.872,
+   "started_s": 1.8721305270000812,
+   "lag_s": 0.0001305270000810932,
+   "latency_ms": 726.137104999907,
+   "error": null
+  },
+  {
+   "i": 31,
+   "scheduled_s": 0.8928,
+   "started_s": 0.8929305569999997,
+   "lag_s": 0.00013055699999964254,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw5LWTAa4PwR5HdsRF'}"
+  },
+  {
+   "i": 57,
+   "scheduled_s": 1.6416,
+   "started_s": 1.6417916460004562,
+   "lag_s": 0.00019164600045629143,
+   "latency_ms": 1027.243398999417,
+   "error": null
+  },
+  {
+   "i": 67,
+   "scheduled_s": 1.9296,
+   "started_s": 1.929789372000414,
+   "lag_s": 0.00018937200041402313,
+   "latency_ms": 740.2490659997056,
+   "error": null
+  },
+  {
+   "i": 30,
+   "scheduled_s": 0.864,
+   "started_s": 0.8641474820005897,
+   "lag_s": 0.00014748200058967154,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw5STWA5w9LLSDDGtj'}"
+  },
+  {
+   "i": 55,
+   "scheduled_s": 1.584,
+   "started_s": 1.584217262000493,
+   "lag_s": 0.00021726200049299038,
+   "latency_ms": 1132.6648820004266,
+   "error": null
+  },
+  {
+   "i": 63,
+   "scheduled_s": 1.8144,
+   "started_s": 1.814651806999791,
+   "lag_s": 0.0002518069997909933,
+   "latency_ms": 938.1760859996575,
+   "error": null
+  },
+  {
+   "i": 74,
+   "scheduled_s": 2.1312,
+   "started_s": 2.131391193000127,
+   "lag_s": 0.00019119300012659934,
+   "latency_ms": 684.8162710002725,
+   "error": null
+  },
+  {
+   "i": 54,
+   "scheduled_s": 1.5552000000000001,
+   "started_s": 1.5554102040005091,
+   "lag_s": 0.00021020400050897337,
+   "latency_ms": 1359.6123569996053,
+   "error": null
+  },
+  {
+   "i": 79,
+   "scheduled_s": 2.2752,
+   "started_s": 2.2753569309998056,
+   "lag_s": 0.00015693099980573777,
+   "latency_ms": 777.5401250000868,
+   "error": null
+  },
+  {
+   "i": 53,
+   "scheduled_s": 1.5264,
+   "started_s": 1.5265990030002285,
+   "lag_s": 0.00019900300022857031,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw7L4JMLGRmwsKXqZX'}"
+  },
+  {
+   "i": 69,
+   "scheduled_s": 1.9872,
+   "started_s": 1.9873317970004791,
+   "lag_s": 0.0001317970004790503,
+   "latency_ms": 1160.0007269998969,
+   "error": null
+  },
+  {
+   "i": 51,
+   "scheduled_s": 1.4688,
+   "started_s": 1.4689710970005763,
+   "lag_s": 0.00017109700057615918,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw7YTdFS97kJWtrqxw'}"
+  },
+  {
+   "i": 89,
+   "scheduled_s": 2.5632,
+   "started_s": 2.563363952000145,
+   "lag_s": 0.00016395200014507338,
+   "latency_ms": 623.764017999747,
+   "error": null
+  },
+  {
+   "i": 75,
+   "scheduled_s": 2.16,
+   "started_s": 2.1601636670002335,
+   "lag_s": 0.00016366700023340286,
+   "latency_ms": 1045.0426789993799,
+   "error": null
+  },
+  {
+   "i": 41,
+   "scheduled_s": 1.1808,
+   "started_s": 1.1809903479997956,
+   "lag_s": 0.00019034799979555928,
+   "latency_ms": 2064.850125999328,
+   "error": null
+  },
+  {
+   "i": 92,
+   "scheduled_s": 2.6496,
+   "started_s": 2.649844987000506,
+   "lag_s": 0.000244987000506125,
+   "latency_ms": 616.4689890001682,
+   "error": null
+  },
+  {
+   "i": 87,
+   "scheduled_s": 2.5056000000000003,
+   "started_s": 2.5057563240006857,
+   "lag_s": 0.00015632400068543717,
+   "latency_ms": 767.6909290003096,
+   "error": null
+  },
+  {
+   "i": 88,
+   "scheduled_s": 2.5344,
+   "started_s": 2.5345846750005876,
+   "lag_s": 0.0001846750005873865,
+   "latency_ms": 823.2479240004977,
+   "error": null
+  },
+  {
+   "i": 62,
+   "scheduled_s": 1.7856,
+   "started_s": 1.785819886000354,
+   "lag_s": 0.00021988600035394157,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw8hQkVkGacJAS4M2T'}"
+  },
+  {
+   "i": 66,
+   "scheduled_s": 1.9008,
+   "started_s": 1.900966334000259,
+   "lag_s": 0.00016633400025889422,
+   "latency_ms": 1586.5252450003027,
+   "error": null
+  },
+  {
+   "i": 86,
+   "scheduled_s": 2.4768,
+   "started_s": 2.476927243999853,
+   "lag_s": 0.00012724399985319934,
+   "latency_ms": 1090.1814489998287,
+   "error": null
+  },
+  {
+   "i": 90,
+   "scheduled_s": 2.592,
+   "started_s": 2.5921247080004832,
+   "lag_s": 0.00012470800048314246,
+   "latency_ms": 980.0191160002214,
+   "error": null
+  },
+  {
+   "i": 78,
+   "scheduled_s": 2.2464,
+   "started_s": 2.2465018800003236,
+   "lag_s": 0.00010188000032362865,
+   "latency_ms": 1338.014211999507,
+   "error": null
+  },
+  {
+   "i": 64,
+   "scheduled_s": 1.8432,
+   "started_s": 1.8433037700006025,
+   "lag_s": 0.00010377000060257657,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bw9bEo1ekeKZAnmfH6'}"
+  },
+  {
+   "i": 108,
+   "scheduled_s": 3.1104000000000003,
+   "started_s": 3.110647895000511,
+   "lag_s": 0.0002478950005109226,
+   "latency_ms": 578.9683459997832,
+   "error": null
+  },
+  {
+   "i": 107,
+   "scheduled_s": 3.0816,
+   "started_s": 3.081721393999942,
+   "lag_s": 0.00012139399994204325,
+   "latency_ms": 609.1922139994495,
+   "error": null
+  },
+  {
+   "i": 98,
+   "scheduled_s": 2.8224,
+   "started_s": 2.8225454390003506,
+   "lag_s": 0.00014543900035057789,
+   "latency_ms": 870.853716000056,
+   "error": null
+  },
+  {
+   "i": 71,
+   "scheduled_s": 2.0448,
+   "started_s": 2.0449324540004454,
+   "lag_s": 0.00013245400044548106,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwAEw5dscfn1EnuzCc'}"
+  },
+  {
+   "i": 72,
+   "scheduled_s": 2.0736,
+   "started_s": 2.0737998780005,
+   "lag_s": 0.00019987800050014215,
+   "latency_ms": 1755.048378000538,
+   "error": null
+  },
+  {
+   "i": 70,
+   "scheduled_s": 2.016,
+   "started_s": 2.0162229400002616,
+   "lag_s": 0.00022294000026157335,
+   "latency_ms": 1860.4003469999952,
+   "error": null
+  },
+  {
+   "i": 85,
+   "scheduled_s": 2.448,
+   "started_s": 2.448232640000242,
+   "lag_s": 0.00023264000024214582,
+   "latency_ms": 1482.237888999407,
+   "error": null
+  },
+  {
+   "i": 97,
+   "scheduled_s": 2.7936,
+   "started_s": 2.79370546500013,
+   "lag_s": 0.00010546500012997839,
+   "latency_ms": 1137.699896000413,
+   "error": null
+  },
+  {
+   "i": 77,
+   "scheduled_s": 2.2176,
+   "started_s": 2.2177919830000974,
+   "lag_s": 0.00019198300009737324,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwAejgXg2ZSKGyF8qE'}"
+  },
+  {
+   "i": 76,
+   "scheduled_s": 2.1888,
+   "started_s": 2.1889945890006857,
+   "lag_s": 0.0001945890006855855,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwAvbzp8g9ntvmgFt8'}"
+  },
+  {
+   "i": 80,
+   "scheduled_s": 2.3040000000000003,
+   "started_s": 2.304104417000417,
+   "lag_s": 0.00010441700041674551,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwAyai9u2nDbhiSE64'}"
+  },
+  {
+   "i": 84,
+   "scheduled_s": 2.4192,
+   "started_s": 2.419384750000063,
+   "lag_s": 0.00018475000006290543,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwBBjkKojR8eGUKzGd'}"
+  },
+  {
+   "i": 113,
+   "scheduled_s": 3.2544,
+   "started_s": 3.254543283000203,
+   "lag_s": 0.0001432830002028318,
+   "latency_ms": 799.2802190001385,
+   "error": null
+  },
+  {
+   "i": 109,
+   "scheduled_s": 3.1392,
+   "started_s": 3.13951981900027,
+   "lag_s": 0.0003198190002700052,
+   "latency_ms": 916.5301610000824,
+   "error": null
+  },
+  {
+   "i": 52,
+   "scheduled_s": 1.4976,
+   "started_s": 1.4977808610001375,
+   "lag_s": 0.00018086100013747775,
+   "latency_ms": 2569.4088370000827,
+   "error": null
+  },
+  {
+   "i": 100,
+   "scheduled_s": 2.88,
+   "started_s": 2.880172915000003,
+   "lag_s": 0.0001729150000029378,
+   "latency_ms": 1227.9350759999943,
+   "error": null
+  },
+  {
+   "i": 91,
+   "scheduled_s": 2.6208,
+   "started_s": 2.6209635599998364,
+   "lag_s": 0.00016355999983641567,
+   "latency_ms": 1507.1975780001594,
+   "error": null
+  },
+  {
+   "i": 111,
+   "scheduled_s": 3.1968,
+   "started_s": 3.196955063000132,
+   "lag_s": 0.00015506300013212737,
+   "latency_ms": 932.3237090002294,
+   "error": null
+  },
+  {
+   "i": 120,
+   "scheduled_s": 3.456,
+   "started_s": 3.4566732310004227,
+   "lag_s": 0.0006732310004227138,
+   "latency_ms": 711.9788959998914,
+   "error": null
+  },
+  {
+   "i": 124,
+   "scheduled_s": 3.5712,
+   "started_s": 3.572328758000367,
+   "lag_s": 0.0011287580003669362,
+   "latency_ms": 656.6309219997493,
+   "error": null
+  },
+  {
+   "i": 82,
+   "scheduled_s": 2.3616,
+   "started_s": 2.3617912019999494,
+   "lag_s": 0.00019120199994926423,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwC1bUeAbqMsyU4QfK'}"
+  },
+  {
+   "i": 93,
+   "scheduled_s": 2.6784,
+   "started_s": 2.6785703189998458,
+   "lag_s": 0.0001703189998458754,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwCA2KHJYN2RhN2eAc'}"
+  },
+  {
+   "i": 125,
+   "scheduled_s": 3.6,
+   "started_s": 3.6001771080000253,
+   "lag_s": 0.00017710800002523897,
+   "latency_ms": 712.8558220001651,
+   "error": null
+  },
+  {
+   "i": 96,
+   "scheduled_s": 2.7648,
+   "started_s": 2.764993382999819,
+   "lag_s": 0.00019338299981885854,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwCcK268wai7mPe1Dn'}"
+  },
+  {
+   "i": 129,
+   "scheduled_s": 3.7152000000000003,
+   "started_s": 3.7153780200005713,
+   "lag_s": 0.00017802000057098866,
+   "latency_ms": 656.8934560000343,
+   "error": null
+  },
+  {
+   "i": 94,
+   "scheduled_s": 2.7072000000000003,
+   "started_s": 2.7073729060002734,
+   "lag_s": 0.00017290600027308756,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwCtRpnHhotk1QokSS'}"
+  },
+  {
+   "i": 95,
+   "scheduled_s": 2.736,
+   "started_s": 2.7362232410005163,
+   "lag_s": 0.00022324100051607232,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwCtBKbSj7wC7tvbcH'}"
+  },
+  {
+   "i": 99,
+   "scheduled_s": 2.8512,
+   "started_s": 2.8513707040001464,
+   "lag_s": 0.0001707040001464044,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwCzNvXKruoSo4utRS'}"
+  },
+  {
+   "i": 0,
+   "scheduled_s": 0.0,
+   "started_s": 0.00035158700029569445,
+   "lag_s": 0.00035158700029569445,
+   "latency_ms": 4493.180148000647,
+   "error": null
+  },
+  {
+   "i": 133,
+   "scheduled_s": 3.8304,
+   "started_s": 3.8305078640005377,
+   "lag_s": 0.00010786400053763856,
+   "latency_ms": 681.8549390000044,
+   "error": null
+  },
+  {
+   "i": 3,
+   "scheduled_s": 0.0864,
+   "started_s": 0.08655560500028514,
+   "lag_s": 0.00015560500028513613,
+   "latency_ms": 4426.569793999988,
+   "error": null
+  },
+  {
+   "i": 50,
+   "scheduled_s": 1.44,
+   "started_s": 1.4402767530000347,
+   "lag_s": 0.0002767530000347129,
+   "latency_ms": 3114.0858399994613,
+   "error": null
+  },
+  {
+   "i": 130,
+   "scheduled_s": 3.744,
+   "started_s": 3.7441225870006747,
+   "lag_s": 0.00012258700067446782,
+   "latency_ms": 826.7480790000263,
+   "error": null
+  },
+  {
+   "i": 119,
+   "scheduled_s": 3.4272,
+   "started_s": 3.4280843160004224,
+   "lag_s": 0.0008843160004223805,
+   "latency_ms": 1143.914176999715,
+   "error": null
+  },
+  {
+   "i": 138,
+   "scheduled_s": 3.9744,
+   "started_s": 3.9746102630006135,
+   "lag_s": 0.00021026300061333103,
+   "latency_ms": 638.4344299995064,
+   "error": null
+  },
+  {
+   "i": 103,
+   "scheduled_s": 2.9664,
+   "started_s": 2.9665406680005617,
+   "lag_s": 0.00014066800056156126,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwDiXqU61rPcYgh3Cr'}"
+  },
+  {
+   "i": 121,
+   "scheduled_s": 3.4848,
+   "started_s": 3.484947652000301,
+   "lag_s": 0.00014765200030097958,
+   "latency_ms": 1150.0950770005147,
+   "error": null
+  },
+  {
+   "i": 105,
+   "scheduled_s": 3.024,
+   "started_s": 3.0241827820000253,
+   "lag_s": 0.00018278200002530554,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwDwBdc8sjtmamD2kf'}"
+  },
+  {
+   "i": 106,
+   "scheduled_s": 3.0528,
+   "started_s": 3.0530525800004398,
+   "lag_s": 0.0002525800004398171,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwE2tTibtkPWeYBMpY'}"
+  },
+  {
+   "i": 141,
+   "scheduled_s": 4.0608,
+   "started_s": 4.0609264920003625,
+   "lag_s": 0.0001264920003620773,
+   "latency_ms": 645.4932199994801,
+   "error": null
+  },
+  {
+   "i": 126,
+   "scheduled_s": 3.6288,
+   "started_s": 3.6289252229998965,
+   "lag_s": 0.00012522299989647934,
+   "latency_ms": 1124.0420800004358,
+   "error": null
+  },
+  {
+   "i": 102,
+   "scheduled_s": 2.9376,
+   "started_s": 2.937788868000098,
+   "lag_s": 0.0001888680000976528,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwEMjYmJoJBACRQjyJ'}"
+  },
+  {
+   "i": 143,
+   "scheduled_s": 4.1184,
+   "started_s": 4.118550279000374,
+   "lag_s": 0.00015027900037356545,
+   "latency_ms": 693.7016339998081,
+   "error": null
+  },
+  {
+   "i": 112,
+   "scheduled_s": 3.2256,
+   "started_s": 3.225820608000504,
+   "lag_s": 0.00022060800050383023,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwEhpLKrgAjT5BD3Xn'}"
+  },
+  {
+   "i": 142,
+   "scheduled_s": 4.0896,
+   "started_s": 4.089842616000169,
+   "lag_s": 0.00024261600016917129,
+   "latency_ms": 769.7997749992282,
+   "error": null
+  },
+  {
+   "i": 149,
+   "scheduled_s": 4.2912,
+   "started_s": 4.291396020999855,
+   "lag_s": 0.00019602099985505106,
+   "latency_ms": 601.6472789997351,
+   "error": null
+  },
+  {
+   "i": 73,
+   "scheduled_s": 2.1024000000000003,
+   "started_s": 2.1025855180005237,
+   "lag_s": 0.0001855180005234658,
+   "latency_ms": 2823.45284099938,
+   "error": null
+  },
+  {
+   "i": 34,
+   "scheduled_s": 0.9792000000000001,
+   "started_s": 0.9793228759999693,
+   "lag_s": 0.0001228759999691853,
+   "latency_ms": 3979.472915999395,
+   "error": null
+  },
+  {
+   "i": 114,
+   "scheduled_s": 3.2832,
+   "started_s": 3.283367404999808,
+   "lag_s": 0.0001674049998081628,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwFREAxW6YUnvGPwNF'}"
+  },
+  {
+   "i": 115,
+   "scheduled_s": 3.3120000000000003,
+   "started_s": 3.312102664000122,
+   "lag_s": 0.00010266400012159949,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwFQjhTZYjMp9q1WFn'}"
+  },
+  {
+   "i": 152,
+   "scheduled_s": 4.3776,
+   "started_s": 4.377744721000454,
+   "lag_s": 0.00014472100045370695,
+   "latency_ms": 648.2014579996758,
+   "error": null
+  },
+  {
+   "i": 140,
+   "scheduled_s": 4.032,
+   "started_s": 4.032197145000282,
+   "lag_s": 0.00019714500028200632,
+   "latency_ms": 1014.2737759997544,
+   "error": null
+  },
+  {
+   "i": 117,
+   "scheduled_s": 3.3696,
+   "started_s": 3.369819405999806,
+   "lag_s": 0.00021940599980574405,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwFtGBkMrMjDduvPgH'}"
+  },
+  {
+   "i": 116,
+   "scheduled_s": 3.3408,
+   "started_s": 3.3409371349998764,
+   "lag_s": 0.00013713499987622058,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwFtkqKmdDtiXaHeXH'}"
+  },
+  {
+   "i": 139,
+   "scheduled_s": 4.0032,
+   "started_s": 4.003289207000307,
+   "lag_s": 8.920700030756734e-05,
+   "latency_ms": 1156.5956369995547,
+   "error": null
+  },
+  {
+   "i": 118,
+   "scheduled_s": 3.3984,
+   "started_s": 3.398555868000585,
+   "lag_s": 0.00015586800058509098,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwGCcNFx25arn1VpD8'}"
+  },
+  {
+   "i": 153,
+   "scheduled_s": 4.4064000000000005,
+   "started_s": 4.406579440999849,
+   "lag_s": 0.00017944099984834594,
+   "latency_ms": 802.7131510007166,
+   "error": null
+  },
+  {
+   "i": 127,
+   "scheduled_s": 3.6576,
+   "started_s": 3.658389217000149,
+   "lag_s": 0.0007892170001491117,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwGP2V9wkhT4YHFDTF'}"
+  },
+  {
+   "i": 123,
+   "scheduled_s": 3.5424,
+   "started_s": 3.5425855780003985,
+   "lag_s": 0.00018557800039831207,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwGbRNhapBVZSkmCmp'}"
+  },
+  {
+   "i": 128,
+   "scheduled_s": 3.6864,
+   "started_s": 3.6865827589999753,
+   "lag_s": 0.00018275899997544087,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwGo5KBmFy3garaEaT'}"
+  },
+  {
+   "i": 26,
+   "scheduled_s": 0.7488,
+   "started_s": 0.7490122220006015,
+   "lag_s": 0.00021222200060144747,
+   "latency_ms": 4617.779639999753,
+   "error": null
+  },
+  {
+   "i": 136,
+   "scheduled_s": 3.9168000000000003,
+   "started_s": 3.9169453869999415,
+   "lag_s": 0.00014538699994126603,
+   "latency_ms": 1487.9720540002381,
+   "error": null
+  },
+  {
+   "i": 137,
+   "scheduled_s": 3.9456,
+   "started_s": 3.9457627410001805,
+   "lag_s": 0.000162741000180322,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwHLpdQxgkPK2dphBT'}"
+  },
+  {
+   "i": 148,
+   "scheduled_s": 4.2624,
+   "started_s": 4.2625797700002295,
+   "lag_s": 0.00017977000022906253,
+   "latency_ms": 1232.6997069994832,
+   "error": null
+  },
+  {
+   "i": 146,
+   "scheduled_s": 4.2048000000000005,
+   "started_s": 4.20511971399992,
+   "lag_s": 0.00031971399991981286,
+   "latency_ms": 1305.8461730006456,
+   "error": null
+  },
+  {
+   "i": 134,
+   "scheduled_s": 3.8592,
+   "started_s": 3.8593763130002117,
+   "lag_s": 0.00017631300021170304,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwHRmzFRbEYMwh4DTZ'}"
+  },
+  {
+   "i": 163,
+   "scheduled_s": 4.6944,
+   "started_s": 4.694596807999915,
+   "lag_s": 0.00019680799991483866,
+   "latency_ms": 850.2457780004988,
+   "error": null
+  },
+  {
+   "i": 155,
+   "scheduled_s": 4.464,
+   "started_s": 4.464171376000195,
+   "lag_s": 0.00017137600019445642,
+   "latency_ms": 1085.684675000266,
+   "error": null
+  },
+  {
+   "i": 101,
+   "scheduled_s": 2.9088000000000003,
+   "started_s": 2.9089192070005083,
+   "lag_s": 0.00011920700050804811,
+   "latency_ms": 2702.185565999571,
+   "error": null
+  },
+  {
+   "i": 132,
+   "scheduled_s": 3.8016,
+   "started_s": 3.8017694930003927,
+   "lag_s": 0.0001694930003925954,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwHwnZpyJTfJxK5ZjV'}"
+  },
+  {
+   "i": 156,
+   "scheduled_s": 4.4928,
+   "started_s": 4.493827828000576,
+   "lag_s": 0.0010278280005762142,
+   "latency_ms": 1146.2652230002277,
+   "error": null
+  },
+  {
+   "i": 32,
+   "scheduled_s": 0.9216,
+   "started_s": 0.9218223890002264,
+   "lag_s": 0.0002223890002264195,
+   "latency_ms": 4727.676000999963,
+   "error": null
+  },
+  {
+   "i": 135,
+   "scheduled_s": 3.888,
+   "started_s": 3.888134621000063,
+   "lag_s": 0.0001346210000630066,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwHsp6tnWRz2GPTMB9'}"
+  },
+  {
+   "i": 160,
+   "scheduled_s": 4.6080000000000005,
+   "started_s": 4.608179089000259,
+   "lag_s": 0.00017908900025886965,
+   "latency_ms": 1058.2615769999393,
+   "error": null
+  },
+  {
+   "i": 171,
+   "scheduled_s": 4.9248,
+   "started_s": 4.927510956999868,
+   "lag_s": 0.002710956999867342,
+   "latency_ms": 739.5118800004639,
+   "error": null
+  },
+  {
+   "i": 104,
+   "scheduled_s": 2.9952,
+   "started_s": 2.9953015649998633,
+   "lag_s": 0.00010156499986324619,
+   "latency_ms": 2692.9585959996984,
+   "error": null
+  },
+  {
+   "i": 144,
+   "scheduled_s": 4.1472,
+   "started_s": 4.147330184000566,
+   "lag_s": 0.00013018400056630242,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwJSo4JLgDxzrKFjcu'}"
+  },
+  {
+   "i": 60,
+   "scheduled_s": 1.728,
+   "started_s": 1.7281706170006146,
+   "lag_s": 0.0001706170006146035,
+   "latency_ms": 4086.764707000839,
+   "error": null
+  },
+  {
+   "i": 177,
+   "scheduled_s": 5.0976,
+   "started_s": 5.0994949500000075,
+   "lag_s": 0.0018949500000076114,
+   "latency_ms": 786.4415280000685,
+   "error": null
+  },
+  {
+   "i": 145,
+   "scheduled_s": 4.176,
+   "started_s": 4.176226438999947,
+   "lag_s": 0.00022643899994712058,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwKV3tSPkTw4Na8SAP'}"
+  },
+  {
+   "i": 150,
+   "scheduled_s": 4.32,
+   "started_s": 4.320136936000381,
+   "lag_s": 0.00013693600038067189,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwKYXDxYxq1pFJjdAz'}"
+  },
+  {
+   "i": 166,
+   "scheduled_s": 4.7808,
+   "started_s": 4.780920001000595,
+   "lag_s": 0.00012000100059506025,
+   "latency_ms": 1318.1501230001231,
+   "error": null
+  },
+  {
+   "i": 183,
+   "scheduled_s": 5.2704,
+   "started_s": 5.2705008709999674,
+   "lag_s": 0.00010087099996702875,
+   "latency_ms": 829.7454749999815,
+   "error": null
+  },
+  {
+   "i": 110,
+   "scheduled_s": 3.168,
+   "started_s": 3.168104432000291,
+   "lag_s": 0.0001044320002909771,
+   "latency_ms": 2947.0655450004415,
+   "error": null
+  },
+  {
+   "i": 167,
+   "scheduled_s": 4.8096000000000005,
+   "started_s": 4.809782567000184,
+   "lag_s": 0.00018256700018337568,
+   "latency_ms": 1308.836379999775,
+   "error": null
+  },
+  {
+   "i": 174,
+   "scheduled_s": 5.0112000000000005,
+   "started_s": 5.011343861000569,
+   "lag_s": 0.00014386100056817952,
+   "latency_ms": 1214.548375999584,
+   "error": null
+  },
+  {
+   "i": 173,
+   "scheduled_s": 4.9824,
+   "started_s": 4.982581134000611,
+   "lag_s": 0.00018113400061103846,
+   "latency_ms": 1258.5593000003428,
+   "error": null
+  },
+  {
+   "i": 161,
+   "scheduled_s": 4.6368,
+   "started_s": 4.6369610440006,
+   "lag_s": 0.0001610440005999081,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwLnC17En9373WAEW9'}"
+  },
+  {
+   "i": 83,
+   "scheduled_s": 2.3904,
+   "started_s": 2.390516970000135,
+   "lag_s": 0.00011697000013510817,
+   "latency_ms": 3969.0400299996327,
+   "error": null
+  },
+  {
+   "i": 164,
+   "scheduled_s": 4.7232,
+   "started_s": 4.7235367700004645,
+   "lag_s": 0.0003367700004641705,
+   "latency_ms": 1640.7153340005607,
+   "error": null
+  },
+  {
+   "i": 169,
+   "scheduled_s": 4.8672,
+   "started_s": 4.867406067000047,
+   "lag_s": 0.00020606700004677236,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwMHx64yhMxwMxmthg'}"
+  },
+  {
+   "i": 159,
+   "scheduled_s": 4.5792,
+   "started_s": 4.579340582000441,
+   "lag_s": 0.00014058200044075875,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwMNuZCz7xp7ybsAAp'}"
+  },
+  {
+   "i": 168,
+   "scheduled_s": 4.8384,
+   "started_s": 4.838519458000519,
+   "lag_s": 0.00011945800051904598,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwMPeoqcT3knoRUp2R'}"
+  },
+  {
+   "i": 38,
+   "scheduled_s": 1.0944,
+   "started_s": 1.0945640390000335,
+   "lag_s": 0.00016403900003347793,
+   "latency_ms": 5344.047988999591,
+   "error": null
+  },
+  {
+   "i": 201,
+   "scheduled_s": 5.7888,
+   "started_s": 5.789239354000529,
+   "lag_s": 0.0004393540005285246,
+   "latency_ms": 697.7871720000621,
+   "error": null
+  },
+  {
+   "i": 187,
+   "scheduled_s": 5.3856,
+   "started_s": 5.385785326000587,
+   "lag_s": 0.00018532600058662752,
+   "latency_ms": 1115.6080439996003,
+   "error": null
+  },
+  {
+   "i": 170,
+   "scheduled_s": 4.896,
+   "started_s": 4.896110159999807,
+   "lag_s": 0.00011015999980745761,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwN3qcixzDR9hCVCGa'}"
+  },
+  {
+   "i": 175,
+   "scheduled_s": 5.04,
+   "started_s": 5.040171962000386,
+   "lag_s": 0.000171962000385939,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwNc5NEM7EeB62Msuz'}"
+  },
+  {
+   "i": 192,
+   "scheduled_s": 5.5296,
+   "started_s": 5.529779309000332,
+   "lag_s": 0.0001793090003321396,
+   "latency_ms": 1168.0069210005968,
+   "error": null
+  },
+  {
+   "i": 154,
+   "scheduled_s": 4.4352,
+   "started_s": 4.435326427000291,
+   "lag_s": 0.00012642700029097398,
+   "latency_ms": 2276.2176719998024,
+   "error": null
+  },
+  {
+   "i": 193,
+   "scheduled_s": 5.5584,
+   "started_s": 5.558780502000445,
+   "lag_s": 0.00038050200044548177,
+   "latency_ms": 1156.377496999994,
+   "error": null
+  },
+  {
+   "i": 176,
+   "scheduled_s": 5.0688,
+   "started_s": 5.068908605000615,
+   "lag_s": 0.00010860500061493639,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwNuBmBuaeFQp3crZx'}"
+  },
+  {
+   "i": 162,
+   "scheduled_s": 4.6656,
+   "started_s": 4.6657550609998,
+   "lag_s": 0.00015506099979933907,
+   "latency_ms": 2138.132804999259,
+   "error": null
+  },
+  {
+   "i": 179,
+   "scheduled_s": 5.1552,
+   "started_s": 5.155354038000041,
+   "lag_s": 0.00015403800004154533,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwP4rrJ2YwTg8xVHij'}"
+  },
+  {
+   "i": 182,
+   "scheduled_s": 5.2416,
+   "started_s": 5.2417650870002035,
+   "lag_s": 0.00016508700020345657,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwPCnw2i4DQLaKUeSW'}"
+  },
+  {
+   "i": 199,
+   "scheduled_s": 5.7312,
+   "started_s": 5.731303038000078,
+   "lag_s": 0.0001030380000779374,
+   "latency_ms": 1116.7178949999652,
+   "error": null
+  },
+  {
+   "i": 186,
+   "scheduled_s": 5.3568,
+   "started_s": 5.3569123950001085,
+   "lag_s": 0.00011239500010873371,
+   "latency_ms": 1492.528081999808,
+   "error": null
+  },
+  {
+   "i": 181,
+   "scheduled_s": 5.2128000000000005,
+   "started_s": 5.2129191630001515,
+   "lag_s": 0.00011916300015091252,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwPTfdd8fDdw3E9T6Z'}"
+  },
+  {
+   "i": 172,
+   "scheduled_s": 4.9536,
+   "started_s": 4.953766299000563,
+   "lag_s": 0.000166299000563086,
+   "latency_ms": 1973.0405880000035,
+   "error": null
+  },
+  {
+   "i": 217,
+   "scheduled_s": 6.2496,
+   "started_s": 6.249789027000588,
+   "lag_s": 0.00018902700058820443,
+   "latency_ms": 718.3011850002003,
+   "error": null
+  },
+  {
+   "i": 209,
+   "scheduled_s": 6.0192000000000005,
+   "started_s": 6.019350070000655,
+   "lag_s": 0.00015007000065470066,
+   "latency_ms": 963.1972260003749,
+   "error": null
+  },
+  {
+   "i": 213,
+   "scheduled_s": 6.1344,
+   "started_s": 6.134577404000083,
+   "lag_s": 0.0001774040000830368,
+   "latency_ms": 851.6008249998777,
+   "error": null
+  },
+  {
+   "i": 180,
+   "scheduled_s": 5.184,
+   "started_s": 5.184099828999933,
+   "lag_s": 9.982899993321581e-05,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwPqVL9ypjGosSE9PK'}"
+  },
+  {
+   "i": 222,
+   "scheduled_s": 6.3936,
+   "started_s": 6.394062998000663,
+   "lag_s": 0.00046299800066318397,
+   "latency_ms": 615.0611009998102,
+   "error": null
+  },
+  {
+   "i": 184,
+   "scheduled_s": 5.2992,
+   "started_s": 5.299340012000357,
+   "lag_s": 0.00014001200035718142,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwPtiX4E5kX5LCFxUV'}"
+  },
+  {
+   "i": 188,
+   "scheduled_s": 5.4144000000000005,
+   "started_s": 5.414523663000182,
+   "lag_s": 0.0001236630001812955,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwQDK1usFm9zkMYjSW'}"
+  },
+  {
+   "i": 219,
+   "scheduled_s": 6.3072,
+   "started_s": 6.30739145500047,
+   "lag_s": 0.000191455000470242,
+   "latency_ms": 867.2983579999709,
+   "error": null
+  },
+  {
+   "i": 191,
+   "scheduled_s": 5.5008,
+   "started_s": 5.500900316999832,
+   "lag_s": 0.00010031699983237274,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwQkK29CqRmLiNe5pX'}"
+  },
+  {
+   "i": 202,
+   "scheduled_s": 5.8176000000000005,
+   "started_s": 5.817751573000351,
+   "lag_s": 0.00015157300035006926,
+   "latency_ms": 1378.746948999833,
+   "error": null
+  },
+  {
+   "i": 230,
+   "scheduled_s": 6.6240000000000006,
+   "started_s": 6.624185667000347,
+   "lag_s": 0.0001856670003466121,
+   "latency_ms": 589.0191720000075,
+   "error": null
+  },
+  {
+   "i": 229,
+   "scheduled_s": 6.5952,
+   "started_s": 6.595367861000341,
+   "lag_s": 0.0001678610003406078,
+   "latency_ms": 655.8153550004135,
+   "error": null
+  },
+  {
+   "i": 195,
+   "scheduled_s": 5.6160000000000005,
+   "started_s": 5.616096875000039,
+   "lag_s": 9.687500003874305e-05,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwRCbL41qC7JJzTHVX'}"
+  },
+  {
+   "i": 197,
+   "scheduled_s": 5.6736,
+   "started_s": 5.673779970999931,
+   "lag_s": 0.00017997099993039,
+   "latency_ms": 1693.19274100053,
+   "error": null
+  },
+  {
+   "i": 196,
+   "scheduled_s": 5.6448,
+   "started_s": 5.644945034000557,
+   "lag_s": 0.0001450340005568762,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwRSyptjYznLM7yxum'}"
+  },
+  {
+   "i": 231,
+   "scheduled_s": 6.6528,
+   "started_s": 6.690266395000435,
+   "lag_s": 0.03746639500043525,
+   "latency_ms": 714.7642229992925,
+   "error": null
+  },
+  {
+   "i": 198,
+   "scheduled_s": 5.7024,
+   "started_s": 5.702605686000425,
+   "lag_s": 0.00020568600042469853,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwRhrghjjVRCgd1iRp'}"
+  },
+  {
+   "i": 200,
+   "scheduled_s": 5.76,
+   "started_s": 5.760683290000088,
+   "lag_s": 0.0006832900000883768,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwSBskXpTjbXfRvaCs'}"
+  },
+  {
+   "i": 204,
+   "scheduled_s": 5.8752,
+   "started_s": 5.875333381000019,
+   "lag_s": 0.00013338100001814013,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwSBdRNbHgXryXydpG'}"
+  },
+  {
+   "i": 207,
+   "scheduled_s": 5.9616,
+   "started_s": 5.961766395000268,
+   "lag_s": 0.00016639500026816023,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwSKZqdrC9zAvTCvHe'}"
+  },
+  {
+   "i": 221,
+   "scheduled_s": 6.3648,
+   "started_s": 6.364907045000109,
+   "lag_s": 0.00010704500010927376,
+   "latency_ms": 1253.1083580006452,
+   "error": null
+  },
+  {
+   "i": 205,
+   "scheduled_s": 5.904,
+   "started_s": 5.9041699469999,
+   "lag_s": 0.0001699469999003611,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwSht3jtFiEBqkoCu3'}"
+  },
+  {
+   "i": 185,
+   "scheduled_s": 5.328,
+   "started_s": 5.3281189500003165,
+   "lag_s": 0.00011895000031625358,
+   "latency_ms": 2377.1117060005054,
+   "error": null
+  },
+  {
+   "i": 203,
+   "scheduled_s": 5.8464,
+   "started_s": 5.846605011000065,
+   "lag_s": 0.00020501100006509176,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwSvHK3ErJLAj2yxQj'}"
+  },
+  {
+   "i": 206,
+   "scheduled_s": 5.9328,
+   "started_s": 5.932998954000141,
+   "lag_s": 0.00019895400014036113,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwT1jtSkJycm9tnBvw'}"
+  },
+  {
+   "i": 227,
+   "scheduled_s": 6.5376,
+   "started_s": 6.537852495000152,
+   "lag_s": 0.0002524950001516757,
+   "latency_ms": 1218.6186830003862,
+   "error": null
+  },
+  {
+   "i": 178,
+   "scheduled_s": 5.1264,
+   "started_s": 5.127789818000565,
+   "lag_s": 0.001389818000564702,
+   "latency_ms": 2637.1610969999892,
+   "error": null
+  },
+  {
+   "i": 208,
+   "scheduled_s": 5.9904,
+   "started_s": 5.990523395999844,
+   "lag_s": 0.00012339599984390048,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwTEdXwgfXrSPF6XLg'}"
+  },
+  {
+   "i": 240,
+   "scheduled_s": 6.912,
+   "started_s": 6.9121793630001775,
+   "lag_s": 0.00017936300017762363,
+   "latency_ms": 884.4920980000097,
+   "error": null
+  },
+  {
+   "i": 211,
+   "scheduled_s": 6.0768,
+   "started_s": 6.076917522999793,
+   "lag_s": 0.00011752299979228553,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwTRJ6mc2xgbz7aEAe'}"
+  },
+  {
+   "i": 215,
+   "scheduled_s": 6.192,
+   "started_s": 6.192398947000584,
+   "lag_s": 0.00039894700058340504,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwTgfkH3wGc6xk62bY'}"
+  },
+  {
+   "i": 216,
+   "scheduled_s": 6.2208000000000006,
+   "started_s": 6.221009497000523,
+   "lag_s": 0.00020949700052241838,
+   "latency_ms": 1662.7459150004142,
+   "error": null
+  },
+  {
+   "i": 218,
+   "scheduled_s": 6.2784,
+   "started_s": 6.278609826999855,
+   "lag_s": 0.000209826999854279,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwTjPzZAZvfCTJEUCD'}"
+  },
+  {
+   "i": 252,
+   "scheduled_s": 7.2576,
+   "started_s": 7.257744272000309,
+   "lag_s": 0.00014427200030908693,
+   "latency_ms": 654.1388579998966,
+   "error": null
+  },
+  {
+   "i": 249,
+   "scheduled_s": 7.1712,
+   "started_s": 7.171347025000614,
+   "lag_s": 0.0001470250006141427,
+   "latency_ms": 741.5394409999863,
+   "error": null
+  },
+  {
+   "i": 238,
+   "scheduled_s": 6.8544,
+   "started_s": 6.8545352099999945,
+   "lag_s": 0.00013520999999450112,
+   "latency_ms": 1060.4398790001142,
+   "error": null
+  },
+  {
+   "i": 224,
+   "scheduled_s": 6.4512,
+   "started_s": 6.451417297000262,
+   "lag_s": 0.00021729700026185128,
+   "latency_ms": 1514.6390030004113,
+   "error": null
+  },
+  {
+   "i": 210,
+   "scheduled_s": 6.048,
+   "started_s": 6.048122141000022,
+   "lag_s": 0.00012214100002161388,
+   "latency_ms": 1926.3339640001504,
+   "error": null
+  },
+  {
+   "i": 151,
+   "scheduled_s": 4.3488,
+   "started_s": 4.349027543000375,
+   "lag_s": 0.00022754300037508557,
+   "latency_ms": 3666.4977549999094,
+   "error": null
+  },
+  {
+   "i": 232,
+   "scheduled_s": 6.6816,
+   "started_s": 6.697885131000476,
+   "lag_s": 0.01628513100047524,
+   "latency_ms": 1398.5388869996314,
+   "error": null
+  },
+  {
+   "i": 220,
+   "scheduled_s": 6.336,
+   "started_s": 6.336117234000085,
+   "lag_s": 0.00011723400008456508,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwUbz7ZSWkZ1xqaHLN'}"
+  },
+  {
+   "i": 225,
+   "scheduled_s": 6.48,
+   "started_s": 6.480123465000361,
+   "lag_s": 0.00012346500036031216,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwUyorDhzzvm2JiHx9'}"
+  },
+  {
+   "i": 245,
+   "scheduled_s": 7.056,
+   "started_s": 7.056093193999914,
+   "lag_s": 9.319399991358779e-05,
+   "latency_ms": 1135.4158979993372,
+   "error": null
+  },
+  {
+   "i": 223,
+   "scheduled_s": 6.4224000000000006,
+   "started_s": 6.423378103000687,
+   "lag_s": 0.0009781030006861258,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwUyJoDhB32z4pb2FQ'}"
+  },
+  {
+   "i": 226,
+   "scheduled_s": 6.5088,
+   "started_s": 6.508956999000475,
+   "lag_s": 0.0001569990004748334,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwVEBox9QdXg4BYaso'}"
+  },
+  {
+   "i": 233,
+   "scheduled_s": 6.7104,
+   "started_s": 6.711644466000507,
+   "lag_s": 0.001244466000507316,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwVMP8SSJc9QsgTvvn'}"
+  },
+  {
+   "i": 228,
+   "scheduled_s": 6.5664,
+   "started_s": 6.566589471000043,
+   "lag_s": 0.0001894710000431843,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwVS6QGid9Ec6XU7ti'}"
+  },
+  {
+   "i": 262,
+   "scheduled_s": 7.5456,
+   "started_s": 7.613588809000248,
+   "lag_s": 0.06798880900024784,
+   "latency_ms": 702.9245940002511,
+   "error": null
+  },
+  {
+   "i": 59,
+   "scheduled_s": 1.6992,
+   "started_s": 1.7001255519999177,
+   "lag_s": 0.0009255519999176176,
+   "latency_ms": 6650.500617000034,
+   "error": null
+  },
+  {
+   "i": 234,
+   "scheduled_s": 6.7392,
+   "started_s": 6.739355071999853,
+   "lag_s": 0.00015507199985265174,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwVmvgqQR6AXHNWwLa'}"
+  },
+  {
+   "i": 237,
+   "scheduled_s": 6.8256000000000006,
+   "started_s": 6.825953827999911,
+   "lag_s": 0.0003538279999100169,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwW9Fm3swMhFqXKrZA'}"
+  },
+  {
+   "i": 236,
+   "scheduled_s": 6.7968,
+   "started_s": 6.804006121999919,
+   "lag_s": 0.007206121999918658,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwWCjKerGqRt9tEXUz'}"
+  },
+  {
+   "i": 275,
+   "scheduled_s": 7.92,
+   "started_s": 7.9201002350000635,
+   "lag_s": 0.00010023500006361985,
+   "latency_ms": 575.9354460005852,
+   "error": null
+  },
+  {
+   "i": 241,
+   "scheduled_s": 6.9408,
+   "started_s": 6.940993688000162,
+   "lag_s": 0.00019368800016206222,
+   "latency_ms": 1567.476987000191,
+   "error": null
+  },
+  {
+   "i": 253,
+   "scheduled_s": 7.2864,
+   "started_s": 7.28653915599989,
+   "lag_s": 0.0001391559998893399,
+   "latency_ms": 1281.5804659994683,
+   "error": null
+  },
+  {
+   "i": 239,
+   "scheduled_s": 6.8832,
+   "started_s": 6.883304372000566,
+   "lag_s": 0.00010437200056578888,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwWnCxdBrUuw51pKWV'}"
+  },
+  {
+   "i": 244,
+   "scheduled_s": 7.027200000000001,
+   "started_s": 7.0274188339999455,
+   "lag_s": 0.00021883399994493402,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwWz6uRtHUHxyjDdTP'}"
+  },
+  {
+   "i": 278,
+   "scheduled_s": 8.0064,
+   "started_s": 8.006569496999873,
+   "lag_s": 0.00016949699987378608,
+   "latency_ms": 657.6781639996625,
+   "error": null
+  },
+  {
+   "i": 251,
+   "scheduled_s": 7.228800000000001,
+   "started_s": 7.2289704320000965,
+   "lag_s": 0.0001704320000959214,
+   "latency_ms": 1446.8477469999925,
+   "error": null
+  },
+  {
+   "i": 242,
+   "scheduled_s": 6.9696,
+   "started_s": 6.9697327590001805,
+   "lag_s": 0.00013275900018072662,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwWohCwvGEiXdsGKQj'}"
+  },
+  {
+   "i": 281,
+   "scheduled_s": 8.0928,
+   "started_s": 8.093098143000134,
+   "lag_s": 0.00029814300013342176,
+   "latency_ms": 627.3453370004063,
+   "error": null
+  },
+  {
+   "i": 212,
+   "scheduled_s": 6.1056,
+   "started_s": 6.1060855730002,
+   "lag_s": 0.0004855730002004677,
+   "latency_ms": 2652.5721999996676,
+   "error": null
+  },
+  {
+   "i": 285,
+   "scheduled_s": 8.208,
+   "started_s": 8.208197253000435,
+   "lag_s": 0.00019725300043482719,
+   "latency_ms": 620.1356109995686,
+   "error": null
+  },
+  {
+   "i": 247,
+   "scheduled_s": 7.1136,
+   "started_s": 7.113751003000289,
+   "lag_s": 0.0001510030002886964,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwXfXon5EZQHqaLzbM'}"
+  },
+  {
+   "i": 246,
+   "scheduled_s": 7.0848,
+   "started_s": 7.0849283400002605,
+   "lag_s": 0.0001283400002600743,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwXoiT7ebj4sijKJar'}"
+  },
+  {
+   "i": 157,
+   "scheduled_s": 4.5216,
+   "started_s": 4.521774566000204,
+   "lag_s": 0.000174566000203491,
+   "latency_ms": 4373.797385999751,
+   "error": null
+  },
+  {
+   "i": 264,
+   "scheduled_s": 7.6032,
+   "started_s": 7.672572666000633,
+   "lag_s": 0.06937266600063285,
+   "latency_ms": 1229.1537420005625,
+   "error": null
+  },
+  {
+   "i": 248,
+   "scheduled_s": 7.1424,
+   "started_s": 7.14257404700038,
+   "lag_s": 0.00017404700037992882,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwYGVrWuZsqPh1PKL8'}"
+  },
+  {
+   "i": 250,
+   "scheduled_s": 7.2,
+   "started_s": 7.200184428999819,
+   "lag_s": 0.00018442899981874206,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwYMhu6M2VGnJa3FaW'}"
+  },
+  {
+   "i": 258,
+   "scheduled_s": 7.430400000000001,
+   "started_s": 7.430561466000654,
+   "lag_s": 0.00016146600065347627,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwYSRCuqEkXPBgsoih'}"
+  },
+  {
+   "i": 286,
+   "scheduled_s": 8.2368,
+   "started_s": 8.237119303000327,
+   "lag_s": 0.00031930300032634307,
+   "latency_ms": 764.7310260008453,
+   "error": null
+  },
+  {
+   "i": 255,
+   "scheduled_s": 7.344,
+   "started_s": 7.344223451000289,
+   "lag_s": 0.00022345100028875464,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwYW99LKzCk6T5CSFS'}"
+  },
+  {
+   "i": 256,
+   "scheduled_s": 7.3728,
+   "started_s": 7.3729744090005624,
+   "lag_s": 0.00017440900056264752,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwYUQHZGrrtWtcmsTn'}"
+  },
+  {
+   "i": 273,
+   "scheduled_s": 7.8624,
+   "started_s": 7.8766495090003446,
+   "lag_s": 0.014249509000344496,
+   "latency_ms": 1143.5893959996974,
+   "error": null
+  },
+  {
+   "i": 131,
+   "scheduled_s": 3.7728,
+   "started_s": 3.772978284000601,
+   "lag_s": 0.00017828400060082572,
+   "latency_ms": 5276.247614999193,
+   "error": null
+  },
+  {
+   "i": 294,
+   "scheduled_s": 8.4672,
+   "started_s": 8.467321091000485,
+   "lag_s": 0.00012109100048540711,
+   "latency_ms": 639.8827129996789,
+   "error": null
+  },
+  {
+   "i": 297,
+   "scheduled_s": 8.5536,
+   "started_s": 8.568220492999899,
+   "lag_s": 0.014620492999899426,
+   "latency_ms": 554.7025159994519,
+   "error": null
+  },
+  {
+   "i": 165,
+   "scheduled_s": 4.752,
+   "started_s": 4.753052599000512,
+   "lag_s": 0.0010525990005119112,
+   "latency_ms": 4379.195833999802,
+   "error": null
+  },
+  {
+   "i": 260,
+   "scheduled_s": 7.488,
+   "started_s": 7.541577507000511,
+   "lag_s": 0.05357750700051067,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwZGH9uKTGWFJCLjyE'}"
+  },
+  {
+   "i": 261,
+   "scheduled_s": 7.5168,
+   "started_s": 7.543229354000687,
+   "lag_s": 0.0264293540006868,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwZ8qinFY5kVVGr9PC'}"
+  },
+  {
+   "i": 243,
+   "scheduled_s": 6.9984,
+   "started_s": 6.998584460000529,
+   "lag_s": 0.0001844600005291852,
+   "latency_ms": 2240.42530800034,
+   "error": null
+  },
+  {
+   "i": 263,
+   "scheduled_s": 7.5744,
+   "started_s": 7.618113217999962,
+   "lag_s": 0.04371321799996242,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwZfLWzK9p38a1RKHm'}"
+  },
+  {
+   "i": 298,
+   "scheduled_s": 8.5824,
+   "started_s": 8.628490754999802,
+   "lag_s": 0.04609075499980264,
+   "latency_ms": 680.5303669998466,
+   "error": null
+  },
+  {
+   "i": 303,
+   "scheduled_s": 8.7264,
+   "started_s": 8.72652173500046,
+   "lag_s": 0.0001217350004605322,
+   "latency_ms": 652.4266030000945,
+   "error": null
+  },
+  {
+   "i": 269,
+   "scheduled_s": 7.7472,
+   "started_s": 7.765064856000208,
+   "lag_s": 0.01786485600020793,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwaAbcCVkdkLsXDDaq'}"
+  },
+  {
+   "i": 267,
+   "scheduled_s": 7.6896,
+   "started_s": 7.733959367999887,
+   "lag_s": 0.0443593679998866,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwa9MzKPVb5q3Y58tU'}"
+  },
+  {
+   "i": 266,
+   "scheduled_s": 7.6608,
+   "started_s": 7.730939580000268,
+   "lag_s": 0.07013958000026754,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwa9rZNkgFrgKakhsZ'}"
+  },
+  {
+   "i": 265,
+   "scheduled_s": 7.632000000000001,
+   "started_s": 7.705357730000287,
+   "lag_s": 0.07335773000028656,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwZvTqroLy7mgxgDCT'}"
+  },
+  {
+   "i": 272,
+   "scheduled_s": 7.833600000000001,
+   "started_s": 7.83375045899993,
+   "lag_s": 0.00015045899992927048,
+   "latency_ms": 1580.088663999959,
+   "error": null
+  },
+  {
+   "i": 306,
+   "scheduled_s": 8.812800000000001,
+   "started_s": 8.831384984000579,
+   "lag_s": 0.01858498400057762,
+   "latency_ms": 614.6533029996135,
+   "error": null
+  },
+  {
+   "i": 270,
+   "scheduled_s": 7.776,
+   "started_s": 7.78648635799982,
+   "lag_s": 0.010486357999820228,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwaLGU9HuKsVpT59rr'}"
+  },
+  {
+   "i": 235,
+   "scheduled_s": 6.768,
+   "started_s": 6.7879492020001635,
+   "lag_s": 0.0199492020001637,
+   "latency_ms": 2695.021636999627,
+   "error": null
+  },
+  {
+   "i": 158,
+   "scheduled_s": 4.5504,
+   "started_s": 4.55050434199984,
+   "lag_s": 0.00010434199984032944,
+   "latency_ms": 4969.923446999928,
+   "error": null
+  },
+  {
+   "i": 147,
+   "scheduled_s": 4.2336,
+   "started_s": 4.233747029999904,
+   "lag_s": 0.00014702999990401366,
+   "latency_ms": 5309.121489000063,
+   "error": null
+  },
+  {
+   "i": 305,
+   "scheduled_s": 8.784,
+   "started_s": 8.828450572000293,
+   "lag_s": 0.0444505720002919,
+   "latency_ms": 727.4364409995542,
+   "error": null
+  },
+  {
+   "i": 300,
+   "scheduled_s": 8.64,
+   "started_s": 8.66438325099989,
+   "lag_s": 0.024383250999889583,
+   "latency_ms": 942.5738390000333,
+   "error": null
+  },
+  {
+   "i": 274,
+   "scheduled_s": 7.8912,
+   "started_s": 7.891317284000252,
+   "lag_s": 0.00011728400025123875,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwb5uytgsBoTUZGMEA'}"
+  },
+  {
+   "i": 291,
+   "scheduled_s": 8.3808,
+   "started_s": 8.381554047999998,
+   "lag_s": 0.0007540479999974536,
+   "latency_ms": 1295.9012880000955,
+   "error": null
+  },
+  {
+   "i": 308,
+   "scheduled_s": 8.8704,
+   "started_s": 8.895707505000246,
+   "lag_s": 0.02530750500024581,
+   "latency_ms": 813.2746929995847,
+   "error": null
+  },
+  {
+   "i": 284,
+   "scheduled_s": 8.1792,
+   "started_s": 8.180868002000352,
+   "lag_s": 0.001668002000352331,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwbfdsw9TCC697U7zH'}"
+  },
+  {
+   "i": 280,
+   "scheduled_s": 8.064,
+   "started_s": 8.064390671000183,
+   "lag_s": 0.0003906710001828628,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwbm6U6y9ePBVVkce7'}"
+  },
+  {
+   "i": 279,
+   "scheduled_s": 8.0352,
+   "started_s": 8.035361463999834,
+   "lag_s": 0.0001614639998344103,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwbr46it62jPbrQUhS'}"
+  },
+  {
+   "i": 276,
+   "scheduled_s": 7.9488,
+   "started_s": 7.948990449000121,
+   "lag_s": 0.00019044900012055166,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwbvGgkQGcczSeGNqX'}"
+  },
+  {
+   "i": 194,
+   "scheduled_s": 5.5872,
+   "started_s": 5.588112733999878,
+   "lag_s": 0.0009127339998782347,
+   "latency_ms": 4260.090200999912,
+   "error": null
+  },
+  {
+   "i": 283,
+   "scheduled_s": 8.1504,
+   "started_s": 8.150512846999845,
+   "lag_s": 0.00011284699984592805,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwc6gdSw6MciLJUXod'}"
+  },
+  {
+   "i": 282,
+   "scheduled_s": 8.1216,
+   "started_s": 8.121814989000086,
+   "lag_s": 0.00021498900008509736,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwcAQFexwNSuePGKVF'}"
+  },
+  {
+   "i": 320,
+   "scheduled_s": 9.216000000000001,
+   "started_s": 9.21614959999988,
+   "lag_s": 0.00014959999987951278,
+   "latency_ms": 699.8712499998874,
+   "error": null
+  },
+  {
+   "i": 290,
+   "scheduled_s": 8.352,
+   "started_s": 8.35212700000011,
+   "lag_s": 0.00012700000010923418,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwcRXfsgy6DDpyLZzC'}"
+  },
+  {
+   "i": 289,
+   "scheduled_s": 8.3232,
+   "started_s": 8.323411416000454,
+   "lag_s": 0.00021141600045382347,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwcaxNmMJb9rVPRpGM'}"
+  },
+  {
+   "i": 292,
+   "scheduled_s": 8.409600000000001,
+   "started_s": 8.41472643599991,
+   "lag_s": 0.005126435999908807,
+   "latency_ms": 1588.1011129995386,
+   "error": null
+  },
+  {
+   "i": 189,
+   "scheduled_s": 5.4432,
+   "started_s": 5.4433860600001935,
+   "lag_s": 0.00018606000019349977,
+   "latency_ms": 4583.934739999677,
+   "error": null
+  },
+  {
+   "i": 259,
+   "scheduled_s": 7.4592,
+   "started_s": 7.45985897599985,
+   "lag_s": 0.0006589759998503197,
+   "latency_ms": 2589.254266000353,
+   "error": null
+  },
+  {
+   "i": 307,
+   "scheduled_s": 8.8416,
+   "started_s": 8.858030936999967,
+   "lag_s": 0.016430936999967116,
+   "latency_ms": 1197.5179160008338,
+   "error": null
+  },
+  {
+   "i": 293,
+   "scheduled_s": 8.4384,
+   "started_s": 8.45196299700001,
+   "lag_s": 0.013562997000009958,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwd7CrTrweQf55azFR'}"
+  },
+  {
+   "i": 287,
+   "scheduled_s": 8.265600000000001,
+   "started_s": 8.265737509000246,
+   "lag_s": 0.00013750900024511736,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwdN63CVuaQfQtTQnr'}"
+  },
+  {
+   "i": 328,
+   "scheduled_s": 9.4464,
+   "started_s": 9.446508976000587,
+   "lag_s": 0.00010897600058612511,
+   "latency_ms": 722.4665600006119,
+   "error": null
+  },
+  {
+   "i": 315,
+   "scheduled_s": 9.072000000000001,
+   "started_s": 9.072183025000413,
+   "lag_s": 0.00018302500041222913,
+   "latency_ms": 1180.9901230008109,
+   "error": null
+  },
+  {
+   "i": 317,
+   "scheduled_s": 9.1296,
+   "started_s": 9.129760359000102,
+   "lag_s": 0.00016035900010180626,
+   "latency_ms": 1143.2013540006665,
+   "error": null
+  },
+  {
+   "i": 299,
+   "scheduled_s": 8.6112,
+   "started_s": 8.649280000000545,
+   "lag_s": 0.038080000000544345,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bweBCdEQKq4QqGPJrk'}"
+  },
+  {
+   "i": 322,
+   "scheduled_s": 9.2736,
+   "started_s": 9.27371429499999,
+   "lag_s": 0.0001142949999906051,
+   "latency_ms": 1068.0549369999426,
+   "error": null
+  },
+  {
+   "i": 301,
+   "scheduled_s": 8.668800000000001,
+   "started_s": 8.675950415000443,
+   "lag_s": 0.007150415000442223,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwe5k2Mubp7FZfq6kS'}"
+  },
+  {
+   "i": 318,
+   "scheduled_s": 9.1584,
+   "started_s": 9.158577531999981,
+   "lag_s": 0.00017753199998082891,
+   "latency_ms": 1188.2746589999442,
+   "error": null
+  },
+  {
+   "i": 324,
+   "scheduled_s": 9.3312,
+   "started_s": 9.33135157200013,
+   "lag_s": 0.00015157200012971828,
+   "latency_ms": 1039.353133000077,
+   "error": null
+  },
+  {
+   "i": 257,
+   "scheduled_s": 7.4016,
+   "started_s": 7.4017671210003755,
+   "lag_s": 0.0001671210003753032,
+   "latency_ms": 3034.60113500023,
+   "error": null
+  },
+  {
+   "i": 302,
+   "scheduled_s": 8.6976,
+   "started_s": 8.718018055999892,
+   "lag_s": 0.020418055999892104,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwekvin8jnwXB6JfVs'}"
+  },
+  {
+   "i": 340,
+   "scheduled_s": 9.792,
+   "started_s": 9.792363455000668,
+   "lag_s": 0.0003634550006683668,
+   "latency_ms": 707.5702499996623,
+   "error": null
+  },
+  {
+   "i": 309,
+   "scheduled_s": 8.8992,
+   "started_s": 8.901813205000508,
+   "lag_s": 0.0026132050005074348,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwessSfn1vyVz4r5yv'}"
+  },
+  {
+   "i": 313,
+   "scheduled_s": 9.0144,
+   "started_s": 9.016505782000422,
+   "lag_s": 0.0021057820004219963,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwf4n6Lz5EV7hvTauY'}"
+  },
+  {
+   "i": 304,
+   "scheduled_s": 8.7552,
+   "started_s": 8.758757438999965,
+   "lag_s": 0.003557438999964191,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwf2JSemVaX2FumT82'}"
+  },
+  {
+   "i": 310,
+   "scheduled_s": 8.928,
+   "started_s": 8.968244583000342,
+   "lag_s": 0.04024458300034084,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwfMPeVmRE4NjmJDXs'}"
+  },
+  {
+   "i": 311,
+   "scheduled_s": 8.9568,
+   "started_s": 8.985420306999913,
+   "lag_s": 0.02862030699991358,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwfXp1kcdPAAoAoFAn'}"
+  },
+  {
+   "i": 312,
+   "scheduled_s": 8.9856,
+   "started_s": 8.994635429000482,
+   "lag_s": 0.009035429000482154,
+   "latency_ms": 1713.0674589998307,
+   "error": null
+  },
+  {
+   "i": 333,
+   "scheduled_s": 9.5904,
+   "started_s": 9.590813490000073,
+   "lag_s": 0.0004134900000725139,
+   "latency_ms": 1125.6333620003716,
+   "error": null
+  },
+  {
+   "i": 349,
+   "scheduled_s": 10.0512,
+   "started_s": 10.051309451000634,
+   "lag_s": 0.00010945100063430857,
+   "latency_ms": 669.0411150002546,
+   "error": null
+  },
+  {
+   "i": 319,
+   "scheduled_s": 9.1872,
+   "started_s": 9.187293591000525,
+   "lag_s": 9.359100052463987e-05,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwfvd9PFaZW4ti8JXn'}"
+  },
+  {
+   "i": 336,
+   "scheduled_s": 9.6768,
+   "started_s": 9.67761063099988,
+   "lag_s": 0.0008106309998794359,
+   "latency_ms": 1175.4523049994532,
+   "error": null
+  },
+  {
+   "i": 295,
+   "scheduled_s": 8.496,
+   "started_s": 8.496118654999918,
+   "lag_s": 0.00011865499991792205,
+   "latency_ms": 2423.4797520002758,
+   "error": null
+  },
+  {
+   "i": 323,
+   "scheduled_s": 9.3024,
+   "started_s": 9.302721250000104,
+   "lag_s": 0.0003212500001037455,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwgik7BAxokh5zyZDd'}"
+  },
+  {
+   "i": 344,
+   "scheduled_s": 9.9072,
+   "started_s": 9.907433189000585,
+   "lag_s": 0.00023318900058555414,
+   "latency_ms": 1051.4157999996314,
+   "error": null
+  },
+  {
+   "i": 330,
+   "scheduled_s": 9.504,
+   "started_s": 9.50523900600001,
+   "lag_s": 0.0012390060000111447,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhMhPzi2DJmSgy7aF'}"
+  },
+  {
+   "i": 331,
+   "scheduled_s": 9.5328,
+   "started_s": 9.532944282999779,
+   "lag_s": 0.00014428299977886638,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhPvduoKjei62go4c'}"
+  },
+  {
+   "i": 327,
+   "scheduled_s": 9.4176,
+   "started_s": 9.417735543000163,
+   "lag_s": 0.00013554300016238585,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhSQcsi85zzBhBq5z'}"
+  },
+  {
+   "i": 332,
+   "scheduled_s": 9.5616,
+   "started_s": 9.561773952999829,
+   "lag_s": 0.00017395299982858603,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhX7XxVxrPFDsCkeF'}"
+  },
+  {
+   "i": 329,
+   "scheduled_s": 9.475200000000001,
+   "started_s": 9.475301423000019,
+   "lag_s": 0.00010142300001803051,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhZbY4FVuMYfjTHh8'}"
+  },
+  {
+   "i": 190,
+   "scheduled_s": 5.472,
+   "started_s": 5.472171672000513,
+   "lag_s": 0.00017167200051293463,
+   "latency_ms": 5706.592927000202,
+   "error": null
+  },
+  {
+   "i": 335,
+   "scheduled_s": 9.648,
+   "started_s": 9.64811646399994,
+   "lag_s": 0.00011646399994091894,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwhqxb8myfPNsoP6nD'}"
+  },
+  {
+   "i": 360,
+   "scheduled_s": 10.368,
+   "started_s": 10.368100671999855,
+   "lag_s": 0.00010067199985464015,
+   "latency_ms": 872.982081000373,
+   "error": null
+  },
+  {
+   "i": 368,
+   "scheduled_s": 10.5984,
+   "started_s": 10.598556109000128,
+   "lag_s": 0.0001561090001285237,
+   "latency_ms": 646.4234869999927,
+   "error": null
+  },
+  {
+   "i": 268,
+   "scheduled_s": 7.7184,
+   "started_s": 7.756602672000554,
+   "lag_s": 0.03820267200055394,
+   "latency_ms": 3511.1575889995947,
+   "error": null
+  },
+  {
+   "i": 357,
+   "scheduled_s": 10.281600000000001,
+   "started_s": 10.281802997999876,
+   "lag_s": 0.00020299799987455458,
+   "latency_ms": 1066.2634519994754,
+   "error": null
+  },
+  {
+   "i": 337,
+   "scheduled_s": 9.7056,
+   "started_s": 9.705779996999809,
+   "lag_s": 0.00017999699980819628,
+   "latency_ms": 1649.6879299993452,
+   "error": null
+  },
+  {
+   "i": 288,
+   "scheduled_s": 8.2944,
+   "started_s": 8.299071766999987,
+   "lag_s": 0.00467176699998717,
+   "latency_ms": 3070.777034999992,
+   "error": null
+  },
+  {
+   "i": 372,
+   "scheduled_s": 10.7136,
+   "started_s": 10.713755865000167,
+   "lag_s": 0.00015586500016695481,
+   "latency_ms": 692.6216570000179,
+   "error": null
+  },
+  {
+   "i": 316,
+   "scheduled_s": 9.1008,
+   "started_s": 9.100946330000625,
+   "lag_s": 0.00014633000062502788,
+   "latency_ms": 2310.202632000255,
+   "error": null
+  },
+  {
+   "i": 314,
+   "scheduled_s": 9.0432,
+   "started_s": 9.043312116999914,
+   "lag_s": 0.00011211699991342527,
+   "latency_ms": 2370.0324700002966,
+   "error": null
+  },
+  {
+   "i": 339,
+   "scheduled_s": 9.7632,
+   "started_s": 9.763510931000383,
+   "lag_s": 0.00031093100038326327,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwib7RMeQEUECMrgcv'}"
+  },
+  {
+   "i": 346,
+   "scheduled_s": 9.9648,
+   "started_s": 9.965030074999959,
+   "lag_s": 0.0002300749999584184,
+   "latency_ms": 1486.1419200005912,
+   "error": null
+  },
+  {
+   "i": 356,
+   "scheduled_s": 10.2528,
+   "started_s": 10.253422466000302,
+   "lag_s": 0.0006224660003013582,
+   "latency_ms": 1200.8021619994906,
+   "error": null
+  },
+  {
+   "i": 343,
+   "scheduled_s": 9.878400000000001,
+   "started_s": 9.878555050000614,
+   "lag_s": 0.00015505000061288854,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwj48qUY9KN6z4THKE'}"
+  },
+  {
+   "i": 342,
+   "scheduled_s": 9.8496,
+   "started_s": 9.854877576000035,
+   "lag_s": 0.005277576000034756,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwjDosQdtWREbhBFJr'}"
+  },
+  {
+   "i": 347,
+   "scheduled_s": 9.9936,
+   "started_s": 9.99375587600025,
+   "lag_s": 0.00015587600024957737,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwjKGUmvrd1TBtFzTd'}"
+  },
+  {
+   "i": 345,
+   "scheduled_s": 9.936,
+   "started_s": 9.936173439000413,
+   "lag_s": 0.00017343900041311144,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwjMkCyX4u6j7R4FpG'}"
+  },
+  {
+   "i": 353,
+   "scheduled_s": 10.1664,
+   "started_s": 10.166552729000614,
+   "lag_s": 0.00015272900061447103,
+   "latency_ms": 1406.0796799994932,
+   "error": null
+  },
+  {
+   "i": 348,
+   "scheduled_s": 10.022400000000001,
+   "started_s": 10.022618021000198,
+   "lag_s": 0.00021802100019741033,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwjSTJarwMniufuNtr'}"
+  },
+  {
+   "i": 369,
+   "scheduled_s": 10.6272,
+   "started_s": 10.627328904000024,
+   "lag_s": 0.00012890400002341096,
+   "latency_ms": 1036.0617360001925,
+   "error": null
+  },
+  {
+   "i": 367,
+   "scheduled_s": 10.5696,
+   "started_s": 10.569806322000659,
+   "lag_s": 0.00020632200065939799,
+   "latency_ms": 1145.5713240002297,
+   "error": null
+  },
+  {
+   "i": 350,
+   "scheduled_s": 10.08,
+   "started_s": 10.08015820899982,
+   "lag_s": 0.0001582089998191094,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwjvivpt74Sxrgzz5a'}"
+  },
+  {
+   "i": 387,
+   "scheduled_s": 11.1456,
+   "started_s": 11.178889079000328,
+   "lag_s": 0.03328907900032796,
+   "latency_ms": 629.9410779993195,
+   "error": null
+  },
+  {
+   "i": 355,
+   "scheduled_s": 10.224,
+   "started_s": 10.224097008000172,
+   "lag_s": 9.700800017142797e-05,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwko4idiNypz8n4BsV'}"
+  },
+  {
+   "i": 351,
+   "scheduled_s": 10.1088,
+   "started_s": 10.108933539000645,
+   "lag_s": 0.0001335390006449444,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwkt2NXUWHiDK4vcQT'}"
+  },
+  {
+   "i": 389,
+   "scheduled_s": 11.2032,
+   "started_s": 11.241174788000535,
+   "lag_s": 0.03797478800053433,
+   "latency_ms": 685.1351739996971,
+   "error": null
+  },
+  {
+   "i": 341,
+   "scheduled_s": 9.8208,
+   "started_s": 9.820956814000056,
+   "lag_s": 0.00015681400005540524,
+   "latency_ms": 2136.7159009996612,
+   "error": null
+  },
+  {
+   "i": 334,
+   "scheduled_s": 9.619200000000001,
+   "started_s": 9.61940385700018,
+   "lag_s": 0.0002038570001783313,
+   "latency_ms": 2341.9169720000355,
+   "error": null
+  },
+  {
+   "i": 352,
+   "scheduled_s": 10.1376,
+   "started_s": 10.137727774000268,
+   "lag_s": 0.00012777400026742214,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwm3T25kKUt4YTyEEG'}"
+  },
+  {
+   "i": 392,
+   "scheduled_s": 11.2896,
+   "started_s": 11.348181230000591,
+   "lag_s": 0.05858123000059123,
+   "latency_ms": 637.5678230006088,
+   "error": null
+  },
+  {
+   "i": 377,
+   "scheduled_s": 10.8576,
+   "started_s": 10.857747707000271,
+   "lag_s": 0.00014770700027177952,
+   "latency_ms": 1176.7567330007296,
+   "error": null
+  },
+  {
+   "i": 363,
+   "scheduled_s": 10.4544,
+   "started_s": 10.454547230000571,
+   "lag_s": 0.00014723000057159652,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwmeAc7kRdEYFXhfFk'}"
+  },
+  {
+   "i": 364,
+   "scheduled_s": 10.4832,
+   "started_s": 10.485861629000283,
+   "lag_s": 0.0026616290002827725,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwmYDX6mmtTUETsRDQ'}"
+  },
+  {
+   "i": 362,
+   "scheduled_s": 10.425600000000001,
+   "started_s": 10.4257190240005,
+   "lag_s": 0.00011902400049912387,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwmPnSWWhF5M5W5ybn'}"
+  },
+  {
+   "i": 391,
+   "scheduled_s": 11.2608,
+   "started_s": 11.267856000000393,
+   "lag_s": 0.00705600000039297,
+   "latency_ms": 840.3254919994652,
+   "error": null
+  },
+  {
+   "i": 122,
+   "scheduled_s": 3.5136000000000003,
+   "started_s": 3.513756790000116,
+   "lag_s": 0.00015679000011559197,
+   "latency_ms": 8595.416827000008,
+   "error": null
+  },
+  {
+   "i": 361,
+   "scheduled_s": 10.3968,
+   "started_s": 10.396972450999783,
+   "lag_s": 0.0001724509997824697,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwmm7ExBFPsSzsx8sr'}"
+  },
+  {
+   "i": 388,
+   "scheduled_s": 11.1744,
+   "started_s": 11.23398056499991,
+   "lag_s": 0.05958056499991038,
+   "latency_ms": 994.3878630001564,
+   "error": null
+  },
+  {
+   "i": 370,
+   "scheduled_s": 10.656,
+   "started_s": 10.656185865000225,
+   "lag_s": 0.00018586500022443886,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwnPKE2muBGijyvxBo'}"
+  },
+  {
+   "i": 366,
+   "scheduled_s": 10.5408,
+   "started_s": 10.540938609000477,
+   "lag_s": 0.00013860900047646396,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwnKbFm731Pgzsaj5q'}"
+  },
+  {
+   "i": 371,
+   "scheduled_s": 10.684800000000001,
+   "started_s": 10.684963643000629,
+   "lag_s": 0.00016364300062754467,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwnJMRy1PE24AaYe3M'}"
+  },
+  {
+   "i": 338,
+   "scheduled_s": 9.7344,
+   "started_s": 9.73452490100044,
+   "lag_s": 0.00012490100044004748,
+   "latency_ms": 2546.1208500000794,
+   "error": null
+  },
+  {
+   "i": 365,
+   "scheduled_s": 10.512,
+   "started_s": 10.512162933000582,
+   "lag_s": 0.0001629330005812335,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwniuNg9aDL3KfLV1V'}"
+  },
+  {
+   "i": 374,
+   "scheduled_s": 10.7712,
+   "started_s": 10.771432807000565,
+   "lag_s": 0.00023280700056460546,
+   "latency_ms": 1610.9953269997277,
+   "error": null
+  },
+  {
+   "i": 390,
+   "scheduled_s": 11.232000000000001,
+   "started_s": 11.24510869400001,
+   "lag_s": 0.01310869400000847,
+   "latency_ms": 1155.7253139999375,
+   "error": null
+  },
+  {
+   "i": 81,
+   "scheduled_s": 2.3328,
+   "started_s": 2.332905496999956,
+   "lag_s": 0.00010549699995587858,
+   "latency_ms": 10117.623189999904,
+   "error": null
+  },
+  {
+   "i": 402,
+   "scheduled_s": 11.5776,
+   "started_s": 11.577708406000056,
+   "lag_s": 0.00010840600005579404,
+   "latency_ms": 927.0437229997697,
+   "error": null
+  },
+  {
+   "i": 412,
+   "scheduled_s": 11.8656,
+   "started_s": 11.906390649000059,
+   "lag_s": 0.040790649000058465,
+   "latency_ms": 641.6257230002884,
+   "error": null
+  },
+  {
+   "i": 380,
+   "scheduled_s": 10.944,
+   "started_s": 10.944153164999989,
+   "lag_s": 0.00015316499998796473,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpADbuyrj7FRX6cNn'}"
+  },
+  {
+   "i": 385,
+   "scheduled_s": 11.088000000000001,
+   "started_s": 11.13194024800032,
+   "lag_s": 0.04394024800031815,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpDwgyj4pQRsgxW3J'}"
+  },
+  {
+   "i": 378,
+   "scheduled_s": 10.8864,
+   "started_s": 10.88667798700044,
+   "lag_s": 0.0002779870004392393,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpCD2qWWnygLPC4XB'}"
+  },
+  {
+   "i": 358,
+   "scheduled_s": 10.3104,
+   "started_s": 10.311404136999954,
+   "lag_s": 0.001004136999954497,
+   "latency_ms": 2413.5189070002525,
+   "error": null
+  },
+  {
+   "i": 381,
+   "scheduled_s": 10.9728,
+   "started_s": 10.973079052000685,
+   "lag_s": 0.00027905200068545355,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpLPhoXGjphGVtNc7'}"
+  },
+  {
+   "i": 376,
+   "scheduled_s": 10.828800000000001,
+   "started_s": 10.828921713000454,
+   "lag_s": 0.00012171300045338285,
+   "latency_ms": 1910.1971990003221,
+   "error": null
+  },
+  {
+   "i": 254,
+   "scheduled_s": 7.3152,
+   "started_s": 7.315326122000442,
+   "lag_s": 0.00012612200044248567,
+   "latency_ms": 5444.6553070001755,
+   "error": null
+  },
+  {
+   "i": 382,
+   "scheduled_s": 11.0016,
+   "started_s": 11.068188529000508,
+   "lag_s": 0.0665885290005086,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpS6VJWtgNAq4cnXa'}"
+  },
+  {
+   "i": 418,
+   "scheduled_s": 12.038400000000001,
+   "started_s": 12.038585416999922,
+   "lag_s": 0.00018541699992091765,
+   "latency_ms": 808.5177400007524,
+   "error": null
+  },
+  {
+   "i": 386,
+   "scheduled_s": 11.1168,
+   "started_s": 11.138106666000567,
+   "lag_s": 0.02130666600056763,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwpxbESkkMGNnGiSav'}"
+  },
+  {
+   "i": 413,
+   "scheduled_s": 11.894400000000001,
+   "started_s": 11.926397126000666,
+   "lag_s": 0.03199712600066462,
+   "latency_ms": 944.5101590008562,
+   "error": null
+  },
+  {
+   "i": 359,
+   "scheduled_s": 10.3392,
+   "started_s": 10.339347039000131,
+   "lag_s": 0.00014703900013124382,
+   "latency_ms": 2550.9844790003626,
+   "error": null
+  },
+  {
+   "i": 421,
+   "scheduled_s": 12.1248,
+   "started_s": 12.125322838000102,
+   "lag_s": 0.0005228380001014443,
+   "latency_ms": 776.8178629994509,
+   "error": null
+  },
+  {
+   "i": 407,
+   "scheduled_s": 11.7216,
+   "started_s": 11.721762750999915,
+   "lag_s": 0.0001627509999142518,
+   "latency_ms": 1195.4043249997994,
+   "error": null
+  },
+  {
+   "i": 373,
+   "scheduled_s": 10.7424,
+   "started_s": 10.74266494800031,
+   "lag_s": 0.0002649480003107385,
+   "latency_ms": 2211.4478729999973,
+   "error": null
+  },
+  {
+   "i": 427,
+   "scheduled_s": 12.297600000000001,
+   "started_s": 12.297775409000678,
+   "lag_s": 0.00017540900067736231,
+   "latency_ms": 783.7269060000835,
+   "error": null
+  },
+  {
+   "i": 375,
+   "scheduled_s": 10.8,
+   "started_s": 10.800133304000155,
+   "lag_s": 0.00013330400015476584,
+   "latency_ms": 2291.1873479997666,
+   "error": null
+  },
+  {
+   "i": 397,
+   "scheduled_s": 11.4336,
+   "started_s": 11.433781652000107,
+   "lag_s": 0.00018165200010678006,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwr45CCdPrEWr9V2gQ'}"
+  },
+  {
+   "i": 393,
+   "scheduled_s": 11.3184,
+   "started_s": 11.35557253099978,
+   "lag_s": 0.03717253099977924,
+   "latency_ms": 1825.5080110002382,
+   "error": null
+  },
+  {
+   "i": 429,
+   "scheduled_s": 12.3552,
+   "started_s": 12.355318547000024,
+   "lag_s": 0.00011854700002444929,
+   "latency_ms": 837.0207119996849,
+   "error": null
+  },
+  {
+   "i": 405,
+   "scheduled_s": 11.664,
+   "started_s": 11.664093626000067,
+   "lag_s": 9.362600006745936e-05,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwrNRTETJ4NAAXkGXb'}"
+  },
+  {
+   "i": 400,
+   "scheduled_s": 11.52,
+   "started_s": 11.520106830000259,
+   "lag_s": 0.0001068300002593503,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwrenqvbmRiiUraFtr'}"
+  },
+  {
+   "i": 406,
+   "scheduled_s": 11.6928,
+   "started_s": 11.692936266999823,
+   "lag_s": 0.0001362669998226096,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwrjkXMjk5d7TngCVC'}"
+  },
+  {
+   "i": 409,
+   "scheduled_s": 11.7792,
+   "started_s": 11.779575872999885,
+   "lag_s": 0.0003758729998857291,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bws4MJrFyj6D5uTkK3'}"
+  },
+  {
+   "i": 403,
+   "scheduled_s": 11.6064,
+   "started_s": 11.60658643700026,
+   "lag_s": 0.00018643700025933185,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bws6pqDE154rHR24sd'}"
+  },
+  {
+   "i": 404,
+   "scheduled_s": 11.635200000000001,
+   "started_s": 11.635796145000313,
+   "lag_s": 0.0005961450003120206,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwsFke6HVPTi2YX4qm'}"
+  },
+  {
+   "i": 410,
+   "scheduled_s": 11.808,
+   "started_s": 11.808931753999786,
+   "lag_s": 0.000931753999786622,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwsG1FZ6E9WCXKgUGN'}"
+  },
+  {
+   "i": 408,
+   "scheduled_s": 11.7504,
+   "started_s": 11.750578451000365,
+   "lag_s": 0.00017845100036417705,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwsLxdy7fLP2qNY3b7'}"
+  },
+  {
+   "i": 442,
+   "scheduled_s": 12.7296,
+   "started_s": 12.760117005000211,
+   "lag_s": 0.030517005000211483,
+   "latency_ms": 670.4881590003424,
+   "error": null
+  },
+  {
+   "i": 395,
+   "scheduled_s": 11.376,
+   "started_s": 11.40648490700005,
+   "lag_s": 0.030484907000049688,
+   "latency_ms": 2132.167705000029,
+   "error": null
+  },
+  {
+   "i": 414,
+   "scheduled_s": 11.9232,
+   "started_s": 11.957798895999986,
+   "lag_s": 0.03459889599998611,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwswRycnBXJbPtLnn3'}"
+  },
+  {
+   "i": 415,
+   "scheduled_s": 11.952,
+   "started_s": 11.96144719899985,
+   "lag_s": 0.009447198999849249,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwt7bgXkHoYWP7S1ZU'}"
+  },
+  {
+   "i": 383,
+   "scheduled_s": 11.0304,
+   "started_s": 11.10351368100055,
+   "lag_s": 0.07311368100054949,
+   "latency_ms": 2497.41994300075,
+   "error": null
+  },
+  {
+   "i": 419,
+   "scheduled_s": 12.0672,
+   "started_s": 12.086976810000124,
+   "lag_s": 0.0197768100001241,
+   "latency_ms": 1521.7960570007563,
+   "error": null
+  },
+  {
+   "i": 431,
+   "scheduled_s": 12.4128,
+   "started_s": 12.41302130800068,
+   "lag_s": 0.00022130800067898804,
+   "latency_ms": 1206.346854000003,
+   "error": null
+  },
+  {
+   "i": 399,
+   "scheduled_s": 11.491200000000001,
+   "started_s": 11.491328271999919,
+   "lag_s": 0.00012827199991782834,
+   "latency_ms": 2216.703026000687,
+   "error": null
+  },
+  {
+   "i": 426,
+   "scheduled_s": 12.2688,
+   "started_s": 12.268923042000097,
+   "lag_s": 0.00012304200009616295,
+   "latency_ms": 1442.0530779998444,
+   "error": null
+  },
+  {
+   "i": 422,
+   "scheduled_s": 12.1536,
+   "started_s": 12.15471604600043,
+   "lag_s": 0.0011160460004298045,
+   "latency_ms": 1578.2129299996086,
+   "error": null
+  },
+  {
+   "i": 424,
+   "scheduled_s": 12.2112,
+   "started_s": 12.21132524099994,
+   "lag_s": 0.00012524099994060123,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwtwheqTpqtN51gB9N'}"
+  },
+  {
+   "i": 396,
+   "scheduled_s": 11.4048,
+   "started_s": 11.411243631000616,
+   "lag_s": 0.006443631000616179,
+   "latency_ms": 2425.9986019997086,
+   "error": null
+  },
+  {
+   "i": 394,
+   "scheduled_s": 11.3472,
+   "started_s": 11.369934174999798,
+   "lag_s": 0.022734174999797574,
+   "latency_ms": 2470.91673200066,
+   "error": null
+  },
+  {
+   "i": 439,
+   "scheduled_s": 12.6432,
+   "started_s": 12.725043002000348,
+   "lag_s": 0.08184300200034755,
+   "latency_ms": 1145.8225440001115,
+   "error": null
+  },
+  {
+   "i": 296,
+   "scheduled_s": 8.5248,
+   "started_s": 8.524940928000433,
+   "lag_s": 0.00014092800043208342,
+   "latency_ms": 5409.831291000046,
+   "error": null
+  },
+  {
+   "i": 443,
+   "scheduled_s": 12.7584,
+   "started_s": 12.773487063000175,
+   "lag_s": 0.01508706300017515,
+   "latency_ms": 1172.5831479998305,
+   "error": null
+  },
+  {
+   "i": 432,
+   "scheduled_s": 12.441600000000001,
+   "started_s": 12.441839142999925,
+   "lag_s": 0.00023914299992355836,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwun4L6mS9oL7XRHet'}"
+  },
+  {
+   "i": 425,
+   "scheduled_s": 12.24,
+   "started_s": 12.240206673000102,
+   "lag_s": 0.0002066730001022421,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwuukTq1838FHJR1z3'}"
+  },
+  {
+   "i": 428,
+   "scheduled_s": 12.3264,
+   "started_s": 12.326682507999976,
+   "lag_s": 0.00028250799997664444,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwuwEWskrmfLVAyoZK'}"
+  },
+  {
+   "i": 277,
+   "scheduled_s": 7.9776,
+   "started_s": 7.977738377000605,
+   "lag_s": 0.000138377000605594,
+   "latency_ms": 6102.48619199956,
+   "error": null
+  },
+  {
+   "i": 411,
+   "scheduled_s": 11.8368,
+   "started_s": 11.898133200000302,
+   "lag_s": 0.06133320000030196,
+   "latency_ms": 2216.6795579996688,
+   "error": null
+  },
+  {
+   "i": 433,
+   "scheduled_s": 12.4704,
+   "started_s": 12.470682717999807,
+   "lag_s": 0.00028271799980750245,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwvPX5GZvKs21ZZpbw'}"
+  },
+  {
+   "i": 434,
+   "scheduled_s": 12.4992,
+   "started_s": 12.50484912200045,
+   "lag_s": 0.005649122000450646,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwvQktnUnZ7wBLtunG'}"
+  },
+  {
+   "i": 435,
+   "scheduled_s": 12.528,
+   "started_s": 12.548130649000086,
+   "lag_s": 0.020130649000085654,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwvhNoxBefVJuFyWPo'}"
+  },
+  {
+   "i": 451,
+   "scheduled_s": 12.9888,
+   "started_s": 13.081686870999874,
+   "lag_s": 0.09288687099987492,
+   "latency_ms": 1119.583978999799,
+   "error": null
+  },
+  {
+   "i": 423,
+   "scheduled_s": 12.1824,
+   "started_s": 12.182627440000033,
+   "lag_s": 0.0002274400000334964,
+   "latency_ms": 2050.4216640001687,
+   "error": null
+  },
+  {
+   "i": 416,
+   "scheduled_s": 11.9808,
+   "started_s": 11.980927915999928,
+   "lag_s": 0.00012791599992745262,
+   "latency_ms": 2281.9185179996566,
+   "error": null
+  },
+  {
+   "i": 417,
+   "scheduled_s": 12.0096,
+   "started_s": 12.00994254499983,
+   "lag_s": 0.00034254499982999675,
+   "latency_ms": 2329.741613999431,
+   "error": null
+  },
+  {
+   "i": 436,
+   "scheduled_s": 12.5568,
+   "started_s": 12.677058248999856,
+   "lag_s": 0.12025824899985516,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwwZiQPvyXVbT5W4Nk'}"
+  },
+  {
+   "i": 437,
+   "scheduled_s": 12.5856,
+   "started_s": 12.690785135000624,
+   "lag_s": 0.10518513500062454,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwwjsugASuU6HmWg6f'}"
+  },
+  {
+   "i": 441,
+   "scheduled_s": 12.700800000000001,
+   "started_s": 12.73922237700026,
+   "lag_s": 0.03842237700025919,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwwnrbA7tXPidHE9AN'}"
+  },
+  {
+   "i": 473,
+   "scheduled_s": 13.6224,
+   "started_s": 13.733041199000581,
+   "lag_s": 0.11064119900058067,
+   "latency_ms": 761.7659620000268,
+   "error": null
+  },
+  {
+   "i": 379,
+   "scheduled_s": 10.9152,
+   "started_s": 10.919719860000441,
+   "lag_s": 0.004519860000440801,
+   "latency_ms": 3606.7992900007084,
+   "error": null
+  },
+  {
+   "i": 447,
+   "scheduled_s": 12.8736,
+   "started_s": 12.89045866000015,
+   "lag_s": 0.016858660000149683,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwwzGHGu8GyKZGYzCE'}"
+  },
+  {
+   "i": 475,
+   "scheduled_s": 13.68,
+   "started_s": 13.83735473500019,
+   "lag_s": 0.15735473500019026,
+   "latency_ms": 693.128341999909,
+   "error": null
+  },
+  {
+   "i": 440,
+   "scheduled_s": 12.672,
+   "started_s": 12.728456143000585,
+   "lag_s": 0.05645614300058455,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwwz1firiS24o1wbEq'}"
+  },
+  {
+   "i": 445,
+   "scheduled_s": 12.816,
+   "started_s": 12.85671264299981,
+   "lag_s": 0.040712642999809034,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwxEeaUnGufUSjXAmG'}"
+  },
+  {
+   "i": 450,
+   "scheduled_s": 12.96,
+   "started_s": 12.96026669100047,
+   "lag_s": 0.00026669100046916583,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwxAvir1gW8Hx5Nk77'}"
+  },
+  {
+   "i": 444,
+   "scheduled_s": 12.7872,
+   "started_s": 12.847226930000033,
+   "lag_s": 0.06002693000003312,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwxCfGcJShHJpAb3fy'}"
+  },
+  {
+   "i": 465,
+   "scheduled_s": 13.392,
+   "started_s": 13.538744129999941,
+   "lag_s": 0.14674412999994146,
+   "latency_ms": 1083.1365230005758,
+   "error": null
+  },
+  {
+   "i": 449,
+   "scheduled_s": 12.9312,
+   "started_s": 12.931430575999912,
+   "lag_s": 0.00023057599991105349,
+   "latency_ms": 1742.6134979996277,
+   "error": null
+  },
+  {
+   "i": 454,
+   "scheduled_s": 13.0752,
+   "started_s": 13.181261813000674,
+   "lag_s": 0.10606181300067341,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwy8iqHJr4M4FjSJBp'}"
+  },
+  {
+   "i": 430,
+   "scheduled_s": 12.384,
+   "started_s": 12.384151231000033,
+   "lag_s": 0.0001512310000322259,
+   "latency_ms": 2387.698354999884,
+   "error": null
+  },
+  {
+   "i": 453,
+   "scheduled_s": 13.0464,
+   "started_s": 13.140213030999803,
+   "lag_s": 0.09381303099980265,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwy321QE8qrLDG8ph6'}"
+  },
+  {
+   "i": 486,
+   "scheduled_s": 13.9968,
+   "started_s": 14.16913329900035,
+   "lag_s": 0.17233329900034988,
+   "latency_ms": 659.9366069995085,
+   "error": null
+  },
+  {
+   "i": 455,
+   "scheduled_s": 13.104000000000001,
+   "started_s": 13.192456589999892,
+   "lag_s": 0.08845658999989148,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwyV44hQNaKvy9YaWY'}"
+  },
+  {
+   "i": 469,
+   "scheduled_s": 13.507200000000001,
+   "started_s": 13.608873674999813,
+   "lag_s": 0.10167367499981239,
+   "latency_ms": 1271.9625279996762,
+   "error": null
+  },
+  {
+   "i": 420,
+   "scheduled_s": 12.096,
+   "started_s": 12.096629597000174,
+   "lag_s": 0.0006295970001737317,
+   "latency_ms": 2800.2776009998342,
+   "error": null
+  },
+  {
+   "i": 461,
+   "scheduled_s": 13.2768,
+   "started_s": 13.394512087000294,
+   "lag_s": 0.11771208700029412,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwymfyuJpb9QdktGv3'}"
+  },
+  {
+   "i": 481,
+   "scheduled_s": 13.8528,
+   "started_s": 14.008019490000152,
+   "lag_s": 0.15521949000015134,
+   "latency_ms": 934.2301229999066,
+   "error": null
+  },
+  {
+   "i": 452,
+   "scheduled_s": 13.0176,
+   "started_s": 13.091409483000461,
+   "lag_s": 0.07380948300046164,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwyoQN56dmZznd8hGY'}"
+  },
+  {
+   "i": 446,
+   "scheduled_s": 12.844800000000001,
+   "started_s": 12.871020180000414,
+   "lag_s": 0.02622018000041315,
+   "latency_ms": 2107.1297910002613,
+   "error": null
+  },
+  {
+   "i": 325,
+   "scheduled_s": 9.36,
+   "started_s": 9.361077289000605,
+   "lag_s": 0.0010772890006052194,
+   "latency_ms": 5638.80052299919,
+   "error": null
+  },
+  {
+   "i": 457,
+   "scheduled_s": 13.1616,
+   "started_s": 13.291301813000246,
+   "lag_s": 0.12970181300024564,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwzCxitFibAswMeQ6e'}"
+  },
+  {
+   "i": 489,
+   "scheduled_s": 14.0832,
+   "started_s": 14.233157397000468,
+   "lag_s": 0.14995739700046862,
+   "latency_ms": 785.6838849993437,
+   "error": null
+  },
+  {
+   "i": 459,
+   "scheduled_s": 13.2192,
+   "started_s": 13.35683673099993,
+   "lag_s": 0.13763673099992957,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwzBUVsZitXtbGPxRr'}"
+  },
+  {
+   "i": 456,
+   "scheduled_s": 13.1328,
+   "started_s": 13.201564306000364,
+   "lag_s": 0.06876430600036443,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwzAUxY2eDMfTKtwUJ'}"
+  },
+  {
+   "i": 460,
+   "scheduled_s": 13.248000000000001,
+   "started_s": 13.360840686000302,
+   "lag_s": 0.1128406860003004,
+   "latency_ms": 1688.3437080005024,
+   "error": null
+  },
+  {
+   "i": 462,
+   "scheduled_s": 13.3056,
+   "started_s": 13.410874492999938,
+   "lag_s": 0.10527449299993741,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bwzL9ro2yQDCt8Lrsg'}"
+  },
+  {
+   "i": 476,
+   "scheduled_s": 13.7088,
+   "started_s": 13.840948545000174,
+   "lag_s": 0.1321485450001738,
+   "latency_ms": 1237.910101000125,
+   "error": null
+  },
+  {
+   "i": 477,
+   "scheduled_s": 13.7376,
+   "started_s": 13.870967169999858,
+   "lag_s": 0.13336716999985754,
+   "latency_ms": 1221.861084000011,
+   "error": null
+  },
+  {
+   "i": 484,
+   "scheduled_s": 13.9392,
+   "started_s": 14.114933100000599,
+   "lag_s": 0.17573310000059905,
+   "latency_ms": 1018.3154140004262,
+   "error": null
+  },
+  {
+   "i": 438,
+   "scheduled_s": 12.6144,
+   "started_s": 12.708182223000222,
+   "lag_s": 0.09378222300022188,
+   "latency_ms": 2430.7457000004433,
+   "error": null
+  },
+  {
+   "i": 468,
+   "scheduled_s": 13.4784,
+   "started_s": 13.601033091000318,
+   "lag_s": 0.12263309100031705,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx1GhsKjMGb9jDejSv'}"
+  },
+  {
+   "i": 467,
+   "scheduled_s": 13.4496,
+   "started_s": 13.592435184000351,
+   "lag_s": 0.14283518400035078,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx1GTphYsnLEmDSdTP'}"
+  },
+  {
+   "i": 471,
+   "scheduled_s": 13.5648,
+   "started_s": 13.708135579000555,
+   "lag_s": 0.1433355790005546,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx1TNWbxgknCRe1VsJ'}"
+  },
+  {
+   "i": 354,
+   "scheduled_s": 10.1952,
+   "started_s": 10.195295290000104,
+   "lag_s": 9.5290000103887e-05,
+   "latency_ms": 5168.574405999607,
+   "error": null
+  },
+  {
+   "i": 485,
+   "scheduled_s": 13.968,
+   "started_s": 14.145112877999964,
+   "lag_s": 0.17711287799996356,
+   "latency_ms": 1223.4739810000974,
+   "error": null
+  },
+  {
+   "i": 474,
+   "scheduled_s": 13.651200000000001,
+   "started_s": 13.791056318999836,
+   "lag_s": 0.13985631899983453,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx1iFN5eVNXQEUU2Gz'}"
+  },
+  {
+   "i": 472,
+   "scheduled_s": 13.5936,
+   "started_s": 13.711081006999848,
+   "lag_s": 0.11748100699984754,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx1mDv7qs3Ad9YSx3a'}"
+  },
+  {
+   "i": 487,
+   "scheduled_s": 14.0256,
+   "started_s": 14.191512879000584,
+   "lag_s": 0.16591287900058305,
+   "latency_ms": 1241.2922630001049,
+   "error": null
+  },
+  {
+   "i": 470,
+   "scheduled_s": 13.536,
+   "started_s": 13.619551535000028,
+   "lag_s": 0.08355153500002821,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx24b2X6dcqifqPMJo'}"
+  },
+  {
+   "i": 479,
+   "scheduled_s": 13.7952,
+   "started_s": 13.946180517000357,
+   "lag_s": 0.15098051700035775,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx2A3MdZvRqJCJxCsT'}"
+  },
+  {
+   "i": 509,
+   "scheduled_s": 14.6592,
+   "started_s": 14.875043592000111,
+   "lag_s": 0.21584359200011072,
+   "latency_ms": 623.035670999343,
+   "error": null
+  },
+  {
+   "i": 480,
+   "scheduled_s": 13.824,
+   "started_s": 13.997602438000285,
+   "lag_s": 0.17360243800028563,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx2PRtoLTBLUyPFAr7'}"
+  },
+  {
+   "i": 491,
+   "scheduled_s": 14.1408,
+   "started_s": 14.33981159799987,
+   "lag_s": 0.19901159799986878,
+   "latency_ms": 1192.0279690002644,
+   "error": null
+  },
+  {
+   "i": 498,
+   "scheduled_s": 14.3424,
+   "started_s": 14.530544539999937,
+   "lag_s": 0.18814453999993752,
+   "latency_ms": 1003.5156459998689,
+   "error": null
+  },
+  {
+   "i": 501,
+   "scheduled_s": 14.4288,
+   "started_s": 14.576308878999953,
+   "lag_s": 0.14750887899995213,
+   "latency_ms": 999.8959590002414,
+   "error": null
+  },
+  {
+   "i": 521,
+   "scheduled_s": 15.0048,
+   "started_s": 15.049258980000559,
+   "lag_s": 0.04445898000055948,
+   "latency_ms": 581.9750279997606,
+   "error": null
+  },
+  {
+   "i": 520,
+   "scheduled_s": 14.976,
+   "started_s": 15.043158954999853,
+   "lag_s": 0.06715895499985258,
+   "latency_ms": 598.9804310002,
+   "error": null
+  },
+  {
+   "i": 483,
+   "scheduled_s": 13.910400000000001,
+   "started_s": 14.080329508999966,
+   "lag_s": 0.1699295089999655,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx2nFAJHUgWLzSUDbM'}"
+  },
+  {
+   "i": 458,
+   "scheduled_s": 13.1904,
+   "started_s": 13.299298339000416,
+   "lag_s": 0.10889833900041523,
+   "latency_ms": 2369.5852820001164,
+   "error": null
+  },
+  {
+   "i": 490,
+   "scheduled_s": 14.112,
+   "started_s": 14.262928973999806,
+   "lag_s": 0.15092897399980565,
+   "latency_ms": 1425.8041430002777,
+   "error": null
+  },
+  {
+   "i": 401,
+   "scheduled_s": 11.5488,
+   "started_s": 11.548906609000369,
+   "lag_s": 0.00010660900036896237,
+   "latency_ms": 4162.281687999894,
+   "error": null
+  },
+  {
+   "i": 482,
+   "scheduled_s": 13.8816,
+   "started_s": 14.023670962000324,
+   "lag_s": 0.14207096200032332,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx3PTc6K6tp98vQuWK'}"
+  },
+  {
+   "i": 478,
+   "scheduled_s": 13.7664,
+   "started_s": 13.934884850999879,
+   "lag_s": 0.16848485099987798,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx3YdjvY8Q3WVt3na7'}"
+  },
+  {
+   "i": 500,
+   "scheduled_s": 14.4,
+   "started_s": 14.57436370800042,
+   "lag_s": 0.17436370800041878,
+   "latency_ms": 1284.4444049997037,
+   "error": null
+  },
+  {
+   "i": 214,
+   "scheduled_s": 6.1632,
+   "started_s": 6.163896308999938,
+   "lag_s": 0.0006963089999381111,
+   "latency_ms": 9700.030762000097,
+   "error": null
+  },
+  {
+   "i": 506,
+   "scheduled_s": 14.5728,
+   "started_s": 14.771945751000203,
+   "lag_s": 0.19914575100020215,
+   "latency_ms": 1178.9593889998287,
+   "error": null
+  },
+  {
+   "i": 271,
+   "scheduled_s": 7.8048,
+   "started_s": 7.805812634000176,
+   "lag_s": 0.0010126340001761491,
+   "latency_ms": 8173.56681199999,
+   "error": null
+  },
+  {
+   "i": 492,
+   "scheduled_s": 14.1696,
+   "started_s": 14.402517907999936,
+   "lag_s": 0.23291790799993528,
+   "latency_ms": 1585.3650969993396,
+   "error": null
+  },
+  {
+   "i": 463,
+   "scheduled_s": 13.3344,
+   "started_s": 13.418810719000248,
+   "lag_s": 0.08441071900024788,
+   "latency_ms": 2610.5314239994186,
+   "error": null
+  },
+  {
+   "i": 531,
+   "scheduled_s": 15.2928,
+   "started_s": 15.368663199000366,
+   "lag_s": 0.07586319900036642,
+   "latency_ms": 663.1011070003296,
+   "error": null
+  },
+  {
+   "i": 495,
+   "scheduled_s": 14.256,
+   "started_s": 14.494889518000491,
+   "lag_s": 0.23888951800049085,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx4j5HnK8nJPZaEZBv'}"
+  },
+  {
+   "i": 497,
+   "scheduled_s": 14.313600000000001,
+   "started_s": 14.527371393000067,
+   "lag_s": 0.21377139300006576,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx4pXYQ6sx5466ZMiv'}"
+  },
+  {
+   "i": 494,
+   "scheduled_s": 14.2272,
+   "started_s": 14.47103541100023,
+   "lag_s": 0.2438354110002301,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx55QRMU74fRPZV81M'}"
+  },
+  {
+   "i": 519,
+   "scheduled_s": 14.9472,
+   "started_s": 15.025653182000497,
+   "lag_s": 0.07845318200049611,
+   "latency_ms": 1176.6498569995747,
+   "error": null
+  },
+  {
+   "i": 493,
+   "scheduled_s": 14.1984,
+   "started_s": 14.445229081999969,
+   "lag_s": 0.24682908199996945,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx5ArwieuLovRdoVzD'}"
+  },
+  {
+   "i": 515,
+   "scheduled_s": 14.832,
+   "started_s": 14.978245353000602,
+   "lag_s": 0.1462453530006016,
+   "latency_ms": 1237.062283999876,
+   "error": null
+  },
+  {
+   "i": 499,
+   "scheduled_s": 14.3712,
+   "started_s": 14.537797785000294,
+   "lag_s": 0.16659778500029354,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx5MmZYkH6G81heTDX'}"
+  },
+  {
+   "i": 536,
+   "scheduled_s": 15.4368,
+   "started_s": 15.480390726000223,
+   "lag_s": 0.04359072600022351,
+   "latency_ms": 765.8598779999011,
+   "error": null
+  },
+  {
+   "i": 534,
+   "scheduled_s": 15.3792,
+   "started_s": 15.43288013199981,
+   "lag_s": 0.05368013199980837,
+   "latency_ms": 851.8006969998169,
+   "error": null
+  },
+  {
+   "i": 528,
+   "scheduled_s": 15.2064,
+   "started_s": 15.278536609000184,
+   "lag_s": 0.07213660900018404,
+   "latency_ms": 1027.2780659997807,
+   "error": null
+  },
+  {
+   "i": 496,
+   "scheduled_s": 14.2848,
+   "started_s": 14.526634034999915,
+   "lag_s": 0.24183403499991485,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx5dPzkhvVUqU96R5Z'}"
+  },
+  {
+   "i": 508,
+   "scheduled_s": 14.6304,
+   "started_s": 14.829170033000082,
+   "lag_s": 0.19877003300008234,
+   "latency_ms": 1496.79163699966,
+   "error": null
+  },
+  {
+   "i": 538,
+   "scheduled_s": 15.4944,
+   "started_s": 15.52368923799986,
+   "lag_s": 0.029289237999860163,
+   "latency_ms": 841.2731440002972,
+   "error": null
+  },
+  {
+   "i": 448,
+   "scheduled_s": 12.9024,
+   "started_s": 12.902504867000061,
+   "lag_s": 0.00010486700006140381,
+   "latency_ms": 3494.218533000094,
+   "error": null
+  },
+  {
+   "i": 502,
+   "scheduled_s": 14.457600000000001,
+   "started_s": 14.57965034100016,
+   "lag_s": 0.12205034100015943,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx61DY1KdFpd6FXHUR'}"
+  },
+  {
+   "i": 526,
+   "scheduled_s": 15.1488,
+   "started_s": 15.148988764000023,
+   "lag_s": 0.0001887640000237667,
+   "latency_ms": 1272.5793829995382,
+   "error": null
+  },
+  {
+   "i": 513,
+   "scheduled_s": 14.7744,
+   "started_s": 14.942344828999921,
+   "lag_s": 0.16794482899992147,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx6cBRhPz8zsC5ZxWR'}"
+  },
+  {
+   "i": 507,
+   "scheduled_s": 14.6016,
+   "started_s": 14.77717130900055,
+   "lag_s": 0.17557130900055107,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx6jNT9vMsCAdHnnSg'}"
+  },
+  {
+   "i": 551,
+   "scheduled_s": 15.8688,
+   "started_s": 15.868987761000426,
+   "lag_s": 0.00018776100042572352,
+   "latency_ms": 688.9628939998147,
+   "error": null
+  },
+  {
+   "i": 539,
+   "scheduled_s": 15.523200000000001,
+   "started_s": 15.53193420900061,
+   "lag_s": 0.008734209000609283,
+   "latency_ms": 1096.48438000022,
+   "error": null
+  },
+  {
+   "i": 518,
+   "scheduled_s": 14.9184,
+   "started_s": 15.018884590000198,
+   "lag_s": 0.10048459000019783,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx7EtGuLyX5V8ycCWL'}"
+  },
+  {
+   "i": 525,
+   "scheduled_s": 15.120000000000001,
+   "started_s": 15.133329633000358,
+   "lag_s": 0.013329633000356722,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx7HcDRhCDLq4zyXWt'}"
+  },
+  {
+   "i": 532,
+   "scheduled_s": 15.3216,
+   "started_s": 15.369470547000674,
+   "lag_s": 0.047870547000673724,
+   "latency_ms": 1325.9489079991909,
+   "error": null
+  },
+  {
+   "i": 512,
+   "scheduled_s": 14.7456,
+   "started_s": 14.921398921000218,
+   "lag_s": 0.17579892100021866,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx7gBGgt5YGEHYcfP2'}"
+  },
+  {
+   "i": 537,
+   "scheduled_s": 15.4656,
+   "started_s": 15.498157834999802,
+   "lag_s": 0.03255783499980147,
+   "latency_ms": 1288.8147330004358,
+   "error": null
+  },
+  {
+   "i": 516,
+   "scheduled_s": 14.860800000000001,
+   "started_s": 14.999970068000039,
+   "lag_s": 0.13917006800003762,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx7nsbGhXMGi9FNyQ7'}"
+  },
+  {
+   "i": 524,
+   "scheduled_s": 15.0912,
+   "started_s": 15.092913002000387,
+   "lag_s": 0.0017130020003861546,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx7z2YZj8myRAxnbam'}"
+  },
+  {
+   "i": 560,
+   "scheduled_s": 16.128,
+   "started_s": 16.202395162999892,
+   "lag_s": 0.0743951629998918,
+   "latency_ms": 677.9470860001311,
+   "error": null
+  },
+  {
+   "i": 543,
+   "scheduled_s": 15.6384,
+   "started_s": 15.642215024000507,
+   "lag_s": 0.003815024000505929,
+   "latency_ms": 1249.1388180005742,
+   "error": null
+  },
+  {
+   "i": 523,
+   "scheduled_s": 15.0624,
+   "started_s": 15.07894251900052,
+   "lag_s": 0.016542519000520173,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx89CfuN62xTZ69iun'}"
+  },
+  {
+   "i": 542,
+   "scheduled_s": 15.6096,
+   "started_s": 15.63132391399995,
+   "lag_s": 0.021723913999949218,
+   "latency_ms": 1273.4643679996225,
+   "error": null
+  },
+  {
+   "i": 505,
+   "scheduled_s": 14.544,
+   "started_s": 14.758659264000016,
+   "lag_s": 0.21465926400001578,
+   "latency_ms": 2160.289615999318,
+   "error": null
+  },
+  {
+   "i": 488,
+   "scheduled_s": 14.054400000000001,
+   "started_s": 14.201360561000001,
+   "lag_s": 0.1469605610000002,
+   "latency_ms": 2720.03663400028,
+   "error": null
+  },
+  {
+   "i": 527,
+   "scheduled_s": 15.1776,
+   "started_s": 15.275147717000436,
+   "lag_s": 0.0975477170004364,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx8MMYBgwhwz88VAMs'}"
+  },
+  {
+   "i": 504,
+   "scheduled_s": 14.5152,
+   "started_s": 14.674228863999815,
+   "lag_s": 0.15902886399981497,
+   "latency_ms": 2291.4884040001198,
+   "error": null
+  },
+  {
+   "i": 530,
+   "scheduled_s": 15.264000000000001,
+   "started_s": 15.36396184000023,
+   "lag_s": 0.09996184000022801,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx8UJAYrcBRBriF1u7'}"
+  },
+  {
+   "i": 535,
+   "scheduled_s": 15.408,
+   "started_s": 15.471797193000384,
+   "lag_s": 0.06379719300038467,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx951pya6UCVRPwEkP'}"
+  },
+  {
+   "i": 529,
+   "scheduled_s": 15.2352,
+   "started_s": 15.336795610000081,
+   "lag_s": 0.10159561000008033,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bx99UURe16EaETbPod'}"
+  },
+  {
+   "i": 541,
+   "scheduled_s": 15.5808,
+   "started_s": 15.58092724800008,
+   "lag_s": 0.0001272480000800158,
+   "latency_ms": 1661.2488289993053,
+   "error": null
+  },
+  {
+   "i": 544,
+   "scheduled_s": 15.667200000000001,
+   "started_s": 15.667344559999947,
+   "lag_s": 0.00014455999994567037,
+   "latency_ms": 1613.0581299994446,
+   "error": null
+  },
+  {
+   "i": 540,
+   "scheduled_s": 15.552,
+   "started_s": 15.552134467000542,
+   "lag_s": 0.00013446700054231542,
+   "latency_ms": 1740.5627730004198,
+   "error": null
+  },
+  {
+   "i": 517,
+   "scheduled_s": 14.8896,
+   "started_s": 15.017767633999938,
+   "lag_s": 0.12816763399993825,
+   "latency_ms": 2288.676091000525,
+   "error": null
+  },
+  {
+   "i": 466,
+   "scheduled_s": 13.4208,
+   "started_s": 13.58825926999998,
+   "lag_s": 0.16745926999998062,
+   "latency_ms": 3762.5423970002885,
+   "error": null
+  },
+  {
+   "i": 561,
+   "scheduled_s": 16.1568,
+   "started_s": 16.205687334000686,
+   "lag_s": 0.048887334000685456,
+   "latency_ms": 1198.7497240006633,
+   "error": null
+  },
+  {
+   "i": 557,
+   "scheduled_s": 16.0416,
+   "started_s": 16.088742396999805,
+   "lag_s": 0.04714239699980638,
+   "latency_ms": 1337.328506000631,
+   "error": null
+  },
+  {
+   "i": 321,
+   "scheduled_s": 9.2448,
+   "started_s": 9.244954253999822,
+   "lag_s": 0.0001542539998222736,
+   "latency_ms": 8198.012679000385,
+   "error": null
+  },
+  {
+   "i": 326,
+   "scheduled_s": 9.3888,
+   "started_s": 9.389018877000126,
+   "lag_s": 0.00021887700012612754,
+   "latency_ms": 8100.36341399973,
+   "error": null
+  },
+  {
+   "i": 581,
+   "scheduled_s": 16.7328,
+   "started_s": 16.78706535099991,
+   "lag_s": 0.054265350999909145,
+   "latency_ms": 704.8138979998839,
+   "error": null
+  },
+  {
+   "i": 503,
+   "scheduled_s": 14.4864,
+   "started_s": 14.621993488000044,
+   "lag_s": 0.135593488000044,
+   "latency_ms": 2909.3970819994865,
+   "error": null
+  },
+  {
+   "i": 584,
+   "scheduled_s": 16.819200000000002,
+   "started_s": 16.88046512800065,
+   "lag_s": 0.06126512800064887,
+   "latency_ms": 660.6657470001664,
+   "error": null
+  },
+  {
+   "i": 553,
+   "scheduled_s": 15.926400000000001,
+   "started_s": 15.979521389000183,
+   "lag_s": 0.05312138900018226,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxBEz6xJAhEG3XWKsF'}"
+  },
+  {
+   "i": 533,
+   "scheduled_s": 15.3504,
+   "started_s": 15.396536785000535,
+   "lag_s": 0.04613678500053453,
+   "latency_ms": 2314.2373190003127,
+   "error": null
+  },
+  {
+   "i": 558,
+   "scheduled_s": 16.0704,
+   "started_s": 16.117797265000263,
+   "lag_s": 0.047397265000263644,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxBmVQGsRev9a4TADd'}"
+  },
+  {
+   "i": 570,
+   "scheduled_s": 16.416,
+   "started_s": 16.416129730000648,
+   "lag_s": 0.0001297300006477542,
+   "latency_ms": 1358.1426889995782,
+   "error": null
+  },
+  {
+   "i": 511,
+   "scheduled_s": 14.716800000000001,
+   "started_s": 14.89698765600042,
+   "lag_s": 0.18018765600041853,
+   "latency_ms": 2909.16458600077,
+   "error": null
+  },
+  {
+   "i": 545,
+   "scheduled_s": 15.696,
+   "started_s": 15.696110951000264,
+   "lag_s": 0.00011095100026459193,
+   "latency_ms": 2142.453999999816,
+   "error": null
+  },
+  {
+   "i": 562,
+   "scheduled_s": 16.1856,
+   "started_s": 16.215394765000383,
+   "lag_s": 0.02979476500038203,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxCKyBzsvDbNme4TCp'}"
+  },
+  {
+   "i": 564,
+   "scheduled_s": 16.2432,
+   "started_s": 16.24633741100024,
+   "lag_s": 0.003137411000238899,
+   "latency_ms": 1655.5096439997214,
+   "error": null
+  },
+  {
+   "i": 567,
+   "scheduled_s": 16.3296,
+   "started_s": 16.329723202999958,
+   "lag_s": 0.00012320299995849382,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxCbqwvhpczei8Kc6R'}"
+  },
+  {
+   "i": 559,
+   "scheduled_s": 16.0992,
+   "started_s": 16.174958184999923,
+   "lag_s": 0.07575818499992337,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxCqV34PMZgM9yyMCz'}"
+  },
+  {
+   "i": 566,
+   "scheduled_s": 16.3008,
+   "started_s": 16.305931455000064,
+   "lag_s": 0.005131455000064733,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxCpEzC1r8SfDxNMeV'}"
+  },
+  {
+   "i": 568,
+   "scheduled_s": 16.3584,
+   "started_s": 16.35850735800068,
+   "lag_s": 0.00010735800067962487,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxCvCDXk7MdDJUYwiZ'}"
+  },
+  {
+   "i": 580,
+   "scheduled_s": 16.704,
+   "started_s": 16.76024587000029,
+   "lag_s": 0.056245870000289244,
+   "latency_ms": 1269.2214019998573,
+   "error": null
+  },
+  {
+   "i": 571,
+   "scheduled_s": 16.4448,
+   "started_s": 16.4449344450004,
+   "lag_s": 0.00013444500039838658,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxDPxiLndX59M7QsLt'}"
+  },
+  {
+   "i": 599,
+   "scheduled_s": 17.2512,
+   "started_s": 17.350893607000216,
+   "lag_s": 0.09969360700021568,
+   "latency_ms": 779.3637459999445,
+   "error": null
+  },
+  {
+   "i": 569,
+   "scheduled_s": 16.3872,
+   "started_s": 16.387348526000096,
+   "lag_s": 0.000148526000096183,
+   "latency_ms": 0.0,
+   "error": "RateLimitError: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"Number of concurrent requests across all models has exceeded your organization's limit. Wait for in-flight requests to complete and retry. Limits increase automatically as your organization moves up usage tiers.\"}, 'request_id': 'req_011Cg2bxDTgtPvyjd8F8GxCu'}"
+  },
+  {
+   "i": 588,
+   "scheduled_s": 16.9344,
+   "started_s": 16.934504081999876,
+   "lag_s": 0.00010408199987566036,
+   "latency_ms": 1313.7775530003637,
+   "error": null
+  },
+  {
+   "i": 514,
+   "scheduled_s": 14.8032,
+   "started_s": 14.950985014000253,
+   "lag_s": 0.14778501400025235,
+   "latency_ms": 3306.434279000314,
+   "error": null
+  },
+  {
+   "i": 510,
+   "scheduled_s": 14.688,
+   "started_s": 14.8809133069999,
+   "lag_s": 0.19291330699990006,
+   "latency_ms": 3378.4353780001766,
+   "error": null
+  },
+  {
+   "i": 554,
+   "scheduled_s": 15.9552,
+   "started_s": 15.987972091000302,
+   "lag_s": 0.032772091000301984,
+   "latency_ms": 2275.8955649997006,
+   "error": null
+  },
+  {
+   "i": 546,
+   "scheduled_s": 15.7248,
+   "started_s": 15.724907208999866,
+   "lag_s": 0.00010720899986615962,
+   "latency_ms": 2644.975045999672,
+   "error": null
+  },
+  {
+   "i": 565,
+   "scheduled_s": 16.272000000000002,
+   "started_s": 16.28476612400027,
+   "lag_s": 0.012766124000268775,
+   "latency_ms": 2164.1530500000954,
+   "error": null
+  },
+  {
+   "i": 552,
+   "scheduled_s": 15.8976,
+   "started_s": 15.950996452999789,
+   "lag_s": 0.053396452999788124,
+   "latency_ms": 2504.2372319994683,
+   "error": null
+  },
+  {
+   "i": 522,
+   "scheduled_s": 15.0336,
+   "started_s": 15.060393101000045,
+   "lag_s": 0.026793101000045283,
+   "latency_ms": 3403.2150220000403,
+   "error": null
+  },
+  {
+   "i": 582,
+   "scheduled_s": 16.7616,
+   "started_s": 16.805491027000244,
+   "lag_s": 0.04389102700024239,
+   "latency_ms": 1694.8552939993533,
+   "error": null
+  },
+  {
+   "i": 592,
+   "scheduled_s": 17.0496,
+   "started_s": 17.049759321000238,
+   "lag_s": 0.00015932100023619,
+   "latency_ms": 1462.0713280000928,
+   "error": null
+  },
+  {
+   "i": 464,
+   "scheduled_s": 13.3632,
+   "started_s": 13.43067702999997,
+   "lag_s": 0.06747702999996896,
+   "latency_ms": 5094.286636999641,
+   "error": null
+  },
+  {
+   "i": 563,
+   "scheduled_s": 16.2144,
+   "started_s": 16.242059553000217,
+   "lag_s": 0.027659553000216164,
+   "latency_ms": 2309.813036000378,
+   "error": null
+  },
+  {
+   "i": 577,
+   "scheduled_s": 16.6176,
+   "started_s": 16.679132741000103,
+   "lag_s": 0.06153274100010364,
+   "latency_ms": 1899.8194149999108,
+   "error": null
+  },
+  {
+   "i": 575,
+   "scheduled_s": 16.56,
+   "started_s": 16.56015066300006,
+   "lag_s": 0.00015066300005983635,
+   "latency_ms": 2040.9506140003941,
+   "error": null
+  },
+  {
+   "i": 555,
+   "scheduled_s": 15.984,
+   "started_s": 16.029440770999827,
+   "lag_s": 0.045440770999826796,
+   "latency_ms": 2665.6347890002507,
+   "error": null
+  },
+  {
+   "i": 572,
+   "scheduled_s": 16.4736,
+   "started_s": 16.473724447000677,
+   "lag_s": 0.0001244470006760423,
+   "latency_ms": 2307.9276580001533,
+   "error": null
+  },
+  {
+   "i": 594,
+   "scheduled_s": 17.1072,
+   "started_s": 17.130011260000174,
+   "lag_s": 0.022811260000175082,
+   "latency_ms": 1655.1763190000202,
+   "error": null
+  },
+  {
+   "i": 548,
+   "scheduled_s": 15.7824,
+   "started_s": 15.782584427000074,
+   "lag_s": 0.00018442700007348378,
+   "latency_ms": 3014.2962449999686,
+   "error": null
+  },
+  {
+   "i": 576,
+   "scheduled_s": 16.5888,
+   "started_s": 16.628507002000333,
+   "lag_s": 0.03970700200033406,
+   "latency_ms": 2227.318944000217,
+   "error": null
+  },
+  {
+   "i": 556,
+   "scheduled_s": 16.0128,
+   "started_s": 16.031835378999858,
+   "lag_s": 0.01903537899985963,
+   "latency_ms": 2852.881464999882,
+   "error": null
+  },
+  {
+   "i": 579,
+   "scheduled_s": 16.6752,
+   "started_s": 16.695573248000073,
+   "lag_s": 0.02037324800007312,
+   "latency_ms": 2306.1188720002974,
+   "error": null
+  },
+  {
+   "i": 583,
+   "scheduled_s": 16.7904,
+   "started_s": 16.837381699000616,
+   "lag_s": 0.04698169900061444,
+   "latency_ms": 2368.4954479995213,
+   "error": null
+  },
+  {
+   "i": 549,
+   "scheduled_s": 15.8112,
+   "started_s": 15.814565399000458,
+   "lag_s": 0.003365399000458069,
+   "latency_ms": 3420.2004369999486,
+   "error": null
+  },
+  {
+   "i": 590,
+   "scheduled_s": 16.992,
+   "started_s": 16.99214089399993,
+   "lag_s": 0.00014089399993011398,
+   "latency_ms": 2331.4129929995033,
+   "error": null
+  },
+  {
+   "i": 589,
+   "scheduled_s": 16.9632,
+   "started_s": 16.964085691000037,
+   "lag_s": 0.000885691000036104,
+   "latency_ms": 2376.4222099998733,
+   "error": null
+  },
+  {
+   "i": 586,
+   "scheduled_s": 16.8768,
+   "started_s": 16.898470752999856,
+   "lag_s": 0.021670752999856546,
+   "latency_ms": 2713.771504999386,
+   "error": null
+  },
+  {
+   "i": 574,
+   "scheduled_s": 16.531200000000002,
+   "started_s": 16.54813475999981,
+   "lag_s": 0.016934759999809756,
+   "latency_ms": 3110.6203459994504,
+   "error": null
+  },
+  {
+   "i": 593,
+   "scheduled_s": 17.078400000000002,
+   "started_s": 17.09537300300053,
+   "lag_s": 0.01697300300052973,
+   "latency_ms": 2613.9891099992383,
+   "error": null
+  },
+  {
+   "i": 398,
+   "scheduled_s": 11.4624,
+   "started_s": 11.462537887000508,
+   "lag_s": 0.0001378870005073196,
+   "latency_ms": 8461.400769999273,
+   "error": null
+  },
+  {
+   "i": 384,
+   "scheduled_s": 11.0592,
+   "started_s": 11.111869469999874,
+   "lag_s": 0.05266946999987354,
+   "latency_ms": 8989.086958999906,
+   "error": null
+  },
+  {
+   "i": 591,
+   "scheduled_s": 17.0208,
+   "started_s": 17.020951084000444,
+   "lag_s": 0.00015108400044283599,
+   "latency_ms": 3093.3996070007197,
+   "error": null
+  },
+  {
+   "i": 550,
+   "scheduled_s": 15.84,
+   "started_s": 15.858926582000095,
+   "lag_s": 0.018926582000094783,
+   "latency_ms": 4314.2490169993835,
+   "error": null
+  },
+  {
+   "i": 596,
+   "scheduled_s": 17.1648,
+   "started_s": 17.280501836999974,
+   "lag_s": 0.11570183699997472,
+   "latency_ms": 3093.1599850000566,
+   "error": null
+  },
+  {
+   "i": 547,
+   "scheduled_s": 15.7536,
+   "started_s": 15.75371324200023,
+   "lag_s": 0.00011324200023032915,
+   "latency_ms": 4653.5512049995305,
+   "error": null
+  },
+  {
+   "i": 597,
+   "scheduled_s": 17.1936,
+   "started_s": 17.292800082000213,
+   "lag_s": 0.09920008200021257,
+   "latency_ms": 3816.5048099999694,
+   "error": null
+  },
+  {
+   "i": 578,
+   "scheduled_s": 16.6464,
+   "started_s": 16.683493496000665,
+   "lag_s": 0.03709349600066503,
+   "latency_ms": 5306.482266000785,
+   "error": null
+  },
+  {
+   "i": 587,
+   "scheduled_s": 16.9056,
+   "started_s": 16.905729316999896,
+   "lag_s": 0.00012931699989593426,
+   "latency_ms": 5855.431687999953,
+   "error": null
+  },
+  {
+   "i": 598,
+   "scheduled_s": 17.2224,
+   "started_s": 17.306571391000034,
+   "lag_s": 0.08417139100003368,
+   "latency_ms": 6115.531147999718,
+   "error": null
+  },
+  {
+   "i": 573,
+   "scheduled_s": 16.5024,
+   "started_s": 16.52575962999981,
+   "lag_s": 0.023359629999809783,
+   "latency_ms": 9647.00598499985,
+   "error": null
+  },
+  {
+   "i": 585,
+   "scheduled_s": 16.848,
+   "started_s": 16.89148191500044,
+   "lag_s": 0.04348191500044152,
+   "latency_ms": 9661.733844000082,
+   "error": null
+  },
+  {
+   "i": 595,
+   "scheduled_s": 17.136,
+   "started_s": 17.242286901000625,
+   "lag_s": 0.10628690100062599,
+   "latency_ms": 9774.701291999918,
+   "error": null
+  }
+ ]
+}
