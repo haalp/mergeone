@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 data/raw/
 data/*.jsonl
+data/dataset.jsonl.gz
 
 .env
 results/gbm.pkl
