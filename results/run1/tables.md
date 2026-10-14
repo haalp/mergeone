@@ -28,18 +28,22 @@ Test n = 7553, positives = 57, base rate = 0.0075. R@FPR5 threshold chosen on va
 | haiku | all | 0.868 | 0.105 | 0.932 | 0.088 |
 | rules | all | 1.000 | 0.000 | 1.000 | 0.000 |
 
-## Load tests (primary only)
+## Load tests (primary only; open-loop replay, 1x = 30,000 decisions/day)
 
-| model | multiplier | eff. rate/s | p50 ms | p99 ms | error rate |
-|---|---|---|---|---|---|
-| haiku | 1.0x | 2.00 | 821 | 2078 | 0.000 |
-| haiku | 10.0x | 2.00 | 862 | 7758 | 0.000 |
+| model | multiplier | rate/s | p50 ms | p99 ms | p99 schedule lag s | error rate |
+|---|---|---|---|---|---|---|
+| haiku | 1x | 0.35 | 916 | 3355 | 0.0 | 0.000 |
+| haiku | 10x | 3.47 | 983 | 7471 | 0.0 | 0.000 |
+| haiku | 100x | 34.72 | 1223 | 9662 | 0.2 | 0.360 |
 
 ## Pre-registered hypotheses
 
 ```json
 {
   "H1_useful": {
+    "haiku": false
+  },
+  "H5_holds_at_scale": {
     "haiku": false
   }
 }

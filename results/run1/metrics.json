@@ -454,6 +454,9 @@
   "hypotheses": {
     "H1_useful": {
       "haiku": false
+    },
+    "H5_holds_at_scale": {
+      "haiku": false
     }
   },
   "protocol_thresholds": {
@@ -467,27 +470,47 @@
     "H5_error_rate": 0.01
   },
   "loadtests": {
-    "loadtest_haiku_x10.0": {
-      "model": "haiku",
-      "multiplier": 10.0,
-      "n": 600,
-      "effective_rate_per_s": 2.0,
-      "p50_ms": 862.3986480006351,
-      "p99_ms": 7757.763112999783,
-      "error_rate": 0.0,
-      "concurrency": 32,
-      "finished_at": "2026-10-14T18:27:23.168923+00:00"
-    },
-    "loadtest_haiku_x1.0": {
+    "loadtest_haiku_x1": {
       "model": "haiku",
       "multiplier": 1.0,
+      "base_rate_per_s": 0.3472222222222222,
+      "rate_per_s": 0.3472222222222222,
       "n": 600,
-      "effective_rate_per_s": 2.0,
-      "p50_ms": 820.5787990000317,
-      "p99_ms": 2078.1329260007624,
+      "p50_ms": 916.3772629999585,
+      "p99_ms": 3355.422699000883,
+      "p99_schedule_lag_s": 0.0009766460000264487,
       "error_rate": 0.0,
-      "concurrency": 32,
-      "finished_at": "2026-10-14T18:22:18.487567+00:00"
+      "concurrency": 64,
+      "wall_s": 1726.5699597809999,
+      "finished_at": "2026-10-14T19:00:48.595654+00:00"
+    },
+    "loadtest_haiku_x100": {
+      "model": "haiku",
+      "multiplier": 100.0,
+      "base_rate_per_s": 0.3472222222222222,
+      "rate_per_s": 34.72222222222222,
+      "n": 600,
+      "p50_ms": 1223.4739810000974,
+      "p99_ms": 9661.733844000082,
+      "p99_schedule_lag_s": 0.21584359200011072,
+      "error_rate": 0.36,
+      "concurrency": 64,
+      "wall_s": 27.02354767399993,
+      "finished_at": "2026-10-14T18:28:58.528005+00:00"
+    },
+    "loadtest_haiku_x10": {
+      "model": "haiku",
+      "multiplier": 10.0,
+      "base_rate_per_s": 0.3472222222222222,
+      "rate_per_s": 3.4722222222222223,
+      "n": 600,
+      "p50_ms": 982.5949759997457,
+      "p99_ms": 7471.343782999611,
+      "p99_schedule_lag_s": 0.0020661880000147903,
+      "error_rate": 0.0,
+      "concurrency": 64,
+      "wall_s": 176.08030871400024,
+      "finished_at": "2026-10-14T18:31:58.120764+00:00"
     }
   }
 }
