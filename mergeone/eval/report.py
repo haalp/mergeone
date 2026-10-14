@@ -269,9 +269,9 @@ def _tables(r: dict) -> str:
             lines.append(f"| {k} | {_f(c['escalation_rate'])} | {_f(c['pr_auc'])} | {_f(c['recall_at_fpr5'])} | {_f(c['ece'])} | {_f(c['lat_p50_ms'],0)} / {_f(c['lat_p99_ms'],0)} | {_f(c['lat_usd_per_1k'],4)} |")
         lines.append("")
     if r.get("loadtests"):
-        lines += ["## Load tests (primary only)", "", "| model | multiplier | eff. rate/s | p50 ms | p99 ms | error rate |", "|---|---|---|---|---|---|"]
+        lines += ["## Load tests (primary only; open-loop replay, 1x = 30,000 decisions/day)", "", "| model | multiplier | rate/s | p50 ms | p99 ms | p99 schedule lag s | error rate |", "|---|---|---|---|---|---|---|"]
         for s in sorted(r["loadtests"].values(), key=lambda s: (s["model"], s["multiplier"])):
-            lines.append(f"| {s['model']} | {s['multiplier']}x | {_f(s['effective_rate_per_s'],2)} | {_f(s['p50_ms'],0)} | {_f(s['p99_ms'],0)} | {_f(s['error_rate'])} |")
+            lines.append(f"| {s['model']} | {s['multiplier']:g}x | {_f(s.get('rate_per_s'),2)} | {_f(s['p50_ms'],0)} | {_f(s['p99_ms'],0)} | {_f(s.get('p99_schedule_lag_s'),1)} | {_f(s['error_rate'])} |")
         lines.append("")
     lines += ["## Pre-registered hypotheses", "", "```json", json.dumps(r["hypotheses"], indent=2), "```", ""]
     return "\n".join(lines)

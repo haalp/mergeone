@@ -184,18 +184,19 @@ def cmd_handcheck(args):
 
 
 def cmd_loadtest(args):
-    """Replay the test-split merge stream at k× its historical rate."""
+    """Open-loop replay of the test-split merge stream at a fixed decisions-per-second rate.
+
+    Rate = base_rate * multiplier. base_rate defaults to the Anthropic post's
+    30,000 merges/day = 0.347/s, so multiplier 1 is "Anthropic scale", 10 is
+    300k/day, 100 is 3M/day. Requests are fired on schedule regardless of
+    whether earlier ones finished (open loop), so queueing shows up in p99.
+    """
     rows = load_dataset("test", args.limit)
     model = build_model(args.model)
     questions = (PRIMARY,)
-    ts = [datetime.fromisoformat(r["merged_at"]).timestamp() for r in rows]
-    t_start = ts[0]
-    offsets = [(t - t_start) / args.multiplier for t in ts]
-    # compress so the whole test window replays within --max-seconds while keeping relative spacing
-    scale = min(1.0, args.max_seconds / max(offsets[-1], 1e-9))
-    offsets = [o * scale for o in offsets]
-    effective_rate = len(rows) / max(offsets[-1], 1e-9)
-    print(f"replaying {len(rows)} decisions at ~{effective_rate:.2f}/s (historical window {(ts[-1]-ts[0])/3600:.1f}h, multiplier {args.multiplier}x, compression {1/scale:.1f}x)")
+    rate = args.base_rate * args.multiplier
+    offsets = [i / rate for i in range(len(rows))]
+    print(f"replaying {len(rows)} decisions at {rate:.2f}/s (base {args.base_rate:.3f}/s x {args.multiplier:g}), ~{offsets[-1]:.0f}s", flush=True)
     results = []
     t0 = time.perf_counter()
 
@@ -204,20 +205,24 @@ def cmd_loadtest(args):
         wait = offsets[i] - (time.perf_counter() - t0)
         if wait > 0:
             time.sleep(wait)
+        started = time.perf_counter() - t0
         d = model.decide(r["state"], r["features"], questions)
-        return {"i": i, "scheduled_s": offsets[i], "latency_ms": d.latency_ms, "error": d.error}
+        return {"i": i, "scheduled_s": offsets[i], "started_s": started, "lag_s": started - offsets[i],
+                "latency_ms": d.latency_ms, "error": d.error}
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         for fut in as_completed([ex.submit(work, i) for i in range(len(rows))]):
             results.append(fut.result())
     lat = sorted(r["latency_ms"] for r in results if r["error"] is None)
+    lag = sorted(r["lag_s"] for r in results)
     errs = sum(1 for r in results if r["error"])
-    summary = {"model": args.model, "multiplier": args.multiplier, "n": len(rows), "effective_rate_per_s": effective_rate,
+    summary = {"model": args.model, "multiplier": args.multiplier, "base_rate_per_s": args.base_rate, "rate_per_s": rate, "n": len(rows),
                "p50_ms": lat[len(lat)//2] if lat else None, "p99_ms": lat[int(len(lat)*0.99)] if lat else None,
-               "error_rate": errs / len(rows), "concurrency": args.concurrency, "finished_at": datetime.now(timezone.utc).isoformat()}
+               "p99_schedule_lag_s": lag[int(len(lag)*0.99)], "error_rate": errs / len(rows), "concurrency": args.concurrency,
+               "wall_s": time.perf_counter() - t0, "finished_at": datetime.now(timezone.utc).isoformat()}
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
-    (run_dir / f"loadtest_{args.model}_x{args.multiplier}.json").write_text(json.dumps({"summary": summary, "samples": results}, indent=1))
+    (run_dir / f"loadtest_{args.model}_x{args.multiplier:g}.json").write_text(json.dumps({"summary": summary, "samples": results}, indent=1))
     print(json.dumps(summary, indent=2))
 
 
@@ -244,8 +249,8 @@ def main(argv=None):
     l.add_argument("--model", required=True)
     l.add_argument("--multiplier", type=float, required=True)
     l.add_argument("--limit", type=int, default=600)
-    l.add_argument("--max-seconds", type=float, default=600)
-    l.add_argument("--concurrency", type=int, default=32)
+    l.add_argument("--base-rate", type=float, default=30000 / 86400, help="decisions/s at multiplier 1 (default: 30k/day)")
+    l.add_argument("--concurrency", type=int, default=64)
     l.add_argument("--run", default="run1")
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")

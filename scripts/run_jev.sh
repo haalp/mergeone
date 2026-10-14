@@ -9,4 +9,4 @@ for s in val test; do
   python3 -m mergeone.cli predict --model jev --split $s --run $RUN --questions all     --concurrency $C
   python3 -m mergeone.cli predict --model jev --split $s --run $RUN --questions all --words --concurrency $C
 done
-for k in 1 10 100; do python3 -m mergeone.cli loadtest --model jev --multiplier $k --run $RUN; done
+for k in 1 10 100; do python3 -m mergeone.cli loadtest --model jev --multiplier $k --limit 600 --run $RUN; done

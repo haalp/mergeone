@@ -16,7 +16,7 @@ for s in val test; do
   python3 -m mergeone.cli predict --model haiku --split $s --run $RUN --questions all     --concurrency $C
 done
 for k in 1 10 100; do
-  python3 -m mergeone.cli loadtest --model jev   --multiplier $k --run $RUN
-  python3 -m mergeone.cli loadtest --model haiku --multiplier $k --run $RUN
+  python3 -m mergeone.cli loadtest --model jev   --multiplier $k --limit 600 --run $RUN
+  python3 -m mergeone.cli loadtest --model haiku --multiplier $k --limit 600 --run $RUN
 done
 python3 -m mergeone.cli report results/$RUN
