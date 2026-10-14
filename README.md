@@ -26,12 +26,13 @@ Read [PROTOCOL.md](PROTOCOL.md) first. It was frozen before any model call, and 
 ## Reproduce
 
 ```bash
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 export ANTHROPIC_API_KEY=...   # for haiku
 export TYPESAFE_API_KEY=...    # for jev
 
 # 1. data (needs a clone of kubernetes/kubernetes with enough first-parent history)
-python -m mergeone.data.extract_cli --repo /path/to/kubernetes --max-merges 15000   # or see scripts/extract.sh
+python3 -m mergeone.data.extract_cli --repo /path/to/kubernetes --max-merges 15000   # or see scripts/extract.sh
 mergeone prepare
 
 # 2. baselines
