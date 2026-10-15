@@ -1,0 +1,58 @@
+# mergeone default policy. Copy to .mergeone.yaml in your repo and edit.
+#
+# A policy maps typed decisions (probabilities from the decision model) to a
+# verdict and a route. Rules are evaluated top to bottom; the first match
+# wins. Probabilities are calibrated (see calibration.json) before rules run.
+
+version: 1
+model: jev            # jev | haiku | rules  (anything in mergeone.models)
+question_set: v2      # prompts/jev_v2.json / prompts/haiku_v2.md
+calibration: auto     # auto = use shipped calibration.json for this model if present
+
+# Paths that always need a human, regardless of model output (mechanical, free).
+always_human_paths:
+  - "pkg/apis/"
+  - "staging/src/k8s.io/api/"
+  - "plugin/pkg/auth/"
+
+rules:
+  - name: weakened-tests
+    when: { weakens_tests: ">= 0.6" }
+    verdict: block
+    route: human
+    reason: "PR appears to remove, skip, or loosen tests"
+
+  - name: message-mismatch
+    when: { message_matches_diff: "<= 0.4", is_logic_change: ">= 0.5" }
+    verdict: hold
+    route: human
+    reason: "Message does not explain the behavioural change in the diff"
+
+  - name: concurrency-risk
+    when: { touches_concurrency: ">= 0.6", is_logic_change: ">= 0.5" }
+    verdict: hold
+    route: domain-review
+    reason: "Behaviour change in concurrency-sensitive code"
+
+  - name: maintainer-judgement
+    when: { needs_human_review: ">= 0.5" }
+    verdict: hold
+    route: human
+    reason: "Decision model thinks a maintainer should look"
+
+  - name: trivial
+    when: { is_logic_change: "<= 0.2" }
+    verdict: pass
+    route: auto-merge
+    reason: "No behaviour change detected"
+
+default:
+  verdict: pass
+  route: auto-merge-after-ci
+  reason: "No rule matched"
+
+# When the model errors or times out, fail closed.
+on_error:
+  verdict: hold
+  route: human
+  reason: "Decision model unavailable"
