@@ -60,6 +60,12 @@ class GH:
             h["Authorization"] = f"Bearer {tok}"
         self.c = httpx.Client(base_url=API, headers=h, timeout=60)
         self.calls = 0
+        r = self.c.get("/rate_limit")
+        lim = r.json().get("resources", {}) if r.status_code == 200 else {}
+        core, search = lim.get("core", {}), lim.get("search", {})
+        print(f"auth: {'token' if tok else 'ANONYMOUS'}; core {core.get('remaining')}/{core.get('limit')}/h, search {search.get('remaining')}/{search.get('limit')}/min", file=sys.stderr, flush=True)
+        if not tok:
+            print("WARNING: no GITHUB_TOKEN in this shell; anonymous limits are 60/h core and 10/min search. export GITHUB_TOKEN=ghp_... in the same terminal.", file=sys.stderr, flush=True)
 
     def get(self, path, **params):
         for attempt in range(6):
@@ -93,7 +99,7 @@ class GH:
             items += d.get("items", [])
             if len(d.get("items", [])) < 100 or len(items) >= 1000:
                 break
-            time.sleep(2.1)  # search API: 30/min with token
+            time.sleep(2.2)  # search API: 30/min with token
         return items
 
 
@@ -237,7 +243,7 @@ def main(argv=None):
     d = sub.add_parser("discover")
     d.add_argument("--min-stars", type=int, default=500)
     d.add_argument("--min-prs", type=int, default=20)
-    d.add_argument("--pages", type=int, default=10, help="search pages per (agent,state); 100 PRs each, max 10")
+    d.add_argument("--pages", type=int, default=3, help="search pages per (agent,state); 100 PRs each, max 10")
     d.add_argument("--out", default="data/run3/repos.json")
     d.set_defaults(fn=cmd_discover)
     f = sub.add_parser("fetch")
