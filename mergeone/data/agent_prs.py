@@ -69,7 +69,12 @@ class GH:
 
     def get(self, path, **params):
         for attempt in range(6):
-            r = self.c.get(path, params=params)
+            try:
+                r = self.c.get(path, params=params)
+            except (httpx.TransportError, httpx.RemoteProtocolError) as e:
+                print(f"  network error ({type(e).__name__}); retry {attempt+1}/6", file=sys.stderr, flush=True)
+                time.sleep(5 * (attempt + 1))
+                continue
             self.calls += 1
             if r.status_code == 200:
                 return r
@@ -135,7 +140,10 @@ def cmd_discover(a):
 
 
 def _diff_head(gh, repo, num):
-    r = gh.c.get(f"/repos/{repo}/pulls/{num}", headers={"Accept": "application/vnd.github.diff"})
+    try:
+        r = gh.c.get(f"/repos/{repo}/pulls/{num}", headers={"Accept": "application/vnd.github.diff"})
+    except httpx.TransportError:
+        return "", False
     gh.calls += 1
     if r.status_code != 200:
         return "", False
@@ -243,7 +251,7 @@ def main(argv=None):
     d = sub.add_parser("discover")
     d.add_argument("--min-stars", type=int, default=500)
     d.add_argument("--min-prs", type=int, default=20)
-    d.add_argument("--pages", type=int, default=3, help="search pages per (agent,state); 100 PRs each, max 10")
+    d.add_argument("--pages", type=int, default=2, help="search pages per (agent,state); 100 PRs each, max 10")
     d.add_argument("--out", default="data/run3/repos.json")
     d.set_defaults(fn=cmd_discover)
     f = sub.add_parser("fetch")
