@@ -858,6 +858,7 @@
       "haiku_usd_per_1k": 0.27941052561895935
     },
     "H5_holds_at_scale": {
+      "jev": true,
       "haiku": false
     }
   },
@@ -899,6 +900,34 @@
       "concurrency": 64,
       "wall_s": 1726.5699597809999,
       "finished_at": "2026-10-14T19:00:48.595654+00:00"
+    },
+    "loadtest_jev_x1": {
+      "model": "jev",
+      "multiplier": 1.0,
+      "base_rate_per_s": 0.3472222222222222,
+      "rate_per_s": 0.3472222222222222,
+      "n": 600,
+      "p50_ms": 354.7418340021977,
+      "p99_ms": 733.6964999994962,
+      "p99_schedule_lag_s": 0.010036083994236833,
+      "error_rate": 0.0,
+      "concurrency": 64,
+      "wall_s": 1725.484503874999,
+      "finished_at": "2026-10-15T11:22:29.829781+00:00"
+    },
+    "loadtest_jev_x10": {
+      "model": "jev",
+      "multiplier": 10.0,
+      "base_rate_per_s": 0.3472222222222222,
+      "rate_per_s": 3.4722222222222223,
+      "n": 600,
+      "p50_ms": 310.92575000366196,
+      "p99_ms": 446.49275000119815,
+      "p99_schedule_lag_s": 0.005124083003906321,
+      "error_rate": 0.0,
+      "concurrency": 64,
+      "wall_s": 172.8759271250019,
+      "finished_at": "2026-10-15T10:53:43.861581+00:00"
     },
     "loadtest_haiku_x100": {
       "model": "haiku",

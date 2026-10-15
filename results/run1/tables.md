@@ -54,6 +54,8 @@ Test n = 7553, positives = 57, base rate = 0.0075. R@FPR5 threshold chosen on va
 | haiku | 1x | 0.35 | 916 | 3355 | 0.0 | 0.000 |
 | haiku | 10x | 3.47 | 983 | 7471 | 0.0 | 0.000 |
 | haiku | 100x | 34.72 | 1223 | 9662 | 0.2 | 0.360 |
+| jev | 1x | 0.35 | 355 | 734 | 0.0 | 0.000 |
+| jev | 10x | 3.47 | 311 | 446 | 0.0 | 0.000 |
 | jev | 100x | 34.72 | 311 | 527 | 0.0 | 0.000 |
 
 ## Pre-registered hypotheses
@@ -91,6 +93,7 @@ Test n = 7553, positives = 57, base rate = 0.0075. R@FPR5 threshold chosen on va
     "haiku_usd_per_1k": 0.27941052561895935
   },
   "H5_holds_at_scale": {
+    "jev": true,
     "haiku": false
   }
 }
