@@ -143,3 +143,7 @@ PROTOCOL.md      pre-registered protocol · CHANGELOG.md every deviation, with r
 ```
 
 Apache-2.0 · Hasan Alp Temiz · built with Claude as a pair programmer · [mergeone.dev](https://mergeone.dev)
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) — next: run3 on real agent PRs, then agent-declared `assumptions` and conflict-proving tests.
