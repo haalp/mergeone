@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 : "${GITHUB_TOKEN:?set GITHUB_TOKEN (env or .env)}"
 PER_REPO="${PER_REPO:-120}"
 SEED="${SEED:-microsoft/vscode dotnet/runtime dotnet/aspire microsoft/semantic-kernel Azure/azure-sdk-for-net microsoft/typespec microsoft/kiota openai/openai-agents-python}"
-PY="${PYTHON:-python3}"
+PY="${PYTHON:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}"
 KEEPAWAKE=""; command -v caffeinate >/dev/null && KEEPAWAKE="caffeinate -i"
 mkdir -p data/run3
 log=data/run3/collect.log
