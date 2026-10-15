@@ -9,3 +9,5 @@ data/dataset.jsonl.gz
 results/gbm.pkl
 results/smoke/
 results/*.log
+data/run3/discover_stage*.json
+data/run3/collect.log

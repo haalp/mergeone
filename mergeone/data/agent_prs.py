@@ -121,39 +121,57 @@ def cmd_discover(a):
     true count of closed agent PRs with repo:-scoped searches. Stage 1 alone under-counts
     badly: it only sees the last pages*100 PRs per query."""
     gh = GH()
+    ck_dir = Path(a.out).parent
+    ck_dir.mkdir(parents=True, exist_ok=True)
+    ck1, ck2 = ck_dir / "discover_stage1.json", ck_dir / "discover_stage2.json"
     seen = defaultdict(Counter)
-    for name, qual in AGENTS:
-        for state in ("is:merged", "is:unmerged is:closed"):
-            q = f"is:pr {state} {qual}"
-            print(f"search: {q}", file=sys.stderr, flush=True)
-            for it in gh.search_prs(q, pages=a.pages):
-                repo = it["repository_url"].split("/repos/")[1]
-                seen[repo][name] += 1
+    if ck1.exists():
+        for repo, c in json.loads(ck1.read_text()).items():
+            seen[repo].update(c)
+        print(f"stage 1: resumed from {ck1} ({len(seen)} repos)", file=sys.stderr, flush=True)
+    else:
+        for name, qual in AGENTS:
+            for state in ("is:merged", "is:unmerged is:closed"):
+                q = f"is:pr {state} {qual}"
+                print(f"search: {q}", file=sys.stderr, flush=True)
+                for it in gh.search_prs(q, pages=a.pages):
+                    repo = it["repository_url"].split("/repos/")[1]
+                    seen[repo][name] += 1
+        ck1.write_text(json.dumps({r: dict(c) for r, c in seen.items()}))
+    counted = json.loads(ck2.read_text()) if ck2.exists() else {}
     candidates = {r for r, c in seen.items() if sum(c.values()) >= a.min_seen}
     candidates |= set(a.seed or [])
     print(f"stage 1: {len(seen)} repos seen, {len(candidates)} candidates (min_seen={a.min_seen}, +{len(a.seed or [])} seed)", file=sys.stderr, flush=True)
 
     repos = []
     for repo in sorted(candidates, key=lambda r: -sum(seen[r].values())):
-        r = gh.get(f"/repos/{repo}")
-        if not r:
-            continue
-        meta = r.json()
-        if meta.get("stargazers_count", 0) < a.min_stars or meta.get("fork") or meta.get("archived"):
-            continue
-        # stage 2: true per-agent totals, only for agents seen here (or all, for seed repos)
-        agents = [(n, q) for n, q in AGENTS if n in seen[repo]] or AGENTS
-        byagent = {}
-        for name, qual in agents:
-            n = _repo_agent_total(gh, repo, qual)
-            if n:
-                byagent[name] = n
-        total = sum(byagent.values())
-        print(f"  {repo:45s} ★{meta['stargazers_count']:<7d} agent PRs: {total:5d} {byagent}", file=sys.stderr, flush=True)
-        if total < a.min_prs:
-            continue
-        repos.append({"repo": repo, "stars": meta["stargazers_count"], "language": meta.get("language"), "agent_prs_seen": total, "by_agent": byagent,
-                      "default_branch": meta.get("default_branch", "main")})
+        if repo in counted:                       # stage-2 checkpoint hit
+            entry = counted[repo]
+        else:
+            r = gh.get(f"/repos/{repo}")
+            if not r:
+                counted[repo] = None
+                ck2.write_text(json.dumps(counted))
+                continue
+            meta = r.json()
+            if meta.get("stargazers_count", 0) < a.min_stars or meta.get("fork") or meta.get("archived"):
+                counted[repo] = None
+                ck2.write_text(json.dumps(counted))
+                continue
+            # stage 2: true per-agent totals, only for agents seen here (or all, for seed repos)
+            agents = [(n, q) for n, q in AGENTS if n in seen[repo]] or AGENTS
+            byagent = {}
+            for name, qual in agents:
+                n = _repo_agent_total(gh, repo, qual)
+                if n:
+                    byagent[name] = n
+            entry = {"repo": repo, "stars": meta["stargazers_count"], "language": meta.get("language"),
+                     "agent_prs_seen": sum(byagent.values()), "by_agent": byagent, "default_branch": meta.get("default_branch", "main")}
+            counted[repo] = entry
+            ck2.write_text(json.dumps(counted))
+            print(f"  {repo:45s} ★{entry['stars']:<7d} agent PRs: {entry['agent_prs_seen']:5d} {byagent}", file=sys.stderr, flush=True)
+        if entry and entry["agent_prs_seen"] >= a.min_prs:
+            repos.append(entry)
     repos.sort(key=lambda r: -r["agent_prs_seen"])
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(repos, indent=1))
@@ -188,10 +206,13 @@ def cmd_fetch(a):
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     done = set()
+    done_state = defaultdict(Counter)
     if out.exists():
         for l in out.open():
             d = json.loads(l)
             done.add((d["repo"], d["number"]))
+            done_state[d["repo"]]["is:merged" if d["labels"]["merged"] else "is:unmerged is:closed"] += 1
+        print(f"resuming: {len(done)} PRs already in {out}", file=sys.stderr, flush=True)
     with out.open("a") as f:
         for ri, rmeta in enumerate(repos):
             repo = rmeta["repo"]
@@ -205,6 +226,11 @@ def cmd_fetch(a):
             per_state = {"is:merged": 0, "is:unmerged is:closed": 0}
             half = a.per_repo // 2
             reverts = None
+            if done_state[repo]["is:merged"] >= half and done_state[repo]["is:unmerged is:closed"] >= a.per_repo - half:
+                print("   already complete", file=sys.stderr, flush=True)
+                continue
+            if done_state[repo]:
+                per_state.update(done_state[repo])
             for it, state in cands:
                 num = it["number"]
                 if num in seen or (repo, num) in done or per_state[state] >= (half if state == "is:merged" else a.per_repo - half):
