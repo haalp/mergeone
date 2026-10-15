@@ -177,6 +177,12 @@ def create_app(gw: Gateway, webhook_secret: str | None = None) -> FastAPI:
         d.pop("state", None)
         return d
 
+    @app.get("/plan/{owner}/{repo}")
+    def plan(owner: str, repo: str, semantic: bool = False):
+        from .plan import landing_plan
+        full = f"{owner}/{repo}"
+        return landing_plan(gw.store.open_prs(full), gw.gate.model if semantic else None, gw.store, full)
+
     @app.post("/decide")
     async def decide(req: Request):
         """Agent-native entry point. Body: {repo, head_sha, state, paths?, pr?, wait?: true}"""

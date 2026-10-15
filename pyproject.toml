@@ -15,12 +15,14 @@ dependencies = [
   "pyyaml>=6.0",
   "fastapi>=0.115",
   "uvicorn>=0.30",
+  "mcp>=1.2",
 ]
 
 [project.scripts]
 mergeone = "mergeone.cli:main"
 gate = "mergeone.gate.cli:main"
 mergeone-serve = "mergeone.server.app:main"
+mergeone-mcp = "mergeone.server.mcp_server:main"
 
 [build-system]
 requires = ["setuptools>=68"]

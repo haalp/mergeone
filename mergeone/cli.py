@@ -358,6 +358,9 @@ def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "serve":
         return __import__("mergeone.server.app", fromlist=["x"]).main(argv[1:])
+    sub.add_parser("mcp", help="run as an MCP server (stdio); all further args go to mergeone.server.mcp_server")
+    if argv and argv[0] == "mcp":
+        return __import__("mergeone.server.mcp_server", fromlist=["x"]).main(argv[1:])
     args = ap.parse_args(argv)
     args.fn(args)
 
