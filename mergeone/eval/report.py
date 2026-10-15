@@ -187,7 +187,8 @@ def _hypotheses(report: dict) -> dict:
     H = PROTOCOL_H
     out = {}
     v = "primary" if any("primary" in report["models"][m] for m in report["models"]) else "all"
-    tests = {m: _get(report, m, v, "primary", "test") for m in report["models"]}
+    # a model that only ran the 'all' variant (rules, gbm: no API cost difference) is read from there
+    tests = {m: (_get(report, m, v, "primary", "test") or _get(report, m, "all", "primary", "test")) for m in report["models"]}
     tests = {m: t for m, t in tests.items() if t}
     # H1
     h1 = {}
