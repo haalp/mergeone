@@ -19,19 +19,21 @@ import httpx
 from .base import Decision, DECISIONS, Timer
 
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
-QUESTIONS_PATH = Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.json"
+QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.json",
+             "v2": Path(__file__).resolve().parents[2] / "prompts" / "jev_v2.json"}
 
 
 class JevModel:
     name = "jev"
 
-    def __init__(self, prices: dict | None = None, model: str = "jev-latest", timeout: float = 30.0):
+    def __init__(self, prices: dict | None = None, model: str = "jev-latest", timeout: float = 30.0, version: str = "v1"):
         key = os.environ.get("TYPESAFE_API_KEY")
         if not key:
             raise RuntimeError("TYPESAFE_API_KEY not set")
         self.model = model
         self.pinned: str | None = None if model == "jev-latest" else model
-        self.questions = json.loads(QUESTIONS_PATH.read_text())
+        self.version = version
+        self.questions = json.loads(QUESTIONS[version].read_text())
         self.client = httpx.Client(timeout=timeout, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
         p = (prices or {}).get("jev", {"input_per_mtok": 0.042, "output_per_mtok": 0.0})
         self.in_price = p["input_per_mtok"] / 1e6

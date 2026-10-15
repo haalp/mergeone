@@ -16,7 +16,7 @@ from pathlib import Path
 from .data.extract import read_jsonl, MergedPR
 from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
 from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
-from .models.base import DECISIONS, PRIMARY, Decision
+from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, QUESTION_SETS, Decision
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -101,7 +101,7 @@ def load_prices() -> dict:
     return json.loads(p.read_text()) if p.exists() else {}
 
 
-def build_model(name: str):
+def build_model(name: str, version: str = "v1"):
     if name == "rules":
         from .models.rules import RulesModel
         return RulesModel()
@@ -110,10 +110,10 @@ def build_model(name: str):
         return GBMModel(RESULTS / "gbm.pkl")
     if name == "haiku":
         from .models.haiku import HaikuModel
-        return HaikuModel(load_prices())
+        return HaikuModel(load_prices(), version=version)
     if name == "jev":
         from .models.jev import JevModel
-        return JevModel(load_prices())
+        return JevModel(load_prices(), version=version)
     raise SystemExit(f"unknown model {name}")
 
 
@@ -133,8 +133,14 @@ def cmd_predict(args):
     if args.only_errors_from:
         done = {json.loads(l)["pr_number"] for l in Path(args.only_errors_from).open() if json.loads(l)["decision"].get("error") is None}
         rows = [r for r in rows if r["pr_number"] not in done]
-    model = build_model(args.model)
-    questions = DECISIONS if args.questions == "all" else (PRIMARY,)
+    if args.subset:
+        keep = {json.loads(l)["pr_number"] for l in Path(args.subset).open()}
+        rows = [r for r in rows if r["pr_number"] in keep]
+    model = build_model(args.model, args.qset)
+    if args.qset == "v2":
+        questions = DECISIONS_V2 if args.questions == "all" else (PRIMARY_V2,)
+    else:
+        questions = DECISIONS if args.questions == "all" else (PRIMARY,)
     state_key = "state_words" if args.words else "state"
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -155,7 +161,7 @@ def cmd_predict(args):
             if d.error:
                 n_err += 1
             f.write(json.dumps({"pr_number": r["pr_number"], "split": r["split"], "labels": r["labels"], "decision": d.to_dict(),
-                                "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
+                                "qset": args.qset, "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
             if i % 50 == 0 or i == len(rows):
                 print(f"{args.model} {args.split} {variant}: {i}/{len(rows)} errors={n_err} elapsed={time.time()-t0:.0f}s", flush=True)
     meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
@@ -163,6 +169,81 @@ def cmd_predict(args):
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
     (run_dir / f"meta_{args.model}_{args.split}_{variant}.json").write_text(json.dumps(meta, indent=2))
     print(json.dumps(meta, indent=2))
+
+
+def cmd_judge(args):
+    """Label a stratified sample with the LLM judge (PROTOCOL R2.3). Writes results/<run>/judge_<split>.jsonl."""
+    import anthropic
+    rows = load_dataset(args.split)
+    rng = random.Random(args.seed)
+    # stratify: half with any 'test' path touched / half without, so weakens_tests has support
+    with_t = [r for r in rows if r["features"]["test_ratio"] > 0]
+    without = [r for r in rows if r["features"]["test_ratio"] == 0]
+    k = args.n // 2
+    sample = rng.sample(with_t, min(k, len(with_t))) + rng.sample(without, min(args.n - k, len(without)))
+    rng.shuffle(sample)
+    raw = {p.pr_number if hasattr(p, "pr_number") else p["pr_number"]: p for p in __import__("mergeone.data.extract", fromlist=["x"]).read_jsonl(DATA / "raw" / "k8s_merges.jsonl")}
+    client = anthropic.Anthropic()
+    prompt = (ROOT / "prompts" / "judge_v1.md").read_text()
+    schema = {"type": "object", "properties": {q: {"type": "object", "properties": {"answer": {"type": "boolean"}, "evidence": {"type": "string"}},
+              "required": ["answer", "evidence"], "additionalProperties": False} for q in DECISIONS_V2}, "required": list(DECISIONS_V2), "additionalProperties": False}
+    run_dir = RESULTS / args.run
+    run_dir.mkdir(parents=True, exist_ok=True)
+    out = run_dir / f"judge_{args.split}{'_repeat' if args.repeat else ''}.jsonl"
+    done = set()
+    if out.exists() and not args.repeat:
+        done = {json.loads(l)["pr_number"] for l in out.open()}
+    from .data.features import render_state
+
+    def work(r):
+        pr = raw[r["pr_number"]]
+        # judge sees up to 40k chars of diff: re-render with a long diff from git if needed
+        state = render_state(pr, max_files_listed=200)
+        if pr.diff_truncated:
+            try:
+                import subprocess
+                full = subprocess.run(["git", "-C", args.repo, "diff", f"{pr.merge_sha}^1", pr.merge_sha, "--no-color"], capture_output=True, text=True, errors="replace").stdout
+                state = state.split("DIFF (first")[0] + f"DIFF (first {min(len(full), 40000)} chars{', truncated' if len(full) > 40000 else ''}):\n" + full[:40000]
+            except Exception:
+                pass
+        t0 = time.perf_counter()
+        # temperature/top_p are rejected by the 5.5 models; self-agreement is measured by re-running at the same settings
+        resp = client.messages.create(model=args.judge_model, max_tokens=2048, system=prompt,
+                                      output_config={"effort": "medium", "format": {"type": "json_schema", "schema": schema}},
+                                      messages=[{"role": "user", "content": state}])
+        text = next(b.text for b in resp.content if b.type == "text")
+        j = json.loads(text)
+        return {"pr_number": r["pr_number"], "split": r["split"], "labels_v2": {q: bool(j[q]["answer"]) for q in DECISIONS_V2},
+                "evidence": {q: j[q]["evidence"] for q in DECISIONS_V2}, "judge_model": resp.model, "repeat": bool(args.repeat),
+                "input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens, "latency_ms": (time.perf_counter() - t0) * 1000,
+                "ts": datetime.now(timezone.utc).isoformat()}
+
+    if args.repeat:
+        keep = {json.loads(l)["pr_number"] for l in (run_dir / "_repeat_subset.jsonl").open()}
+        sample = [r for r in rows if r["pr_number"] in keep]
+    todo = [r for r in sample if r["pr_number"] not in done]
+    with out.open("a") as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+        for i, fut in enumerate(as_completed([ex.submit(work, r) for r in todo]), 1):
+            try:
+                f.write(json.dumps(fut.result()) + "\n")
+            except Exception as e:
+                print("judge error:", type(e).__name__, str(e)[:200], flush=True)
+            if i % 25 == 0 or i == len(todo):
+                print(f"judge {args.split}: {i}/{len(todo)}", flush=True)
+    print("wrote", out)
+
+
+def cmd_handcheck_v2(args):
+    """Blind hand-label sheet: 60 judged test PRs, judge answers hidden."""
+    rows = [json.loads(l) for l in (RESULTS / args.run / "judge_test.jsonl").open()]
+    rng = random.Random(42)
+    sample = rng.sample(rows, min(args.n, len(rows)))
+    out = RESULTS / args.run / "handcheck_v2.jsonl"
+    with out.open("w") as f:
+        for r in sample:
+            f.write(json.dumps({"pr_number": r["pr_number"], "url": f"https://github.com/kubernetes/kubernetes/pull/{r['pr_number']}/files",
+                                "labels_v2": {q: None for q in DECISIONS_V2}, "note": ""}) + "\n")
+    print(f"wrote {len(sample)} rows to {out}; fill labels_v2 with true/false WITHOUT looking at judge_test.jsonl")
 
 
 def cmd_handcheck(args):
@@ -241,7 +322,23 @@ def main(argv=None):
     p.add_argument("--words", action="store_true", help="numbers-as-words ablation state")
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
+    p.add_argument("--qset", choices=["v1", "v2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage)")
+    p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.set_defaults(fn=cmd_predict)
+    j = sub.add_parser("judge")
+    j.add_argument("--split", required=True, choices=["val", "test"])
+    j.add_argument("--n", type=int, required=True)
+    j.add_argument("--run", default="run2")
+    j.add_argument("--judge-model", default="claude-sonnet-5-5")
+    j.add_argument("--repeat", action="store_true", help="re-judge the same sample into judge_<split>_repeat.jsonl (reliability)")
+    j.add_argument("--seed", type=int, default=11)
+    j.add_argument("--concurrency", type=int, default=6)
+    j.add_argument("--repo", default="/home/claude/kubernetes/kubernetes")
+    j.set_defaults(fn=cmd_judge)
+    h2 = sub.add_parser("handcheck-v2")
+    h2.add_argument("--n", type=int, default=60)
+    h2.add_argument("--run", default="run2")
+    h2.set_defaults(fn=cmd_handcheck_v2)
     h = sub.add_parser("handcheck")
     h.add_argument("--n", type=int, default=50)
     h.set_defaults(fn=cmd_handcheck)
@@ -255,7 +352,8 @@ def main(argv=None):
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")
     r.add_argument("run_dir")
-    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
+    r.add_argument("--v2", action="store_true", help="run2 report (judge labels, calibration)")
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
     args = ap.parse_args(argv)
     args.fn(args)
 

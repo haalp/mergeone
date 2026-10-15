@@ -9,10 +9,11 @@ import json
 import os
 from pathlib import Path
 
-from .base import Decision, DECISIONS, Timer
+from .base import Decision, DECISIONS, DECISIONS_V2, Timer
 
 MODEL_ID = "claude-haiku-5-5"
-PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md"
+PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md",
+           "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md"}
 
 SCHEMA = {
     "type": "object",
@@ -24,24 +25,38 @@ SCHEMA = {
     "required": list(DECISIONS),
     "additionalProperties": False,
 }
+SCHEMA_V2 = {
+    "type": "object",
+    "properties": {
+        "is_logic_change": {"type": "number", "description": "Probability 0-1 that the PR changes program behaviour."},
+        "weakens_tests": {"type": "number", "description": "Probability 0-1 that the PR weakens tests (removes, skips, loosens, raises timeouts)."},
+        "message_matches_diff": {"type": "number", "description": "Probability 0-1 that title+message accurately describe the diff."},
+        "touches_concurrency": {"type": "number", "description": "Probability 0-1 that the diff touches concurrency-hazard code."},
+        "needs_human_review": {"type": "number", "description": "Probability 0-1 that a careful maintainer would want human review before merge."},
+    },
+    "required": list(DECISIONS_V2),
+    "additionalProperties": False,
+}
 
 
 class HaikuModel:
     name = "haiku"
 
-    def __init__(self, prices: dict | None = None, effort: str = "low"):
+    def __init__(self, prices: dict | None = None, effort: str = "low", version: str = "v1"):
         import anthropic
 
         self.client = anthropic.Anthropic()
-        self.prompt = PROMPT_PATH.read_text()
+        self.version = version
+        self.prompt = PROMPTS[version].read_text()
+        self.schema_all = SCHEMA if version == "v1" else SCHEMA_V2
         self.effort = effort
         p = (prices or {}).get("haiku", {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6
 
     def decide(self, state: str, features: dict[str, float], questions=DECISIONS) -> Decision:
-        schema = dict(SCHEMA)
-        schema["properties"] = {k: v for k, v in SCHEMA["properties"].items() if k in questions}
+        schema = dict(self.schema_all)
+        schema["properties"] = {k: v for k, v in self.schema_all["properties"].items() if k in questions}
         schema["required"] = list(questions)
         try:
             with Timer() as t:

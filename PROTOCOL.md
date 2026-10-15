@@ -105,3 +105,52 @@ Thresholds for `cascade` and for `R@FPR5` are selected on the validation split a
 ## 9. Publication commitment
 
 Results are published regardless of direction (positive, negative, mixed), with the hand-check sample, the raw predictions, and this protocol unchanged.
+
+---
+
+# Run 2 addendum: semantic typed triage
+
+**Status:** written 2026-10-15, after run1 results were seen (see CHANGELOG). Run1 thresholds are untouched. Run2 asks a different question and has its own pre-registered criteria below, written before any run2 model call.
+
+## R2.1 Motivation
+
+Run1 showed that no system predicts 30-day reverts from pre-merge state (H1 failed for all; GBM ≈ Jev ≈ Haiku ≈ base rate × 1.4). It also showed that on *typed rule-like* questions Jev was far more accurate than Haiku (97–98% vs 87–93%) at 3× lower latency and 4× lower cost, and held 3M decisions/day with 0% errors where Haiku hit account rate limits. But run1's rule-like questions were mechanical (path prefix, file count), so a regex would do.
+
+Run2 tests the claim that matters for a merge gateway: **can a System One model answer rule-*like* questions that cannot be written as rules, accurately and calibrated, at agent-scale volume?**
+
+## R2.2 Decisions (all `noul`, asked in one request)
+
+| name | question |
+|---|---|
+| `is_logic_change` | Does the PR change program behaviour (as opposed to only docs, comments, formatting, renames, tests, generated files, or dependency bumps)? |
+| `weakens_tests` | Does the PR remove tests, add skips/`t.Skip`/`Pending`, loosen assertions, raise timeouts, or mark tests flaky? |
+| `message_matches_diff` | Does the title + message accurately describe what the diff does (no undisclosed changes, no claims the diff doesn't contain)? |
+| `touches_concurrency` | Does the diff touch code with concurrency hazards (locks, goroutines, channels, caches, retries, shared mutable state)? |
+| `needs_human_review` | Would a careful maintainer want a human to look at this before it merges (a *judgement* question that aggregates the above)? |
+
+`needs_human_review` is the gateway's routing output; the other four are its inputs and are also what a policy file can reference.
+
+## R2.3 Ground truth
+
+No mechanical labels exist. Labels come from an **LLM judge** (Claude Sonnet 5.5, adaptive thinking, full diff up to 40,000 chars, frozen prompt `prompts/judge_v1.md`) over a stratified sample: 1,200 test PRs and 800 val PRs. The judge is a *stronger, slower, more-context* model than any candidate, and sees 10× more diff than candidates do (candidates still see 4,000 chars, as in run1).
+
+Judge reliability is estimated two ways and reported: (a) a 60-PR subset judged twice with identical settings (the 5.5 API rejects temperature; agreement rate measures sampling noise), (b) a 60-PR subset labelled by hand by the author, blind to the judge (judge-vs-human agreement). If judge-vs-human agreement on a question is below 80%, that question is reported as "label unreliable" and excluded from the headline.
+
+The judge is never a candidate. Haiku 5.5 remains a candidate; Jev remains a candidate. Opus/Fable are not used.
+
+## R2.4 Calibration
+
+Each candidate's raw probability is calibrated on the val sample with isotonic regression (per question) and the fitted map applied to test. Report both raw and calibrated ECE/Brier. The gateway ships with the calibration map, so the calibrated numbers are what a user would see.
+
+## R2.5 Metrics and pre-registered criteria
+
+Per question, on test: accuracy at calibrated 0.5, ROC-AUC, PR-AUC, ECE raw and calibrated, Brier. Plus per-request latency p50/p99 and USD/1k with all five questions in one call.
+
+- **R2-H1 (typed triage is solvable):** a candidate is "useful" on a question if ROC-AUC ≥ 0.80 and calibrated ECE ≤ 0.05. Reported per question.
+- **R2-H2 (System One vs fast LLM):** Jev is "competitive" with Haiku on a question if ROC-AUC is within 0.03 and calibrated ECE is not worse by more than 0.02. "Better" if ROC-AUC higher *and* calibrated ECE lower.
+- **R2-H3 (cost of asking five at once):** Jev's five-question request costs ≤ 1.3× its one-question request in latency p50 and in USD. (Vendor claim: parallel questions are nearly free.)
+- **R2-H4 (routing quality):** using `needs_human_review` as the gate, at the operating point where the gateway escalates 25% of PRs to humans, the gate captures ≥ 70% of the judge's `needs_human_review = true` PRs.
+
+## R2.6 Limitations added
+
+The ground truth is a model's judgement, not an outcome. Run2 therefore measures *agreement with a careful reviewer*, not correctness in the world. The hand-labelled subset bounds how far the judge can be trusted.
