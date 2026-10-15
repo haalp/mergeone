@@ -1,0 +1,4 @@
+https://www.mergeone.dev/* https://mergeone.dev/:splat 301
+/install /install.sh 302
+/github https://github.com/haalp/mergeone 302
+/releases https://github.com/haalp/mergeone/releases 302
