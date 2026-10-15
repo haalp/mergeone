@@ -1,7 +1,7 @@
 name: ci
 on: [push, pull_request]
 jobs:
-  test:
+  gatebench-python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -10,37 +10,50 @@ jobs:
       - run: pip install -e . pytest
       - run: pytest -q tests/test_gate.py tests/test_report_synthetic.py
 
-  throughput:
-    # 100x Anthropic's published volume (3M decisions/day = 35/s) against the
-    # gateway with a 300 ms mock model. Fails if p99 exceeds model latency + 200 ms
-    # or any request errors. This is the number on the README badge.
+  gate-go:
     runs-on: ubuntu-latest
-    needs: test
+    defaults: { run: { working-directory: gate } }
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -e .
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24", cache-dependency-path: gate/go.sum }
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet ./... && go test ./...
+      - run: CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/mergeone ./cmd/mergeone && ls -la /tmp/mergeone
+
+  throughput:
+    # The README badge. Go gateway, mock 300 ms model, open-loop:
+    #   100x Anthropic's volume  (35/s  = 3M/day)  p99 must stay under model + 200 ms
+    #  1000x                     (350/s = 30M/day) p99 must stay under model + 300 ms, 0 errors
+    runs-on: ubuntu-latest
+    needs: gate-go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24", cache-dependency-path: gate/go.sum }
+      - run: cd gate && CGO_ENABLED=0 go build -o /tmp/mergeone ./cmd/mergeone
       - name: start gateway (mock model)
         run: |
           sed 's/^model: jev/model: mock/' mergeone/gate/policy.yaml > /tmp/policy.yaml
-          nohup python -m mergeone.cli serve --policy /tmp/policy.yaml --db /tmp/gate.db --workers 32 --port 8787 > /tmp/serve.log 2>&1 &
-          ok=0; for i in $(seq 1 40); do curl -sf localhost:8787/healthz && ok=1 && break; sleep 1; done
+          nohup /tmp/mergeone serve --policy /tmp/policy.yaml --log /tmp/gatelog.jsonl --workers 32 --addr :8787 --assets mergeone/gate > /tmp/serve.log 2>&1 &
+          ok=0; for i in $(seq 1 30); do curl -sf localhost:8787/healthz && ok=1 && break; sleep 1; done
           if [ "$ok" != "1" ]; then echo "gateway did not start"; cat /tmp/serve.log; exit 1; fi
-      - name: 100x open-loop load
+      - name: 100x and 1000x open-loop load
         run: |
-          python -m mergeone.server.loadtest --rate 35 --n 1200 --concurrency 128 > /tmp/load.json 2> /tmp/load.err || { echo "loadtest failed:"; cat /tmp/load.err; echo "--- server log:"; tail -50 /tmp/serve.log; exit 1; }
-          cat /tmp/load.json
-          python - <<'PY'
-          import json, os; r=json.load(open('/tmp/load.json'))
+          /tmp/mergeone loadtest --rate 35  --n 1200 > /tmp/load100.json
+          /tmp/mergeone loadtest --rate 350 --n 6000 > /tmp/load1000.json
+          cat /tmp/load100.json /tmp/load1000.json
+          python3 - <<'PY'
+          import json, os
+          a=json.load(open('/tmp/load100.json')); b=json.load(open('/tmp/load1000.json'))
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write(f"### throughput (2-vCPU runner, mock 300 ms model)\n\n| rate/s | p50 ms | p99 ms | errors |\n|---|---|---|---|\n| {r['achieved_rate']} | {r['p50_ms']} | {r['p99_ms']} | {r['error_rate']} |\n")
-          assert r["error_rate"] == 0, r
-          assert r["p99_ms"] <= 300 + 400, r
-          print("OK p99", r["p99_ms"], "ms at", r["achieved_rate"], "decisions/s")
+              f.write("### throughput (2-vCPU runner, Go gateway, mock 300 ms model)\n\n| load | rate/s | p50 ms | p99 ms | errors |\n|---|---|---|---|---|\n")
+              f.write(f"| 100x (3M/day) | {a['achieved_rate']:.1f} | {a['p50_ms']:.0f} | {a['p99_ms']:.0f} | {a['error_rate']} |\n")
+              f.write(f"| 1000x (30M/day) | {b['achieved_rate']:.1f} | {b['p50_ms']:.0f} | {b['p99_ms']:.0f} | {b['error_rate']} |\n")
+          assert a["error_rate"] == 0 and a["p99_ms"] <= 500, a
+          assert b["error_rate"] == 0 and b["p99_ms"] <= 600, b
+          print("OK")
           PY
       - name: server log (always)
         if: always()
-        run: tail -30 /tmp/serve.log || true
-      - uses: actions/upload-artifact@v4
-        with: { name: loadtest, path: /tmp/load.json }
+        run: tail -20 /tmp/serve.log || true
