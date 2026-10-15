@@ -8,3 +8,4 @@ data/dataset.jsonl.gz
 .env
 results/gbm.pkl
 results/smoke/
+results/*.log
