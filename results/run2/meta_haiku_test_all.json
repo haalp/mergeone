@@ -1,0 +1,12 @@
+{
+  "model": "haiku",
+  "split": "test",
+  "variant": "all",
+  "n": 1200,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "v2",
+  "finished_at": "2026-10-15T11:47:58.348259+00:00",
+  "host": "vm",
+  "python": "3.13.16"
+}
