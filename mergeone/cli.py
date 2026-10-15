@@ -354,6 +354,10 @@ def main(argv=None):
     r.add_argument("run_dir")
     r.add_argument("--v2", action="store_true", help="run2 report (judge labels, calibration)")
     r.set_defaults(fn=lambda a: __import__("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
+    sub.add_parser("serve", help="run the gateway server; all further args go to mergeone.server.app")
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "serve":
+        return __import__("mergeone.server.app", fromlist=["x"]).main(argv[1:])
     args = ap.parse_args(argv)
     args.fn(args)
 

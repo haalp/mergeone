@@ -40,6 +40,32 @@ Exit code 0 = pass, 1 = hold, 2 = block, so it drops into any CI. `examples/gith
 
 Five typed questions, in one request (see `prompts/jev_v2.json`): does the PR change behaviour, does it weaken tests, does the message match the diff, does it touch concurrency-hazard code, and would a careful maintainer want to look. The first four are inputs a policy can reference; the fifth is the default routing signal. Probabilities are calibrated on labelled history before rules run (`gate fit-calibration`).
 
+### Running it as a service (the 30,000-merges-a-day mode)
+
+```bash
+export GITHUB_TOKEN=... MERGEONE_WEBHOOK_SECRET=...
+mergeone serve --policy .mergeone.yaml --db .mergeone/gate.db --workers 16 --port 8787
+# point a GitHub webhook (pull_request events) at https://<host>/webhook/github
+```
+
+Every PR head gets one decision (idempotent on `repo:pr:head_sha`), stored in SQLite, posted back as a check-run (`success` / `neutral` / `failure`) and two labels (`gate:<verdict>`, `route:<route>`). Agents can skip the webhook and ask directly:
+
+```bash
+curl -X POST :8787/decide -d '{"repo":"acme/x","head_sha":"…","state":"<rendered PR>","paths":["pkg/a.go"]}'
+curl :8787/verdict/acme/x/<sha>      # later, from anywhere
+curl :8787/stats?window=3600         # verdict mix, p50/p99, cost, error rate
+```
+
+Measured on one container with the mock model (300 ms simulated inference), open-loop:
+
+| load | decisions/s | p50 | p99 | errors |
+|---|---|---|---|---|
+| 1× (30k/day) | 0.35 | 312 ms | 429 ms | 0 |
+| 10× (300k/day) | 3.5 | 304 ms | 449 ms | 0 |
+| 100× (3M/day) | 35 | 304 ms | 448 ms | 0 |
+
+The gateway adds ~5 ms over the model. With Jev the model itself held 35/s at p99 527 ms in run 1, so a single instance covers Anthropic's published volume with two orders of magnitude of headroom. `python -m mergeone.server.loadtest --rate 35 --n 1200` reproduces the table against any running instance; `--mock` on `serve` needs no API key.
+
 ### Design rules
 
 - **Fail closed.** Model error or timeout → `hold` / `human`.

@@ -90,6 +90,9 @@ class Gate:
             elif name == "haiku":
                 from ..models.haiku import HaikuModel
                 model = HaikuModel(version=version)
+            elif name == "mock":
+                from ..models.mock import MockModel
+                model = MockModel(version=version)
             else:
                 raise ValueError(f"unsupported model for gate: {name}")
         cal_path = None
