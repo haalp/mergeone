@@ -24,21 +24,23 @@ jobs:
       - name: start gateway (mock model)
         run: |
           sed 's/^model: jev/model: mock/' mergeone/gate/policy.yaml > /tmp/policy.yaml
-          nohup mergeone serve --policy /tmp/policy.yaml --db /tmp/gate.db --workers 32 --port 8787 > /tmp/serve.log 2>&1 &
-          for i in $(seq 1 30); do curl -sf localhost:8787/healthz && break; sleep 1; done
+          nohup python -m mergeone.cli serve --policy /tmp/policy.yaml --db /tmp/gate.db --workers 32 --port 8787 > /tmp/serve.log 2>&1 &
+          ok=0; for i in $(seq 1 40); do curl -sf localhost:8787/healthz && ok=1 && break; sleep 1; done
+          if [ "$ok" != "1" ]; then echo "gateway did not start"; cat /tmp/serve.log; exit 1; fi
       - name: 100x open-loop load
         run: |
-          set -o pipefail
-          python -m mergeone.server.loadtest --rate 35 --n 1200 --concurrency 128 | tee /tmp/load.json || { echo "loadtest crashed"; tail -50 /tmp/serve.log; exit 1; }
+          python -m mergeone.server.loadtest --rate 35 --n 1200 --concurrency 128 > /tmp/load.json 2> /tmp/load.err || { echo "loadtest failed:"; cat /tmp/load.err; echo "--- server log:"; tail -50 /tmp/serve.log; exit 1; }
           cat /tmp/load.json
           python - <<'PY'
           import json, os; r=json.load(open('/tmp/load.json'))
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
               f.write(f"### throughput (2-vCPU runner, mock 300 ms model)\n\n| rate/s | p50 ms | p99 ms | errors |\n|---|---|---|---|\n| {r['achieved_rate']} | {r['p50_ms']} | {r['p99_ms']} | {r['error_rate']} |\n")
           assert r["error_rate"] == 0, r
-          # budget: model latency + 400 ms of queueing/scheduling on a 2-vCPU shared runner
           assert r["p99_ms"] <= 300 + 400, r
           print("OK p99", r["p99_ms"], "ms at", r["achieved_rate"], "decisions/s")
           PY
+      - name: server log (always)
+        if: always()
+        run: tail -30 /tmp/serve.log || true
       - uses: actions/upload-artifact@v4
         with: { name: loadtest, path: /tmp/load.json }
