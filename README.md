@@ -22,11 +22,13 @@ Why this exists: Anthropic's [*Redesigning source control at Anthropic*](https:/
 
 ## Quick start
 
+One static binary, no runtime. Linux, macOS, Windows; amd64 and arm64.
+
 ```bash
-pip install mergeone            # or: pip install -e . from a clone
-export TYPESAFE_API_KEY=...     # Jev; or set model: haiku and ANTHROPIC_API_KEY
-cp mergeone/gate/policy.yaml .mergeone.yaml
-gate pr --policy .mergeone.yaml --base origin/main --head HEAD
+curl -fsSL https://mergeone.dev/install.sh | sh     # or: go install github.com/haalp/mergeone/gate/cmd/mergeone@latest
+export TYPESAFE_API_KEY=...                           # Jev; or set model: haiku and ANTHROPIC_API_KEY
+cp ~/.mergeone/policy.yaml .mergeone.yaml             # edit the rules
+mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```
 
 ```json
@@ -38,7 +40,33 @@ gate pr --policy .mergeone.yaml --base origin/main --head HEAD
 }
 ```
 
-Exit code 0 = pass, 1 = hold, 2 = block, so it drops into any CI. `examples/github-action.yml` labels PRs with `gate:<verdict>` and `route:<route>`. `gate replay` dry-runs a policy over saved predictions so you can tune thresholds before touching a real PR.
+Exit code 0 = pass, 1 = hold, 2 = block, so it drops into any CI. `examples/github-action.yml` labels PRs with `gate:<verdict>` and `route:<route>`. `mergeone replay` dry-runs a policy over saved predictions so you can tune thresholds against history before touching a real PR.
+
+### Running it as a service (the 30,000-merges-a-day mode)
+
+```bash
+export GITHUB_TOKEN=... MERGEONE_WEBHOOK_SECRET=...
+mergeone serve --policy .mergeone.yaml --workers 16 --addr :8787
+# point a GitHub webhook (pull_request events) at https://<host>/webhook/github
+```
+
+Every PR head gets one decision (idempotent on `repo:pr:head_sha`), appended to a fsync'd gatelog, posted back as a check-run (`success` / `neutral` / `failure`) and two labels. Agents can skip the webhook and ask directly:
+
+```bash
+curl -X POST :8787/decide -d '{"repo":"acme/x","head_sha":"…","state":"<rendered PR>","paths":["pkg/a.go"]}'
+curl :8787/verdict/acme/x/<sha>      # later, from anywhere
+curl :8787/plan/acme/x               # landing plan for the open PRs
+curl :8787/stats?window=3600         # verdict mix, p50/p99, cost, error rate
+```
+
+Measured on one 2-vCPU GitHub runner with the mock model (300 ms simulated inference), open-loop, re-run on every push by CI:
+
+| load | decisions/s | p50 | p99 | errors | RSS |
+|---|---|---|---|---|---|
+| 100× Anthropic's volume (3M/day) | 35 | 304 ms | 436 ms | 0 | 67 MB |
+| 1000× (30M/day) | 350 | 303 ms | 441 ms | 0 | 67 MB |
+
+The gateway adds a few milliseconds over the model; with Jev the model itself held 35/s at p99 527 ms in run 1. `mergeone loadtest --rate 350 --n 6000` reproduces the table against any running instance; `serve --mock` needs no API key.
 
 ### What the gate asks
 
@@ -97,6 +125,10 @@ With hundreds of agent PRs open at once, serialising them through a queue is the
 ```
 
 File overlap is mechanical and free. With `semantic=true`, pairs that share a directory but no file get one typed question to the decision model ("do these two changes affect the same behaviour?"), bounded by `max_pairs`, so the cost stays linear in practice.
+
+### Two implementations, one contract
+
+`gate/` (Go) is the product: the binary above. `mergeone/` (Python) is **gatebench**, the benchmark: data extraction, LLM judge, calibration fitting, reports, plus a reference gateway used to develop the policy engine. Both read the same `policy.yaml` and `calibration_<model>_<qset>.json`; `mergeone replay` and `gate replay` produce identical verdict distributions over the same predictions (checked on 1,200 PRs), so a policy tuned on history in Python runs unchanged in Go.
 
 ### Design rules
 
@@ -172,6 +204,7 @@ Raw per-example predictions, token counts, timings and the price sheet are commi
 ## Layout
 
 ```
+gate/                  Go: the mergeone binary (serve, pr, decide, replay, loadtest, mcp)
 PROTOCOL.md            pre-registered protocol (frozen)
 CHANGELOG.md           any deviation from the protocol, with reason
 prompts/               frozen prompt (haiku_v1.md) and question set (jev_v1.json)
