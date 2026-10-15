@@ -66,6 +66,34 @@ Measured on one container with the mock model (300 ms simulated inference), open
 
 The gateway adds ~5 ms over the model. With Jev the model itself held 35/s at p99 527 ms in run 1, so a single instance covers Anthropic's published volume with two orders of magnitude of headroom. `python -m mergeone.server.loadtest --rate 35 --n 1200` reproduces the table against any running instance; `--mock` on `serve` needs no API key.
 
+### Agent-native: the agent asks the gate
+
+`mergeone` is also an MCP server, so a coding agent asks for a verdict *before* it merges instead of a human discovering the problem after:
+
+```bash
+claude mcp add mergeone -- mergeone mcp --policy .mergeone.yaml
+```
+
+```
+# CLAUDE.md / AGENTS.md
+Before merging any branch, call gate_decide with repo_path="." base="main" head="HEAD".
+Merge only on verdict "pass". On "hold" or "block", open a PR and request the route named.
+```
+
+Tools: `gate_decide` (verdict for a change), `gate_verdict` (look up a stored one), `gate_plan` (landing plan for all open PRs), `gate_stats`. The same calls exist over HTTP (`/decide`, `/verdict`, `/plan`, `/stats`) for agents that are not MCP clients.
+
+### Swarm mode: landing plans, not a queue
+
+With hundreds of agent PRs open at once, serialising them through a queue is the bottleneck Anthropic describes. `gate plan` (or `GET /plan/{owner}/{repo}`) builds a conflict graph over the open PRs the gateway has seen and emits **waves**: sets of PRs that touch disjoint files and can land in parallel, plus the edges that force ordering.
+
+```json
+{"waves": [[101, 103, 104, 105], [102]], "parallelism": 4,
+ "conflict_edges": [{"a": 101, "b": 102, "kind": "file", "evidence": "pkg/a/x.go"},
+                    {"a": 102, "b": 104, "kind": "semantic", "p": 0.71, "evidence": ["pkg/a"]}]}
+```
+
+File overlap is mechanical and free. With `semantic=true`, pairs that share a directory but no file get one typed question to the decision model ("do these two changes affect the same behaviour?"), bounded by `max_pairs`, so the cost stays linear in practice.
+
 ### Design rules
 
 - **Fail closed.** Model error or timeout → `hold` / `human`.
