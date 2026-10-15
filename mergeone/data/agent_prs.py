@@ -108,28 +108,51 @@ class GH:
         return items
 
 
+def _repo_agent_total(gh, repo, qual):
+    """True number of closed agent PRs in a repo (one search call, per_page=1 → total_count)."""
+    r = gh.get("/search/issues", q=f"repo:{repo} is:pr is:closed {qual}", per_page=1)
+    time.sleep(2.2)
+    return int(r.json().get("total_count", 0)) if r else 0
+
+
 def cmd_discover(a):
+    """Two stages. (1) Broad search: the most recently updated agent PRs per (agent, state)
+    give *candidate* repos. (2) For every candidate (or --seed repo) ask GitHub for the
+    true count of closed agent PRs with repo:-scoped searches. Stage 1 alone under-counts
+    badly: it only sees the last pages*100 PRs per query."""
     gh = GH()
-    counts = defaultdict(Counter)
+    seen = defaultdict(Counter)
     for name, qual in AGENTS:
         for state in ("is:merged", "is:unmerged is:closed"):
             q = f"is:pr {state} {qual}"
             print(f"search: {q}", file=sys.stderr, flush=True)
             for it in gh.search_prs(q, pages=a.pages):
                 repo = it["repository_url"].split("/repos/")[1]
-                counts[repo][name] += 1
+                seen[repo][name] += 1
+    candidates = {r for r, c in seen.items() if sum(c.values()) >= a.min_seen}
+    candidates |= set(a.seed or [])
+    print(f"stage 1: {len(seen)} repos seen, {len(candidates)} candidates (min_seen={a.min_seen}, +{len(a.seed or [])} seed)", file=sys.stderr, flush=True)
+
     repos = []
-    for repo, byagent in counts.items():
-        n = sum(byagent.values())
-        if n < a.min_prs:
-            continue
+    for repo in sorted(candidates, key=lambda r: -sum(seen[r].values())):
         r = gh.get(f"/repos/{repo}")
         if not r:
             continue
         meta = r.json()
         if meta.get("stargazers_count", 0) < a.min_stars or meta.get("fork") or meta.get("archived"):
             continue
-        repos.append({"repo": repo, "stars": meta["stargazers_count"], "language": meta.get("language"), "agent_prs_seen": n, "by_agent": dict(byagent),
+        # stage 2: true per-agent totals, only for agents seen here (or all, for seed repos)
+        agents = [(n, q) for n, q in AGENTS if n in seen[repo]] or AGENTS
+        byagent = {}
+        for name, qual in agents:
+            n = _repo_agent_total(gh, repo, qual)
+            if n:
+                byagent[name] = n
+        total = sum(byagent.values())
+        print(f"  {repo:45s} ★{meta['stargazers_count']:<7d} agent PRs: {total:5d} {byagent}", file=sys.stderr, flush=True)
+        if total < a.min_prs:
+            continue
+        repos.append({"repo": repo, "stars": meta["stargazers_count"], "language": meta.get("language"), "agent_prs_seen": total, "by_agent": byagent,
                       "default_branch": meta.get("default_branch", "main")})
     repos.sort(key=lambda r: -r["agent_prs_seen"])
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
@@ -251,7 +274,9 @@ def main(argv=None):
     d = sub.add_parser("discover")
     d.add_argument("--min-stars", type=int, default=500)
     d.add_argument("--min-prs", type=int, default=20)
-    d.add_argument("--pages", type=int, default=2, help="search pages per (agent,state); 100 PRs each, max 10")
+    d.add_argument("--pages", type=int, default=3, help="search pages per (agent,state); 100 PRs each, max 10")
+    d.add_argument("--min-seen", type=int, default=3, help="stage-1 PRs seen before a repo becomes a candidate")
+    d.add_argument("--seed", nargs="*", default=[], help="repos to count regardless of stage 1, e.g. microsoft/vscode")
     d.add_argument("--out", default="data/run3/repos.json")
     d.set_defaults(fn=cmd_discover)
     f = sub.add_parser("fetch")
