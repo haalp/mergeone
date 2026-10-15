@@ -13,6 +13,10 @@ from typing import Protocol
 
 DECISIONS = ("will_be_reverted", "touches_sensitive_area", "large_blast_radius")
 PRIMARY = "will_be_reverted"
+# run2: semantic typed triage (PROTOCOL.md R2.2)
+DECISIONS_V2 = ("is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review")
+PRIMARY_V2 = "needs_human_review"
+QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2}
 
 
 @dataclass
