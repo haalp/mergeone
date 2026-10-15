@@ -26,7 +26,8 @@ class MockModel:
         with Timer() as t:
             if self.latency_ms:
                 time.sleep(max(0.0, rng.gauss(self.latency_ms, self.jitter_ms)) / 1000.0)
-            if rng.random() < self.error_rate:
-                return Decision(probs={q: float("nan") for q in questions}, error="MockError: simulated", model_version="mock-1", latency_ms=t.ms)
+            failed = rng.random() < self.error_rate
             probs = {q: round(rng.random(), 3) for q in questions}
+        if failed:
+            return Decision(probs={q: float("nan") for q in questions}, error="MockError: simulated", model_version="mock-1", latency_ms=t.ms)
         return Decision(probs=probs, latency_ms=t.ms, input_tokens=len(state) // 4, output_tokens=0, cost_usd=0.0, model_version="mock-1")

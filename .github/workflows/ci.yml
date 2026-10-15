@@ -1,0 +1,39 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e . pytest
+      - run: pytest -q tests/test_gate.py tests/test_report_synthetic.py
+
+  throughput:
+    # 100x Anthropic's published volume (3M decisions/day = 35/s) against the
+    # gateway with a 300 ms mock model. Fails if p99 exceeds model latency + 200 ms
+    # or any request errors. This is the number on the README badge.
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e .
+      - name: start gateway (mock model)
+        run: |
+          sed 's/^model: jev/model: mock/' mergeone/gate/policy.yaml > /tmp/policy.yaml
+          nohup mergeone serve --policy /tmp/policy.yaml --db /tmp/gate.db --workers 32 --port 8787 > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf localhost:8787/healthz && break; sleep 1; done
+      - name: 100x open-loop load
+        run: |
+          python -m mergeone.server.loadtest --rate 35 --n 1200 | tee /tmp/load.json
+          python - <<'PY'
+          import json; r=json.load(open('/tmp/load.json'))
+          assert r["error_rate"] == 0, r
+          assert r["p99_ms"] <= 300 + 200, r
+          print("OK p99", r["p99_ms"], "ms at", r["achieved_rate"], "decisions/s")
+          PY
+      - uses: actions/upload-artifact@v4
+        with: { name: loadtest, path: /tmp/load.json }
