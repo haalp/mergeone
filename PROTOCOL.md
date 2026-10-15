@@ -154,3 +154,44 @@ Per question, on test: accuracy at calibrated 0.5, ROC-AUC, PR-AUC, ECE raw and 
 ## R2.6 Limitations added
 
 The ground truth is a model's judgement, not an outcome. Run2 therefore measures *agreement with a careful reviewer*, not correctness in the world. The hand-labelled subset bounds how far the judge can be trusted.
+
+---
+
+# Run 3 addendum: agent-authored PRs, outcome labels
+
+**Status:** written 2026-10-15 after run2 results, before any run3 data was fetched or any model call. Runs 1 and 2 are untouched.
+
+## R3.1 Why
+
+Runs 1–2 used human-written Kubernetes PRs. The product's claim is about agent-written PRs at volume. Run 3 tests the gate on real agent PRs from public GitHub, with labels that are **outcomes**, not a judge's opinion.
+
+## R3.2 Data
+
+- Sources: public repositories with ≥ 500 stars, not forks or archived, with ≥ 20 PRs authored by a recognised coding agent (Copilot coding agent, Claude Code trailer, Claude app, Devin, Codex, Cursor; list in `mergeone/data/agent_prs.py`). Discovery via the GitHub Search API; the exact repo list and counts are committed to `data/run3/repos.json`.
+- Per repo: up to 150 agent PRs, balanced between merged and closed-unmerged where available. Per PR: title, body, files, diff head (4,000 chars, as in runs 1–2), human review/comment counts, change-requested flag, force-push count, GitHub stack metadata if present, and revert-within-30-days.
+- Splits: by repository (no repo in both train/val and test) so calibration cannot memorise a project's style. 70% of repos → val (threshold/calibration), 30% → test.
+
+## R3.3 Labels and the questions they test
+
+| outcome label | what it says about | gate signal it tests |
+|---|---|---|
+| `closed_unmerged` | humans rejected or abandoned the change | `needs_human_review` should be high; `pass` should be rare |
+| `change_requested` | a human asked for changes before merge | `needs_human_review`, `message_matches_diff` |
+| `human_review_comments ≥ 3` | the change needed discussion | `needs_human_review` |
+| `force_pushes ≥ 2` | agent iterated under review pressure | `is_logic_change`, `needs_human_review` |
+| `reverted_within_30d` | merged then undone | all; expected weak (run 1) |
+| `merged ∧ human_review_comments = 0` | merged untouched | `pass` should be common |
+
+## R3.4 Pre-registered criteria
+
+- **R3-H1 (gate separates rejected from accepted):** on test repos, ROC-AUC of `needs_human_review` (calibrated on val repos) for predicting `closed_unmerged ∨ change_requested` ≥ 0.70. Below 0.60 we report the gate as not transferring to agent PRs.
+- **R3-H2 (pass is safe):** among PRs the default policy marks `pass`, the rate of `closed_unmerged ∨ change_requested ∨ reverted_within_30d` is ≤ half the dataset's base rate.
+- **R3-H3 (hold has precision):** among PRs marked `hold` or `block`, that same rate is ≥ 1.5× the base rate.
+- **R3-H4 (stacks):** for PRs with stack metadata, a stack-level rule (block below ⇒ hold above) changes verdicts for ≥ 5% of stacked PRs; reported, no threshold on correctness because labels for stack ordering are not available.
+- **R3-H5 (volume):** the full test set is processed by one `mergeone serve` instance in a single open-loop replay at 100× its historical rate with p99 ≤ model p99 + 200 ms and 0 errors.
+
+Outcome labels are noisy in a known direction: a PR can be closed for reasons unrelated to quality (duplicate, superseded, project direction). We will classify close reasons on a sample with Claude Fable 5.1 **for reporting only**, never as a label or as a candidate, and state that in the results.
+
+## R3.5 Candidates
+
+`jev` and `haiku`, question set v2, calibration refit on val repos. `rules` as floor. No frontier model.
