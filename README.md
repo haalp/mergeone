@@ -2,17 +2,62 @@
 
 **One decision per merge, at swarm scale.**
 
-`mergeone` is a merge gateway for agent-scale source control: a fast, cheap, calibrated decision layer that sits where a merge queue used to be. This repository currently holds **gatebench**, the pre-registered experiment that tests whether such a layer works, using TypeSafe AI's Jev (a "System One" model that returns typed probabilities instead of text) against Claude Haiku 5.5, gradient-boosted trees, and hand-written rules.
+`mergeone` is an open-source **merge gateway** for repositories where most commits are written by agents. It replaces the merge queue's single slow question ("is CI green?") with a handful of fast, typed, calibrated decisions per pull request, made by a System One decision model in a few hundred milliseconds, and turns them into a verdict and a route through a policy file you own.
 
-**Research question:** how well do System One decision models work as the decision layer of agent-scale source control?
+```
+PR state ──▶ decision model ──▶ calibrated probabilities ──▶ policy rules ──▶ verdict + route
+            (Jev / Haiku)        is_logic_change 0.91          .mergeone.yaml     pass / hold / block
+                                 weakens_tests   0.07                             auto-merge / human / domain-review
+                                 message_matches 0.88
+                                 touches_concurr 0.63
+                                 needs_human     0.41
+                                             └── every decision + its input is written to .mergeone/gatelog.jsonl
+```
 
-The benchmark is reproducible end to end and asks one real source-control question first: *will this merged pull request be reverted within 30 days?* ([Jev](https://typesafe.ai), [Haiku 5.5](https://platform.claude.com/docs/en/models/haiku-5-5/overview))
+Why this exists: Anthropic's [*Redesigning source control at Anthropic*](https://www.anthropic.com/engineering/redesigning-source-control) describes a monorepo at >30,000 merges/day where the merge queue no longer makes sense and testing moves post-merge. Their system, Scion, will not be released. What such a pipeline needs is a cheap decision layer that can run on every merge; `mergeone` is that layer, on top of plain git and any forge.
 
-Motivation and framing come from Anthropic's [*Redesigning source control at Anthropic*](https://www.anthropic.com/engineering/redesigning-source-control): at >30,000 merges/day, the merge queue is gone, testing moves post-merge, and the pipeline is full of small typed decisions that must be fast, cheap and calibrated. Anthropic will not release Scion; this repo tests the *decision layer* such a system needs, on top of plain git.
+## Quick start
 
-Read [PROTOCOL.md](PROTOCOL.md) first. It was frozen before any model call, and it states the success criteria we committed to before seeing results.
+```bash
+pip install mergeone            # or: pip install -e . from a clone
+export TYPESAFE_API_KEY=...     # Jev; or set model: haiku and ANTHROPIC_API_KEY
+cp mergeone/gate/policy.yaml .mergeone.yaml
+gate pr --policy .mergeone.yaml --base origin/main --head HEAD
+```
 
-## What is measured
+```json
+{
+  "verdict": "hold", "route": "human", "rule": "message-mismatch",
+  "reason": "Message does not explain the behavioural change in the diff",
+  "probs": {"is_logic_change": 0.93, "weakens_tests": 0.05, "message_matches_diff": 0.31, "touches_concurrency": 0.12, "needs_human_review": 0.58},
+  "model_version": "jev-1.13.0", "latency_ms": 318, "cost_usd": 0.00007
+}
+```
+
+Exit code 0 = pass, 1 = hold, 2 = block, so it drops into any CI. `examples/github-action.yml` labels PRs with `gate:<verdict>` and `route:<route>`. `gate replay` dry-runs a policy over saved predictions so you can tune thresholds before touching a real PR.
+
+### What the gate asks
+
+Five typed questions, in one request (see `prompts/jev_v2.json`): does the PR change behaviour, does it weaken tests, does the message match the diff, does it touch concurrency-hazard code, and would a careful maintainer want to look. The first four are inputs a policy can reference; the fifth is the default routing signal. Probabilities are calibrated on labelled history before rules run (`gate fit-calibration`).
+
+### Design rules
+
+- **Fail closed.** Model error or timeout → `hold` / `human`.
+- **Mechanical rules stay mechanical.** `always_human_paths` is a prefix match, free, and runs before the model.
+- **Every decision is auditable.** System One models return no rationale, so the gatelog stores the verdict *with the rendered input and its hash*.
+- **The model is a variable.** Jev, Haiku, or your own; one interface (`mergeone/models/base.py`).
+
+---
+
+# gatebench: the experiment behind it
+
+Everything above rests on a pre-registered benchmark, published regardless of outcome. Read [PROTOCOL.md](PROTOCOL.md) first.
+
+**Run 1** asked whether any cheap decision layer can predict *30-day reverts* from pre-merge state on 40,000 Kubernetes merges. Answer: no. Rules, LightGBM, Claude Haiku 5.5 and Jev all sit at PR-AUC ≈ 0.010 against a 0.0075 base rate, indistinguishable within confidence intervals. Pre-merge diffs do not contain that signal. What run 1 *did* show: on typed rule-like questions Jev was 97–98% accurate vs Haiku's 87–93%, at 3× lower p50, 5× lower p99, 4× lower cost, and held 3M decisions/day with 0% errors where Haiku hit rate limits (36% errors). Full tables: `results/run1/tables.md`.
+
+**Run 2** (in progress) asks the question that matters for a gateway: can a System One model answer rule-*like* questions that cannot be written as rules (behaviour change, weakened tests, message/diff mismatch, concurrency risk, needs-human), accurately and calibrated, against a strong LLM judge whose labels are themselves audited by hand. Criteria are pre-registered in the PROTOCOL addendum.
+
+## Run 1 setup
 
 | | |
 |---|---|
