@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/haalp/mergeone/actions/workflows/ci.yml"><img src="https://github.com/haalp/mergeone/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
-  <img src="https://img.shields.io/badge/throughput-30M%20decisions%2Fday%20%40%20p99%20441ms-F2B544?labelColor=0E0F12" alt="throughput">
+  <img src="https://img.shields.io/badge/throughput-30M%20decisions%2Fday%20%40%20p99%20441ms-A371F7?labelColor=0E0F12" alt="throughput">
   <img src="https://img.shields.io/badge/binary-11.7%20MB%2C%20zero%20runtime-ECECEA?labelColor=0E0F12" alt="binary">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-ECECEA?labelColor=0E0F12" alt="license"></a>
 </p>
