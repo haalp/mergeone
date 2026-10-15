@@ -1,5 +1,9 @@
 # mergeone
 
+[![ci](https://github.com/haalp/mergeone/actions/workflows/ci.yml/badge.svg)](https://github.com/haalp/mergeone/actions/workflows/ci.yml)
+![throughput](https://img.shields.io/badge/throughput-3M%20decisions%2Fday%20%40%20p99%20%3C%20500ms-2ea44f)
+![license](https://img.shields.io/badge/license-Apache--2.0-blue)
+
 **One decision per merge, at swarm scale.**
 
 `mergeone` is an open-source **merge gateway** for repositories where most commits are written by agents. It replaces the merge queue's single slow question ("is CI green?") with a handful of fast, typed, calibrated decisions per pull request, made by a System One decision model in a few hundred milliseconds, and turns them into a verdict and a route through a policy file you own.
