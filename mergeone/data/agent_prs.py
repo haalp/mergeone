@@ -288,7 +288,8 @@ def cmd_fetch(a):
                     "repo": repo, "number": num, "agent": [n for n, q in AGENTS if q in agent_quals and (q.split(":")[-1] in (pr.get("user") or {}).get("login", "") or q.strip('"') in (pr.get("body") or ""))][:1] or [n for n, q in AGENTS if q in agent_quals][:1],
                     "title": pr["title"], "body": (pr.get("body") or "")[:4000], "author": (pr.get("user") or {}).get("login"),
                     "created_at": pr["created_at"], "merged_at": merged_at, "closed_at": pr.get("closed_at"),
-                    "head_sha": pr["head"]["sha"], "base": pr["base"]["ref"], "files": files, "diff_head": diff_head, "diff_truncated": truncated,
+                    "head_sha": pr["head"]["sha"], "head_ref": (pr.get("head") or {}).get("ref"), "base": pr["base"]["ref"],
+                    "default_branch": ((pr.get("base") or {}).get("repo") or {}).get("default_branch"), "files": files, "diff_head": diff_head, "diff_truncated": truncated,
                     "additions": pr.get("additions"), "deletions": pr.get("deletions"), "changed_files": pr.get("changed_files"),
                     "stack": pr.get("stack"),
                     "labels": {

@@ -85,8 +85,8 @@ def cmd_prepare(args):
     print("dropped from test (incomplete horizon):", dropped)
 
 
-def load_dataset(split: str | None = None, limit: int | None = None) -> list[dict]:
-    rows = [json.loads(l) for l in (DATA / "dataset.jsonl").open()]
+def load_dataset(split: str | None = None, limit: int | None = None, path: Path | None = None) -> list[dict]:
+    rows = [json.loads(l) for l in (path or DATA / "dataset.jsonl").open()]
     if split:
         rows = [r for r in rows if r["split"] == split]
     if limit:
@@ -129,7 +129,7 @@ def cmd_train_gbm(args):
 
 
 def cmd_predict(args):
-    rows = load_dataset(args.split, args.limit)
+    rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
     if args.only_errors_from:
         done = {json.loads(l)["pr_number"] for l in Path(args.only_errors_from).open() if json.loads(l)["decision"].get("error") is None}
         rows = [r for r in rows if r["pr_number"] not in done]
@@ -272,9 +272,9 @@ def cmd_loadtest(args):
     300k/day, 100 is 3M/day. Requests are fired on schedule regardless of
     whether earlier ones finished (open loop), so queueing shows up in p99.
     """
-    rows = load_dataset("test", args.limit)
-    model = build_model(args.model)
-    questions = (PRIMARY,)
+    rows = load_dataset("test", args.limit, Path(args.dataset) if args.dataset else None)
+    model = build_model(args.model, args.qset)
+    questions = DECISIONS_V2 if args.qset == "v2" else (PRIMARY,)
     rate = args.base_rate * args.multiplier
     offsets = [i / rate for i in range(len(rows))]
     print(f"replaying {len(rows)} decisions at {rate:.2f}/s (base {args.base_rate:.3f}/s x {args.multiplier:g}), ~{offsets[-1]:.0f}s", flush=True)
@@ -307,10 +307,67 @@ def cmd_loadtest(args):
     print(json.dumps(summary, indent=2))
 
 
+def cmd_prepare_run3(args):
+    from .data.prepare_run3 import prepare
+    m = prepare(Path(args.src), Path(args.repos), Path(args.out), Path(args.out).with_name("manifest.json"), args.per_repo_cap)
+    for s_, v in m["splits"].items():
+        print(s_, v["n"], "PRs,", len(v["repos"]), "repos,", v["agents"], "\n   ", v["label_counts"])
+
+
+def cmd_close_reasons(args):
+    """Classify why closed-unmerged agent PRs were closed (PROTOCOL R3.4: Claude Fable 5.1, reporting only).
+
+    Never used as a label or as a candidate; the output only annotates the results tables."""
+    import anthropic
+    rows = [r for r in load_dataset("test", None, Path(args.dataset)) if r["labels"]["closed_unmerged"]]
+    rng = random.Random(args.seed)
+    rng.shuffle(rows)
+    rows = rows[: args.n]
+    reasons = ["quality_or_bugs", "superseded_or_duplicate", "scope_or_direction", "abandoned_or_stale", "ci_or_conflicts", "other"]
+    schema = {"type": "object", "properties": {"reason": {"type": "string", "enum": reasons}, "evidence": {"type": "string"}},
+              "required": ["reason", "evidence"], "additionalProperties": False}
+    system = ("You classify why a pull request authored by a coding agent was closed without being merged. "
+              "Use only the title, body and diff summary given. Pick exactly one reason: quality_or_bugs (the change was wrong, "
+              "incomplete or low quality), superseded_or_duplicate (another PR did it), scope_or_direction (maintainers did not want "
+              "this change), abandoned_or_stale (no follow-up), ci_or_conflicts (could not land mechanically), other.")
+    client = anthropic.Anthropic()
+    run_dir = RESULTS / args.run
+    run_dir.mkdir(parents=True, exist_ok=True)
+    out = run_dir / "close_reasons.jsonl"
+    done = {json.loads(l)["pr_number"] for l in out.open()} if out.exists() else set()
+    with out.open("a") as f:
+        for i, r in enumerate(rows, 1):
+            if r["pr_number"] in done:
+                continue
+            resp = client.messages.create(model=args.model, max_tokens=400, system=system,
+                                          output_config={"effort": "low", "format": {"type": "json_schema", "schema": schema}},
+                                          messages=[{"role": "user", "content": r["state"][:12000]}])
+            j = json.loads(next(b.text for b in resp.content if b.type == "text"))
+            f.write(json.dumps({"pr_number": r["pr_number"], "repo": r["repo"], "number": r["number"], "agent": r["agent"], **j,
+                                "classifier": args.model, "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
+            f.flush()
+            if i % 25 == 0:
+                print(f"{i}/{len(rows)}", flush=True)
+    print("wrote", out)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="mergeone")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("prepare").set_defaults(fn=cmd_prepare)
+    p3 = sub.add_parser("prepare-run3", help="agent PRs (data/run3/agent_prs.jsonl) → data/run3/dataset.jsonl, repo-level split")
+    p3.add_argument("--src", default="data/run3/agent_prs.jsonl")
+    p3.add_argument("--repos", default="data/run3/repos.json")
+    p3.add_argument("--out", default="data/run3/dataset.jsonl")
+    p3.add_argument("--per-repo-cap", type=int)
+    p3.set_defaults(fn=cmd_prepare_run3)
+    cr = sub.add_parser("close-reasons", help="classify close reasons on a test sample (reporting only)")
+    cr.add_argument("--n", type=int, default=200)
+    cr.add_argument("--seed", type=int, default=7)
+    cr.add_argument("--run", default="run3")
+    cr.add_argument("--dataset", default="data/run3/dataset.jsonl")
+    cr.add_argument("--model", default="claude-fable-5-1")
+    cr.set_defaults(fn=cmd_close_reasons)
     sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
     p = sub.add_parser("predict")
     p.add_argument("--model", required=True, choices=["rules", "gbm", "haiku", "jev"])
@@ -324,6 +381,7 @@ def main(argv=None):
     p.add_argument("--only-errors-from")
     p.add_argument("--qset", choices=["v1", "v2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage)")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
+    p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.set_defaults(fn=cmd_predict)
     j = sub.add_parser("judge")
     j.add_argument("--split", required=True, choices=["val", "test"])
@@ -349,11 +407,14 @@ def main(argv=None):
     l.add_argument("--base-rate", type=float, default=30000 / 86400, help="decisions/s at multiplier 1 (default: 30k/day)")
     l.add_argument("--concurrency", type=int, default=64)
     l.add_argument("--run", default="run1")
+    l.add_argument("--dataset")
+    l.add_argument("--qset", choices=["v1", "v2"], default="v1")
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")
     r.add_argument("run_dir")
     r.add_argument("--v2", action="store_true", help="run2 report (judge labels, calibration)")
-    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report", fromlist=["x"]).run(Path(a.run_dir)))
+    r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
     sub.add_parser("serve", help="run the gateway server; all further args go to mergeone.server.app")
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "serve":
