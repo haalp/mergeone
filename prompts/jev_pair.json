@@ -1,0 +1,12 @@
+{
+  "same_change": {
+    "type": "choice",
+    "instructions": "You are shown two pull requests from the same repository, A and B. Decide how A relates to B. 'same': A and B implement the same change or fix the same problem in essentially the same way, so merging both would be redundant. 'subset': A is a strict part of B or B of A; merging the larger one makes the smaller unnecessary. 'related': they touch the same area or feature but do different work; both could merge. 'unrelated': different work.",
+    "criteria": {
+      "same": "Same change or same fix; redundant to merge both",
+      "subset": "One is contained in the other",
+      "related": "Same area, different work; both could land",
+      "unrelated": "Different work"
+    }
+  }
+}

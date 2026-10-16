@@ -139,7 +139,9 @@ def cmd_predict(args):
         keep = {json.loads(l)["pr_number"] for l in Path(args.subset).open()}
         rows = [r for r in rows if r["pr_number"] in keep]
     model = build_model(args.model, args.qset)
-    if args.qset == "v2":
+    if args.qset == "pair":
+        questions = QUESTION_SETS["pair"]
+    elif args.qset == "v2":
         questions = DECISIONS_V2 if args.questions == "all" else (PRIMARY_V2,)
     else:
         questions = DECISIONS if args.questions == "all" else (PRIMARY,)
@@ -363,6 +365,8 @@ def main(argv=None):
     p3.add_argument("--out", default="data/run3/dataset.jsonl")
     p3.add_argument("--per-repo-cap", type=int)
     p3.set_defaults(fn=cmd_prepare_run3)
+    for name, fn in (("run4-labels", "cmd_labels"), ("run4-retrieve", "cmd_retrieve"), ("run4-pairs", "cmd_pairs")):
+        sub.add_parser(name, help=f"run 4: {name.split('-')[1]} (see mergeone/eval/run4.py)").set_defaults(fn=lambda a, fn=fn: getattr(__import__("mergeone.eval.run4", fromlist=["x"]), fn)(a))
     cr = sub.add_parser("close-reasons", help="classify close reasons on a test sample (reporting only)")
     cr.add_argument("--n", type=int, default=200)
     cr.add_argument("--seed", type=int, default=7)
@@ -382,7 +386,7 @@ def main(argv=None):
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage)")
+    p.add_argument("--qset", choices=["v1", "v2", "pair"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), pair = run4 same_change")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.set_defaults(fn=cmd_predict)
@@ -417,7 +421,8 @@ def main(argv=None):
     r.add_argument("run_dir")
     r.add_argument("--v2", action="store_true", help="run2 report (judge labels, calibration)")
     r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
-    r.set_defaults(fn=lambda a: __import__("mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
+    r.add_argument("--run4", action="store_true", help="run4 report (PR memory, duplicate detection)")
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
     sub.add_parser("serve", help="run the gateway server; all further args go to mergeone.server.app")
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "serve":

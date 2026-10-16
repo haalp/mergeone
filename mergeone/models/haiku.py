@@ -13,7 +13,15 @@ from .base import Decision, DECISIONS, DECISIONS_V2, Timer
 
 MODEL_ID = "claude-haiku-5-5"
 PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md",
-           "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md"}
+           "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md",
+           "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md"}
+SCHEMA_PAIR = {
+    "type": "object",
+    "properties": {"same_change": {"type": "object", "properties": {k: {"type": "number"} for k in ("same", "subset", "related", "unrelated")},
+                                   "required": ["same", "subset", "related", "unrelated"], "additionalProperties": False}},
+    "required": ["same_change"],
+    "additionalProperties": False,
+}
 
 SCHEMA = {
     "type": "object",
@@ -48,7 +56,7 @@ class HaikuModel:
         self.client = anthropic.Anthropic()
         self.version = version
         self.prompt = PROMPTS[version].read_text()
-        self.schema_all = SCHEMA if version == "v1" else SCHEMA_V2
+        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "pair": SCHEMA_PAIR}[version]
         self.effort = effort
         p = (prices or {}).get("haiku", {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6
@@ -70,6 +78,12 @@ class HaikuModel:
                 )
             text = next(b.text for b in resp.content if b.type == "text")
             out = json.loads(text)
+            raw_choice = {}
+            if "same_change" in questions and isinstance(out.get("same_change"), dict):
+                pr = out["same_change"]; z = sum(max(0.0, float(v)) for v in pr.values()) or 1.0
+                pr = {k: max(0.0, float(v)) / z for k, v in pr.items()}
+                out["same_change"] = pr.get("same", 0.0) + 0.5 * pr.get("subset", 0.0)  # run 4: duplicate_of
+                raw_choice = {"same_change": pr}
             probs = {q: float(min(max(out[q], 0.0), 1.0)) for q in questions}
             it, ot = resp.usage.input_tokens, resp.usage.output_tokens
             return Decision(
@@ -79,7 +93,7 @@ class HaikuModel:
                 output_tokens=ot,
                 cost_usd=it * self.in_price + ot * self.out_price,
                 model_version=resp.model,
-                raw={"stop_reason": resp.stop_reason},
+                raw={"stop_reason": resp.stop_reason, **({"choice": raw_choice} if raw_choice else {})},
             )
         except Exception as e:  # recorded, never hidden
             return Decision(probs={q: float("nan") for q in questions}, error=f"{type(e).__name__}: {e}", model_version=MODEL_ID)
