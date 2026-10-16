@@ -8,13 +8,10 @@ cd "$(dirname "$0")/.."
 PY="${PYTHON:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}"
 C="${CONCURRENCY:-8}"; DS=data/run3/dataset.jsonl
 [ -f "$DS" ] || $PY -m mergeone.cli prepare-run3
+# rows already predicted (and not errored) are skipped, so re-running after the dataset grew only costs the new rows
 for sp in val test; do
   f="results/run3/predictions_jev_${sp}_all.jsonl"
-  if [ -f "$f" ]; then
-    grep -q '"error": "' "$f" && $PY -m mergeone.cli predict --model jev --split $sp --run run3 --qset v2 --dataset $DS --concurrency $C --append --only-errors-from "$f" || true
-  else
-    $PY -m mergeone.cli predict --model jev --split $sp --run run3 --qset v2 --dataset $DS --concurrency $C
-  fi
+  $PY -m mergeone.cli predict --model jev --split $sp --run run3 --qset v2 --dataset $DS --concurrency $C --append --only-missing-from "$f"
 done
 # R3-H5: 100x the historical rate of the test set, open loop, through the model
 $PY -m mergeone.cli loadtest --model jev --multiplier 100 --limit 600 --run run3 --dataset $DS --qset v2

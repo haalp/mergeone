@@ -130,9 +130,11 @@ def cmd_train_gbm(args):
 
 def cmd_predict(args):
     rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
-    if args.only_errors_from:
-        done = {json.loads(l)["pr_number"] for l in Path(args.only_errors_from).open() if json.loads(l)["decision"].get("error") is None}
+    if args.only_errors_from or args.only_missing_from:
+        src = Path(args.only_errors_from or args.only_missing_from)
+        done = {json.loads(l)["pr_number"] for l in src.open() if json.loads(l)["decision"].get("error") is None} if src.exists() else set()
         rows = [r for r in rows if r["pr_number"] not in done]
+        print(f"{len(rows)} rows not yet predicted (skipping {len(done)})", flush=True)
     if args.subset:
         keep = {json.loads(l)["pr_number"] for l in Path(args.subset).open()}
         rows = [r for r in rows if r["pr_number"] in keep]
@@ -379,6 +381,7 @@ def main(argv=None):
     p.add_argument("--words", action="store_true", help="numbers-as-words ablation state")
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
+    p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
     p.add_argument("--qset", choices=["v1", "v2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage)")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
