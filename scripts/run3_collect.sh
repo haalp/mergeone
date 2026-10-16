@@ -15,14 +15,21 @@ log=data/run3/collect.log
 echo "=== $(date -u +%FT%TZ) start (per_repo=$PER_REPO)" | tee -a "$log"
 
 # a crash (network blip, laptop sleep) just restarts from the checkpoint, up to 20 times
+# discover writes repos.json only when it completes; remove any stale one first
+[ -f data/run3/discover_stage2.json ] || rm -f data/run3/repos.json
+ok=0
 for attempt in $(seq 1 20); do
+  rm -f data/run3/repos.json
   $KEEPAWAKE $PY -m mergeone.data.agent_prs discover --min-stars 500 --min-prs 20 --pages 3 --seed $SEED 2>&1 | tee -a "$log"
-  [ -s data/run3/repos.json ] && [ "$(python3 -c 'import json;print(len(json.load(open("data/run3/repos.json"))))')" -gt 2 ] && break
+  [ -s data/run3/repos.json ] && { ok=1; break; }
   echo "discover did not finish (attempt $attempt); retrying in 30s" | tee -a "$log"; sleep 30
 done
-python3 -c '
-import json;r=json.load(open("data/run3/repos.json"));print(len(r),"repos")
-for x in r: print(f"{x[\"agent_prs_seen\"]:6d} *{x[\"stars\"]:<7d} {x[\"repo\"]:45s} {x[\"by_agent\"]}")' | tee -a "$log"
+[ "$ok" = 1 ] || { echo "discover failed 20 times; not fetching. See $log" | tee -a "$log"; exit 1; }
+$PY - <<'PYEOF' | tee -a "$log"
+import json
+r = json.load(open("data/run3/repos.json")); print(len(r), "repos")
+for x in r: print("%6d *%-7d %-45s %s" % (x["agent_prs_seen"], x["stars"], x["repo"], x["by_agent"]))
+PYEOF
 
 for attempt in $(seq 1 20); do
   $KEEPAWAKE $PY -m mergeone.data.agent_prs fetch --per-repo "$PER_REPO" 2>&1 | tee -a "$log" && break

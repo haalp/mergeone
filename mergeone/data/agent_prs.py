@@ -58,7 +58,7 @@ class GH:
         h = {"Accept": "application/vnd.github+json", "User-Agent": "mergeone-gatebench"}
         if tok:
             h["Authorization"] = f"Bearer {tok}"
-        self.c = httpx.Client(base_url=API, headers=h, timeout=60)
+        self.c = httpx.Client(base_url=API, headers=h, timeout=60, follow_redirects=True)  # renamed repos → 301
         self.calls = 0
         r = self.c.get("/rate_limit")
         lim = r.json().get("resources", {}) if r.status_code == 200 else {}
@@ -86,8 +86,8 @@ class GH:
                 print(f"  rate limited; sleeping {wait}s", file=sys.stderr, flush=True)
                 time.sleep(min(wait, 900))
                 continue
-            if r.status_code == 404:
-                return None
+            if r.status_code == 404 or 300 <= r.status_code < 400:
+                return None  # gone, or moved and redirect not followable
             if r.status_code >= 500:
                 time.sleep(5 * (attempt + 1))
                 continue
