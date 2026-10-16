@@ -110,7 +110,12 @@ class GH:
 
 def _repo_agent_total(gh, repo, qual):
     """True number of closed agent PRs in a repo (one search call, per_page=1 → total_count)."""
-    r = gh.get("/search/issues", q=f"repo:{repo} is:pr is:closed {qual}", per_page=1)
+    try:
+        r = gh.get("/search/issues", q=f"repo:{repo} is:pr is:closed {qual}", per_page=1)
+    except RuntimeError as e:  # 422: repo renamed/private/gone → not searchable
+        if "422" in str(e):
+            return 0
+        raise
     time.sleep(2.2)
     return int(r.json().get("total_count", 0)) if r else 0
 
@@ -158,14 +163,21 @@ def cmd_discover(a):
                 counted[repo] = None
                 ck2.write_text(json.dumps(counted))
                 continue
+            canonical = meta.get("full_name") or repo
+            if canonical != repo:
+                print(f"  {repo} → {canonical} (renamed)", file=sys.stderr, flush=True)
+                if canonical in counted or canonical in candidates:
+                    counted[repo] = None
+                    ck2.write_text(json.dumps(counted))
+                    continue
             # stage 2: true per-agent totals, only for agents seen here (or all, for seed repos)
             agents = [(n, q) for n, q in AGENTS if n in seen[repo]] or AGENTS
             byagent = {}
             for name, qual in agents:
-                n = _repo_agent_total(gh, repo, qual)
+                n = _repo_agent_total(gh, canonical, qual)
                 if n:
                     byagent[name] = n
-            entry = {"repo": repo, "stars": meta["stargazers_count"], "language": meta.get("language"),
+            entry = {"repo": canonical, "stars": meta["stargazers_count"], "language": meta.get("language"),
                      "agent_prs_seen": sum(byagent.values()), "by_agent": byagent, "default_branch": meta.get("default_branch", "main")}
             counted[repo] = entry
             ck2.write_text(json.dumps(counted))
