@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	gomcp "github.com/mark3labs/mcp-go/mcp"
@@ -91,6 +92,53 @@ func Serve(gw *server.Gateway, fromGit StateFn) error {
 			m = gw.Gate.Model
 		}
 		return jsonResult(plan.Landing(repo, gw.Store.OpenPRs(repo), m, 200, 0.6)), nil
+	})
+
+	s.AddTool(gomcp.NewTool("gate_similar",
+		gomcp.WithDescription("Find recent pull requests in the repository's memory that look like this change (file overlap + text), with the model's duplicate_of probability for each. Use before opening a PR to avoid duplicating landed or open work."),
+		gomcp.WithString("repo", gomcp.Required(), gomcp.Description("owner/name")),
+		gomcp.WithString("title", gomcp.Required()),
+		gomcp.WithString("body", gomcp.DefaultString("")),
+		gomcp.WithString("paths", gomcp.Description("comma-separated changed paths")),
+		gomcp.WithString("author", gomcp.DefaultString("")),
+		gomcp.WithNumber("k", gomcp.DefaultNumber(5)),
+	), func(ctx context.Context, req gomcp.CallToolRequest) (*gomcp.CallToolResult, error) {
+		if gw.Memory == nil {
+			return errResult("PR memory is not enabled in the policy (memory.enabled)"), nil
+		}
+		args := req.Params.Arguments
+		repo, _ := args["repo"].(string)
+		title, _ := args["title"].(string)
+		body, _ := args["body"].(string)
+		author, _ := args["author"].(string)
+		var paths []string
+		if ps, _ := args["paths"].(string); ps != "" {
+			for _, p := range strings.Split(ps, ",") {
+				if p = strings.TrimSpace(p); p != "" {
+					paths = append(paths, p)
+				}
+			}
+		}
+		k := 5
+		if v, ok := args["k"].(float64); ok && v > 0 {
+			k = int(v)
+		}
+		aState := server.RenderState(title, body, nil, "")
+		meta := engine.PRMeta{Repo: repo, Title: title, Body: body, Author: author, Paths: paths, CreatedAt: time.Now().UTC()}
+		out := []map[string]any{}
+		for _, c := range gw.Memory.Candidates(meta, aState, k) {
+			row := map[string]any{"number": c.Number, "title": c.Title, "state": c.State, "retrieval_score": c.Score}
+			if gw.Gate.Model != nil {
+				d := gw.Gate.Model.Decide(c.PairState, []string{"same_change"})
+				if d.Error == "" {
+					row["duplicate_of"] = d.Probs["same_change"]
+				} else {
+					row["error"] = d.Error
+				}
+			}
+			out = append(out, row)
+		}
+		return jsonResult(map[string]any{"repo": repo, "candidates": out, "memory_size": gw.Memory.Repo(repo).Len()}), nil
 	})
 
 	s.AddTool(gomcp.NewTool("gate_stats",

@@ -58,9 +58,15 @@ type FileStat struct {
 // PRState fetches a PR and renders it exactly as gatebench renders history,
 // so shipped calibration maps apply. No clone is needed (the Scion idea).
 func (g *GitHub) PRState(repo string, pr int) (state string, paths []string, headSHA string, err error) {
+	state, paths, headSHA, _, _, err = g.PRStateMeta(repo, pr)
+	return
+}
+
+// PRStateMeta is PRState plus the PR metadata the memory needs and the file stats.
+func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string, headSHA string, pm engine.PRMeta, files []FileStat, err error) {
 	meta, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d", g.API, repo, pr), "application/vnd.github+json", nil)
 	if err != nil || code != 200 {
-		return "", nil, "", fmt.Errorf("GET pull %d: %d %v", pr, code, err)
+		return "", nil, "", pm, nil, fmt.Errorf("GET pull %d: %d %v", pr, code, err)
 	}
 	var m struct {
 		Title string `json:"title"`
@@ -69,9 +75,13 @@ func (g *GitHub) PRState(repo string, pr int) (state string, paths []string, hea
 			SHA   string `json:"sha"`
 			Label string `json:"label"`
 		} `json:"head"`
+		User struct {
+			Login string `json:"login"`
+		} `json:"user"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 	_ = json.Unmarshal(meta, &m)
-	var files []FileStat
 	for page := 1; page <= 30; page++ {
 		b, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d/files?per_page=100&page=%d", g.API, repo, pr, page), "application/vnd.github+json", nil)
 		if err != nil || code != 200 {
@@ -94,7 +104,8 @@ func (g *GitHub) PRState(repo string, pr int) (state string, paths []string, hea
 	for _, f := range files {
 		paths = append(paths, f.Path)
 	}
-	return RenderState(m.Title, m.Body, files, string(diff)), paths, m.Head.SHA, nil
+	pm = engine.PRMeta{Repo: repo, Number: pr, Title: m.Title, Body: m.Body, Author: m.User.Login, Paths: paths, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
+	return RenderState(m.Title, m.Body, files, string(diff)), paths, m.Head.SHA, pm, files, nil
 }
 
 // RenderState is the byte-for-byte equivalent of gatebench's render_state().

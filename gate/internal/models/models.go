@@ -22,8 +22,9 @@ import (
 
 // JevQuestion is one typed question in prompts/jev_v2.json.
 type JevQuestion struct {
-	Type         string `json:"type"`
-	Instructions string `json:"instructions"`
+	Type         string            `json:"type"`
+	Instructions string            `json:"instructions"`
+	Criteria     map[string]string `json:"criteria,omitempty"` // choice questions (run 4: same_change)
 }
 
 // Jev calls https://api.typesafe.ai/v1/systemone with noul questions.
@@ -57,6 +58,22 @@ func NewJev(questionsPath string) (*Jev, error) {
 }
 
 func (j *Jev) Name() string { return "jev" }
+
+// AddQuestions merges another questions file (e.g. prompts/jev_pair.json) into the client.
+func (j *Jev) AddQuestions(path string) error {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	var qs map[string]JevQuestion
+	if err := json.Unmarshal(b, &qs); err != nil {
+		return fmt.Errorf("questions %s: %w", path, err)
+	}
+	for k, v := range qs {
+		j.Questions[k] = v
+	}
+	return nil
+}
 
 func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	qs := map[string]JevQuestion{}
@@ -112,11 +129,15 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		case a.Noul != nil:
 			probs[q] = *a.Noul
 		case a.Probabilities != nil:
-			p, ok := a.Probabilities["yes"]
-			if !ok {
-				p = a.Probabilities["true"]
+			if q == "same_change" { // run 4: duplicate_of = P(same) + 0.5·P(subset)
+				probs[q] = a.Probabilities["same"] + 0.5*a.Probabilities["subset"]
+			} else {
+				p, ok := a.Probabilities["yes"]
+				if !ok {
+					p = a.Probabilities["true"]
+				}
+				probs[q] = p
 			}
-			probs[q] = p
 			if a.Confidence != nil {
 				conf[q] = *a.Confidence
 			}
@@ -132,6 +153,7 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 
 // Haiku calls the Claude Messages API with strict JSON output and thinking off.
 type Haiku struct {
+	PairSystem string
 	Key        string
 	ModelID    string
 	System     string
@@ -155,14 +177,37 @@ func NewHaiku(promptPath string) (*Haiku, error) {
 
 func (h *Haiku) Name() string { return "haiku" }
 
+// SetPairPrompt loads prompts/haiku_pair.md, used when the only question is same_change.
+func (h *Haiku) SetPairPrompt(path string) error {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	h.PairSystem = string(b)
+	return nil
+}
+
 func (h *Haiku) Decide(state string, questions []string) engine.Decision {
 	props := map[string]any{}
+	pair := len(questions) == 1 && questions[0] == "same_change"
 	for _, q := range questions {
+		if q == "same_change" {
+			opts := map[string]any{}
+			for _, o := range []string{"same", "subset", "related", "unrelated"} {
+				opts[o] = map[string]any{"type": "number"}
+			}
+			props[q] = map[string]any{"type": "object", "properties": opts, "required": []string{"same", "subset", "related", "unrelated"}, "additionalProperties": false}
+			continue
+		}
 		props[q] = map[string]any{"type": "number"}
+	}
+	system := h.System
+	if pair && h.PairSystem != "" {
+		system = h.PairSystem
 	}
 	schema := map[string]any{"type": "object", "properties": props, "required": questions, "additionalProperties": false}
 	body, _ := json.Marshal(map[string]any{
-		"model": h.ModelID, "max_tokens": 256, "system": h.System,
+		"model": h.ModelID, "max_tokens": 256, "system": system,
 		"thinking":      map[string]any{"type": "disabled"},
 		"output_config": map[string]any{"effort": "low", "format": map[string]any{"type": "json_schema", "schema": schema}},
 		"messages":      []map[string]any{{"role": "user", "content": state}},
@@ -203,13 +248,28 @@ func (h *Haiku) Decide(state string, questions []string) engine.Decision {
 			break
 		}
 	}
-	var vals map[string]float64
+	var vals map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(text), &vals); err != nil {
 		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: out.Model, Error: "bad model JSON: " + err.Error()}
 	}
 	probs := map[string]float64{}
 	for _, q := range questions {
-		probs[q] = math.Min(1, math.Max(0, vals[q]))
+		if q == "same_change" { // run 4: normalise the 4-way distribution, duplicate_of = P(same)+0.5·P(subset)
+			var d map[string]float64
+			_ = json.Unmarshal(vals[q], &d)
+			z := 0.0
+			for _, v := range d {
+				z += math.Max(0, v)
+			}
+			if z == 0 {
+				z = 1
+			}
+			probs[q] = (math.Max(0, d["same"]) + 0.5*math.Max(0, d["subset"])) / z
+			continue
+		}
+		var v float64
+		_ = json.Unmarshal(vals[q], &v)
+		probs[q] = math.Min(1, math.Max(0, v))
 	}
 	return engine.Decision{Probs: probs, LatencyMS: lat, InputTokens: out.Usage.In, OutputTokens: out.Usage.Out,
 		CostUSD: float64(out.Usage.In)*h.InPerMTok/1e6 + float64(out.Usage.Out)*h.OutPerMTok/1e6, ModelVersion: out.Model}

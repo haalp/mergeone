@@ -6,7 +6,16 @@ Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md
 Discover → fetch → Jev / Haiku predictions → stack-level rule → report. Settles R3-H1..H5 and
 decides whether the numbers on the landing page can be claimed for agent-authored PRs.
 
-## v0.2 — `assumptions` (agent-declared premises)
+## v0.2 — PR memory and duplicate detection (run 4, in progress)
+Run 3 showed 36% of agent-PR closures are *superseded or duplicate* and the gate could not see
+them. v0.2 adds a per-repository PR memory (`mergeone index owner/name`, kept fresh by the
+webhook), deterministic retrieval (file overlap + BM25), one typed pair question
+`same_change(A, B)` per candidate, and two policy signals: `duplicate_of` and `silent_days`.
+Shipped in the Go gateway behind `memory.enabled`; MCP tool `gate_similar` lets an agent check
+before it opens a PR. Pre-registered as run 4 in PROTOCOL.md; ships as default-on only if
+R4-H1..H3 pass.
+
+## v0.3 — `assumptions` (agent-declared premises)
 Agents know what their change *relies on*; today the gate has to infer it from the diff.
 Let the agent say it:
 
@@ -24,7 +33,7 @@ Credit: the "changes collide on beliefs, not lines" framing is from
 [bimsonz/keel](https://github.com/bimsonz/keel); mergeone adopts the idea as an optional
 input on top of existing Git hosting rather than as a new platform.
 
-## v0.3 — conflict-proving tests
+## v0.4 — conflict-proving tests
 When an assumption conflict or `touches_concurrency` overlap is detected between two PRs,
 emit a minimal failing test that demonstrates the interaction, attach it to the hold
 reason, and offer it as a guard for trunk. A test is a verdict a human can run.

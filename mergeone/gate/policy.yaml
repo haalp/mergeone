@@ -15,7 +15,26 @@ always_human_paths:
   - "staging/src/k8s.io/api/"
   - "plugin/pkg/auth/"
 
+# PR memory (run 4): remembers the repo's recent PRs and asks the model, per PR, whether
+# it duplicates one of the top_k most similar ones. Adds `duplicate_of` and `silent_days`
+# to the probabilities so rules below can use them. Backfill once: mergeone index owner/name
+memory:
+  enabled: true
+  top_k: 5
+
 rules:
+  - name: duplicate-of
+    when: { duplicate_of: ">= 0.7" }
+    verdict: hold
+    route: dedup
+    reason: "Looks like the same change as an existing PR"
+
+  - name: stale
+    when: { silent_days: ">= 14" }
+    verdict: hold
+    route: stale
+    reason: "No activity for two weeks; close or rebase"
+
   - name: weakened-tests
     when: { weakens_tests: ">= 0.6" }
     verdict: block

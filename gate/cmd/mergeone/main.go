@@ -28,6 +28,7 @@ import (
 
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/mcp"
+	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/models"
 	"github.com/haalp/mergeone/gate/internal/server"
 	"github.com/haalp/mergeone/gate/internal/store"
@@ -52,6 +53,8 @@ func main() {
 		err = cmdReplay(os.Args[2:])
 	case "loadtest":
 		err = cmdLoadtest(os.Args[2:])
+	case "index":
+		err = cmdIndex(os.Args[2:])
 	case "mcp":
 		err = cmdMCP(os.Args[2:])
 	case "version", "--version", "-v":
@@ -67,7 +70,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: mergeone <serve|pr|decide|replay|loadtest|mcp|version> [flags]")
+	fmt.Fprintln(os.Stderr, "usage: mergeone <serve|pr|decide|replay|loadtest|index|mcp|version> [flags]")
 }
 
 // buildGate wires policy + model + calibration. promptsDir holds jev_v2.json / haiku_v2.md;
@@ -106,7 +109,63 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 	if err != nil {
 		return nil, err
 	}
-	return &engine.Gate{Policy: p, Model: m, Cal: cal}, nil
+	g := &engine.Gate{Policy: p, Model: m, Cal: cal, PairK: p.Memory.TopK}
+	if p.Memory.Enabled {
+		switch mm := m.(type) {
+		case *models.Jev:
+			if err := mm.AddQuestions(findAsset(assetsDir, "jev_pair.json")); err != nil {
+				return nil, fmt.Errorf("memory enabled but pair questions missing: %w", err)
+			}
+		case *models.Haiku:
+			if err := mm.SetPairPrompt(findAsset(assetsDir, "haiku_pair.md")); err != nil {
+				return nil, fmt.Errorf("memory enabled but pair prompt missing: %w", err)
+			}
+		}
+		mem, err := memory.Open(filepath.Join(filepath.Dir(policyPath), ".mergeone", "memory"))
+		if err != nil {
+			return nil, err
+		}
+		g.Memory = mem
+	}
+	return g, nil
+}
+
+func memoryOf(g *engine.Gate) *memory.Store {
+	if m, ok := g.Memory.(*memory.Store); ok {
+		return m
+	}
+	return nil
+}
+
+func cmdIndex(args []string) error {
+	fs := flag.NewFlagSet("index", flag.ExitOnError)
+	policy := fs.String("policy", ".mergeone.yaml", "policy file (memory dir is <policy dir>/.mergeone/memory)")
+	days := fs.Int("days", 180, "how far back to index")
+	fs.Parse(args)
+	if fs.NArg() < 1 {
+		return fmt.Errorf("usage: mergeone index owner/name [--days 180]")
+	}
+	mem, err := memory.Open(filepath.Join(filepath.Dir(*policy), ".mergeone", "memory"))
+	if err != nil {
+		return err
+	}
+	gh := server.NewGitHub(os.Getenv("GITHUB_TOKEN"))
+	if gh == nil {
+		return fmt.Errorf("GITHUB_TOKEN required")
+	}
+	for _, repo := range fs.Args() {
+		t0 := time.Now()
+		n, err := gh.Index(mem, repo, time.Now().AddDate(0, 0, -*days), func(n int) {
+			if n%500 == 0 {
+				fmt.Fprintf(os.Stderr, "  %s: %d PRs…\n", repo, n)
+			}
+		})
+		if err != nil {
+			return fmt.Errorf("%s: %w (indexed %d)", repo, err, n)
+		}
+		fmt.Printf("%s: %d PRs indexed in %s (memory now %d)\n", repo, n, time.Since(t0).Round(time.Second), mem.Repo(repo).Len())
+	}
+	return nil
 }
 
 // findAsset looks in dir, dir/.mergeone, dir/prompts, dir/mergeone/gate and the executable's dir.
@@ -141,6 +200,7 @@ func cmdServe(args []string) error {
 		return err
 	}
 	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), *workers, *public)
+	gw.Memory = memoryOf(g)
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	return gw.Serve(ctx, *addr, os.Getenv("MERGEONE_WEBHOOK_SECRET"))
@@ -314,6 +374,7 @@ func cmdMCP(args []string) error {
 		return err
 	}
 	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), 4, "")
+	gw.Memory = memoryOf(g)
 	defer gw.Stop()
 	return mcp.Serve(gw, stateFromGit)
 }

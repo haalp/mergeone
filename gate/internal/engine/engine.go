@@ -56,6 +56,33 @@ type Result struct {
 	InputSHA256  string             `json:"input_sha256"`
 	Error        string             `json:"error,omitempty"`
 	TS           time.Time          `json:"ts"`
+	Extra        map[string]any     `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
+}
+
+// PRMeta is what the PR memory needs about the change under decision (all optional).
+type PRMeta struct {
+	Repo      string
+	Number    int
+	Title     string
+	Body      string
+	Author    string
+	Paths     []string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// Candidate is a memory hit as the engine sees it (decoupled from the memory package).
+type Candidate struct {
+	Number    int     `json:"number"`
+	Score     float64 `json:"score"`
+	State     string  `json:"state"`
+	Title     string  `json:"title"`
+	PairState string  `json:"-"`
+}
+
+// Memory is the optional PR-memory hook (run 4). Returns top-k candidates with rendered pair states.
+type Memory interface {
+	Candidates(meta PRMeta, aState string, k int) []Candidate
 }
 
 // Outcome is a (verdict, route, reason) triple used by rules, default and on_error.
@@ -91,6 +118,10 @@ type Policy struct {
 	Rules            []Rule   `yaml:"rules"`
 	Default          Outcome  `yaml:"default"`
 	OnError          Outcome  `yaml:"on_error"`
+	Memory           struct {
+		Enabled bool `yaml:"enabled"`
+		TopK    int  `yaml:"top_k"`
+	} `yaml:"memory"`
 }
 
 var condRE = regexp.MustCompile(`^\s*(>=|<=|>|<|==)\s*([0-9.]+)\s*$`)
@@ -117,8 +148,17 @@ func LoadPolicy(path string) (*Policy, error) {
 	if p.OnError.Verdict == "" {
 		p.OnError = Outcome{"hold", "human", "Decision model unavailable"}
 	}
+	if err := p.compile(); err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+// compile parses rule conditions; exported behaviour is unchanged.
+func (p *Policy) compile() error {
 	for i := range p.Rules {
 		r := &p.Rules[i]
+		r.conds = r.conds[:0]
 		keys := make([]string, 0, len(r.When))
 		for k := range r.When {
 			keys = append(keys, k)
@@ -127,13 +167,13 @@ func LoadPolicy(path string) (*Policy, error) {
 		for _, q := range keys {
 			m := condRE.FindStringSubmatch(r.When[q])
 			if m == nil {
-				return nil, fmt.Errorf("rule %q: bad condition %q for %s", r.Name, r.When[q], q)
+				return fmt.Errorf("rule %q: bad condition %q for %s", r.Name, r.When[q], q)
 			}
 			v, _ := strconv.ParseFloat(m[2], 64)
 			r.conds = append(r.conds, cond{q, m[1], v})
 		}
 	}
-	return &p, nil
+	return nil
 }
 
 // Calibrator is a per-question piecewise-linear map (isotonic fit from gatebench).
@@ -192,11 +232,13 @@ func interp(x float64, xs, ys []float64) float64 {
 	return y0 + (y1-y0)*(x-x0)/(x1-x0)
 }
 
-// Gate = policy + model + calibrator.
+// Gate = policy + model + calibrator (+ optional PR memory for duplicate_of).
 type Gate struct {
 	Policy *Policy
 	Model  Model
 	Cal    *Calibrator
+	Memory Memory // nil → duplicate_of is never set and dedup rules never fire
+	PairK  int    // candidates asked per PR (default 5)
 }
 
 // Decide runs the full pipeline for one change. It never panics on model
@@ -227,6 +269,58 @@ func (g *Gate) Decide(state string, paths []string) Result {
 	rule, out := g.Match(cal)
 	return Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
 		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now}
+}
+
+// DecideFor is Decide plus the run-4 signals when a PR memory is configured:
+// duplicate_of = max over top-k candidates of same_change, silent_days from UpdatedAt.
+// Both are added to the probability map so policy rules can reference them.
+func (g *Gate) DecideFor(state string, meta PRMeta) Result {
+	res := g.Decide(state, meta.Paths)
+	if res.Error != "" || res.Rule == "always_human_paths" || g.Model == nil {
+		return res
+	}
+	extra := map[string]any{}
+	if !meta.UpdatedAt.IsZero() {
+		days := time.Since(meta.UpdatedAt).Hours() / 24
+		res.Probs["silent_days"] = math.Round(days*10) / 10
+		extra["silent_days"] = res.Probs["silent_days"]
+	}
+	if g.Memory != nil && meta.Repo != "" {
+		k := g.PairK
+		if k <= 0 {
+			k = 5
+		}
+		cands := g.Memory.Candidates(meta, state, k)
+		best, bestN := 0.0, 0
+		var seen []map[string]any
+		for _, c := range cands {
+			d := g.Model.Decide(c.PairState, []string{"same_change"})
+			res.LatencyMS += d.LatencyMS
+			res.CostUSD += d.CostUSD
+			p := d.Probs["same_change"]
+			if d.Error != "" || math.IsNaN(p) {
+				p = 0
+			}
+			seen = append(seen, map[string]any{"number": c.Number, "state": c.State, "title": c.Title, "retrieval": c.Score, "duplicate_of": math.Round(p*1000) / 1000})
+			if p > best {
+				best, bestN = p, c.Number
+			}
+		}
+		res.Probs["duplicate_of"] = math.Round(best*1000) / 1000
+		extra["candidates"] = seen
+		if bestN != 0 {
+			extra["duplicate_candidate"] = bestN
+		}
+	}
+	if len(extra) > 0 {
+		res.Extra = extra
+		rule, out := g.Match(res.Probs)
+		res.Rule, res.Verdict, res.Route, res.Reason = rule, out.Verdict, out.Route, out.Reason
+		if n, ok := extra["duplicate_candidate"].(int); ok && rule == "duplicate-of" {
+			res.Reason = fmt.Sprintf("%s (#%d)", out.Reason, n)
+		}
+	}
+	return res
 }
 
 // Match applies the rules to (calibrated) probabilities. Exported for `gate replay`.

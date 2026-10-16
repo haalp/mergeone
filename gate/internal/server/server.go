@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/plan"
 	"github.com/haalp/mergeone/gate/internal/store"
 )
@@ -25,6 +26,7 @@ import (
 type Gateway struct {
 	Gate      *engine.Gate
 	Store     *store.Store
+	Memory    *memory.Store // optional PR memory (run 4)
 	GitHub    *GitHub
 	PublicURL string
 	Workers   int
@@ -47,12 +49,18 @@ func (gw *Gateway) Stop() { close(gw.stop); gw.Store.Wake(); gw.wg.Wait() }
 
 // Decide is the synchronous path (idempotent on repo+sha+input hash).
 func (gw *Gateway) Decide(repo string, pr int, sha, state string, paths []string, source string) engine.Result {
+	return gw.DecideMeta(repo, pr, sha, state, engine.PRMeta{Repo: repo, Number: pr, Paths: paths}, source)
+}
+
+// DecideMeta is Decide with PR metadata, which enables duplicate_of / silent_days when a memory is configured.
+func (gw *Gateway) DecideMeta(repo string, pr int, sha, state string, meta engine.PRMeta, source string) engine.Result {
 	h := sha256.Sum256([]byte(state))
 	inputSHA := hex.EncodeToString(h[:])
 	if prev := gw.Store.Latest(repo, sha); prev != nil && prev.Result.InputSHA256 == inputSHA && prev.Result.Error == "" {
 		return prev.Result
 	}
-	res := gw.Gate.Decide(state, paths)
+	meta.Repo, meta.Number = repo, pr
+	res := gw.Gate.DecideFor(state, meta)
 	if err := gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: source, Result: res, State: state}); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
@@ -101,6 +109,8 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	}()
 	var state string
 	var paths []string
+	meta := engine.PRMeta{Repo: repo, Number: pr}
+	var files []FileStat
 	if s, ok := j.Payload["state"].(string); ok && s != "" {
 		state = s
 		if ps, ok := j.Payload["paths"].([]any); ok {
@@ -108,17 +118,25 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 				paths = append(paths, fmt.Sprint(p))
 			}
 		}
+		meta.Paths = paths
 	} else {
 		if gw.GitHub == nil {
 			return fmt.Errorf("no state in payload and no GitHub token to fetch PR %d", pr)
 		}
-		state, paths, sha, err = gw.GitHub.PRState(repo, pr)
+		state, paths, sha, meta, files, err = gw.GitHub.PRStateMeta(repo, pr)
 		if err != nil {
 			return err
 		}
 	}
-	res := gw.Decide(repo, pr, sha, state, paths, source)
+	res := gw.DecideMeta(repo, pr, sha, state, meta, source)
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
+	if gw.Memory != nil && meta.Title != "" {
+		mf := make([]memory.FileStat, 0, len(files))
+		for _, f := range files {
+			mf = append(mf, memory.FileStat{Path: f.Path, Insertions: f.Insertions, Deletions: f.Deletions})
+		}
+		_ = gw.Memory.Repo(repo).Upsert(memory.EntryFromPR(meta, "OPEN", mf))
+	}
 	if gw.GitHub != nil {
 		details := ""
 		if gw.PublicURL != "" {
@@ -213,7 +231,8 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 				FullName string `json:"full_name"`
 			} `json:"repository"`
 			PullRequest struct {
-				Number int `json:"number"`
+				Number int  `json:"number"`
+				Merged bool `json:"merged"`
 				Head   struct {
 					SHA string `json:"sha"`
 				} `json:"head"`
@@ -229,6 +248,17 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", nil)})
 		case "closed":
 			gw.Store.ClosePR(repo, pr)
+			if gw.Memory != nil {
+				if e, ok := gw.Memory.Repo(repo).Get(pr); ok {
+					e.State = "CLOSED"
+					if ev.PullRequest.Merged {
+						e.State, e.MergedAt = "MERGED", time.Now().UTC().Format("2006-01-02T15:04:05Z")
+					} else {
+						e.ClosedAt = time.Now().UTC().Format("2006-01-02T15:04:05Z")
+					}
+					_ = gw.Memory.Repo(repo).Upsert(e)
+				}
+			}
 			writeJSON(w, 200, map[string]any{"closed": true})
 		default:
 			writeJSON(w, 200, map[string]string{"ignored": ev.Action})
