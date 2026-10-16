@@ -1,0 +1,12 @@
+{
+  "model": "haiku",
+  "split": "val",
+  "variant": "all",
+  "n": 1491,
+  "errors": 0,
+  "concurrency": 6,
+  "model_version": "v2",
+  "finished_at": "2026-10-16T21:20:16.549650+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15"
+}

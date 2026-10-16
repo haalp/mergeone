@@ -1,0 +1,1166 @@
+{
+  "dataset": {
+    "n_val": 1491,
+    "n_test": 705,
+    "repos_test": [
+      "Azure/azure-sdk-for-net",
+      "Comfy-Org/ComfyUI_frontend",
+      "VocaHQ/vocalinux",
+      "compdemocracy/polis",
+      "mattermost/mattermost",
+      "microsoft/semantic-kernel",
+      "microsoft/vscode",
+      "mozilla-ai/otari"
+    ],
+    "base_rate_rejected_test": 0.46808510638297873,
+    "base_rate_bad_outcome_test": 0.46808510638297873,
+    "agents_test": {
+      "claude-app": 153,
+      "copilot": 265,
+      "claude-code": 120,
+      "cursor": 114,
+      "devin": 53
+    }
+  },
+  "models": {
+    "haiku": {
+      "n_test": 705,
+      "calibrated_primary_on_val": true,
+      "questions": {
+        "is_logic_change": {
+          "rejected": {
+            "roc_auc": 0.48524848484848493,
+            "pr_auc": 0.460503739251159,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.48524848484848493,
+            "pr_auc": 0.460503739251159,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.4719344262295082,
+            "pr_auc": 0.4176296775906896,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5636357106945342,
+            "pr_auc": 0.06873038670531802,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5820490546755237,
+            "pr_auc": 0.3122510380104965,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.6292437243511166,
+            "pr_auc": 0.11163352610488916,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.5522852627165113,
+            "pr_auc": 0.1621235840767414,
+            "base": 0.14609929078014183
+          }
+        },
+        "weakens_tests": {
+          "rejected": {
+            "roc_auc": 0.5526747474747475,
+            "pr_auc": 0.5213420108060618,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.5526747474747475,
+            "pr_auc": 0.5213420108060618,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.5501024590163934,
+            "pr_auc": 0.48776604952218217,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5228219492925374,
+            "pr_auc": 0.06394962508306974,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5285079202861522,
+            "pr_auc": 0.2793044078452185,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.8046154666098172,
+            "pr_auc": 0.2586523930900661,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.5458826565171113,
+            "pr_auc": 0.15344741896391922,
+            "base": 0.14609929078014183
+          }
+        },
+        "message_matches_diff": {
+          "rejected": {
+            "roc_auc": 0.4001939393939394,
+            "pr_auc": 0.41439063385583647,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4001939393939394,
+            "pr_auc": 0.41439063385583647,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.38881557377049175,
+            "pr_auc": 0.3756643664389968,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5448179271708684,
+            "pr_auc": 0.06440649175588588,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.4966326009197751,
+            "pr_auc": 0.265529976099891,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.2901321750253158,
+            "pr_auc": 0.060135779802735545,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.48155017256394544,
+            "pr_auc": 0.13884348797540383,
+            "base": 0.14609929078014183
+          }
+        },
+        "touches_concurrency": {
+          "rejected": {
+            "roc_auc": 0.4883717171717172,
+            "pr_auc": 0.4613699694996241,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4883717171717172,
+            "pr_auc": 0.4613699694996241,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.48132377049180325,
+            "pr_auc": 0.42762579650164406,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5397364073834663,
+            "pr_auc": 0.07679122239119744,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5069545222278998,
+            "pr_auc": 0.2645997586488552,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.6471513084261578,
+            "pr_auc": 0.14916868883338547,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.6280924426668386,
+            "pr_auc": 0.20199338597249272,
+            "base": 0.14609929078014183
+          }
+        },
+        "needs_human_review": {
+          "rejected": {
+            "roc_auc": 0.5512282828282828,
+            "pr_auc": 0.5060610464730106,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.5512282828282828,
+            "pr_auc": 0.5060610464730106,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.5573934426229508,
+            "pr_auc": 0.48193916752839966,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.45570279393808805,
+            "pr_auc": 0.056500540179018795,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.4833163004598876,
+            "pr_auc": 0.2553586079802282,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.7627511591962906,
+            "pr_auc": 0.1805303204746474,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.6495903622230107,
+            "pr_auc": 0.22794325083079614,
+            "base": 0.14609929078014183
+          }
+        }
+      },
+      "primary": {
+        "roc_auc": 0.5512282828282828,
+        "roc_auc_ci95": [
+          0.5095151394891363,
+          0.5939319555067288
+        ],
+        "pr_auc": 0.5060610464730106,
+        "recall_at_fpr5": 0.01818181818181818,
+        "ece": 0.11895387366932747,
+        "brier": 0.2496090011513992
+      },
+      "verdicts": {
+        "pass": {
+          "n": 416,
+          "frac": 0.5900709219858156,
+          "bad_outcome_rate": 0.44471153846153844,
+          "rejected_rate": 0.44471153846153844,
+          "rules": {
+            "default": 329,
+            "trivial": 87
+          }
+        },
+        "hold": {
+          "n": 265,
+          "frac": 0.375886524822695,
+          "bad_outcome_rate": 0.49433962264150944,
+          "rejected_rate": 0.49433962264150944,
+          "rules": {
+            "maintainer-judgement": 187,
+            "concurrency-risk": 54,
+            "message-mismatch": 24
+          }
+        },
+        "block": {
+          "n": 24,
+          "frac": 0.03404255319148936,
+          "bad_outcome_rate": 0.5833333333333334,
+          "rejected_rate": 0.5833333333333334,
+          "rules": {
+            "weakened-tests": 24
+          }
+        }
+      },
+      "pass_bad_rate": 0.44471153846153844,
+      "holdblock_bad_rate": 0.5017301038062284,
+      "by_agent": {
+        "claude-app": {
+          "n": 153,
+          "rejected_rate": 0.42483660130718953,
+          "pass_frac": 0.6797385620915033,
+          "pass_bad_rate": 0.38461538461538464,
+          "roc_auc": 0.5955419580419581
+        },
+        "claude-code": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.175,
+          "pass_bad_rate": 0.5238095238095238,
+          "roc_auc": 0.46458333333333335
+        },
+        "copilot": {
+          "n": 265,
+          "rejected_rate": 0.47924528301886793,
+          "pass_frac": 0.6641509433962264,
+          "pass_bad_rate": 0.4090909090909091,
+          "roc_auc": 0.6050154056829853
+        },
+        "cursor": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.7807017543859649,
+          "pass_bad_rate": 0.6741573033707865,
+          "roc_auc": 0.5521367521367522
+        },
+        "devin": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.49056603773584906,
+          "pass_bad_rate": 0.07692307692307693,
+          "roc_auc": 0.4133333333333333
+        }
+      },
+      "by_repo": {
+        "Azure/azure-sdk-for-net": {
+          "n": 120,
+          "rejected_rate": 0.5083333333333333,
+          "pass_frac": 0.6083333333333333,
+          "pass_bad_rate": 0.3972602739726027,
+          "roc_auc": 0.6433731592108918
+        },
+        "Comfy-Org/ComfyUI_frontend": {
+          "n": 120,
+          "rejected_rate": 0.525,
+          "pass_frac": 0.65,
+          "pass_bad_rate": 0.48717948717948717,
+          "roc_auc": 0.5572263993316625
+        },
+        "VocaHQ/vocalinux": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.49056603773584906,
+          "pass_bad_rate": 0.07692307692307693,
+          "roc_auc": 0.4133333333333333
+        },
+        "compdemocracy/polis": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.175,
+          "pass_bad_rate": 0.5238095238095238,
+          "roc_auc": 0.46458333333333335
+        },
+        "mattermost/mattermost": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.7807017543859649,
+          "pass_bad_rate": 0.6741573033707865,
+          "roc_auc": 0.5521367521367522
+        },
+        "microsoft/semantic-kernel": {
+          "n": 25,
+          "rejected_rate": 0.24,
+          "pass_frac": 0.64,
+          "pass_bad_rate": 0.1875,
+          "roc_auc": 0.6359649122807017
+        },
+        "microsoft/vscode": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.725,
+          "pass_bad_rate": 0.45977011494252873,
+          "roc_auc": 0.5551388888888888
+        },
+        "mozilla-ai/otari": {
+          "n": 33,
+          "rejected_rate": 0.06060606060606061,
+          "pass_frac": 0.7878787878787878,
+          "pass_bad_rate": 0.07692307692307693,
+          "roc_auc": 0.5161290322580645
+        }
+      },
+      "stacks": {
+        "n_non_default_base": 80,
+        "n_stacked_linked": 80,
+        "n_changed_by_rule": 0,
+        "frac_changed": 0.0,
+        "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked"
+      },
+      "latency_cost": {
+        "n": 2196,
+        "p50_ms": 1307.9443339956924,
+        "p99_ms": 2797.1589580120053,
+        "cost_usd_per_1k": 0.36894990892531876
+      }
+    },
+    "jev": {
+      "n_test": 705,
+      "calibrated_primary_on_val": true,
+      "questions": {
+        "is_logic_change": {
+          "rejected": {
+            "roc_auc": 0.48040808080808084,
+            "pr_auc": 0.45682756433562044,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.48040808080808084,
+            "pr_auc": 0.45682756433562044,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.45907786885245905,
+            "pr_auc": 0.4080534212792666,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.6094771241830065,
+            "pr_auc": 0.08117113430479728,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5521819110884005,
+            "pr_auc": 0.2962532398608296,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.6103634813196185,
+            "pr_auc": 0.10604700967881509,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.5270618972357514,
+            "pr_auc": 0.15172527361350013,
+            "base": 0.14609929078014183
+          }
+        },
+        "weakens_tests": {
+          "rejected": {
+            "roc_auc": 0.5326141414141414,
+            "pr_auc": 0.5009150631875747,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.5326141414141414,
+            "pr_auc": 0.5009150631875747,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.5206106557377049,
+            "pr_auc": 0.4608259383753703,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5279393808805574,
+            "pr_auc": 0.06458882008675307,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5427593254982116,
+            "pr_auc": 0.28724309807611126,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.7452166497894792,
+            "pr_auc": 0.18823080434944559,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.503628681095378,
+            "pr_auc": 0.14074570357518973,
+            "base": 0.14609929078014183
+          }
+        },
+        "message_matches_diff": {
+          "rejected": {
+            "roc_auc": 0.4110747474747475,
+            "pr_auc": 0.4206394941273297,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4110747474747475,
+            "pr_auc": 0.4206394941273297,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.41535245901639345,
+            "pr_auc": 0.39178819672824605,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.4661172161172161,
+            "pr_auc": 0.05375055269178327,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.46688809402146136,
+            "pr_auc": 0.25208437323139227,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.2562090284069712,
+            "pr_auc": 0.06235256349768489,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.4596571299551656,
+            "pr_auc": 0.14149014839277263,
+            "base": 0.14609929078014183
+          }
+        },
+        "touches_concurrency": {
+          "rejected": {
+            "roc_auc": 0.4716686868686869,
+            "pr_auc": 0.46165617994169705,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4716686868686869,
+            "pr_auc": 0.46165617994169705,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.46018442622950817,
+            "pr_auc": 0.42768001915941545,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5897974574445163,
+            "pr_auc": 0.07892347699684252,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.4968318855390904,
+            "pr_auc": 0.2554547495905637,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.5892447902787401,
+            "pr_auc": 0.1313586093217198,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.6327290907331549,
+            "pr_auc": 0.20783472951417792,
+            "base": 0.14609929078014183
+          }
+        },
+        "needs_human_review": {
+          "rejected": {
+            "roc_auc": 0.5496484848484849,
+            "pr_auc": 0.5053209124804721,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.5496484848484849,
+            "pr_auc": 0.5053209124804721,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.5352786885245903,
+            "pr_auc": 0.4631857417401666,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5968002585649644,
+            "pr_auc": 0.08432396268836591,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5293612672457845,
+            "pr_auc": 0.2854048993083969,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.6966769706336939,
+            "pr_auc": 0.15491440222633948,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.5735170789923556,
+            "pr_auc": 0.17138519237677696,
+            "base": 0.14609929078014183
+          }
+        }
+      },
+      "primary": {
+        "roc_auc": 0.5496484848484849,
+        "roc_auc_ci95": [
+          0.5100087041493732,
+          0.588619899765846
+        ],
+        "pr_auc": 0.5053209124804721,
+        "recall_at_fpr5": 0.045454545454545456,
+        "ece": 0.10993811391879912,
+        "brier": 0.24823979631547535
+      },
+      "verdicts": {
+        "pass": {
+          "n": 249,
+          "frac": 0.35319148936170214,
+          "bad_outcome_rate": 0.40963855421686746,
+          "rejected_rate": 0.40963855421686746,
+          "rules": {
+            "trivial": 84,
+            "default": 165
+          }
+        },
+        "hold": {
+          "n": 447,
+          "frac": 0.6340425531914894,
+          "bad_outcome_rate": 0.5033557046979866,
+          "rejected_rate": 0.5033557046979866,
+          "rules": {
+            "message-mismatch": 309,
+            "maintainer-judgement": 133,
+            "concurrency-risk": 5
+          }
+        },
+        "block": {
+          "n": 9,
+          "frac": 0.01276595744680851,
+          "bad_outcome_rate": 0.3333333333333333,
+          "rejected_rate": 0.3333333333333333,
+          "rules": {
+            "weakened-tests": 9
+          }
+        }
+      },
+      "pass_bad_rate": 0.40963855421686746,
+      "holdblock_bad_rate": 0.5,
+      "by_agent": {
+        "claude-app": {
+          "n": 153,
+          "rejected_rate": 0.42483660130718953,
+          "pass_frac": 0.48366013071895425,
+          "pass_bad_rate": 0.33783783783783783,
+          "roc_auc": 0.6023601398601399
+        },
+        "claude-code": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.10833333333333334,
+          "pass_bad_rate": 0.3076923076923077,
+          "roc_auc": 0.5865277777777778
+        },
+        "copilot": {
+          "n": 265,
+          "rejected_rate": 0.47924528301886793,
+          "pass_frac": 0.41509433962264153,
+          "pass_bad_rate": 0.43636363636363634,
+          "roc_auc": 0.5516660960858154
+        },
+        "cursor": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.32456140350877194,
+          "pass_bad_rate": 0.6216216216216216,
+          "roc_auc": 0.5211965811965812
+        },
+        "devin": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.2830188679245283,
+          "pass_bad_rate": 0.13333333333333333,
+          "roc_auc": 0.42666666666666664
+        }
+      },
+      "by_repo": {
+        "Azure/azure-sdk-for-net": {
+          "n": 120,
+          "rejected_rate": 0.5083333333333333,
+          "pass_frac": 0.4166666666666667,
+          "pass_bad_rate": 0.42,
+          "roc_auc": 0.6187829952764657
+        },
+        "Comfy-Org/ComfyUI_frontend": {
+          "n": 120,
+          "rejected_rate": 0.525,
+          "pass_frac": 0.38333333333333336,
+          "pass_bad_rate": 0.5,
+          "roc_auc": 0.5083542188805348
+        },
+        "VocaHQ/vocalinux": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.2830188679245283,
+          "pass_bad_rate": 0.13333333333333333,
+          "roc_auc": 0.42666666666666664
+        },
+        "compdemocracy/polis": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.10833333333333334,
+          "pass_bad_rate": 0.3076923076923077,
+          "roc_auc": 0.5865277777777778
+        },
+        "mattermost/mattermost": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.32456140350877194,
+          "pass_bad_rate": 0.6216216216216216,
+          "roc_auc": 0.5211965811965812
+        },
+        "microsoft/semantic-kernel": {
+          "n": 25,
+          "rejected_rate": 0.24,
+          "pass_frac": 0.48,
+          "pass_bad_rate": 0.25,
+          "roc_auc": 0.5526315789473685
+        },
+        "microsoft/vscode": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.4,
+          "pass_bad_rate": 0.5,
+          "roc_auc": 0.4698611111111111
+        },
+        "mozilla-ai/otari": {
+          "n": 33,
+          "rejected_rate": 0.06060606060606061,
+          "pass_frac": 0.8484848484848485,
+          "pass_bad_rate": 0.07142857142857142,
+          "roc_auc": 0.38709677419354843
+        }
+      },
+      "stacks": {
+        "n_non_default_base": 80,
+        "n_stacked_linked": 80,
+        "n_changed_by_rule": 0,
+        "frac_changed": 0.0,
+        "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked"
+      },
+      "latency_cost": {
+        "n": 2196,
+        "p50_ms": 259.63266598409973,
+        "p99_ms": 390.1809999952093,
+        "cost_usd_per_1k": 0.09002885519125683
+      }
+    },
+    "rules": {
+      "n_test": 705,
+      "calibrated_primary_on_val": true,
+      "questions": {
+        "is_logic_change": {
+          "rejected": {
+            "roc_auc": 0.4887838383838384,
+            "pr_auc": 0.49258119026396896,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4887838383838384,
+            "pr_auc": 0.49258119026396896,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.47737704918032786,
+            "pr_auc": 0.4554562717804745,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5659879336349924,
+            "pr_auc": 0.07102493277611485,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5267501277465508,
+            "pr_auc": 0.2912660204595876,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.7303869317273357,
+            "pr_auc": 0.20977921686409984,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.662718124052511,
+            "pr_auc": 0.21039010846529987,
+            "base": 0.14609929078014183
+          }
+        },
+        "weakens_tests": {
+          "rejected": {
+            "roc_auc": 0.4992242424242425,
+            "pr_auc": 0.46662368364496026,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.4992242424242425,
+            "pr_auc": 0.46662368364496026,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.4931147540983606,
+            "pr_auc": 0.430019765143588,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5193923723335487,
+            "pr_auc": 0.06424772036474165,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5164333163004599,
+            "pr_auc": 0.28299427647132014,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.49072642967542496,
+            "pr_auc": 0.08156945463438493,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.48587233493532883,
+            "pr_auc": 0.14575959971539396,
+            "base": 0.14609929078014183
+          }
+        },
+        "message_matches_diff": {
+          "rejected": {
+            "roc_auc": 0.42106666666666664,
+            "pr_auc": 0.4452374327335856,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.42106666666666664,
+            "pr_auc": 0.4452374327335856,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.43931557377049185,
+            "pr_auc": 0.4274710833622364,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.3725310637075343,
+            "pr_auc": 0.0443919392881025,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.4701839550332141,
+            "pr_auc": 0.2606344359766972,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.2937696530405585,
+            "pr_auc": 0.05473190957548414,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.43094216688707543,
+            "pr_auc": 0.13677469663766478,
+            "base": 0.14609929078014183
+          }
+        },
+        "touches_concurrency": {
+          "rejected": {
+            "roc_auc": 0.472739393939394,
+            "pr_auc": 0.45281922841251154,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.472739393939394,
+            "pr_auc": 0.45281922841251154,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.44352868852459015,
+            "pr_auc": 0.40444146594733227,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.6820010055304173,
+            "pr_auc": 0.09419045423872599,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.5226366888094022,
+            "pr_auc": 0.28311250330011567,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.40281404892607797,
+            "pr_auc": 0.07119408791853676,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.4486823855755895,
+            "pr_auc": 0.1325258633111919,
+            "base": 0.14609929078014183
+          }
+        },
+        "needs_human_review": {
+          "rejected": {
+            "roc_auc": 0.5281131313131313,
+            "pr_auc": 0.48648344096519813,
+            "base": 0.46808510638297873
+          },
+          "bad_outcome": {
+            "roc_auc": 0.5281131313131313,
+            "pr_auc": 0.48648344096519813,
+            "base": 0.46808510638297873
+          },
+          "closed_unmerged": {
+            "roc_auc": 0.5255532786885246,
+            "pr_auc": 0.4519171218570286,
+            "base": 0.4326241134751773
+          },
+          "change_requested": {
+            "roc_auc": 0.5179738562091503,
+            "pr_auc": 0.062243227600025264,
+            "base": 0.059574468085106386
+          },
+          "discussed": {
+            "roc_auc": 0.4875217169136433,
+            "pr_auc": 0.26086072248481357,
+            "base": 0.2695035460992908
+          },
+          "iterated": {
+            "roc_auc": 0.7211799818792305,
+            "pr_auc": 0.15839736996063675,
+            "base": 0.08226950354609928
+          },
+          "merged_untouched": {
+            "roc_auc": 0.6224155726865139,
+            "pr_auc": 0.20006776504882864,
+            "base": 0.14609929078014183
+          }
+        }
+      },
+      "primary": {
+        "roc_auc": 0.5281131313131313,
+        "roc_auc_ci95": [
+          0.4888478958187332,
+          0.5656958610738981
+        ],
+        "pr_auc": 0.48648344096519813,
+        "recall_at_fpr5": 0.0,
+        "ece": 0.11999057062545805,
+        "brier": 0.25221209663700195
+      },
+      "verdicts": {
+        "pass": {
+          "n": 481,
+          "frac": 0.6822695035460993,
+          "bad_outcome_rate": 0.4656964656964657,
+          "rejected_rate": 0.4656964656964657,
+          "rules": {
+            "default": 461,
+            "trivial": 20
+          }
+        },
+        "hold": {
+          "n": 215,
+          "frac": 0.3049645390070922,
+          "bad_outcome_rate": 0.4790697674418605,
+          "rejected_rate": 0.4790697674418605,
+          "rules": {
+            "concurrency-risk": 142,
+            "maintainer-judgement": 73
+          }
+        },
+        "block": {
+          "n": 9,
+          "frac": 0.01276595744680851,
+          "bad_outcome_rate": 0.3333333333333333,
+          "rejected_rate": 0.3333333333333333,
+          "rules": {
+            "weakened-tests": 9
+          }
+        }
+      },
+      "pass_bad_rate": 0.4656964656964657,
+      "holdblock_bad_rate": 0.4732142857142857,
+      "by_agent": {
+        "claude-app": {
+          "n": 153,
+          "rejected_rate": 0.42483660130718953,
+          "pass_frac": 0.5947712418300654,
+          "pass_bad_rate": 0.3516483516483517,
+          "roc_auc": 0.5550699300699301
+        },
+        "claude-code": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.6166666666666667,
+          "pass_bad_rate": 0.43243243243243246,
+          "roc_auc": 0.6525
+        },
+        "copilot": {
+          "n": 265,
+          "rejected_rate": 0.47924528301886793,
+          "pass_frac": 0.8150943396226416,
+          "pass_bad_rate": 0.5138888888888888,
+          "roc_auc": 0.5624500741755106
+        },
+        "cursor": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.6491228070175439,
+          "pass_bad_rate": 0.6486486486486487,
+          "roc_auc": 0.5661538461538461
+        },
+        "devin": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.49056603773584906,
+          "pass_bad_rate": 0.038461538461538464,
+          "roc_auc": 0.43999999999999995
+        }
+      },
+      "by_repo": {
+        "Azure/azure-sdk-for-net": {
+          "n": 120,
+          "rejected_rate": 0.5083333333333333,
+          "pass_frac": 0.775,
+          "pass_bad_rate": 0.5268817204301075,
+          "roc_auc": 0.5570991942206168
+        },
+        "Comfy-Org/ComfyUI_frontend": {
+          "n": 120,
+          "rejected_rate": 0.525,
+          "pass_frac": 0.5,
+          "pass_bad_rate": 0.5,
+          "roc_auc": 0.42495126705653025
+        },
+        "VocaHQ/vocalinux": {
+          "n": 53,
+          "rejected_rate": 0.05660377358490566,
+          "pass_frac": 0.49056603773584906,
+          "pass_bad_rate": 0.038461538461538464,
+          "roc_auc": 0.43999999999999995
+        },
+        "compdemocracy/polis": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.6166666666666667,
+          "pass_bad_rate": 0.43243243243243246,
+          "roc_auc": 0.6525
+        },
+        "mattermost/mattermost": {
+          "n": 114,
+          "rejected_rate": 0.6578947368421053,
+          "pass_frac": 0.6491228070175439,
+          "pass_bad_rate": 0.6486486486486487,
+          "roc_auc": 0.5661538461538461
+        },
+        "microsoft/semantic-kernel": {
+          "n": 25,
+          "rejected_rate": 0.24,
+          "pass_frac": 0.6,
+          "pass_bad_rate": 0.26666666666666666,
+          "roc_auc": 0.6271929824561404
+        },
+        "microsoft/vscode": {
+          "n": 120,
+          "rejected_rate": 0.5,
+          "pass_frac": 0.9,
+          "pass_bad_rate": 0.5370370370370371,
+          "roc_auc": 0.6119444444444446
+        },
+        "mozilla-ai/otari": {
+          "n": 33,
+          "rejected_rate": 0.06060606060606061,
+          "pass_frac": 0.9393939393939394,
+          "pass_bad_rate": 0.06451612903225806,
+          "roc_auc": 0.3548387096774194
+        }
+      },
+      "stacks": {
+        "n_non_default_base": 80,
+        "n_stacked_linked": 80,
+        "n_changed_by_rule": 0,
+        "frac_changed": 0.0,
+        "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked"
+      },
+      "latency_cost": {
+        "n": 2196,
+        "p50_ms": 0.11523599999918588,
+        "p99_ms": 12.189595999998915,
+        "cost_usd_per_1k": 0.0
+      }
+    }
+  },
+  "hypotheses": {
+    "R3-H1[haiku]": {
+      "roc_auc": 0.5512282828282828,
+      "pass": false,
+      "not_transferring": true,
+      "bar": ">= 0.70 (fail < 0.60)"
+    },
+    "R3-H2[haiku]": {
+      "pass_bad_rate": 0.44471153846153844,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": "<= 0.5 x base"
+    },
+    "R3-H3[haiku]": {
+      "holdblock_bad_rate": 0.5017301038062284,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": ">= 1.5 x base"
+    },
+    "R3-H4[haiku]": {
+      "n_non_default_base": 80,
+      "n_stacked_linked": 80,
+      "n_changed_by_rule": 0,
+      "frac_changed": 0.0,
+      "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked",
+      "pass": false,
+      "bar": ">= 5% of linked stacked PRs change verdict (reported, no correctness threshold)"
+    },
+    "R3-H1[jev]": {
+      "roc_auc": 0.5496484848484849,
+      "pass": false,
+      "not_transferring": true,
+      "bar": ">= 0.70 (fail < 0.60)"
+    },
+    "R3-H2[jev]": {
+      "pass_bad_rate": 0.40963855421686746,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": "<= 0.5 x base"
+    },
+    "R3-H3[jev]": {
+      "holdblock_bad_rate": 0.5,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": ">= 1.5 x base"
+    },
+    "R3-H4[jev]": {
+      "n_non_default_base": 80,
+      "n_stacked_linked": 80,
+      "n_changed_by_rule": 0,
+      "frac_changed": 0.0,
+      "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked",
+      "pass": false,
+      "bar": ">= 5% of linked stacked PRs change verdict (reported, no correctness threshold)"
+    },
+    "R3-H1[rules]": {
+      "roc_auc": 0.5281131313131313,
+      "pass": false,
+      "not_transferring": true,
+      "bar": ">= 0.70 (fail < 0.60)"
+    },
+    "R3-H2[rules]": {
+      "pass_bad_rate": 0.4656964656964657,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": "<= 0.5 x base"
+    },
+    "R3-H3[rules]": {
+      "holdblock_bad_rate": 0.4732142857142857,
+      "base": 0.46808510638297873,
+      "pass": false,
+      "bar": ">= 1.5 x base"
+    },
+    "R3-H4[rules]": {
+      "n_non_default_base": 80,
+      "n_stacked_linked": 80,
+      "n_changed_by_rule": 0,
+      "frac_changed": 0.0,
+      "note": "linking needs head_ref on the PR below; rows fetched before head_ref was recorded cannot be linked",
+      "pass": false,
+      "bar": ">= 5% of linked stacked PRs change verdict (reported, no correctness threshold)"
+    },
+    "R3-H5[haiku x100]": {
+      "p99_ms": 2880.291292007314,
+      "model_p99_ms": 2797.1589580120053,
+      "error_rate": 0.0033333333333333335,
+      "pass": false,
+      "bar": "p99 <= model p99 + 200 ms and 0 errors at 100x"
+    },
+    "R3-H5[jev x100]": {
+      "p99_ms": 416.83912501321174,
+      "model_p99_ms": 390.1809999952093,
+      "error_rate": 0.0,
+      "pass": true,
+      "bar": "p99 <= model p99 + 200 ms and 0 errors at 100x"
+    }
+  },
+  "close_reasons": {
+    "n": 200,
+    "by_reason": {
+      "scope_or_direction": 62,
+      "superseded_or_duplicate": 72,
+      "quality_or_bugs": 37,
+      "abandoned_or_stale": 20,
+      "other": 9
+    },
+    "note": "classified by Claude Fable 5.1 on a sample, for reporting only (PROTOCOL R3.4); never used as a label"
+  }
+}

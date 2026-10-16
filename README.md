@@ -123,14 +123,16 @@ Everything above rests on **gatebench**, a pre-registered benchmark: hypotheses 
 
 Jev meets the pre-registered bar on 5/5 questions, Haiku on 4/5; asking five questions instead of one costs Jev 3% latency and 12% cost. What still fails: routing the top 25% to humans captures only 44% of the judge's "needs a human" PRs (bar was 70%). That number is in the README on purpose.
 
-Raw predictions, judge labels, calibration maps and figures: `results/run1`, `results/run2`. Rebuild every table with one command.
+**Run 3, negative.** *Does the gate predict whether humans reject real agent PRs?* No. On 2,196 PRs by Copilot, Claude Code, Claude, Devin and Cursor across 26 public repos (held-out test: 705 PRs, 8 repos), calibrated `needs_human_review` → *closed-unmerged ∨ change-requested* scores ROC-AUC **0.55** for Jev, 0.55 for Haiku, 0.53 for rules; the pre-registered bar was 0.70. The reason is in the labels: of 200 closures we classified, 67% were *superseded, duplicate or direction* and only 19% *quality*. A diff cannot tell you someone else already landed the fix. Two things did hold: Jev at 100× agent-scale load — p99 417 ms, 0 errors (Haiku: 2,880 ms, 0.3% errors) — and, exploratory only, the questions track *review iteration* (force-pushes ≥ 2) at AUC 0.70–0.81. Full write-up: [`results/run3/README.md`](results/run3/README.md).
+
+Raw predictions, judge labels, calibration maps and figures: `results/run1`, `results/run2`, `results/run3`. Rebuild every table with one command.
 
 ## Limits, plainly
 
-- Kubernetes history is human-written; run 3 (agent-authored and stacked PRs from public GitHub) is next.
-- Run 2's ground truth is a model's judgement, audited for self-consistency, not yet by hand.
+- The gate judges *what a change does*, not whether a project will take it. Run 3 shows most agent-PR rejections are coordination (duplicates, superseded, direction), which reading one diff cannot detect; that is what `assumptions` and campaign dedup on the roadmap are for.
+- Run 2's ground truth is a model's judgement, audited for self-consistency, not yet by hand. Run 3's labels are GitHub outcomes, which are real but mostly about coordination.
 - Jev is a closed API in early access; pricing may change. Haiku works today; the model is a config line.
-- GitHub only, for now. Stack-level verdicts (block below ⇒ hold above) are not implemented yet.
+- GitHub only, for now. Stack-level verdicts (block below ⇒ hold above) are implemented in the planner but could not be evaluated: the REST API exposes no stack object (run 3, R3-H4).
 
 ## Layout
 

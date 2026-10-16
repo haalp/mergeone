@@ -19,3 +19,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - R3-H4 stack linking uses `base` ref → another PR's `head_ref` in the same repo (GitHub REST has no stack object). `head_ref` was added to the fetcher after the first ~100 rows had been fetched; rows without it cannot be linked and are counted but not evaluated.
 - `close-reasons`: Claude Fable 5.1 classifies a sample of closed-unmerged test PRs into six reasons. Reporting only (R3.4).
 - Discover/fetch were made resumable (checkpoints) and robust to renamed repos (301/422) after the first collection attempt failed on `dotnet/aspire → microsoft/aspire`. `per_repo` was lowered from 150 (R3.2) to 120 to fit the API budget in one night; the balance rule (half merged / half closed where available) is unchanged.
+
+## 2026-10-17 — run3 results
+
+- Negative result on R3-H1/H2/H3 for every candidate (AUC 0.55 Jev, 0.55 Haiku, 0.53 rules; bar 0.70, "not transferring" line 0.60). R3-H5 passes for Jev (p99 417 ms, 0 errors at 100×), fails for Haiku (p99 2,880 ms, 0.3% errors). R3-H4 not evaluable (no linkable stacks via REST). See `results/run3/README.md`.
+- Close-reason classification (Fable 5.1, 200 PRs, reporting only): 67% of closures are superseded/duplicate/direction, 19% quality.
+- Exploratory, not pre-registered: the questions track review iteration (force-pushes ≥ 2) at AUC 0.70–0.81. Candidate outcome for run 4.
+- Housekeeping: 825 Haiku val rows that errored with HTTP 401 (bad key on first attempt) were dropped; coverage verified 1491/1491. Jev predictions produced in two batches with identical rendering; verified.
