@@ -195,3 +195,65 @@ Outcome labels are noisy in a known direction: a PR can be closed for reasons un
 ## R3.5 Candidates
 
 `jev` and `haiku`, question set v2, calibration refit on val repos. `rules` as floor. No frontier model.
+
+# Run 4 addendum: PR memory and duplicate detection
+
+**Status:** written 2026-10-17 after run3 results were published (`results/run3/README.md`), before any
+indexing code, retrieval code, pair prompt or model call for run 4 existed. Runs 1–3 are untouched.
+
+## R4.1 Why
+
+Run 3 showed the gate cannot predict GitHub rejection of agent PRs (AUC 0.55) and showed why: in a
+200-PR sample, 36% of closures were *superseded or duplicate*, 31% *direction*, 19% *quality*, 10% *stale*.
+The gate reads one diff. It cannot see that another PR already did the work. Run 4 adds a component that
+can — a per-repository PR memory and a typed pairwise question — and tests whether that closes the gap
+the labels revealed. Direction remains a human decision (hold is the correct verdict); stale is a timer.
+
+## R4.2 Data
+
+- Repositories: the 26 run-3 repositories with the same val/test assignment (`data/run3/manifest.json`).
+  **The run-3 test set has been seen in aggregate (run-3 tables). We state this; we do not reshuffle.**
+  If time allows, up to 6 additional repositories discovered with the same rule are added as a *fresh*
+  test slice and reported separately.
+- PR memory per repository: every PR (any author) created in the 180 days ending at the newest PR in our
+  sample for that repository — number, title, body, author, state, created/merged/closed timestamps,
+  base/head refs, changed file paths with +/- counts. Fetched with the GitHub GraphQL API. No diffs.
+- Human labels for "superseded": for each closed-unmerged PR in the run-3 dataset, the issue comments
+  and review comments by non-bot authors are fetched. A PR is labelled `superseded_by = N` when a
+  human comment matches a fixed regex (committed in `mergeone/data/supersede_labels.py` before fetching)
+  of the form *duplicate of / superseded by / already fixed in / closing in favour of / replaced by* … `#N`,
+  and `N` exists in the memory. A PR with a human comment that matches the regex but with no number is
+  labelled `superseded_unknown` and excluded from pair metrics. Everything else is `not_marked`.
+  These are the only labels; the Fable close-reason classifier from run 3 is not used.
+
+## R4.3 Components under test
+
+1. **Retrieval** (no model): for a PR, rank memory PRs created or merged within ±45 days by
+   file-path Jaccard, title/body BM25 and same-author bonus; return top-k, k = 5. Deterministic.
+2. **Pair question** `same_change(A, B)` asked once per (PR, candidate) with the same rendered state
+   format as runs 1–3 for each side; answer type *choice* over {same, subset, related, unrelated};
+   `duplicate_of = P(same) + 0.5·P(subset)`. Candidates: `jev`, `haiku`, question set v3 = v2 + pair.
+   Prompts are committed before any call.
+3. **Policy**: `duplicate_of >= 0.7 → hold, route: dedup`; `silent_days >= 14 → stale`.
+   Everything else as run 3 (default policy, calibration as run 3).
+
+## R4.4 Pre-registered criteria (test repositories)
+
+- **R4-H1 (retrieval):** among PRs labelled `superseded_by = N`, N is in the top-5 candidates for
+  ≥ 60% (recall@5). Below 40% the memory design is reported as not working.
+- **R4-H2 (pair question):** ROC-AUC of `duplicate_of` ≥ 0.80 on pairs: positives = (PR, N) from
+  `superseded_by`; negatives = (PR, top-5 candidates that are not N) for the same PRs plus an equal
+  number of random same-repo pairs. Haiku and Jev each.
+- **R4-H3 (verdict level, the one that matters):** with dedup and stale rules added, among PRs the policy
+  marks `pass`, the rate of `closed_unmerged ∨ change_requested ∨ reverted` is ≤ 0.5 × the dataset base
+  rate (run-3 R3-H2, unchanged). Reported for Jev and Haiku.
+- **R4-H4 (coverage):** the share of closed-unmerged test PRs that receive a non-`pass` verdict rises
+  from the run-3 value by ≥ 15 percentage points.
+- **R4-H5 (cost):** retrieval adds ≤ 20 ms p99 per decision on the run-3 hardware; model calls per PR
+  are ≤ 1 + k.
+
+## R4.5 Candidates and what is not allowed
+
+`jev` and `haiku` for the pair question; `rules` floor for retrieval-only (duplicate_of = retrieval score).
+No frontier model as a candidate. No threshold or prompt is changed after the first test-split call;
+changes before that are logged in CHANGELOG with timestamps.
