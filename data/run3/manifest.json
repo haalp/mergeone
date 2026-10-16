@@ -1,0 +1,111 @@
+{
+  "source": "GitHub REST/Search API via mergeone.data.agent_prs (discover + fetch)",
+  "repos_file": "data/run3/repos.json",
+  "n_repos": 26,
+  "split_rule": "by repository, 70% of repos \u2192 val, rest \u2192 test; stratified by dominant agent; seed 3",
+  "split_assignment": {
+    "Asymptote-Labs/agent-beacon": "val",
+    "camunda/camunda": "val",
+    "electron/electron": "val",
+    "opensanctions/opensanctions": "val",
+    "nodetool-ai/nodetool": "val",
+    "mozilla-ai/otari": "test",
+    "Comfy-Org/ComfyUI_frontend": "test",
+    "openai/openai-agents-python": "val",
+    "compdemocracy/polis": "test",
+    "microsoft/typespec": "val",
+    "dotnet/runtime": "val",
+    "microsoft/kiota": "val",
+    "microsoft/aspire": "val",
+    "Loyalsoldier/geoip": "val",
+    "github/gh-aw": "val",
+    "activerecord-hackery/ransack": "val",
+    "microsoft/semantic-kernel": "test",
+    "Azure/azure-sdk-for-net": "test",
+    "microsoft/vscode": "test",
+    "kentcdodds/kody": "val",
+    "mattermost/mattermost": "test",
+    "thesysdev/openui": "val",
+    "TracecatHQ/tracecat": "val",
+    "BerriAI/litellm": "val",
+    "PrefectHQ/prefect": "val",
+    "VocaHQ/vocalinux": "test"
+  },
+  "splits": {
+    "val": {
+      "n": 1491,
+      "repos": [
+        "Asymptote-Labs/agent-beacon",
+        "BerriAI/litellm",
+        "Loyalsoldier/geoip",
+        "PrefectHQ/prefect",
+        "TracecatHQ/tracecat",
+        "activerecord-hackery/ransack",
+        "camunda/camunda",
+        "dotnet/runtime",
+        "electron/electron",
+        "github/gh-aw",
+        "kentcdodds/kody",
+        "microsoft/aspire",
+        "microsoft/kiota",
+        "microsoft/typespec",
+        "nodetool-ai/nodetool",
+        "openai/openai-agents-python",
+        "opensanctions/opensanctions",
+        "thesysdev/openui"
+      ],
+      "agents": {
+        "copilot": 570,
+        "devin": 390,
+        "claude-app": 410,
+        "cursor": 81,
+        "claude-code": 40
+      },
+      "label_counts": {
+        "merged": 854,
+        "iterated": 46,
+        "merged_untouched": 281,
+        "change_requested": 54,
+        "discussed": 281,
+        "rejected": 663,
+        "bad_outcome": 665,
+        "approved_by_human": 547,
+        "closed_unmerged": 637,
+        "reverted_within_30d": 2
+      }
+    },
+    "test": {
+      "n": 705,
+      "repos": [
+        "Azure/azure-sdk-for-net",
+        "Comfy-Org/ComfyUI_frontend",
+        "VocaHQ/vocalinux",
+        "compdemocracy/polis",
+        "mattermost/mattermost",
+        "microsoft/semantic-kernel",
+        "microsoft/vscode",
+        "mozilla-ai/otari"
+      ],
+      "agents": {
+        "claude-app": 153,
+        "copilot": 265,
+        "claude-code": 120,
+        "cursor": 114,
+        "devin": 53
+      },
+      "label_counts": {
+        "merged": 400,
+        "approved_by_human": 328,
+        "merged_untouched": 103,
+        "closed_unmerged": 305,
+        "rejected": 330,
+        "bad_outcome": 330,
+        "discussed": 190,
+        "change_requested": 42,
+        "iterated": 58
+      }
+    }
+  },
+  "n_rows": 2196,
+  "prepared_at": "2026-10-16T20:51:33.224294+00:00"
+}

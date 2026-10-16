@@ -1,0 +1,264 @@
+[
+ {
+  "repo": "github/gh-aw",
+  "stars": 5402,
+  "language": "Go",
+  "agent_prs_seen": 17667,
+  "by_agent": {
+   "copilot": 17350,
+   "claude-code": 317
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "BerriAI/litellm",
+  "stars": 61336,
+  "language": "Python",
+  "agent_prs_seen": 3082,
+  "by_agent": {
+   "devin": 3082
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "microsoft/vscode",
+  "stars": 193657,
+  "language": "TypeScript",
+  "agent_prs_seen": 1893,
+  "by_agent": {
+   "copilot": 1893
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "dotnet/runtime",
+  "stars": 18361,
+  "language": "C#",
+  "agent_prs_seen": 1672,
+  "by_agent": {
+   "copilot": 1672
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "nodetool-ai/nodetool",
+  "stars": 568,
+  "language": "TypeScript",
+  "agent_prs_seen": 1377,
+  "by_agent": {
+   "claude-app": 1377
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "PrefectHQ/prefect",
+  "stars": 24025,
+  "language": "Python",
+  "agent_prs_seen": 1371,
+  "by_agent": {
+   "devin": 1371
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "microsoft/aspire",
+  "stars": 6370,
+  "language": "C#",
+  "agent_prs_seen": 1295,
+  "by_agent": {
+   "copilot": 1295
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "microsoft/typespec",
+  "stars": 5892,
+  "language": "Java",
+  "agent_prs_seen": 807,
+  "by_agent": {
+   "copilot": 807
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "Azure/azure-sdk-for-net",
+  "stars": 6067,
+  "language": "C#",
+  "agent_prs_seen": 728,
+  "by_agent": {
+   "copilot": 728
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "opensanctions/opensanctions",
+  "stars": 846,
+  "language": "Python",
+  "agent_prs_seen": 630,
+  "by_agent": {
+   "claude-app": 630
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "compdemocracy/polis",
+  "stars": 1219,
+  "language": "Python",
+  "agent_prs_seen": 413,
+  "by_agent": {
+   "claude-code": 413
+  },
+  "default_branch": "edge"
+ },
+ {
+  "repo": "Comfy-Org/ComfyUI_frontend",
+  "stars": 2068,
+  "language": "TypeScript",
+  "agent_prs_seen": 372,
+  "by_agent": {
+   "claude-app": 372
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "kentcdodds/kody",
+  "stars": 797,
+  "language": "TypeScript",
+  "agent_prs_seen": 370,
+  "by_agent": {
+   "cursor": 370
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "mattermost/mattermost",
+  "stars": 39339,
+  "language": "TypeScript",
+  "agent_prs_seen": 237,
+  "by_agent": {
+   "cursor": 237
+  },
+  "default_branch": "master"
+ },
+ {
+  "repo": "electron/electron",
+  "stars": 123340,
+  "language": "C++",
+  "agent_prs_seen": 213,
+  "by_agent": {
+   "claude-app": 213
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "TracecatHQ/tracecat",
+  "stars": 3835,
+  "language": "Python",
+  "agent_prs_seen": 149,
+  "by_agent": {
+   "devin": 149
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "thesysdev/openui",
+  "stars": 11039,
+  "language": "TypeScript",
+  "agent_prs_seen": 75,
+  "by_agent": {
+   "devin": 75
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "camunda/camunda",
+  "stars": 4319,
+  "language": "Java",
+  "agent_prs_seen": 68,
+  "by_agent": {
+   "claude-app": 68
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "VocaHQ/vocalinux",
+  "stars": 941,
+  "language": "Python",
+  "agent_prs_seen": 50,
+  "by_agent": {
+   "devin": 50
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "activerecord-hackery/ransack",
+  "stars": 5858,
+  "language": "Ruby",
+  "agent_prs_seen": 42,
+  "by_agent": {
+   "copilot": 42
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "openai/openai-agents-python",
+  "stars": 30059,
+  "language": "Python",
+  "agent_prs_seen": 35,
+  "by_agent": {
+   "claude-code": 35
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "mozilla-ai/otari",
+  "stars": 523,
+  "language": "Python",
+  "agent_prs_seen": 31,
+  "by_agent": {
+   "claude-app": 31
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "microsoft/kiota",
+  "stars": 3833,
+  "language": "C#",
+  "agent_prs_seen": 31,
+  "by_agent": {
+   "copilot": 18,
+   "claude-code": 13
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "Asymptote-Labs/agent-beacon",
+  "stars": 1834,
+  "language": "Go",
+  "agent_prs_seen": 30,
+  "by_agent": {
+   "claude-app": 30
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "microsoft/semantic-kernel",
+  "stars": 28665,
+  "language": "C#",
+  "agent_prs_seen": 25,
+  "by_agent": {
+   "copilot": 25
+  },
+  "default_branch": "main"
+ },
+ {
+  "repo": "Loyalsoldier/geoip",
+  "stars": 6626,
+  "language": "Go",
+  "agent_prs_seen": 22,
+  "by_agent": {
+   "copilot": 22
+  },
+  "default_branch": "master"
+ }
+]
