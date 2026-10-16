@@ -11,3 +11,4 @@ results/smoke/
 results/*.log
 data/run3/discover_stage*.json
 data/run3/collect.log
+data/run3/*.jsonl
