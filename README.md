@@ -4,31 +4,44 @@
 
 <h1 align="center">mergeone</h1>
 
-<p align="center"><b>One decision per merge, at swarm scale.</b></p>
+<p align="center"><b>One decision per merge, at swarm scale.</b><br>
+<sub>An open-source merge gateway for repositories where agents write most of the commits — and the pre-registered study that says what it can and cannot do.</sub></p>
 
 <p align="center">
   <a href="https://github.com/haalp/mergeone/actions/workflows/ci.yml"><img src="https://github.com/haalp/mergeone/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
+  <a href="https://github.com/haalp/mergeone/releases"><img src="https://img.shields.io/github/v/release/haalp/mergeone?include_prereleases&color=A371F7&labelColor=0E0F12" alt="release"></a>
   <img src="https://img.shields.io/badge/throughput-30M%20decisions%2Fday%20%40%20p99%20441ms-A371F7?labelColor=0E0F12" alt="throughput">
   <img src="https://img.shields.io/badge/binary-11.7%20MB%2C%20zero%20runtime-ECECEA?labelColor=0E0F12" alt="binary">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-ECECEA?labelColor=0E0F12" alt="license"></a>
+  <a href="https://mergeone.dev"><img src="https://img.shields.io/badge/study-mergeone.dev-ECECEA?labelColor=0E0F12" alt="website"></a>
 </p>
 
 <p align="center">
-  An open-source <b>merge gateway</b> for repositories where most commits are written by agents.<br>
-  Five fast, typed, calibrated decisions per pull request. A policy file you own. A verdict in ~300 ms.
+  <img src="docs/img/sorting-turnstile.png" width="760" alt="Fig 1 — Sorting turnstile: three agent chutes feed one rotary gate; each PR gets one verdict: green rides the belt to main, amber goes to the human shelf, red drops to the bin.">
 </p>
 
----
+Anthropic's monorepo went from 2,500 to **30,000 merges a day**, almost all agent-written, and they rebuilt source control to cope ([Redesigning source control](https://www.anthropic.com/engineering/redesigning-source-control)). Their post is about storage. It leaves the harder question open: **at that rate, who decides what merges?**
 
-Anthropic's monorepo went from 2,500 to **30,000 merges a day** in four months, almost all of it agent-written. They dropped the merge queue, moved testing post-merge, and built a private system to cope ([their post](https://www.anthropic.com/engineering/redesigning-source-control)). Everyone else is about to hit the same wall with GitHub and a queue.
+`mergeone` is an attempt at the answer: a small, fast, *typed* decision layer in front of trunk. A System One model answers five fixed questions per PR with calibrated probabilities in one ~300 ms call; a policy file you own turns them into `pass` / `hold` / `block`; a planner lands non-conflicting PRs in waves. It ships as one Go binary with a GitHub webhook, an HTTP API and an MCP server for agents.
 
-A queue answers one slow question: *is CI green?* At agent scale the questions that matter are different and there are a lot more of them: does this change behaviour, does it weaken tests, does the message match the diff, does it touch concurrency, should a human look. `mergeone` asks all five in **one request** to a System One decision model, calibrates the answers, and routes the PR through rules you write.
+It is also a benchmark. Every claim below was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed, and **two of the four runs failed**. They are reported anyway.
+
+## Scoreboard
+
+| run | question | result | number |
+|---|---|---|---|
+| 1 | Can a diff predict a 30-day revert? | ❌ negative | PR-AUC 0.010 vs base 0.0075, all four systems |
+| 2 | Can a System One model answer typed triage questions? | ✅ positive | ROC-AUC 0.87–0.96 vs a strong judge, 347 ms, $0.074/1k — bar met 5/5 (Jev), 4/5 (Haiku) |
+| 3 | Does the gate predict rejection of **real agent PRs**? | ❌ negative | ROC-AUC 0.55 (bar 0.70). 67% of closures are superseded/duplicate/direction — not visible in a diff. Volume: Jev p99 417 ms, 0 errors at 100× |
+| 4 | Can a per-repo PR memory catch the duplicates? | 🟡 in progress | pre-registered 2026-10-17; labels are maintainer comments, not a model |
+
+What survives: typed triage of *what a change does* at System One speed and cost, and a gateway that handles 30 million decisions a day on a 2-vCPU box. What does not: predicting what a project will *accept* from one diff. Details in [`results/`](results/) and on [mergeone.dev](https://mergeone.dev).
 
 ```
 PR ──▶ decision model ──▶ calibrated probabilities ──▶ .mergeone.yaml ──▶ verdict + route
        Jev / Haiku          is_logic_change      0.91    weakens_tests >= 0.6 → block     pass · hold · block
-       ~300 ms, $0.00007    weakens_tests        0.07    needs_human    >= 0.5 → hold     auto-merge · human · domain-review
-                            message_matches_diff 0.88
+       ~300 ms, $0.00007    weakens_tests        0.07    needs_human    >= 0.5 → hold     auto-merge · human · dedup
+                            message_matches_diff 0.88    duplicate_of   >= 0.7 → hold
                             touches_concurrency  0.63                  └─▶ gatelog: every verdict + its exact input
                             needs_human_review   0.41
 ```
