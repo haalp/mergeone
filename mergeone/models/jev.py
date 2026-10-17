@@ -23,6 +23,7 @@ from .registry import ModelSpec, load_registry
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.json",
              "v2": Path(__file__).resolve().parents[2] / "prompts" / "jev_v2.json",
+             "v3": Path(__file__).resolve().parents[2] / "prompts" / "jev_v3.json",
              "pair": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json",
              "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json"}
 
@@ -44,6 +45,8 @@ class SystemOneModel:
         self.pinned: str | None = None if model.endswith("-latest") else model
         self.version = version
         self.questions = json.loads(QUESTIONS[version].read_text())
+        if os.environ.get("MERGEONE_NO_RETRY") == "1":  # load tests (R5-H6): a 429 is an error, not a retry
+            self.max_retries_429 = 0
         headers = {"Content-Type": "application/json"}
         if key:
             headers["Authorization"] = f"Bearer {key}"

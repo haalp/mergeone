@@ -40,3 +40,7 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - `data/run4/labels.jsonl` (maintainer-comment labels) is now committed; memory/comments dumps are not (rebuildable).
 - Product: `memory` stays opt-in in the default policy; `duplicate_of ≥ 0.7` remains a hold. Retrieval to be replaced before any default-on.
 
+
+## 2026-10-18 — run 5, component C (question set v3, review iteration)
+
+- 23:15Z: v3 wired before any v3 call: `QUESTION_SETS["v3"]` = v2 + {exceeds_scope, breaking_change, tests_cover_change, hard_to_revert, follows_conventions}, `PRIMARY_V3 = needs_human_review`; Haiku `SCHEMA_V3` + `prompts/haiku_v3.md`; System One dialect reads `prompts/jev_v3.json`; `rules` v3 floor = v2 heuristics + 0.5 for the five new questions. `predict --qset v3`, `loadtest --qset v3 --no-retry` (or `MERGEONE_NO_RETRY=1`: adapter 429 retry off, R5-H6). `--only-missing-from` and `compact` are now keyed by (pr_number, qset), because run 5 writes v3, pair and pair_assume rows into the same `predictions_<model>_<split>_all.jsonl` and a pair_assume row shares its pr_number with the same_change row of the same pair. Run-1..4 files have one qset per file, so their behaviour is unchanged. Meta files for v3/pair_assume get a `_<qset>` suffix.

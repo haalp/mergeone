@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 
-from .base import Decision, DECISIONS, DECISIONS_V2, Timer
+from .base import Decision, DECISIONS, DECISIONS_V2, V3_NEW, Timer
 
 CONCURRENCY_WORDS = ("mutex", "lock", "rwlock", "atomic", "goroutine", "channel", "chan ", "sync.", "async ", "await ",
                      "thread", "semaphore", "waitgroup", "race", "concurren", "parallel", "worker pool", "deadlock")
@@ -39,6 +39,8 @@ class RulesModel:
             }
             if any(q in DECISIONS_V2 for q in questions):
                 probs.update(self._v2(state, f, score))
+            if any(q in V3_NEW for q in questions):
+                probs.update({q: 0.5 for q in V3_NEW})  # run 5 floor: v2 heuristics + nothing for the new questions (R5.1 C)
         return Decision(probs={q: probs[q] for q in questions}, latency_ms=t.ms, model_version="rules_v1")
 
     @staticmethod

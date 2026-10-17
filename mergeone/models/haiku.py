@@ -9,11 +9,12 @@ import json
 import os
 from pathlib import Path
 
-from .base import Decision, DECISIONS, DECISIONS_V2, Timer, questions_for
+from .base import Decision, DECISIONS, DECISIONS_V2, DECISIONS_V3, Timer, questions_for
 
 MODEL_ID = "claude-haiku-5-5"
 PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md",
            "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md",
+           "v3": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v3.md",
            "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
            "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md"}
 SCHEMA_PAIR = {
@@ -54,6 +55,20 @@ SCHEMA_V2 = {
     "additionalProperties": False,
 }
 
+SCHEMA_V3 = {
+    "type": "object",
+    "properties": {
+        **SCHEMA_V2["properties"],
+        "exceeds_scope": {"type": "number", "description": "Probability 0-1 that the PR does more than its title and stated purpose."},
+        "breaking_change": {"type": "number", "description": "Probability 0-1 that the PR changes a public or shared contract in a way that can break callers."},
+        "tests_cover_change": {"type": "number", "description": "Probability 0-1 that the changed behaviour is exercised by tests in the diff."},
+        "hard_to_revert": {"type": "number", "description": "Probability 0-1 that reverting after merge would be difficult or unsafe."},
+        "follows_conventions": {"type": "number", "description": "Probability 0-1 that the change follows the conventions of the surrounding code."},
+    },
+    "required": list(DECISIONS_V3),
+    "additionalProperties": False,
+}
+
 
 class HaikuModel:
     name = "haiku"
@@ -66,7 +81,7 @@ class HaikuModel:
         self.model_id = model or MODEL_ID  # any Claude model id via prompts/models.yaml (dialect: anthropic)
         self.version = version
         self.prompt = PROMPTS[version].read_text()
-        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME}[version]
+        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "v3": SCHEMA_V3, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME}[version]
         self.effort = effort
         p = (prices or {}).get(self.name) or ({"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok} if spec is not None else {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6

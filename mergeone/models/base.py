@@ -16,10 +16,14 @@ PRIMARY = "will_be_reverted"
 # run2: semantic typed triage (PROTOCOL.md R2.2)
 DECISIONS_V2 = ("is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review")
 PRIMARY_V2 = "needs_human_review"
+# run5: v3 = v2 + five noul questions (PROTOCOL R5.1 C); outcome = review iteration (`iterated`)
+V3_NEW = ("exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert", "follows_conventions")
+DECISIONS_V3 = DECISIONS_V2 + V3_NEW
+PRIMARY_V3 = "needs_human_review"
 PAIR = ("same_change",)
 # run5 (PROTOCOL R5.1-B): assumption_conflict(A, B) → conflict_of = P(conflict) + 0.5·P(depends)
 PAIR_ASSUME = ("assumption_conflict",)
-QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "pair": PAIR, "pair_assume": PAIR_ASSUME}
+QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "v3": DECISIONS_V3, "pair": PAIR, "pair_assume": PAIR_ASSUME}
 
 
 def questions_for(version: str, questions: tuple[str, ...]) -> tuple[str, ...]:

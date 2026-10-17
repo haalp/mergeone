@@ -16,7 +16,7 @@ from pathlib import Path
 from .data.extract import read_jsonl, MergedPR
 from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
 from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
-from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, QUESTION_SETS, Decision
+from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, QUESTION_SETS, Decision
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -116,12 +116,15 @@ def build_model(name: str, version: str = "v1"):
 
 
 def cmd_compact(args):
-    """Rewrite prediction files keeping one row per pr_number: the last non-error row if any, else the last row."""
+    """Rewrite prediction files keeping one row per (pr_number, qset): the last non-error row if any, else the last row.
+
+    Keyed by qset too because run 5 writes v3, pair and pair_assume rows into the same predictions file,
+    and a pair_assume row has the same pr_number (hash of A~B) as the same_change row for that pair."""
     for f in args.files:
         f = Path(f); rows = {}; n = 0
         for l in f.open():
             n += 1; r = json.loads(l)
-            k = r["pr_number"]
+            k = (r["pr_number"], r.get("qset"))
             if k not in rows or r["decision"].get("error") is None or rows[k]["decision"].get("error") is not None:
                 rows[k] = r
         f.write_text("".join(json.dumps(r) + "\n" for r in rows.values()))
@@ -154,7 +157,8 @@ def cmd_predict(args):
     rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
     if args.only_errors_from or args.only_missing_from:
         src = Path(args.only_errors_from or args.only_missing_from)
-        done = {json.loads(l)["pr_number"] for l in src.open() if json.loads(l)["decision"].get("error") is None} if src.exists() else set()
+        # a row counts as done only for the same question set (run 5 mixes v3 / pair / pair_assume rows in one file)
+        done = {r["pr_number"] for r in map(json.loads, src.open()) if r["decision"].get("error") is None and r.get("qset", args.qset) == args.qset} if src.exists() else set()
         rows = [r for r in rows if r["pr_number"] not in done]
         print(f"{len(rows)} rows not yet predicted (skipping {len(done)})", flush=True)
     if args.subset:
@@ -165,6 +169,8 @@ def cmd_predict(args):
         questions = QUESTION_SETS["pair"]
     elif args.qset == "v2":
         questions = DECISIONS_V2 if args.questions == "all" else (PRIMARY_V2,)
+    elif args.qset == "v3":
+        questions = DECISIONS_V3 if args.questions == "all" else (PRIMARY_V3,)
     else:
         questions = DECISIONS if args.questions == "all" else (PRIMARY,)
     state_key = "state_words" if args.words else "state"
@@ -193,7 +199,9 @@ def cmd_predict(args):
     meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
             "concurrency": args.concurrency, "model_version": getattr(model, "pinned", None) or getattr(model, "version", None),
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
-    (run_dir / f"meta_{args.model}_{args.split}_{variant}.json").write_text(json.dumps(meta, indent=2))
+    meta["qset"] = args.qset
+    qsfx = "" if args.qset in ("v1", "v2", "pair") else f"_{args.qset}"  # run 5: v3/pair_assume share the predictions file with pair
+    (run_dir / f"meta_{args.model}_{args.split}_{variant}{qsfx}.json").write_text(json.dumps(meta, indent=2))
     print(json.dumps(meta, indent=2))
 
 
@@ -299,8 +307,12 @@ def cmd_loadtest(args):
     whether earlier ones finished (open loop), so queueing shows up in p99.
     """
     rows = load_dataset("test", args.limit, Path(args.dataset) if args.dataset else None)
+    if args.no_retry:
+        os.environ["MERGEONE_NO_RETRY"] = "1"
     model = build_model(args.model, args.qset)
-    questions = DECISIONS_V2 if args.qset == "v2" else (PRIMARY,)
+    if args.no_retry and hasattr(model, "max_retries_429"):
+        model.max_retries_429 = 0  # R5-H6: 429s count as errors
+    questions = {"v2": DECISIONS_V2, "v3": DECISIONS_V3}.get(args.qset, (PRIMARY,))
     rate = args.base_rate * args.multiplier
     offsets = [i / rate for i in range(len(rows))]
     print(f"replaying {len(rows)} decisions at {rate:.2f}/s (base {args.base_rate:.3f}/s x {args.multiplier:g}), ~{offsets[-1]:.0f}s", flush=True)
@@ -326,6 +338,7 @@ def cmd_loadtest(args):
     summary = {"model": args.model, "multiplier": args.multiplier, "base_rate_per_s": args.base_rate, "rate_per_s": rate, "n": len(rows),
                "p50_ms": lat[len(lat)//2] if lat else None, "p99_ms": lat[int(len(lat)*0.99)] if lat else None,
                "p99_schedule_lag_s": lag[int(len(lag)*0.99)], "error_rate": errs / len(rows), "concurrency": args.concurrency,
+               "qset": args.qset, "retry_429": getattr(model, "max_retries_429", None), "n_429": sum(1 for r in results if r["error"] and "429" in r["error"]),
                "wall_s": time.perf_counter() - t0, "finished_at": datetime.now(timezone.utc).isoformat()}
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -408,7 +421,7 @@ def main(argv=None):
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2", "pair", "pair_assume"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), pair = run4 same_change, pair_assume = run5 assumption_conflict")
+    p.add_argument("--qset", choices=["v1", "v2", "v3", "pair", "pair_assume"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), pair = run4 same_change, pair_assume = run5 assumption_conflict")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.set_defaults(fn=cmd_predict)
@@ -437,14 +450,16 @@ def main(argv=None):
     l.add_argument("--concurrency", type=int, default=64)
     l.add_argument("--run", default="run1")
     l.add_argument("--dataset")
-    l.add_argument("--qset", choices=["v1", "v2"], default="v1")
+    l.add_argument("--qset", choices=["v1", "v2", "v3"], default="v1")
+    l.add_argument("--no-retry", action="store_true", help="disable the System One adapter's 429 retry (also MERGEONE_NO_RETRY=1); run 5 R5-H6")
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")
     r.add_argument("run_dir")
     r.add_argument("--v2", action="store_true", help="run2 report (judge labels, calibration)")
     r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
     r.add_argument("--run4", action="store_true", help="run4 report (PR memory, duplicate detection)")
-    r.set_defaults(fn=lambda a: __import__("mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
+    r.add_argument("--run5", action="store_true", help="run5 report, component C (v3 questions → review iteration, R5-H3/H5/H6)")
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.run5" if a.run5 else "mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
     cp = sub.add_parser("compact", help="dedupe prediction files after --append re-runs (keep last non-error row per PR)")
     cp.add_argument("files", nargs="+"); cp.set_defaults(fn=cmd_compact)
     sub.add_parser("models", help="list the decision-model registry (prompts/models.yaml)").set_defaults(fn=cmd_models)
