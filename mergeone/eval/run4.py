@@ -109,9 +109,17 @@ def pair_state(a_state: str, b_state: str) -> str:
     return "=== PULL REQUEST A ===\n" + a_state[:6000] + "\n\n=== PULL REQUEST B ===\n" + b_state[:3000] + "\n\nHow does A relate to B?"
 
 
+def _mem_meta(m) -> dict:
+    return {"number": m.number, "title": m.title, "state": m.state, "created_at": m.created_at.isoformat(), "merged_at": m.merged_at.isoformat() if m.merged_at else None, "author": m.author, "score": None}
+
+
 def cmd_pairs(a):
+    """Build pair rows. Run 5 reuses this with `a.candidates`, `a.out`, `a.top_k` (all optional; defaults = run 4)."""
+    cands_path = Path(getattr(a, "candidates", None) or RUN_DIR / "candidates.jsonl")
+    out = Path(getattr(a, "out", None) or RUN_DIR / "pairs.jsonl")
+    top_k = getattr(a, "top_k", None)
     ds = {r["pr_number"]: r for r in _rows(DATASET)}
-    cands = {r["pr_number"]: r for r in _rows(RUN_DIR / "candidates.jsonl")}
+    cands = {r["pr_number"]: r for r in _rows(cands_path)}
     labels = {r["pr_number"]: r for r in _rows(LABELS)} if LABELS.exists() else {}
     mems = load_all(MEM_DIR)
     rng = random.Random(4)
@@ -133,15 +141,20 @@ def cmd_pairs(a):
         cr = cands.get(pid)
         if not cr:
             continue
-        for c in cr["candidates"]:
-            cb = cr["candidate_bodies"].get(str(c["number"]), {})
+        top = cr["candidates"][:top_k]
+        for c in top:
+            cb = (cr.get("candidate_bodies") or {}).get(str(c["number"]))
+            mm = mems[pr["repo"]].prs.get(c["number"]) if (cb is None or "title" not in c) and pr["repo"] in mems else None
+            if mm is not None:  # candidates file without rendered bodies/metadata (run 5): take them from the memory
+                c = {**_mem_meta(mm), **c}
+                cb = cb or {"body": mm.body, "files": sorted(mm.files)}
+            cb = cb or {}
             add(pr, c["number"], c, cb.get("body", ""), cb.get("files", []), "retrieved")
         lab = labels.get(pid)
-        if lab and lab["label"] == "superseded_by" and lab["superseded_by"] not in {c["number"] for c in cr["candidates"]}:
+        if lab and lab["label"] == "superseded_by" and lab["superseded_by"] not in {c["number"] for c in top}:
             m = mems[pr["repo"]].prs.get(lab["superseded_by"])
             if m:
-                meta = {"number": m.number, "title": m.title, "state": m.state, "created_at": m.created_at.isoformat(), "merged_at": m.merged_at.isoformat() if m.merged_at else None, "author": m.author, "score": None}
-                add(pr, m.number, meta, m.body, sorted(m.files), "gold_not_retrieved")
+                add(pr, m.number, _mem_meta(m), m.body, sorted(m.files), "gold_not_retrieved")
     # random same-repo negatives, as many as positives
     n_pos = sum(1 for r in rows if r["labels"]["positive"])
     by_repo = defaultdict(list)
@@ -154,13 +167,13 @@ def cmd_pairs(a):
         pool = [n for n in m.prs if n not in (pr["number"], r["b"])]
         if pool:
             n = rng.choice(pool); c = m.prs[n]
-            meta = {"number": n, "title": c.title, "state": c.state, "created_at": c.created_at.isoformat(), "merged_at": c.merged_at.isoformat() if c.merged_at else None, "author": c.author, "score": None}
-            add(pr, n, meta, c.body, sorted(c.files), "random_negative")
-    out = RUN_DIR / "pairs.jsonl"
+            add(pr, n, _mem_meta(c), c.body, sorted(c.files), "random_negative")
+    out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w") as f:
         for r in rows:
             f.write(json.dumps(r) + "\n")
     print({"pairs": len(rows), "positives": n_pos, "kinds": dict(Counter(r["kind"] for r in rows)), "by_split": dict(Counter(r["split"] for r in rows))})
+    return rows
 
 
 # ----------------------------------------------------------------- report

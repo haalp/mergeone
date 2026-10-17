@@ -5,7 +5,8 @@ This is REPORTING, not a pre-registered hypothesis. It reads the frozen per-run 
 
 Four axes, each the thing a merge gateway actually pays for:
   quality      mean ROC AUC vs the run's ground truth, averaged over the runs the model took part in
-               (run1 revert-within-30d; run2 judge labels, 5 questions; run3 agent-PR rejection; run4 same_change pairs)
+               (run1 revert-within-30d; run2 judge labels, 5 questions; run3 agent-PR rejection; run4 same_change pairs;
+               run5 review iteration = AUC vs `iterated` of v3-calibrated needs_human_review)
   calibration  mean ECE after the run's calibration step (lower is better)
   speed        p99 latency in ms at 100× the base PR rate if a loadtest exists, else in-run p99
   cost         USD per 1 000 PRs at the run's recorded list prices (results/prices.json)
@@ -28,22 +29,26 @@ from pathlib import Path
 import numpy as np
 
 RESULTS = Path(__file__).resolve().parents[2] / "results"
-RUNS = ("run1", "run2", "run3", "run4")
+RUNS = ("run1", "run2", "run3", "run4", "run5")
+RUN_QSET = {"run5": "v3"}  # run 5 files mix v3, pair and pair_assume rows; in-run latency/cost is the v3 decision
 KIND = {"rules": "floor (no model)", "gbm": "floor (trained classifier)", "mock": "floor"}
-RUN_LABEL = {"run1": "revert (k8s)", "run2": "judge labels ×5", "run3": "agent-PR outcome", "run4": "same_change pairs"}
+RUN_LABEL = {"run1": "revert (k8s)", "run2": "judge labels ×5", "run3": "agent-PR outcome", "run4": "same_change pairs", "run5": "v3 → review iteration"}
 
 
 def _q(x):
     return None if x is None or (isinstance(x, float) and math.isnan(x)) else float(x)
 
 
-def _pred_stats(run_dir: Path, model: str) -> dict | None:
+def _pred_stats(run_dir: Path, model: str, qset: str | None = None) -> dict | None:
     p = run_dir / f"predictions_{model}_test_all.jsonl"
     if not p.exists():
         return None
     lat, cost, n, err = [], 0.0, 0, 0
     for line in p.open():
-        d = json.loads(line)["decision"]
+        row = json.loads(line)
+        if qset is not None and row.get("qset") != qset:
+            continue
+        d = row["decision"]
         n += 1
         if d.get("error"):
             err += 1
@@ -69,6 +74,9 @@ def _quality(run: str, m: dict, model: str) -> tuple[float | None, float | None]
         if run == "run4":
             t = m["models"][model]["pair_test"]
             return _q(t["roc_auc"]), None
+        if run == "run5":
+            t = m["models"][model]["nhr_v3cal"]
+            return _q(t.get("roc_auc")), _q(t.get("ece"))
     except KeyError:
         return None, None
     return None, None
@@ -82,6 +90,9 @@ def _scale(run: str, m: dict, model: str) -> bool | None:
     if run == "run3":
         v = h.get(f"R3-H5[{model} x100]")
         return None if v is None else bool(v["pass"])
+    if run == "run5":
+        v = h.get(f"R5-H6[{model}]")
+        return None if v is None or v.get("pass") is None else bool(v["pass"])
     return None
 
 
@@ -103,7 +114,7 @@ def collect() -> dict[str, dict]:
         models = set(m.get("models", {}).keys())
         for model in sorted(models):
             auc, ece = _quality(run, m, model)
-            ps = _pred_stats(rd, model)
+            ps = _pred_stats(rd, model, RUN_QSET.get(run))
             sc = _scale(run, m, model)
             lt = _loadtest_p99(rd, model)
             r = rows[model]
