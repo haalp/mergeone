@@ -266,3 +266,126 @@ built yet; memory fetch was still running). Perplexity released open-weight deci
 with the System One schema used in runs 1–4, so the same question files apply unchanged. Both are added as
 run-4 candidates for the pair question with the same bars (R4-H2). This amends R4.5; it adds candidates, it does
 not change any hypothesis, threshold, prompt or label.
+
+---
+
+# Run 5 addendum — retrieval v2, declared assumptions, question set v3 (pre-registered)
+
+**Status:** added 2026-10-17 23:07Z, after run-4 results were published and before any run-5 label,
+candidate list or model call existed. Run 4 is not re-run; its tables stand. Everything below is
+evaluated on the run-3/run-4 repositories and split (`data/run3/manifest.json`), whose **test set has been
+seen in aggregate three times** (run-3 and run-4 tables, the run-4 leaderboard). We state this again and do
+not reshuffle; no per-PR test prediction has been inspected.
+
+Goal of the run, stated plainly: make the gateway better on the failure mode run 3 found (coordination)
+and on the one outcome the questions were seen to track (review iteration), with every change measured.
+
+## R5.1 Components and what each one is allowed to use
+
+**A — Retrieval v2** (replaces run-4 R4.3-1; the pair question and `duplicate_of` are unchanged)
+
+- **A1, metadata stage (no model, no network):** for a query PR, score every memory PR created or merged
+  within ±90 days (run 4: ±45) by
+  `w_issue·[share ≥ 1 issue/PR reference in title/body] + w_dir·jaccard(directories, depth 2) +
+   w_file·jaccard(files) + w_text·bm25(title+body) + w_author·[same author]`
+  and keep the top-20. Issue references are `#N`, `GH-N`, `owner/repo#N` and full issue/PR URLs in the text,
+  excluding self-references. Weights are chosen **on the 22 val gold pairs only** by a grid over
+  {0, 0.1, …, 0.6} per weight (sum = 1), maximising val recall@20 then val recall@5 as tie-break, and are
+  frozen in `mergeone/memory/retrieval_v2.py` with the chosen values and the grid result **before** any
+  test PR is scored. Val recall is reported alongside test; it is a tuned number and is labelled as such.
+- **A2, content stage (network, no model):** for the top-20 of A1 only, the candidate's changed-line
+  content is fetched once from the REST `pulls/{n}/files` endpoint (patch field, ≤ 300 files, first 4,000
+  characters of patch per file) and cached under `data/run5/patches/`. The query PR's diff is the one already
+  rendered in the dataset. `ident(P)` = set of identifiers matching `[A-Za-z_][A-Za-z0-9_]{2,}` on added or
+  removed lines, minus a fixed stop-list of language keywords (committed with the code). Re-rank the top-20 by
+  `0.5·A1_score_normalised + 0.5·jaccard(ident(query), ident(candidate))` → top-5. The 0.5/0.5 split is
+  fixed here and not tuned. PRs whose patch cannot be fetched (deleted fork, >300 files, API error) keep
+  their A1 rank and are counted.
+- **Exploratory, reported, not a hypothesis:** the same re-rank with tree-sitter function-level overlap for
+  the languages where a parser is available (Python, TypeScript/JavaScript, Go, C#, Java, Ruby), to answer
+  whether symbol-level beats identifier-level. Not used in any verdict.
+- **Latency:** the pre-registered number is the **Go store** (`gate/internal/memory`) implementing A1 on the
+  same memory, measured as run 4 (p99 over the 2,196 PRs, run-3 hardware). A2 is a network stage and is
+  excluded from the latency bar but its calls-per-PR are reported. Python stays the reference for scores
+  and must agree with Go to 1e-6 on every candidate score.
+
+**B — Declared assumptions** (v0.3)
+
+- Agents in the dataset did not declare assumptions. Proxy, stated as such: for every PR, a list
+  `[{kind ∈ {api, behaviour, data, config, dependency, test}, target, claim}]` is extracted **from the PR's
+  own title and body text only — never the diff —** by Claude Haiku 5.5 with the frozen prompt
+  `prompts/assumptions_v1.md` (temperature 0, JSON schema, max 8 items). This is a *component*, not a
+  candidate: it stands in for what an agent would send in `gate_decide.assumptions`, and its quality is
+  bounded by what the agent wrote in the description. PRs with an empty body get an empty list and are
+  gated exactly as today (inference fallback).
+- **Labels (human, regex, frozen before fetching):** comments by non-bot authors on **every** PR in the
+  run-3 dataset (merged ones are fetched now; closed ones exist from run 4) are matched by a fixed regex in
+  `mergeone/data/relation_labels.py` for *conflicts with / rebase on|after / depends on / blocked by /
+  after #N lands|merges / needs #N first / wait for #N* … `#N`, giving `related_to = N` with
+  `relation ∈ {conflicts, depends}`; `N` must exist in the memory. Supersedes from run 4 are a third
+  relation and are not re-labelled. A match without a number is `relation_unknown` and excluded from pair
+  metrics. Nothing else labels a relation.
+- **Pair question** `assumption_conflict(A, B)` — choice over {conflict, depends, independent} given both
+  PRs' rendered state **plus** both declared-assumption lists; `conflict_of = P(conflict) + 0.5·P(depends)`.
+  Asked for every (PR, top-5 A2 candidate) pair, so it shares retrieval with A. Candidates: `jev`, `pplx`,
+  `pplx-flash`, `haiku`. Questions in `prompts/jev_pair.json` / `prompts/haiku_pair.md` extended before
+  any call. Floor: `conflict_of` = directory Jaccard only (no assumptions, no model).
+- **Policy:** `conflict_of ≥ 0.7` on a candidate that is *open* → `hold, route: human, reason: conflicts
+  with #N`; on a candidate already *merged* within 14 days → `hold, route: rebase`. Added below the dedup
+  rule; everything else unchanged.
+
+**C — Question set v3 and the review-iteration outcome**
+
+- `v3 = v2 ∪ {exceeds_scope, breaking_change, tests_cover_change, hard_to_revert, follows_conventions}`,
+  all `noul`, frozen in `prompts/jev_v3.json` / `prompts/haiku_v3.md` before any call. Ten questions per PR
+  in one request.
+- **Outcome:** `iterated` = force-pushes ≥ 2 after the PR was opened (run-3 label, test base rate ≈ 8%).
+  It is the run-3 exploratory finding, now pre-registered. `rejected` is reported for continuity, not scored.
+- **Calibration:** per question, isotonic on val repositories against `iterated`; the gate's
+  `needs_human_review` keeps its run-3 calibration for H3/H4 comparability and gets a second, v3-calibrated
+  copy for R5-H5.
+- **Question pruning, val only:** a v3 question whose val marginal gain in a 10-question logistic stack
+  (fit on val, 5-fold within val) is < 0.005 AUC is dropped *for the stack only*; all ten are still reported.
+  Nothing is pruned on test.
+- **Candidates:** `jev`, `pplx`, `pplx-flash`, `haiku`, `rules` (v2 heuristic floor + nothing for the new
+  questions). **Load tests** at 1×/10×/100× for `pplx` and `pplx-flash` as run 3 (R3-H5 bar), so the
+  leaderboard's scale column is measured for them.
+
+## R5.2 Pre-registered criteria (test repositories unless stated)
+
+- **R5-H1 (retrieval v2 recall):** recall@5 of the gold superseding PR ≥ **0.70** on the 29 run-4 test
+  gold pairs (run 4: 0.55, bar was 0.60). Reported for A1-only and A1+A2 separately; the hypothesis is on
+  A1+A2. Below 0.60 (the run-4 bar) v2 is reported as no improvement.
+- **R5-H2 (retrieval latency):** Go A1 p99 ≤ **20 ms** over 2,196 PRs; A2 ≤ 20 patch fetches per PR.
+- **R5-H3 (verdict level, dedup with v2 candidates):** run-4 R4-H3 and R4-H4 recomputed with the v2 top-5
+  and the *same* run-4 pair predictions where the pair exists, new predictions only for new pairs, same
+  models (jev, haiku; pplx and pplx-flash now also evaluable because run-5 C gives them gate verdicts).
+  Bars unchanged: pass-group bad-outcome ≤ 0.5 × base; closed-PR coverage ≥ +15 pp over run 3.
+- **R5-H4 (assumptions):** ROC-AUC of `conflict_of` ≥ **0.75** on pairs: positives = (PR, N) with
+  `relation ∈ {conflicts, depends}`; negatives = the PR's other top-5 candidates plus an equal number of
+  random same-repo, same-window pairs. For every candidate model, and for the floor. Additionally,
+  **R5-H4b:** among labelled relations whose two PRs share **no** changed file, the share caught at
+  `conflict_of ≥ 0.7` is ≥ **+15 pp** above the directory-Jaccard floor at the same false-positive rate on
+  random pairs. H4b is the only number that says declared assumptions see something file overlap cannot.
+- **R5-H5 (iteration):** calibrated `needs_human_review` (v3 calibration) → `iterated`: ROC-AUC ≥ **0.70**
+  on test for at least one System One candidate; the 10-question stack ≥ **0.75**. Below 0.60 the run-3
+  exploratory finding is reported as not replicating.
+- **R5-H6 (scale, pplx):** R3-H5 bar for `pplx` and `pplx-flash` at 100×: p99 ≤ single-call p99 + 200 ms,
+  error rate 0 (429s count as errors; the adapter's retry is disabled for the load test).
+
+## R5.3 What is not allowed
+
+No frontier model as a candidate. Haiku's role in B is extraction with a frozen prompt, reported as a
+component; Haiku is also a pair-question candidate and the two uses are kept in separate files. No weight,
+threshold, prompt or regex changes after the first test-split call in each component; A1 weights are fixed
+from val before the first test retrieval and the grid result is committed. The run-4 test predictions are
+reused only where the pair is identical (same A, same B); they are never re-scored. Negative results are
+published as in runs 1–4.
+
+## R5.4 Order of operations (so the "before" claims are checkable by commit time)
+
+1. Commit this addendum. 2. Commit `relation_labels.py` regex and `assumptions_v1.md`, `jev_v3.json`,
+`haiku_v3.md`, pair-question extensions. 3. Fetch merged-PR comments; build relation labels. 4. Fit A1
+weights on val; commit the grid result; freeze. 5. Fetch A2 patches for the top-20 of every PR. 6. Build
+candidates and pairs. 7. Extract assumptions for all PRs. 8. Predict (v3 questions; pair questions for new
+pairs). 9. Load tests. 10. Report. Each step's timestamp lands in CHANGELOG.
