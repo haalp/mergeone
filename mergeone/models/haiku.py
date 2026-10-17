@@ -53,11 +53,7 @@ class HaikuModel:
     def __init__(self, prices: dict | None = None, effort: str = "low", version: str = "v1", model: str | None = None, spec=None):
         import anthropic
 
-        # Any Anthropic-Messages-compatible endpoint (api.anthropic.com, Vercel AI Gateway, …): the registry row's
-        # endpoint is the SDK base_url (its "/v1/messages" suffix is stripped) and key_env its credential.
-        key = os.environ.get(spec.key_env, "") if spec is not None and spec.key_env else os.environ.get("ANTHROPIC_API_KEY", "")
-        base = (spec.endpoint if spec is not None and spec.endpoint else "").removesuffix("/v1/messages") or None
-        self.client = anthropic.Anthropic(api_key=key or None, base_url=base)
+        self.client = anthropic.Anthropic()
         self.name = spec.name if spec is not None else "haiku"
         self.model_id = model or MODEL_ID  # any Claude model id via prompts/models.yaml (dialect: anthropic)
         self.version = version

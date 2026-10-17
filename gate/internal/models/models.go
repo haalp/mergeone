@@ -135,10 +135,10 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw)}
 	}
 	var out struct {
-		Model     string               `json:"model"`
+		Model     string                `json:"model"`
 		Answers   map[string]jevAnswer `json:"answers"`
 		Decisions map[string]jevAnswer `json:"decisions"` // /v1/decide dialect
-		Usage     struct {
+		Usage struct {
 			In  int `json:"input_tokens"`
 			Out int `json:"output_tokens"`
 		} `json:"usage"`
@@ -196,7 +196,6 @@ type jevAnswer struct {
 // Haiku calls the Claude Messages API with strict JSON output and thinking off.
 type Haiku struct {
 	name       string
-	Endpoint   string // Messages endpoint; default https://api.anthropic.com/v1/messages (Vercel AI Gateway etc. via registry)
 	PairSystem string
 	Key        string
 	ModelID    string
@@ -212,10 +211,6 @@ func NewHaiku(promptPath string) (*Haiku, error) {
 	if key == "" {
 		return nil, fmt.Errorf("ANTHROPIC_API_KEY not set")
 	}
-	return newHaikuWithKey(key, promptPath)
-}
-
-func newHaikuWithKey(key, promptPath string) (*Haiku, error) {
 	b, err := os.ReadFile(promptPath)
 	if err != nil {
 		return nil, err
@@ -266,11 +261,7 @@ func (h *Haiku) Decide(state string, questions []string) engine.Decision {
 		"messages":      []map[string]any{{"role": "user", "content": state}},
 	})
 	t0 := time.Now()
-	endpoint := h.Endpoint
-	if endpoint == "" {
-		endpoint = "https://api.anthropic.com/v1/messages"
-	}
-	req, _ := http.NewRequest("POST", endpoint, bytes.NewReader(body))
+	req, _ := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewReader(body))
 	req.Header.Set("x-api-key", h.Key)
 	req.Header.Set("anthropic-version", "2023-06-01")
 	req.Header.Set("Content-Type", "application/json")
