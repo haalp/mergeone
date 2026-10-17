@@ -118,11 +118,18 @@ func Build(s *Spec, questionsPath, promptPath, modelIDOverride string) (Decider,
 		}
 		return j, nil
 	case "anthropic":
-		h, err := NewHaiku(promptPath)
+		h, err := newHaikuWithKey(key, promptPath)
 		if err != nil {
 			return nil, err
 		}
 		h.name, h.ModelID, h.InPerMTok, h.OutPerMTok = s.Name, id, s.InputPerMTok, s.OutPerMTok
+		if s.Endpoint != "" {
+			h.Endpoint = strings.TrimSuffix(s.Endpoint, "/")
+			if !strings.HasSuffix(h.Endpoint, "/v1/messages") {
+				h.Endpoint += "/v1/messages"
+			}
+		}
+
 		return h, nil
 	}
 	return nil, fmt.Errorf("model %s: unknown dialect %q", s.Name, s.Dialect)

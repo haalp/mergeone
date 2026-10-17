@@ -68,6 +68,17 @@ models:
     license: closed
     notes: "LLM-as-judge baseline with a JSON schema (prompts/haiku_*.md). Runs 1–4. Fails R-H5 at 100× in every run so far."
 
+  cat-jam:
+    dialect: anthropic
+    endpoint: https://ai-gateway.vercel.sh/v1/messages
+    key_env: AI_GATEWAY_API_KEY
+    model_id: stealth/cat-jam
+    input_per_mtok: 0.0               # free during the stealth period (2026-10-17); no ZDR, prompts may be retained
+    output_per_mtok: 0.0
+    hosted: Vercel AI Gateway (stealth provider)
+    license: unknown
+    notes: "Anonymous reasoning LLM, Anthropic-compatible Messages API, JSON-schema outputs. A free LLM-judge row, NOT a decision model. Stealth = unpinnable version, so it cannot be a pre-registered candidate; comparison only."
+
   # --- open-weight candidates, not yet run. Serve locally (llama.cpp / vLLM expose /v1/systemone) or via vendor API.
   clef:
     dialect: systemone
