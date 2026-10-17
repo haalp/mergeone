@@ -1,0 +1,537 @@
+{
+  "dataset": {
+    "n_val": 1491,
+    "n_test": 705,
+    "base_rate_iterated_test": 0.08226950354609928,
+    "base_rate_iterated_val": 0.03085177733065057,
+    "base_rate_rejected_test": 0.46808510638297873,
+    "base_rate_bad_outcome_test": 0.46808510638297873
+  },
+  "notes": {
+    "calibration": "R5-H5: per question, isotonic (sklearn, out_of_bounds=clip) fitted on val-repo raw answers vs `iterated`, applied to test. R5-H3 verdicts: run-3 rule unchanged \u2014 default gate policy (always_human_paths cleared), shipped calibration_<model>_v2.json maps for the four non-primary questions where they exist (jev, haiku), and needs_human_review refit by isotonic on val repos vs `rejected` (report_run3._calibrate_primary). jev/haiku/rules use their run-3 v2 predictions (as run 4). pplx/pplx-flash have no shipped maps, so their four non-primary v2 answers are used uncalibrated; their needs_human_review is refit vs `rejected` on their run-5 v3 val answers; the five new v3 questions are not in the policy and do not affect verdicts.",
+    "stack": "Stack: features = the raw answers to the ten v3 questions (rows with all ten present), StandardScaler + L2 logistic regression (C=1, lbfgs) fitted on val repos vs `iterated`. Pruning (val only): marginal gain of q = pooled out-of-fold AUC of the 10-question stack minus that of the stack without q, 5-fold stratified CV within val (seed 5). Only the five questions new in v3 are prunable; gains are reported for all ten. Pruned questions are dropped for the stack only.",
+    "scale": "R5-H6 applies the R3-H5 computation: \u00d7100 p99 vs the model's in-run p99 (v3 rows, val+test) + 200 ms, and 0 errors. The in-run pplx calls ran at concurrency 2 with the adapter's 429 retry on (as run 4), so `pass_vs_x1` \u2014 the same bar against the retry-off \u00d71 load-test p99 \u2014 is reported alongside. A load test whose summary does not show retry_429 = 0 is invalid for R5-H6."
+  },
+  "models": {
+    "haiku": {
+      "n_val": 1491,
+      "n_test": 705,
+      "questions": {
+        "is_logic_change": {
+          "test_raw_vs_iterated": 0.6649656238341417,
+          "test_cal_vs_iterated": 0.5779726056600757,
+          "test_cal_ece_iterated": 0.06772941729654472,
+          "test_raw_vs_rejected": 0.4789979797979798,
+          "val_raw_vs_iterated": 0.60601775236949,
+          "val_raw_vs_rejected": 0.5372456117341027,
+          "calibrated_on_val": true
+        },
+        "weakens_tests": {
+          "test_raw_vs_iterated": 0.8085727229121142,
+          "test_cal_vs_iterated": 0.7973005382934498,
+          "test_cal_ece_iterated": 0.06323283593881526,
+          "test_raw_vs_rejected": 0.5590424242424242,
+          "val_raw_vs_iterated": 0.597103956672183,
+          "val_raw_vs_rejected": 0.530542075618802,
+          "calibrated_on_val": true
+        },
+        "message_matches_diff": {
+          "test_raw_vs_iterated": 0.35560677929968554,
+          "test_cal_vs_iterated": 0.4766828332356233,
+          "test_cal_ece_iterated": 0.08190471097224539,
+          "test_raw_vs_rejected": 0.3966383838383838,
+          "val_raw_vs_iterated": 0.3921167443959681,
+          "val_raw_vs_rejected": 0.4141355352992182,
+          "calibrated_on_val": true
+        },
+        "touches_concurrency": {
+          "test_raw_vs_iterated": 0.6422480413579919,
+          "test_cal_vs_iterated": 0.6312156904546181,
+          "test_cal_ece_iterated": 0.05790108234460257,
+          "test_raw_vs_rejected": 0.4815070707070707,
+          "val_raw_vs_iterated": 0.6431773732510906,
+          "val_raw_vs_rejected": 0.5494003249757726,
+          "calibrated_on_val": true
+        },
+        "needs_human_review": {
+          "test_raw_vs_iterated": 0.7384346852848691,
+          "test_cal_vs_iterated": 0.739593881575441,
+          "test_cal_ece_iterated": 0.05458220599002876,
+          "test_raw_vs_rejected": 0.5630989898989899,
+          "val_raw_vs_iterated": 0.6662253648262375,
+          "val_raw_vs_rejected": 0.5905350806245948,
+          "calibrated_on_val": true
+        },
+        "exceeds_scope": {
+          "test_raw_vs_iterated": 0.7809385492725044,
+          "test_cal_vs_iterated": 0.7734903800031978,
+          "test_cal_ece_iterated": 0.061888916800609525,
+          "test_raw_vs_rejected": 0.5184565656565656,
+          "val_raw_vs_iterated": 0.6631563111177976,
+          "val_raw_vs_rejected": 0.5408014004561319,
+          "calibrated_on_val": true
+        },
+        "breaking_change": {
+          "test_raw_vs_iterated": 0.7501332409529392,
+          "test_cal_vs_iterated": 0.6996215956936523,
+          "test_cal_ece_iterated": 0.0641893121641841,
+          "test_raw_vs_rejected": 0.4988808080808081,
+          "val_raw_vs_iterated": 0.6105837219798406,
+          "val_raw_vs_rejected": 0.5367437573319925,
+          "calibrated_on_val": true
+        },
+        "tests_cover_change": {
+          "test_raw_vs_iterated": 0.6237408729947237,
+          "test_cal_vs_iterated": 0.6235276874700209,
+          "test_cal_ece_iterated": 0.07190011737418597,
+          "test_raw_vs_rejected": 0.5154020202020202,
+          "val_raw_vs_iterated": 0.5316007221302843,
+          "val_raw_vs_rejected": 0.47509035200851063,
+          "calibrated_on_val": true
+        },
+        "hard_to_revert": {
+          "test_raw_vs_iterated": 0.8080397591003572,
+          "test_cal_vs_iterated": 0.7890928955923894,
+          "test_cal_ece_iterated": 0.06339382942170245,
+          "test_raw_vs_rejected": 0.5084161616161617,
+          "val_raw_vs_iterated": 0.6439070257258913,
+          "val_raw_vs_rejected": 0.5309145954926006,
+          "calibrated_on_val": true
+        },
+        "follows_conventions": {
+          "test_raw_vs_iterated": 0.30734690614507276,
+          "test_cal_vs_iterated": 0.4755369610403454,
+          "test_cal_ece_iterated": 0.07646326064532183,
+          "test_raw_vs_rejected": 0.39603636363636363,
+          "val_raw_vs_iterated": 0.36921919663005864,
+          "val_raw_vs_rejected": 0.3609936170677859,
+          "calibrated_on_val": true
+        }
+      },
+      "nhr_raw": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.7384346852848691,
+        "pr_auc": 0.159149141469598,
+        "ece": 0.4195177304964539,
+        "brier": 0.2733585815602837,
+        "recall_at_fpr5": 0.08620689655172414,
+        "roc_auc_ci95": [
+          0.6826611608067802,
+          0.7888387255258412
+        ]
+      },
+      "nhr_v3cal": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.739593881575441,
+        "pr_auc": 0.1546637374525424,
+        "ece": 0.05458220599002876,
+        "brier": 0.0758310968460573,
+        "recall_at_fpr5": 0.08620689655172414,
+        "roc_auc_ci95": [
+          0.6836100575297832,
+          0.7901707542896224
+        ]
+      },
+      "nhr_run3cal_vs_rejected": {
+        "n": 705,
+        "positives": 330,
+        "roc_auc": 0.5538424242424242,
+        "pr_auc": 0.510623721095143,
+        "ece": 0.11204636295314696,
+        "brier": 0.24817494104277688,
+        "recall_at_fpr5": 0.015151515151515152
+      },
+      "nhr_run3cal_vs_iterated": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.732412194212013,
+        "pr_auc": 0.150777025680765,
+        "ece": 0.3678015351764553,
+        "brier": 0.20866258463104484,
+        "recall_at_fpr5": 0.017241379310344827
+      },
+      "stack": {
+        "n_val": 1491,
+        "val_positives": 46,
+        "val_cv_auc_all10": 0.6518278922822326,
+        "val_marginal_gain": {
+          "is_logic_change": -0.0029787874228975886,
+          "weakens_tests": -0.0013239055212878048,
+          "message_matches_diff": 0.02387543252595159,
+          "touches_concurrency": 0.0014292161877538234,
+          "needs_human_review": 0.004001805325710928,
+          "exceeds_scope": 0.014247028734767686,
+          "breaking_change": -0.005295622085151108,
+          "tests_cover_change": -0.003866405897397396,
+          "hard_to_revert": -0.002046035805626678,
+          "follows_conventions": 0.006769971415676257
+        },
+        "pruned": [
+          "breaking_change",
+          "tests_cover_change",
+          "hard_to_revert"
+        ],
+        "kept": [
+          "is_logic_change",
+          "weakens_tests",
+          "message_matches_diff",
+          "touches_concurrency",
+          "needs_human_review",
+          "exceeds_scope",
+          "follows_conventions"
+        ],
+        "val_cv_auc_kept": 0.6639386189258312,
+        "test": {
+          "n": 705,
+          "positives": 58,
+          "roc_auc": 0.7842828971912807,
+          "pr_auc": 0.19149288648449014,
+          "ece": 0.05882080256215382,
+          "brier": 0.07572745222898875,
+          "recall_at_fpr5": 0.13793103448275862,
+          "roc_auc_ci95": [
+            0.7365216493460366,
+            0.8296473162267283
+          ]
+        },
+        "coef_standardised": {
+          "is_logic_change": 0.029928875070397404,
+          "weakens_tests": -0.06144970006820389,
+          "message_matches_diff": 0.5705706536396388,
+          "touches_concurrency": -0.07503805051644076,
+          "needs_human_review": 0.4619751759350962,
+          "exceeds_scope": 0.37569153800193894,
+          "follows_conventions": -0.26859342859222024
+        },
+        "test_all10_unpruned": {
+          "n": 705,
+          "positives": 58,
+          "roc_auc": 0.7681873900762138,
+          "pr_auc": 0.18235368851414052,
+          "ece": 0.05746576723450686,
+          "brier": 0.07612063599229994,
+          "recall_at_fpr5": 0.13793103448275862
+        }
+      },
+      "latency_cost": {
+        "n": 2196,
+        "p50_ms": 1095.875365999973,
+        "p99_ms": 2619.4835670000884,
+        "cost_usd_per_1k": 0.4717975409836066
+      },
+      "latency_cost_test": {
+        "n": 705,
+        "p50_ms": 1091.7338600000903,
+        "p99_ms": 2946.5821119999873,
+        "cost_usd_per_1k": 0.4755639716312057
+      },
+      "system_one": false
+    },
+    "rules": {
+      "n_val": 1491,
+      "n_test": 705,
+      "questions": {
+        "is_logic_change": {
+          "test_raw_vs_iterated": 0.7303869317273357,
+          "test_cal_vs_iterated": 0.7163166870969461,
+          "test_cal_ece_iterated": 0.06475562678738979,
+          "test_raw_vs_rejected": 0.4887838383838384,
+          "val_raw_vs_iterated": 0.570407702723033,
+          "val_raw_vs_rejected": 0.5464292740507575,
+          "calibrated_on_val": true
+        },
+        "weakens_tests": {
+          "test_raw_vs_iterated": 0.49072642967542496,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.4992242424242425,
+          "val_raw_vs_iterated": 0.48996539792387545,
+          "val_raw_vs_rejected": 0.4933392717919572,
+          "calibrated_on_val": true
+        },
+        "message_matches_diff": {
+          "test_raw_vs_iterated": 0.2937696530405585,
+          "test_cal_vs_iterated": 0.4167510526035282,
+          "test_cal_ece_iterated": 0.08160168404097336,
+          "test_raw_vs_rejected": 0.42106666666666664,
+          "val_raw_vs_iterated": 0.48869414773582065,
+          "val_raw_vs_rejected": 0.5000947238798901,
+          "calibrated_on_val": true
+        },
+        "touches_concurrency": {
+          "test_raw_vs_iterated": 0.40281404892607797,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.472739393939394,
+          "val_raw_vs_iterated": 0.42162629757785464,
+          "val_raw_vs_rejected": 0.48836262487157633,
+          "calibrated_on_val": true
+        },
+        "needs_human_review": {
+          "test_raw_vs_iterated": 0.7440041571177318,
+          "test_cal_vs_iterated": 0.7278020572403134,
+          "test_cal_ece_iterated": 0.056740346261326534,
+          "test_raw_vs_rejected": 0.5279070707070708,
+          "val_raw_vs_iterated": 0.6170528057770422,
+          "val_raw_vs_rejected": 0.5524068973557464,
+          "calibrated_on_val": true
+        },
+        "exceeds_scope": {
+          "test_raw_vs_iterated": 0.5,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.5,
+          "val_raw_vs_iterated": 0.5,
+          "val_raw_vs_rejected": 0.5,
+          "calibrated_on_val": true
+        },
+        "breaking_change": {
+          "test_raw_vs_iterated": 0.5,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.5,
+          "val_raw_vs_iterated": 0.5,
+          "val_raw_vs_rejected": 0.5,
+          "calibrated_on_val": true
+        },
+        "tests_cover_change": {
+          "test_raw_vs_iterated": 0.5,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.5,
+          "val_raw_vs_iterated": 0.5,
+          "val_raw_vs_rejected": 0.5,
+          "calibrated_on_val": true
+        },
+        "hard_to_revert": {
+          "test_raw_vs_iterated": 0.5,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.5,
+          "val_raw_vs_iterated": 0.5,
+          "val_raw_vs_rejected": 0.5,
+          "calibrated_on_val": true
+        },
+        "follows_conventions": {
+          "test_raw_vs_iterated": 0.5,
+          "test_cal_vs_iterated": 0.5,
+          "test_cal_ece_iterated": 0.08687967045773458,
+          "test_raw_vs_rejected": 0.5,
+          "val_raw_vs_iterated": 0.5,
+          "val_raw_vs_rejected": 0.5,
+          "calibrated_on_val": true
+        }
+      },
+      "nhr_raw": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.7440041571177318,
+        "pr_auc": 0.20364043970432927,
+        "ece": 0.30381704669874654,
+        "brier": 0.16413363307179676,
+        "recall_at_fpr5": 0.25862068965517243,
+        "roc_auc_ci95": [
+          0.6829845508049456,
+          0.8020489492913594
+        ]
+      },
+      "nhr_v3cal": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.7278020572403134,
+        "pr_auc": 0.16872095114477512,
+        "ece": 0.056740346261326534,
+        "brier": 0.076084526391656,
+        "recall_at_fpr5": 0.15517241379310345,
+        "roc_auc_ci95": [
+          0.666714154405001,
+          0.786207537735171
+        ]
+      },
+      "nhr_run3cal_vs_rejected": {
+        "n": 705,
+        "positives": 330,
+        "roc_auc": 0.5300525252525252,
+        "pr_auc": 0.48743326021812133,
+        "ece": 0.1171113462262923,
+        "brier": 0.2525752127452195,
+        "recall_at_fpr5": 0.0
+      },
+      "nhr_run3cal_vs_iterated": {
+        "n": 705,
+        "positives": 58,
+        "roc_auc": 0.7178622821510419,
+        "pr_auc": 0.15363088797524804,
+        "ece": 0.36821697060630076,
+        "brier": 0.20842933145434606,
+        "recall_at_fpr5": 0.0
+      },
+      "stack": {
+        "n_val": 1491,
+        "val_positives": 46,
+        "val_cv_auc_all10": 0.5878892733564014,
+        "val_marginal_gain": {
+          "is_logic_change": -0.042846396870768744,
+          "weakens_tests": 0.005024823228524156,
+          "message_matches_diff": 0.005679253798706263,
+          "touches_concurrency": 0.027659094328268408,
+          "needs_human_review": 0.01338197683165343,
+          "exceeds_scope": 0.0,
+          "breaking_change": 0.0,
+          "tests_cover_change": 0.0,
+          "hard_to_revert": 0.0,
+          "follows_conventions": 0.0
+        },
+        "pruned": [
+          "exceeds_scope",
+          "breaking_change",
+          "tests_cover_change",
+          "hard_to_revert",
+          "follows_conventions"
+        ],
+        "kept": [
+          "is_logic_change",
+          "weakens_tests",
+          "message_matches_diff",
+          "touches_concurrency",
+          "needs_human_review"
+        ],
+        "val_cv_auc_kept": 0.5878892733564014,
+        "test": {
+          "n": 705,
+          "positives": 58,
+          "roc_auc": 0.7308133027767416,
+          "pr_auc": 0.16208654909122736,
+          "ece": 0.05738703760797199,
+          "brier": 0.07640310940354736,
+          "recall_at_fpr5": 0.1206896551724138,
+          "roc_auc_ci95": [
+            0.6660929100560457,
+            0.7846801247725211
+          ]
+        },
+        "coef_standardised": {
+          "is_logic_change": -0.01167208576865282,
+          "weakens_tests": -0.3877443154609862,
+          "message_matches_diff": 0.4137918967728654,
+          "touches_concurrency": -0.4011323366686071,
+          "needs_human_review": 0.45050306025987435
+        },
+        "test_all10_unpruned": {
+          "n": 705,
+          "positives": 58,
+          "roc_auc": 0.7308133027767416,
+          "pr_auc": 0.16208654909122736,
+          "ece": 0.057387037607971966,
+          "brier": 0.07640310940354736,
+          "recall_at_fpr5": 0.1206896551724138
+        }
+      },
+      "latency_cost": {
+        "n": 2196,
+        "p50_ms": 0.0973390000353902,
+        "p99_ms": 0.7687369999302973,
+        "cost_usd_per_1k": 0.0
+      },
+      "latency_cost_test": {
+        "n": 705,
+        "p50_ms": 0.10242300004392746,
+        "p99_ms": 0.7022830000096292,
+        "cost_usd_per_1k": 0.0
+      },
+      "system_one": false
+    }
+  },
+  "hypotheses": {
+    "R5-H5[haiku]": {
+      "roc_auc": 0.739593881575441,
+      "ci95": [
+        0.6836100575297832,
+        0.7901707542896224
+      ],
+      "system_one": false,
+      "pass": true,
+      "not_replicating": false,
+      "bar": ">= 0.70 calibrated needs_human_review \u2192 iterated (System One counts; < 0.60 not replicating)"
+    },
+    "R5-H5-stack[haiku]": {
+      "roc_auc": 0.7842828971912807,
+      "ci95": [
+        0.7365216493460366,
+        0.8296473162267283
+      ],
+      "pruned_on_val": [
+        "breaking_change",
+        "tests_cover_change",
+        "hard_to_revert"
+      ],
+      "pass": true,
+      "bar": ">= 0.75 (stack fit on val)"
+    },
+    "R5-H5[rules]": {
+      "roc_auc": 0.7278020572403134,
+      "ci95": [
+        0.666714154405001,
+        0.786207537735171
+      ],
+      "system_one": false,
+      "pass": true,
+      "not_replicating": false,
+      "bar": ">= 0.70 calibrated needs_human_review \u2192 iterated (System One counts; < 0.60 not replicating)"
+    },
+    "R5-H5-stack[rules]": {
+      "roc_auc": 0.7308133027767416,
+      "ci95": [
+        0.6660929100560457,
+        0.7846801247725211
+      ],
+      "pruned_on_val": [
+        "exceeds_scope",
+        "breaking_change",
+        "tests_cover_change",
+        "hard_to_revert",
+        "follows_conventions"
+      ],
+      "pass": false,
+      "bar": ">= 0.75 (stack fit on val)"
+    },
+    "R5-H5": {
+      "status": "System One v3 predictions pending (jev/pplx/pplx-flash run on the Mac)",
+      "pass": null,
+      "bar": "nhr >= 0.70 for >= 1 System One model and stack >= 0.75"
+    },
+    "R5-H3": {
+      "status": "A pending",
+      "pass": null,
+      "bar": "pass bad-rate <= 0.5 x base; closed coverage >= +15 pp"
+    },
+    "R5-H6[pplx]": {
+      "status": "pending",
+      "pass": null,
+      "bar": "100\u00d7: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off)"
+    },
+    "R5-H6[pplx-flash]": {
+      "status": "pending",
+      "pass": null,
+      "bar": "100\u00d7: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off)"
+    }
+  },
+  "r5_h3": {
+    "status": "A pending",
+    "note": "results/run5/candidates.jsonl not found (component A); R5-H3 skipped"
+  },
+  "r5_h6": {
+    "pplx": {
+      "loadtests": {},
+      "inrun_p99_ms": null,
+      "status": "pending"
+    },
+    "pplx-flash": {
+      "loadtests": {},
+      "inrun_p99_ms": null,
+      "status": "pending"
+    }
+  }
+}
