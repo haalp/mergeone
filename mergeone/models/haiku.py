@@ -9,17 +9,25 @@ import json
 import os
 from pathlib import Path
 
-from .base import Decision, DECISIONS, DECISIONS_V2, Timer
+from .base import Decision, DECISIONS, DECISIONS_V2, Timer, questions_for
 
 MODEL_ID = "claude-haiku-5-5"
 PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md",
            "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md",
-           "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md"}
+           "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
+           "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md"}
 SCHEMA_PAIR = {
     "type": "object",
     "properties": {"same_change": {"type": "object", "properties": {k: {"type": "number"} for k in ("same", "subset", "related", "unrelated")},
                                    "required": ["same", "subset", "related", "unrelated"], "additionalProperties": False}},
     "required": ["same_change"],
+    "additionalProperties": False,
+}
+SCHEMA_PAIR_ASSUME = {  # run 5 (R5.1-B); haiku_pair.md carries the second-key instructions
+    "type": "object",
+    "properties": {"assumption_conflict": {"type": "object", "properties": {k: {"type": "number"} for k in ("conflict", "depends", "independent")},
+                                           "required": ["conflict", "depends", "independent"], "additionalProperties": False}},
+    "required": ["assumption_conflict"],
     "additionalProperties": False,
 }
 
@@ -58,13 +66,14 @@ class HaikuModel:
         self.model_id = model or MODEL_ID  # any Claude model id via prompts/models.yaml (dialect: anthropic)
         self.version = version
         self.prompt = PROMPTS[version].read_text()
-        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "pair": SCHEMA_PAIR}[version]
+        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME}[version]
         self.effort = effort
         p = (prices or {}).get(self.name) or ({"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok} if spec is not None else {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6
 
     def decide(self, state: str, features: dict[str, float], questions=DECISIONS) -> Decision:
+        questions = questions_for(self.version, questions)
         schema = dict(self.schema_all)
         schema["properties"] = {k: v for k, v in self.schema_all["properties"].items() if k in questions}
         schema["required"] = list(questions)
@@ -86,6 +95,11 @@ class HaikuModel:
                 pr = {k: max(0.0, float(v)) / z for k, v in pr.items()}
                 out["same_change"] = pr.get("same", 0.0) + 0.5 * pr.get("subset", 0.0)  # run 4: duplicate_of
                 raw_choice = {"same_change": pr}
+            if "assumption_conflict" in questions and isinstance(out.get("assumption_conflict"), dict):
+                pr = out["assumption_conflict"]; z = sum(max(0.0, float(v)) for v in pr.values()) or 1.0
+                pr = {k: max(0.0, float(v)) / z for k, v in pr.items()}
+                out["assumption_conflict"] = pr.get("conflict", 0.0) + 0.5 * pr.get("depends", 0.0)  # run 5: conflict_of
+                raw_choice["assumption_conflict"] = pr
             probs = {q: float(min(max(out[q], 0.0), 1.0)) for q in questions}
             it, ot = resp.usage.input_tokens, resp.usage.output_tokens
             return Decision(

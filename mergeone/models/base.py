@@ -17,7 +17,15 @@ PRIMARY = "will_be_reverted"
 DECISIONS_V2 = ("is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review")
 PRIMARY_V2 = "needs_human_review"
 PAIR = ("same_change",)
-QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "pair": PAIR}
+# run5 (PROTOCOL R5.1-B): assumption_conflict(A, B) → conflict_of = P(conflict) + 0.5·P(depends)
+PAIR_ASSUME = ("assumption_conflict",)
+QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "pair": PAIR, "pair_assume": PAIR_ASSUME}
+
+
+def questions_for(version: str, questions: tuple[str, ...]) -> tuple[str, ...]:
+    """`predict --qset pair_assume` reaches models with the CLI's fallback question tuple; the pair_assume
+    version always asks exactly its own question. Every other version keeps the caller's questions."""
+    return PAIR_ASSUME if version == "pair_assume" else questions
 
 
 @dataclass

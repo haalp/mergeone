@@ -17,13 +17,14 @@ from pathlib import Path
 
 import httpx
 
-from .base import Decision, DECISIONS, Timer
+from .base import Decision, DECISIONS, Timer, questions_for
 from .registry import ModelSpec, load_registry
 
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.json",
              "v2": Path(__file__).resolve().parents[2] / "prompts" / "jev_v2.json",
-             "pair": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json"}
+             "pair": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json",
+             "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json"}
 
 
 class SystemOneModel:
@@ -52,6 +53,7 @@ class SystemOneModel:
         self.out_price = p["output_per_mtok"] / 1e6
 
     def decide(self, state: str, features: dict[str, float], questions=DECISIONS) -> Decision:
+        questions = questions_for(self.version, questions)
         body = {
             "state": state,
             "model": self.pinned or self.model,
@@ -85,6 +87,10 @@ class SystemOneModel:
                         probs[q] = float(pr.get("same", 0.0)) + 0.5 * float(pr.get("subset", 0.0))
                         conf[q] = float(a.get("confidence", float("nan")))
                         raw_choice = {q: pr}
+                    elif q == "assumption_conflict":  # run 5: conflict_of = P(conflict) + 0.5 P(depends)
+                        probs[q] = float(pr.get("conflict", 0.0)) + 0.5 * float(pr.get("depends", 0.0))
+                        conf[q] = float(a.get("confidence", float("nan")))
+                        raw_choice[q] = pr
                     else:
                         probs[q] = float(pr.get("yes", pr.get("true", 0.0)))
                         conf[q] = float(a.get("confidence", float("nan")))
