@@ -408,7 +408,7 @@ def main(argv=None):
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2", "pair"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), pair = run4 same_change")
+    p.add_argument("--qset", choices=["v1", "v2", "pair", "pair_assume"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), pair = run4 same_change, pair_assume = run5 assumption_conflict")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.set_defaults(fn=cmd_predict)
