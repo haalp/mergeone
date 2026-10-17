@@ -8,6 +8,8 @@ memory:   every PR (any author) created in the 180 days ending at the newest sam
           repository.pullRequests ordered by CREATED_AT desc, 50 per page. No diffs. Resumable per repo.
 comments: for every closed-unmerged PR in the dataset, issue comments + review bodies + review comments
           (author login + body). Labels are assigned later by supersede_labels.py; nothing is interpreted here.
+          Run 5 (R5.1-B): `comments --merged` fetches the same rows for the merged PRs instead, written by default to
+          data/run5/comments_merged.jsonl (the run-4 file stays as it was); relation_labels.py reads both.
 """
 from __future__ import annotations
 
@@ -153,12 +155,15 @@ def _comments_query(items: list[tuple[str, str, int]]) -> str:
 def cmd_comments(a):
     gh = GQLClient()
     rows = [json.loads(l) for l in Path(a.dataset).open()]
-    targets = [r for r in rows if r["labels"].get("closed_unmerged")]
-    out = Path(a.out)
+    if a.merged:
+        targets = [r for r in rows if r["labels"].get("merged")]
+    else:
+        targets = [r for r in rows if r["labels"].get("closed_unmerged")]
+    out = Path(a.out or ("data/run5/comments_merged.jsonl" if a.merged else "data/run4/comments.jsonl"))
     out.parent.mkdir(parents=True, exist_ok=True)
     done = {(json.loads(l)["repo"], json.loads(l)["number"]) for l in out.open()} if out.exists() else set()
     todo = [r for r in targets if (r["repo"], r["number"]) not in done]
-    print(f"{len(targets)} closed-unmerged PRs, {len(todo)} to fetch", file=sys.stderr, flush=True)
+    print(f"{len(targets)} {'merged' if a.merged else 'closed-unmerged'} PRs, {len(todo)} to fetch → {out}", file=sys.stderr, flush=True)
     B = 15
     with out.open("a") as f:
         for i in range(0, len(todo), B):
@@ -194,7 +199,8 @@ def main(argv=None):
     m.set_defaults(fn=cmd_memory)
     c = sub.add_parser("comments")
     c.add_argument("--dataset", default="data/run3/dataset.jsonl")
-    c.add_argument("--out", default="data/run4/comments.jsonl")
+    c.add_argument("--out", help="default data/run4/comments.jsonl (closed-unmerged) or data/run5/comments_merged.jsonl (--merged)")
+    c.add_argument("--merged", action="store_true", help="run 5: fetch merged PRs' comments instead of closed-unmerged ones")
     c.set_defaults(fn=cmd_comments)
     a = ap.parse_args(argv)
     a.fn(a)
