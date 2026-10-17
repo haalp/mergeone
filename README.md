@@ -50,7 +50,7 @@ PR ──▶ decision model ──▶ calibrated probabilities ──▶ .mergeo
 
 ```bash
 curl -fsSL https://mergeone.dev/install.sh | sh          # one static binary; or: go install github.com/haalp/mergeone/gate/cmd/mergeone@latest
-export TYPESAFE_API_KEY=...                                # Jev. Or model: pplx + PERPLEXITY_API_KEY, or haiku + ANTHROPIC_API_KEY
+export TYPESAFE_API_KEY=...                                # Jev. Any row of prompts/models.yaml works: pplx, pplx-flash, haiku, clef, local …
 cp ~/.mergeone/policy.yaml .mergeone.yaml
 mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```
@@ -139,6 +139,20 @@ Jev meets the pre-registered bar on 5/5 questions, Haiku on 4/5; asking five que
 **Run 3, negative.** *Does the gate predict whether humans reject real agent PRs?* No. On 2,196 PRs by Copilot, Claude Code, Claude, Devin and Cursor across 26 public repos (held-out test: 705 PRs, 8 repos), calibrated `needs_human_review` → *closed-unmerged ∨ change-requested* scores ROC-AUC **0.55** for Jev, 0.55 for Haiku, 0.53 for rules; the pre-registered bar was 0.70. The reason is in the labels: of 200 closures we classified, 67% were *superseded, duplicate or direction* and only 19% *quality*. A diff cannot tell you someone else already landed the fix. Two things did hold: Jev at 100× agent-scale load — p99 417 ms, 0 errors (Haiku: 2,880 ms, 0.3% errors) — and, exploratory only, the questions track *review iteration* (force-pushes ≥ 2) at AUC 0.70–0.81. Full write-up: [`results/run3/README.md`](results/run3/README.md).
 
 Raw predictions, judge labels, calibration maps and figures: `results/run1`, `results/run2`, `results/run3`. Rebuild every table with one command.
+
+### Which decision model should sit in the gate?
+
+[`results/leaderboard.md`](results/leaderboard.md) ranks every model that has been run under the protocol on the four things a gateway pays for — quality (AUC vs ground truth), calibration (ECE), speed (p99 at 100× load) and cost — with the scale bar as a hard gate. Reporting only, rebuilt by `mergeone leaderboard`.
+
+| # | model | kind | scale at 100× | quality AUC (mean over runs) | ECE | p99 | $/1k PRs |
+|---|---|---|---|---|---|---|---|
+| 1 | Jev | System One, hosted | **pass** | 0.69 | 0.076 | 527 ms | 0.080 |
+| — | GBM / rules | floors, no model call | n/a | 0.61 / 0.50 | 0.003 / 0.125 | ≤ 13 ms | 0 |
+| 4 | Claude Haiku 5.5 | LLM judge, JSON schema | **fail** | 0.68 | 0.060 | 9,662 ms | 0.332 |
+
+The ordering is decided by the scale column, not by a few AUC points: Haiku matches Jev on quality in every run and fails the 100× bar in every run. The open-weight candidates (Perplexity `pplx-decider` 26B / flash 4.5B, Cloudflare `clef`, AutoTrust `JEV-9B/27B`, H2O Lightning 4B, Laya 421M) are in the registry and run in run 4 or the next one; until they have a row above, their public-leaderboard numbers are claims, not measurements.
+
+**Any model, one YAML row.** The gateway does not know the model's name. [`prompts/models.yaml`](prompts/models.yaml) lists each candidate once — wire dialect (`systemone`, `decide`, `anthropic`), endpoint, key variable, model id, list price — and `model: <row>` in `.mergeone.yaml` or `--model <row>` in gatebench uses it. A private llama.cpp or vLLM server serving open weights is a `provider:` block in the policy; no code, no rebuild. `mergeone models` prints the registry.
 
 ## Limits, plainly
 

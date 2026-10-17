@@ -108,19 +108,21 @@ def build_model(name: str, version: str = "v1"):
     if name == "gbm":
         from .models.gbm import GBMModel
         return GBMModel(RESULTS / "gbm.pkl")
-    if name == "haiku":
-        from .models.haiku import HaikuModel
-        return HaikuModel(load_prices(), version=version)
-    if name == "jev":
-        from .models.jev import JevModel
-        return JevModel(load_prices(), version=version)
-    if name == "pplx":
-        from .models.jev import PplxModel
-        return PplxModel(load_prices(), version=version)
-    if name == "pplx-flash":
-        from .models.jev import PplxFlashModel
-        return PplxFlashModel(load_prices(), version=version)
-    raise SystemExit(f"unknown model {name}")
+    from .models import registry
+    try:
+        return registry.build(name, load_prices(), version=version)
+    except KeyError:
+        raise SystemExit(f"unknown model {name!r}; known: {', '.join(registry.names())} (add one to prompts/models.yaml)")
+
+
+def cmd_models(args):
+    from .models import registry
+    reg = registry.load_registry()
+    print(f"{'name':14} {'dialect':10} {'model_id':28} {'$/M in':>7}  {'weights':34} key")
+    for n in registry.BUILTIN:
+        print(f"{n:14} {'builtin':10} {'-':28} {0:7.3f}  {'-':34} -")
+    for s in reg.values():
+        print(f"{s.name:14} {s.dialect:10} {s.model_id[:28]:28} {s.input_per_mtok:7.3f}  {(s.weights or '-')[:34]:34} {s.key_env}{' (optional)' if s.key_optional else ''}")
 
 
 def cmd_train_gbm(args):
@@ -382,7 +384,7 @@ def main(argv=None):
     cr.set_defaults(fn=cmd_close_reasons)
     sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
     p = sub.add_parser("predict")
-    p.add_argument("--model", required=True, choices=["rules", "gbm", "haiku", "jev", "pplx", "pplx-flash"])
+    p.add_argument("--model", required=True, help="rules | gbm | any key in prompts/models.yaml (jev, pplx, pplx-flash, haiku, clef, local, …)")
     p.add_argument("--split", required=True, choices=["train", "val", "test"])
     p.add_argument("--run", default="run1")
     p.add_argument("--limit", type=int)
@@ -429,6 +431,9 @@ def main(argv=None):
     r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
     r.add_argument("--run4", action="store_true", help="run4 report (PR memory, duplicate detection)")
     r.set_defaults(fn=lambda a: __import__("mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
+    sub.add_parser("models", help="list the decision-model registry (prompts/models.yaml)").set_defaults(fn=cmd_models)
+    lb = sub.add_parser("leaderboard", help="rank every model that has been run under PROTOCOL.md on gateway-relevant metrics → results/leaderboard.md")
+    lb.set_defaults(fn=lambda a: __import__("mergeone.eval.leaderboard", fromlist=["x"]).run())
     sub.add_parser("serve", help="run the gateway server; all further args go to mergeone.server.app")
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "serve":

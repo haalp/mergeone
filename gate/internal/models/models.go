@@ -68,16 +68,19 @@ func newDecider(name, endpoint, keyEnv, modelID string, inPerMTok float64, quest
 	if key == "" {
 		return nil, fmt.Errorf("%s not set", keyEnv)
 	}
-	b, err := os.ReadFile(questionsPath)
+	return newDeciderWithKey(name, endpoint, key, modelID, inPerMTok, questionsPath)
+}
+
+func loadQuestions(path string) (map[string]JevQuestion, error) {
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	var qs map[string]JevQuestion
 	if err := json.Unmarshal(b, &qs); err != nil {
-		return nil, fmt.Errorf("questions %s: %w", questionsPath, err)
+		return nil, fmt.Errorf("questions %s: %w", path, err)
 	}
-	return &Jev{name: name, Endpoint: endpoint, Key: key, ModelID: modelID, Questions: qs,
-		Client: &http.Client{Timeout: 30 * time.Second}, InPerMTok: inPerMTok}, nil
+	return qs, nil
 }
 
 func (j *Jev) Name() string {
@@ -117,7 +120,9 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	body, _ := json.Marshal(map[string]any{"state": state, "model": model, "questions": qs})
 	t0 := time.Now()
 	req, _ := http.NewRequest("POST", j.Endpoint, bytes.NewReader(body))
-	req.Header.Set("Authorization", "Bearer "+j.Key)
+	if j.Key != "" {
+		req.Header.Set("Authorization", "Bearer "+j.Key)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := j.Client.Do(req)
 	lat := float64(time.Since(t0).Microseconds()) / 1000
@@ -130,13 +135,9 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw)}
 	}
 	var out struct {
-		Model   string `json:"model"`
-		Answers map[string]struct {
-			Type          string             `json:"type"`
-			Noul          *float64           `json:"noul"`
-			Probabilities map[string]float64 `json:"probabilities"`
-			Confidence    *float64           `json:"confidence"`
-		} `json:"answers"`
+		Model     string                `json:"model"`
+		Answers   map[string]jevAnswer `json:"answers"`
+		Decisions map[string]jevAnswer `json:"decisions"` // /v1/decide dialect
 		Usage struct {
 			In  int `json:"input_tokens"`
 			Out int `json:"output_tokens"`
@@ -148,6 +149,9 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	if j.pinned == "" && out.Model != "" {
 		j.pinned = out.Model
 	}
+	if out.Answers == nil {
+		out.Answers = out.Decisions
+	}
 	probs, conf := map[string]float64{}, map[string]float64{}
 	for _, q := range questions {
 		a, ok := out.Answers[q]
@@ -156,6 +160,8 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 			probs[q] = math.NaN()
 		case a.Noul != nil:
 			probs[q] = *a.Noul
+		case a.Probability != nil:
+			probs[q] = *a.Probability
 		case a.Probabilities != nil:
 			if q == "same_change" { // run 4: duplicate_of = P(same) + 0.5·P(subset)
 				probs[q] = a.Probabilities["same"] + 0.5*a.Probabilities["subset"]
@@ -177,10 +183,19 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		CostUSD: float64(out.Usage.In)*j.InPerMTok/1e6 + float64(out.Usage.Out)*j.OutPerMTok/1e6, ModelVersion: out.Model}
 }
 
+type jevAnswer struct {
+	Type          string             `json:"type"`
+	Noul          *float64           `json:"noul"`
+	Probability   *float64           `json:"probability"` // some /v1/decide servers
+	Probabilities map[string]float64 `json:"probabilities"`
+	Confidence    *float64           `json:"confidence"`
+}
+
 // ---------------------------------------------------------------- Haiku
 
 // Haiku calls the Claude Messages API with strict JSON output and thinking off.
 type Haiku struct {
+	name       string
 	PairSystem string
 	Key        string
 	ModelID    string
@@ -203,7 +218,12 @@ func NewHaiku(promptPath string) (*Haiku, error) {
 	return &Haiku{Key: key, ModelID: "claude-haiku-5-5", System: string(b), Client: &http.Client{Timeout: 60 * time.Second}, InPerMTok: 0.10, OutPerMTok: 0.50}, nil
 }
 
-func (h *Haiku) Name() string { return "haiku" }
+func (h *Haiku) Name() string {
+	if h.name != "" {
+		return h.name
+	}
+	return "haiku"
+}
 
 // SetPairPrompt loads prompts/haiku_pair.md, used when the only question is same_change.
 func (h *Haiku) SetPairPrompt(path string) error {

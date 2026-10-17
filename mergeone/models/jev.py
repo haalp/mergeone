@@ -1,12 +1,12 @@
-"""TypeSafe Jev (System One model) via the raw HTTP API.
+"""System One-dialect decision models (Jev, Perplexity Decisions, clef, llama.cpp/vLLM `/v1/systemone`, …).
 
-POST https://api.typesafe.ai/v1/systemone
-body: {"state": str, "model": "jev-latest" | pinned, "questions": {name: {...}}}
-Question types: noul (yes/no probability), choice, score. We use noul for
-all three decisions so every answer is a direct P(true).
+POST <endpoint>
+body: {"state": str, "model": <id>, "questions": {name: {type: noul|choice|score, ...}}}
+Answers come back as {name: {"noul": p}} or {name: {"probabilities": {...}, "confidence": c}}.
 
-Questions are frozen in prompts/jev_v1.json. Version is pinned from the
-first response's `model` field and stored in results.
+Which model is called is a row in prompts/models.yaml (see mergeone.models.registry). Questions are
+frozen in prompts/jev_<qset>.json and shared by every model of this dialect. The version actually served
+is pinned from the first response's `model` field and stored in results.
 """
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from pathlib import Path
 import httpx
 
 from .base import Decision, DECISIONS, Timer
+from .registry import ModelSpec, load_registry
 
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.json",
@@ -24,24 +25,26 @@ QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.jso
              "pair": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json"}
 
 
-class JevModel:
-    name = "jev"
-    endpoint = ENDPOINT
-    key_env = "TYPESAFE_API_KEY"
-    default_model = "jev-latest"
-    default_prices = {"input_per_mtok": 0.042, "output_per_mtok": 0.0}
+class SystemOneModel:
+    """Any model that speaks the System One schema. Construct from a registry ModelSpec."""
 
-    def __init__(self, prices: dict | None = None, model: str | None = None, timeout: float = 30.0, version: str = "v1"):
-        key = os.environ.get(self.key_env)
-        if not key:
-            raise RuntimeError(f"{self.key_env} not set")
-        model = model or self.default_model
+    def __init__(self, spec: ModelSpec, prices: dict | None = None, model: str | None = None, timeout: float = 30.0, version: str = "v1"):
+        self.spec = spec
+        self.name = spec.name
+        self.endpoint = spec.endpoint
+        key = os.environ.get(spec.key_env or "", "")
+        if not key and not spec.key_optional:
+            raise RuntimeError(f"{spec.key_env} not set")
+        model = model or spec.model_id
         self.model = model
         self.pinned: str | None = None if model.endswith("-latest") else model
         self.version = version
         self.questions = json.loads(QUESTIONS[version].read_text())
-        self.client = httpx.Client(timeout=timeout, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
-        p = (prices or {}).get(self.name, self.default_prices)
+        headers = {"Content-Type": "application/json"}
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
+        self.client = httpx.Client(timeout=timeout, headers=headers)
+        p = (prices or {}).get(self.name) or {"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok}
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6
 
@@ -60,12 +63,14 @@ class JevModel:
             d = r.json()
             if self.pinned is None and d.get("model"):
                 self.pinned = d["model"]  # pin for the rest of the run
-            answers = d["answers"]
+            answers = d.get("answers") or d.get("decisions") or {}  # `decisions`: /v1/decide dialect
             probs, conf, raw_choice = {}, {}, {}
             for q in questions:
-                a = answers[q]
+                a = answers.get(q, {})
                 if a.get("type") == "noul" or "noul" in a:
                     probs[q] = float(a["noul"])
+                elif "probability" in a:  # some /v1/decide servers
+                    probs[q] = float(a["probability"])
                 elif "probabilities" in a:  # choice
                     pr = a["probabilities"]
                     if q == "same_change":  # run 4: duplicate_of = P(same) + 0.5 P(subset)
@@ -86,19 +91,15 @@ class JevModel:
             return Decision(probs={q: float("nan") for q in questions}, error=f"{type(e).__name__}: {e}", model_version=self.pinned or self.model)
 
 
-class PplxModel(JevModel):
-    """Perplexity Decisions API (pplx-decider). Wire-compatible with the System One schema:
-    POST /v1/decisions with {model, state, questions{noul|choice|score}} → answers with the same shapes.
-    Open weights (Apache-2.0) exist on Hugging Face; this adapter uses the hosted API. 10 rps per org."""
-
-    name = "pplx"
-    endpoint = "https://api.perplexity.ai/v1/decisions"
-    key_env = "PERPLEXITY_API_KEY"
-    default_model = os.environ.get("PPLX_DECIDER_MODEL", "pplx-decider-v1.2")
-    default_prices = {"input_per_mtok": 0.02, "output_per_mtok": 0.0}
+def _registry_model(name: str):
+    class _M(SystemOneModel):
+        def __init__(self, prices: dict | None = None, model: str | None = None, timeout: float = 30.0, version: str = "v1"):
+            super().__init__(load_registry()[name], prices, model=model, timeout=timeout, version=version)
+    _M.__name__ = _M.__qualname__ = name
+    return _M
 
 
-class PplxFlashModel(PplxModel):
-    name = "pplx-flash"
-    default_model = "pplx-decider-flash-v1.2"
-    default_prices = {"input_per_mtok": 0.01, "output_per_mtok": 0.0}
+# Backwards-compatible names (runs 1–4 scripts and tests import these).
+JevModel = _registry_model("jev")
+PplxModel = _registry_model("pplx")
+PplxFlashModel = _registry_model("pplx-flash")

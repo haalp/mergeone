@@ -20,3 +20,4 @@ for model in jev pplx pplx-flash haiku; do
 done
 echo "--- error counts:"; for f in results/run4/predictions_*.jsonl; do echo "$f $(grep -c '"error": "' $f || true)"; done
 $PY -m mergeone.cli report results/run4 --run4 | head -60
+$PY -m mergeone.cli leaderboard >/dev/null && echo "--- results/leaderboard.md updated"

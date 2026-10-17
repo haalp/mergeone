@@ -5,7 +5,14 @@
 # wins. Probabilities are calibrated (see calibration.json) before rules run.
 
 version: 1
-model: jev            # jev | haiku | rules  (anything in mergeone.models)
+model: jev            # any key in prompts/models.yaml: jev | pplx | pplx-flash | haiku | clef | local | … (mergeone models)
+# model_id: pplx-decider-flash-v1.2   # optional pin
+# provider:           # optional: override/define the model inline (same keys as a models.yaml row).
+#   dialect: systemone                 #   e.g. a private llama.cpp / vLLM server serving open weights
+#   endpoint: http://10.0.0.5:8080/v1/systemone
+#   key_env: MY_GATE_KEY
+#   key_optional: true
+#   input_per_mtok: 0
 question_set: v2      # prompts/jev_v2.json / prompts/haiku_v2.md
 calibration: auto     # auto = use shipped calibration.json for this model if present
 

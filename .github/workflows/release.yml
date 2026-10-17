@@ -23,7 +23,7 @@ jobs:
         run: |
           cd gate
           go build -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}" -o ../dist/mergeone_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }} ./cmd/mergeone
-          mkdir -p ../dist/assets && cp ../mergeone/gate/policy.yaml ../mergeone/gate/calibration_*.json ../prompts/jev_v2.json ../prompts/haiku_v2.md ../dist/assets/
+          mkdir -p ../dist/assets && cp ../mergeone/gate/policy.yaml ../mergeone/gate/calibration_*.json ../prompts/jev_v2.json ../prompts/jev_pair.json ../prompts/haiku_v2.md ../prompts/haiku_pair.md ../prompts/models.yaml ../dist/assets/
           cd ../dist && tar czf mergeone_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz mergeone_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }} assets
       - uses: softprops/action-gh-release@v2
         with:

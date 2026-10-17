@@ -84,17 +84,15 @@ class Gate:
         version = policy.get("question_set", "v2")
         if model is None:
             name = policy.get("model", "jev")
-            if name == "jev":
-                from ..models.jev import JevModel
-                model = JevModel(version=version)
-            elif name == "haiku":
-                from ..models.haiku import HaikuModel
-                model = HaikuModel(version=version)
-            elif name == "mock":
+            if name == "mock":
                 from ..models.mock import MockModel
                 model = MockModel(version=version)
             else:
-                raise ValueError(f"unsupported model for gate: {name}")
+                from ..models import registry  # any row in prompts/models.yaml
+                try:
+                    model = registry.build(name, version=version)
+                except KeyError:
+                    raise ValueError(f"unsupported model for gate: {name!r}; known: {', '.join(registry.names())}")
         cal_path = None
         if policy.get("calibration", "auto") == "auto":
             cal_path = Path(__file__).with_name(f"calibration_{policy.get('model','jev')}_{version}.json")

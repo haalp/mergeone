@@ -26,3 +26,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - Close-reason classification (Fable 5.1, 200 PRs, reporting only): 67% of closures are superseded/duplicate/direction, 19% quality.
 - Exploratory, not pre-registered: the questions track review iteration (force-pushes ≥ 2) at AUC 0.70–0.81. Candidate outcome for run 4.
 - Housekeeping: 825 Haiku val rows that errored with HTTP 401 (bad key on first attempt) were dropped; coverage verified 1491/1491. Jev predictions produced in two batches with identical rendering; verified.
+
+## 2026-10-17 — decision-model registry and leaderboard (tooling; no protocol change)
+
+- `prompts/models.yaml` replaces per-model classes: Jev, Perplexity (`pplx`, `pplx-flash`), Haiku and a set of open-weight candidates (`clef`, `clef-flash`, `open-jev-9b/27b`, `h2o-lightning-4b`, `laya`, `local`) are rows with a wire dialect (`systemone` | `decide` | `anthropic`). Python (`mergeone.models.registry`) and Go (`gate/internal/models/registry.go`) read the same file; the policy accepts any row as `model:` plus an inline `provider:` override. `JevModel` / `PplxModel` / `PplxFlashModel` remain as aliases so run 1–4 scripts are unchanged.
+- `mergeone leaderboard` → `results/leaderboard.md`: reporting-only ranking of every model with frozen run artefacts (Borda over AUC, ECE, p99 at 100×, $/1k; scale pass as hard gate). It copies numbers from `results/run*/`, never re-scores. Not a pre-registered hypothesis.
+- Release assets now include `jev_pair.json`, `haiku_pair.md`, `models.yaml`.
+

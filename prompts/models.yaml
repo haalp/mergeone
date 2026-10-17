@@ -1,0 +1,158 @@
+# Decision-model registry. One entry per model the gateway (Go) and the benchmark (Python) can call.
+# Adding a model is a YAML edit, not a code change: `model: <key>` in .mergeone.yaml / `--model <key>` in gatebench.
+#
+# dialect:
+#   systemone  POST {state, model, questions{noul|choice|score}} → {answers{noul|probabilities}, usage, model}
+#              (Jev / TypeSafe schema; also spoken by Perplexity Decisions, Cloudflare clef, llama.cpp and vLLM
+#              /v1/systemone servers, H2O shim, Laya, Strands Decider).
+#   anthropic  Claude Messages API with a JSON schema (prompts/haiku_*.md). Kept as the LLM-judge baseline.
+#   decide     POST /v1/decide (AutoTrust JEV/GEV, Nokia AnyJev). Same question types, different envelope.
+#
+# Prices are list prices in USD per million tokens on the date in `recorded_on`; results/prices.json is the
+# per-run frozen copy. `weights` is the Hugging Face repo when the model is open; `hosted` is where the API lives.
+# Latency/quality numbers in `notes` are vendor or leaderboard claims, NOT gatebench measurements — the
+# gateway leaderboard (results/leaderboard.md) only ranks models that have been run under PROTOCOL.md.
+
+recorded_on: 2026-10-17
+
+models:
+  jev:
+    dialect: systemone
+    endpoint: https://api.typesafe.ai/v1/systemone
+    key_env: TYPESAFE_API_KEY
+    model_id: jev-latest            # pinned to the first response's `model` field for the rest of a run
+    input_per_mtok: 0.042
+    output_per_mtok: 0.0
+    hosted: TypeSafe
+    license: closed
+    context: 65536
+    rps: 50
+    notes: "Reference System One model. Runs 1–4. S1MB #1 (Borda 86.5), Decision Index #3 (60.1)."
+
+  pplx:
+    dialect: systemone
+    endpoint: https://api.perplexity.ai/v1/decisions
+    key_env: PERPLEXITY_API_KEY
+    model_id: pplx-decider-v1.2
+    input_per_mtok: 0.02
+    output_per_mtok: 0.0
+    hosted: Perplexity
+    weights: perplexity-ai/pplx-decider-v1.2
+    license: Apache-2.0
+    params_b: 26
+    rps: 10
+    notes: "Open-weight 26B decider. Decision Index #1 (62.8, v1.1). Run 4 candidate (R4.6)."
+
+  pplx-flash:
+    dialect: systemone
+    endpoint: https://api.perplexity.ai/v1/decisions
+    key_env: PERPLEXITY_API_KEY
+    model_id: pplx-decider-flash-v1.2
+    input_per_mtok: 0.01
+    output_per_mtok: 0.0
+    hosted: Perplexity
+    weights: perplexity-ai/pplx-decider-flash-v1.2
+    license: Apache-2.0
+    params_b: 4.5
+    rps: 10
+    notes: "4.5B flash variant, same API. Run 4 candidate (R4.6)."
+
+  haiku:
+    dialect: anthropic
+    endpoint: https://api.anthropic.com/v1/messages
+    key_env: ANTHROPIC_API_KEY
+    model_id: claude-haiku-5-5
+    input_per_mtok: 0.10
+    output_per_mtok: 0.50
+    hosted: Anthropic
+    license: closed
+    notes: "LLM-as-judge baseline with a JSON schema (prompts/haiku_*.md). Runs 1–4. Fails R-H5 at 100× in every run so far."
+
+  # --- open-weight candidates, not yet run. Serve locally (llama.cpp / vLLM expose /v1/systemone) or via vendor API.
+  clef:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY        # optional for local servers; empty is allowed when `key_optional: true`
+    key_optional: true
+    model_id: clef
+    input_per_mtok: 0.0                # self-hosted: cost is compute, recorded separately
+    output_per_mtok: 0.0
+    weights: cloudflare/clef
+    license: Apache-2.0
+    params_b: 27
+    notes: "Cloudflare decision model. Decision Index #19 (53.1); new-domain score 41.9 vs public 61.7 — generalisation gap to verify."
+
+  clef-flash:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: clef-flash
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: cloudflare/clef-flash
+    license: Apache-2.0
+    params_b: 9.4
+    notes: "Decision Index #33 (47.6)."
+
+  open-jev-27b:
+    dialect: decide
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/decide}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: JEV-27B
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: autotrust/JEV-27B
+    license: Apache-2.0
+    params_b: 27
+    notes: "Distilled from Jev; S1MB #4. Calibration reported against the teacher, not ground truth."
+
+  open-jev-9b:
+    dialect: decide
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/decide}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: JEV-9B
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: autotrust/JEV-9B
+    license: Apache-2.0
+    params_b: 9
+    notes: "S1MB #3."
+
+  h2o-lightning-4b:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: h2o-lightning-4b
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: h2oai/h2o-lightning-4b
+    license: Apache-2.0
+    params_b: 4
+    notes: "JevBench open-weights composite #1 (72.5). 29 ms measured locally (209 ms after JevBench's adjustment)."
+
+  laya:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: laya
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: convai/laya
+    license: Apache-2.0
+    params_b: 0.42
+    notes: "421M, runs on CPU. ECE 0.466 → 0.081 after temperature refit on own labels — a calibration-first candidate for the cheapest gate tier."
+
+  local:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: ${MERGEONE_LOCAL_MODEL:-default}
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    notes: "Any /v1/systemone server (llama.cpp --systemone, vLLM, H2O shim). Set MERGEONE_LOCAL_ENDPOINT / MERGEONE_LOCAL_MODEL."

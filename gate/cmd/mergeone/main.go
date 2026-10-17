@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/goccy/go-yaml"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -57,6 +58,8 @@ func main() {
 		err = cmdIndex(os.Args[2:])
 	case "mcp":
 		err = cmdMCP(os.Args[2:])
+	case "models":
+		err = cmdModels(os.Args[2:])
 	case "version", "--version", "-v":
 		fmt.Println("mergeone", version)
 	default:
@@ -70,7 +73,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: mergeone <serve|pr|decide|replay|loadtest|index|mcp|version> [flags]")
+	fmt.Fprintln(os.Stderr, "usage: mergeone <serve|pr|decide|replay|loadtest|index|models|mcp|version> [flags]")
 }
 
 // buildGate wires policy + model + calibration. promptsDir holds jev_v2.json / haiku_v2.md;
@@ -84,21 +87,10 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 		assetsDir = filepath.Dir(policyPath)
 	}
 	var m engine.Model
-	switch {
-	case mock || p.Model == "mock":
+	if mock || p.Model == "mock" {
 		m = &models.Mock{LatencyMS: 300, JitterMS: 60}
-	case p.Model == "jev":
-		m, err = models.NewJev(findAsset(assetsDir, "jev_"+p.QuestionSet+".json"))
-	case p.Model == "pplx" || p.Model == "pplx-flash":
-		id := p.ModelID
-		if p.Model == "pplx-flash" && id == "" {
-			id = "flash"
-		}
-		m, err = models.NewPplx(findAsset(assetsDir, "jev_"+p.QuestionSet+".json"), id) // same typed question files
-	case p.Model == "haiku":
-		m, err = models.NewHaiku(findAsset(assetsDir, "haiku_"+p.QuestionSet+".md"))
-	default:
-		err = fmt.Errorf("unknown model %q", p.Model)
+	} else {
+		m, err = buildModel(p, assetsDir)
 	}
 	if err != nil {
 		return nil, err
@@ -134,6 +126,62 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 		g.Memory = mem
 	}
 	return g, nil
+}
+
+// buildModel resolves policy.model against prompts/models.yaml (+ an optional inline `provider:` block)
+// and instantiates it. Any systemone/decide/anthropic-dialect model works without a code change.
+func buildModel(p *engine.Policy, assetsDir string) (engine.Model, error) {
+	var spec *models.Spec
+	regPath := findAsset(assetsDir, "models.yaml")
+	if reg, err := models.LoadRegistry(regPath); err == nil {
+		spec = reg.Models[p.Model]
+	} else if len(p.Provider) == 0 {
+		return nil, fmt.Errorf("model %q: no models.yaml found near %s and no provider: block in the policy (%v)", p.Model, assetsDir, err)
+	}
+	if len(p.Provider) > 0 { // inline override / definition
+		if spec == nil {
+			spec = &models.Spec{Name: p.Model, Dialect: "systemone"}
+		}
+		b, _ := yaml.Marshal(p.Provider)
+		if err := yaml.Unmarshal(b, spec); err != nil {
+			return nil, fmt.Errorf("policy provider: %w", err)
+		}
+		spec.Endpoint, spec.ModelID = models.ExpandEnv(spec.Endpoint), models.ExpandEnv(spec.ModelID)
+	}
+	if spec == nil {
+		return nil, fmt.Errorf("unknown model %q: add it to prompts/models.yaml or give a provider: block", p.Model)
+	}
+	return models.Build(spec, findAsset(assetsDir, "jev_"+p.QuestionSet+".json"), findAsset(assetsDir, "haiku_"+p.QuestionSet+".md"), p.ModelID)
+}
+
+// cmdModels prints the decision-model registry the gateway will resolve `model:` against.
+func cmdModels(args []string) error {
+	fs := flag.NewFlagSet("models", flag.ExitOnError)
+	assets := fs.String("assets", ".", "directory holding prompts/models.yaml (or the file's own directory)")
+	fs.Parse(args)
+	path := findAsset(*assets, "models.yaml")
+	reg, err := models.LoadRegistry(path)
+	if err != nil {
+		return err
+	}
+	names := reg.Names()
+	sort.Strings(names)
+	fmt.Printf("%-16s %-10s %-28s %8s  %-34s %s\n", "name", "dialect", "model_id", "$/M in", "weights", "key")
+	fmt.Printf("%-16s %-10s %-28s %8s  %-34s %s\n", "mock", "builtin", "-", "0.000", "-", "-")
+	for _, n := range names {
+		s := reg.Models[n]
+		w := s.Weights
+		if w == "" {
+			w = "-"
+		}
+		k := s.KeyEnv
+		if s.KeyOptional {
+			k += " (optional)"
+		}
+		fmt.Printf("%-16s %-10s %-28.28s %8.3f  %-34.34s %s\n", n, s.Dialect, s.ModelID, s.InputPerMTok, w, k)
+	}
+	fmt.Printf("\n(%s; recorded_on %s)\n", path, reg.RecordedOn)
+	return nil
 }
 
 func memoryOf(g *engine.Gate) *memory.Store {

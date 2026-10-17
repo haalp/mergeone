@@ -110,15 +110,18 @@ type cond struct {
 
 // Policy mirrors mergeone/gate/policy.yaml.
 type Policy struct {
-	Version          int      `yaml:"version"`
-	Model            string   `yaml:"model"`
-	ModelID          string   `yaml:"model_id"` // optional pin, e.g. pplx-decider-flash-v1.2
-	QuestionSet      string   `yaml:"question_set"`
-	Calibration      string   `yaml:"calibration"`
-	AlwaysHumanPaths []string `yaml:"always_human_paths"`
-	Rules            []Rule   `yaml:"rules"`
-	Default          Outcome  `yaml:"default"`
-	OnError          Outcome  `yaml:"on_error"`
+	Version int    `yaml:"version"`
+	Model   string `yaml:"model"`    // key in prompts/models.yaml, or mock
+	ModelID string `yaml:"model_id"` // optional pin, e.g. pplx-decider-flash-v1.2
+	// Provider overrides or replaces the registry row for Model: a private endpoint, a local llama.cpp
+	// server, a model that is not in models.yaml yet. Same keys as a models.yaml entry.
+	Provider         map[string]any `yaml:"provider"`
+	QuestionSet      string         `yaml:"question_set"`
+	Calibration      string         `yaml:"calibration"`
+	AlwaysHumanPaths []string       `yaml:"always_human_paths"`
+	Rules            []Rule         `yaml:"rules"`
+	Default          Outcome        `yaml:"default"`
+	OnError          Outcome        `yaml:"on_error"`
 	Memory           struct {
 		Enabled bool `yaml:"enabled"`
 		TopK    int  `yaml:"top_k"`

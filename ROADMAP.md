@@ -37,6 +37,17 @@ input on top of existing Git hosting rather than as a new platform.
 When an assumption conflict or `touches_concurrency` overlap is detected between two PRs,
 emit a minimal failing test that demonstrates the interaction, attach it to the hold
 reason, and offer it as a guard for trunk. A test is a verdict a human can run.
+- Overlap at the syntax-tree level, not the line level: run 4 measures file Jaccard; two PRs
+  that touch the same *function* (tree-sitter node) are a stronger conflict signal than two that
+  touch the same file, and formatting-only diffs stop counting. Candidate retrieval feature for run 5.
+
+## Decision-model registry (done, v0.2)
+- `prompts/models.yaml`: one row per model (dialect, endpoint, key env, id, price, weights). Python and
+  Go read the same file; `model: <row>` / `provider:` block in the policy; `mergeone models` lists it.
+- `mergeone leaderboard` ranks every model run under the protocol on quality / calibration / speed / cost
+  with the 100× scale bar as a hard gate (`results/leaderboard.md`).
+- Next: run the open-weight rows (clef, JEV-9B/27B, H2O Lightning 4B, Laya) on a local llama.cpp
+  `/v1/systemone` server under the run-2 judge labels, so self-hosted candidates get a measured row.
 
 ## Later
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.

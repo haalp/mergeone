@@ -50,15 +50,17 @@ SCHEMA_V2 = {
 class HaikuModel:
     name = "haiku"
 
-    def __init__(self, prices: dict | None = None, effort: str = "low", version: str = "v1"):
+    def __init__(self, prices: dict | None = None, effort: str = "low", version: str = "v1", model: str | None = None, spec=None):
         import anthropic
 
         self.client = anthropic.Anthropic()
+        self.name = spec.name if spec is not None else "haiku"
+        self.model_id = model or MODEL_ID  # any Claude model id via prompts/models.yaml (dialect: anthropic)
         self.version = version
         self.prompt = PROMPTS[version].read_text()
         self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "pair": SCHEMA_PAIR}[version]
         self.effort = effort
-        p = (prices or {}).get("haiku", {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
+        p = (prices or {}).get(self.name) or ({"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok} if spec is not None else {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6
 
@@ -69,7 +71,7 @@ class HaikuModel:
         try:
             with Timer() as t:
                 resp = self.client.messages.create(
-                    model=MODEL_ID,
+                    model=self.model_id,
                     max_tokens=256,
                     system=self.prompt,
                     thinking={"type": "disabled"},
@@ -96,4 +98,4 @@ class HaikuModel:
                 raw={"stop_reason": resp.stop_reason, **({"choice": raw_choice} if raw_choice else {})},
             )
         except Exception as e:  # recorded, never hidden
-            return Decision(probs={q: float("nan") for q in questions}, error=f"{type(e).__name__}: {e}", model_version=MODEL_ID)
+            return Decision(probs={q: float("nan") for q in questions}, error=f"{type(e).__name__}: {e}", model_version=self.model_id)
