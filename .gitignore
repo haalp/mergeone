@@ -20,3 +20,6 @@ results/run4/pairs.jsonl
 results/run4/candidates.jsonl
 data/run4/finish.sh
 data/run4/_xfer/
+data/run5/comments_merged.jsonl
+data/run5/*.log
+results/run5/pairs_assumptions.jsonl
