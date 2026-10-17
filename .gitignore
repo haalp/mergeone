@@ -19,3 +19,4 @@ data/run4/*.log
 results/run4/pairs.jsonl
 results/run4/candidates.jsonl
 data/run4/finish.sh
+data/run4/_xfer/
