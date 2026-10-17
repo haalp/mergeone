@@ -16,3 +16,6 @@ data/run4/memory/
 data/run4/*.jsonl
 !data/run4/labels.jsonl
 data/run4/*.log
+results/run4/pairs.jsonl
+results/run4/candidates.jsonl
+data/run4/finish.sh
