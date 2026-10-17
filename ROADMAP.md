@@ -6,7 +6,7 @@ Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md
 Discover → fetch → Jev / Haiku predictions → stack-level rule → report. Settles R3-H1..H5 and
 decides whether the numbers on the landing page can be claimed for agent-authored PRs.
 
-## v0.2 — PR memory and duplicate detection (run 4, in progress)
+## v0.2 — PR memory and duplicate detection (run 4: question ✅, retrieval ❌)
 Run 3 showed 36% of agent-PR closures are *superseded or duplicate* and the gate could not see
 them. v0.2 adds a per-repository PR memory (`mergeone index owner/name`, kept fresh by the
 webhook), deterministic retrieval (file overlap + BM25), one typed pair question
@@ -14,6 +14,10 @@ webhook), deterministic retrieval (file overlap + BM25), one typed pair question
 Shipped in the Go gateway behind `memory.enabled`; MCP tool `gate_similar` lets an agent check
 before it opens a PR. Pre-registered as run 4 in PROTOCOL.md; ships as default-on only if
 R4-H1..H3 pass.
+- **Run 4 result (2026-10-17):** the pair question passes (0.83–0.87 AUC for three System One
+  models), retrieval does not (recall@5 0.55, p99 198 ms), so H3/H4 land at a third of the bar.
+  Stays opt-in. Next: retrieval that reads the diff (not the file list) and the Go store's latency
+  as the pre-registered number — a run-5 addendum, not a re-run.
 
 ## v0.3 — `assumptions` (agent-declared premises)
 Agents know what their change *relies on*; today the gate has to infer it from the diff.

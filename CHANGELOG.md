@@ -33,3 +33,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - `mergeone leaderboard` → `results/leaderboard.md`: reporting-only ranking of every model with frozen run artefacts (Borda over AUC, ECE, p99 at 100×, $/1k; scale pass as hard gate). It copies numbers from `results/run*/`, never re-scores. Not a pre-registered hypothesis.
 - Release assets now include `jev_pair.json`, `haiku_pair.md`, `models.yaml`.
 
+## 2026-10-17 — run4 results
+
+- R4-H2 passes for pplx-decider (0.87), pplx-flash (0.84) and Jev (0.83); fails for Haiku (0.76). R4-H1 fails (recall@5 0.55 test, 0.73 val). R4-H3 fails for Jev (0.355, bar 0.234) and Haiku; R4-H4 fails for Jev (+8.2 pp) and Haiku (+10.8), passes for rules (+18.0) with a worse pass-group bad rate. R4-H5 fails (Python retrieval p99 198 ms). pplx candidates have no run-3 verdicts, so H3/H4 are not evaluable for them. See `results/run4/README.md`.
+- Housekeeping: Perplexity's first pass hit HTTP 429 on 75% of pairs (8 concurrent calls vs 10 rps/org). Fixed by 429 backoff in the adapter and concurrency 2 for pplx; errored rows re-predicted, files compacted to one row per pair (`mergeone compact`). Prompts, questions and thresholds unchanged between passes. TypeSafe returned 402 (billing) after Jev's predictions were complete; no effect.
+- `data/run4/labels.jsonl` (maintainer-comment labels) is now committed; memory/comments dumps are not (rebuildable).
+- Product: `memory` stays opt-in in the default policy; `duplicate_of ≥ 0.7` remains a hold. Retrieval to be replaced before any default-on.
+

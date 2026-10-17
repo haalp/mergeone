@@ -10,10 +10,12 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 
 | # | model | kind | scale (H5) | quality AUC | calibration ECE | speed p99 ms | cost $/1k PRs | runs | overall |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `jev` | decision model | pass | 0.689 (#1) | 0.076 (#3) | 527 (loadtest x100) (#3) | 0.080 (#3) | 3 | 10 |
-| 2 | `gbm` | floor (trained classifier) | n/a | 0.605 (#3) | 0.003 (#1) | 9 (in-run) (#1) | 0.000 (#1) | 1 | 6 |
-| 3 | `rules` | floor (no model) | n/a | 0.499 (#4) | 0.125 (#4) | 13 (in-run) (#2) | 0.000 (#2) | 2 | 12 |
-| 4 | `haiku` | LLM judge | **fail** | 0.684 (#2) | 0.060 (#2) | 9662 (loadtest x100) (#4) | 0.332 (#4) | 3 | 12 |
+| 1 | `jev` | decision model | pass | 0.726 (#3) | 0.076 (#3) | 527 (loadtest x100) (#5) | 0.086 (#5) | 4 | 16 |
+| 2 | `gbm` | floor (trained classifier) | n/a | 0.605 (#5) | 0.003 (#1) | 9 (in-run) (#1) | 0.000 (#1) | 1 | 8 |
+| 3 | `pplx-flash` | decision model | n/a | 0.842 (#2) | — (#—) | 328 (in-run) (#3) | 0.021 (#3) | 1 | 14 |
+| 4 | `rules` | floor (no model) | n/a | 0.526 (#6) | 0.125 (#4) | 13 (in-run) (#2) | 0.000 (#2) | 3 | 14 |
+| 5 | `pplx` | decision model | n/a | 0.869 (#1) | — (#—) | 524 (in-run) (#4) | 0.042 (#4) | 1 | 15 |
+| 6 | `haiku` | LLM judge | **fail** | 0.704 (#4) | 0.060 (#2) | 9662 (loadtest x100) (#6) | 0.343 (#6) | 4 | 18 |
 
 ## Per run
 
@@ -22,12 +24,17 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 | `jev` | run1 | revert (k8s) | 0.614 | 0.086 | 613 | 527 | 0.076 | 0.0% | pass |
 | `jev` | run2 | judge labels ×5 | 0.904 | 0.032 | 736 | — | 0.074 | 0.0% | — |
 | `jev` | run3 | agent-PR outcome | 0.550 | 0.110 | 353 | 417 | 0.091 | 0.0% | pass |
+| `jev` | run4 | same_change pairs | 0.835 | — | 462 | — | 0.104 | 0.0% | — |
 | `gbm` | run1 | revert (k8s) | 0.605 | 0.003 | 9 | — | 0.000 | 0.0% | — |
+| `pplx-flash` | run4 | same_change pairs | 0.842 | — | 328 | — | 0.021 | 0.0% | — |
 | `rules` | run1 | revert (k8s) | 0.471 | 0.130 | 0 | — | 0.000 | 0.0% | — |
 | `rules` | run3 | agent-PR outcome | 0.528 | 0.120 | 26 | — | 0.000 | 0.0% | — |
+| `rules` | run4 | same_change pairs | 0.579 | — | — | — | — | — | — |
+| `pplx` | run4 | same_change pairs | 0.869 | — | 524 | — | 0.042 | 0.0% | — |
 | `haiku` | run1 | revert (k8s) | 0.599 | 0.034 | 2510 | 9662 | 0.308 | 0.0% | fail |
 | `haiku` | run2 | judge labels ×5 | 0.903 | 0.028 | 2461 | — | 0.314 | 0.0% | — |
 | `haiku` | run3 | agent-PR outcome | 0.551 | 0.119 | 2580 | 2880 | 0.373 | 0.0% | fail |
+| `haiku` | run4 | same_change pairs | 0.765 | — | 2582 | — | 0.377 | 0.0% | — |
 
 ## In the registry, not yet run
 
@@ -35,8 +42,6 @@ Listed so the next run can pick them up with `--model <name>`; the numbers here 
 
 | model | dialect | weights | params (B) | list $/M in | claim |
 |---|---|---|---|---|---|
-| `pplx` | systemone | perplexity-ai/pplx-decider-v1.2 | 26 | 0.020 | Open-weight 26B decider. Decision Index #1 (62.8, v1.1). Run 4 candidate (R4.6). |
-| `pplx-flash` | systemone | perplexity-ai/pplx-decider-flash-v1.2 | 4.5 | 0.010 | 4.5B flash variant, same API. Run 4 candidate (R4.6). |
 | `clef` | systemone | cloudflare/clef | 27 | 0.000 | Cloudflare decision model. Decision Index #19 (53.1); new-domain score 41.9 vs public 61.7 — generalisation gap to verify. |
 | `clef-flash` | systemone | cloudflare/clef-flash | 9.4 | 0.000 | Decision Index #33 (47.6). |
 | `open-jev-27b` | decide | autotrust/JEV-27B | 27 | 0.000 | Distilled from Jev; S1MB #4. Calibration reported against the teacher, not ground truth. |

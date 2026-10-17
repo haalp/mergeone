@@ -33,9 +33,9 @@ It is also a benchmark. Every claim below was pre-registered in [`PROTOCOL.md`](
 | 1 | Can a diff predict a 30-day revert? | ❌ negative | PR-AUC 0.010 vs base 0.0075, all four systems |
 | 2 | Can a System One model answer typed triage questions? | ✅ positive | ROC-AUC 0.87–0.96 vs a strong judge, 347 ms, $0.074/1k — bar met 5/5 (Jev), 4/5 (Haiku) |
 | 3 | Does the gate predict rejection of **real agent PRs**? | ❌ negative | ROC-AUC 0.55 (bar 0.70). 67% of closures are superseded/duplicate/direction — not visible in a diff. Volume: Jev p99 417 ms, 0 errors at 100× |
-| 4 | Can a per-repo PR memory catch the duplicates? | 🟡 in progress | pre-registered 2026-10-17; labels are maintainer comments, not a model |
+| 4 | Can a per-repo PR memory catch the duplicates? | 🟡 mixed | The pair question works: `same_change` ROC-AUC **0.87** pplx-decider, 0.84 pplx-flash, 0.83 Jev (bar 0.80); Haiku 0.76 fails. The pipeline does not yet: retrieval recall@5 0.55 (bar 0.60), dedup rule cuts pass-group bad rate 0.41 → 0.36 (bar 0.23), retrieval p99 198 ms (bar 20). Memory stays opt-in |
 
-What survives: typed triage of *what a change does* at System One speed and cost, and a gateway that handles 30 million decisions a day on a 2-vCPU box. What does not: predicting what a project will *accept* from one diff. Details in [`results/`](results/) and on [mergeone.dev](https://mergeone.dev).
+What survives: typed triage of *what a change does* at System One speed and cost, a gateway that handles 30 million decisions a day on a 2-vCPU box, and — new in run 4 — a cheap model can tell whether two PRs are *the same change* (0.83–0.87 AUC, ≤ $0.0005 per PR). What does not: predicting what a project will *accept* from one diff, and, so far, finding the right PR to compare against. Details in [`results/`](results/) and on [mergeone.dev](https://mergeone.dev).
 
 ```
 PR ──▶ decision model ──▶ calibrated probabilities ──▶ .mergeone.yaml ──▶ verdict + route
@@ -138,19 +138,23 @@ Jev meets the pre-registered bar on 5/5 questions, Haiku on 4/5; asking five que
 
 **Run 3, negative.** *Does the gate predict whether humans reject real agent PRs?* No. On 2,196 PRs by Copilot, Claude Code, Claude, Devin and Cursor across 26 public repos (held-out test: 705 PRs, 8 repos), calibrated `needs_human_review` → *closed-unmerged ∨ change-requested* scores ROC-AUC **0.55** for Jev, 0.55 for Haiku, 0.53 for rules; the pre-registered bar was 0.70. The reason is in the labels: of 200 closures we classified, 67% were *superseded, duplicate or direction* and only 19% *quality*. A diff cannot tell you someone else already landed the fix. Two things did hold: Jev at 100× agent-scale load — p99 417 ms, 0 errors (Haiku: 2,880 ms, 0.3% errors) — and, exploratory only, the questions track *review iteration* (force-pushes ≥ 2) at AUC 0.70–0.81. Full write-up: [`results/run3/README.md`](results/run3/README.md).
 
-Raw predictions, judge labels, calibration maps and figures: `results/run1`, `results/run2`, `results/run3`. Rebuild every table with one command.
+**Run 4, mixed.** *Can a per-repository PR memory catch the duplicates run 3 found?* Half of it. Given a candidate pair, the typed question `same_change(A, B)` separates maintainer-confirmed supersedes from the rest at ROC-AUC **0.87** (Perplexity pplx-decider, open weights), **0.84** (pplx-flash, 4B) and **0.83** (Jev) on 187 held-out pairs — all above the 0.80 bar, all at ≤ 0.5 s p99 and ≤ $0.0005 per PR; Claude Haiku 5.5 scores 0.76 and fails. But the deterministic retrieval that picks the candidates finds only 55% of the gold duplicates in its top 5 (bar 0.60), so at the verdict level the dedup rule lowers the pass group's bad-outcome rate from 0.41 to 0.36 (bar: 0.23) and catches 8 more points of closed PRs (bar: 15). Retrieval p99 is 198 ms against a 20 ms bar. Four of five hypotheses fail; the one that passes is the one that was uncertain. Memory ships opt-in. Full write-up: [`results/run4/README.md`](results/run4/README.md).
+
+Raw predictions, judge labels, calibration maps and figures: `results/run1` … `results/run4`. Rebuild every table with one command.
 
 ### Which decision model should sit in the gate?
 
 [`results/leaderboard.md`](results/leaderboard.md) ranks every model that has been run under the protocol on the four things a gateway pays for — quality (AUC vs ground truth), calibration (ECE), speed (p99 at 100× load) and cost — with the scale bar as a hard gate. Reporting only, rebuilt by `mergeone leaderboard`.
 
-| # | model | kind | scale at 100× | quality AUC (mean over runs) | ECE | p99 | $/1k PRs |
-|---|---|---|---|---|---|---|---|
-| 1 | Jev | System One, hosted | **pass** | 0.69 | 0.076 | 527 ms | 0.080 |
-| — | GBM / rules | floors, no model call | n/a | 0.61 / 0.50 | 0.003 / 0.125 | ≤ 13 ms | 0 |
-| 4 | Claude Haiku 5.5 | LLM judge, JSON schema | **fail** | 0.68 | 0.060 | 9,662 ms | 0.332 |
+| # | model | kind | scale at 100× | quality AUC (mean over runs) | ECE | p99 | $/1k PRs | runs |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Jev | System One, hosted | **pass** | 0.73 | 0.076 | 527 ms | 0.086 | 4 |
+| — | pplx-decider 27B | System One, open weights | not yet load-tested | **0.87** (run 4 only) | — | 524 ms | 0.042 | 1 |
+| — | pplx-decider-flash 4B | System One, open weights | not yet load-tested | 0.84 (run 4 only) | — | 328 ms | 0.021 | 1 |
+| — | GBM / rules | floors, no model call | n/a | 0.61 / 0.53 | 0.003 / 0.125 | ≤ 13 ms | 0 | 1 / 3 |
+| 6 | Claude Haiku 5.5 | LLM judge, JSON schema | **fail** | 0.70 | 0.060 | 9,662 ms | 0.343 | 4 |
 
-The ordering is decided by the scale column, not by a few AUC points: Haiku matches Jev on quality in every run and fails the 100× bar in every run. The open-weight candidates (Perplexity `pplx-decider` 26B / flash 4.5B, Cloudflare `clef`, AutoTrust `JEV-9B/27B`, H2O Lightning 4B, Laya 421M) are in the registry and run in run 4 or the next one; until they have a row above, their public-leaderboard numbers are claims, not measurements.
+The ordering is decided by the scale column, not by a few AUC points: Haiku matches Jev on quality in runs 1–3 and fails the 100× bar in every run. Quality is not comparable across runs (different tasks), so the Perplexity models' 0.84–0.87 is one run's number, not a lead; they get a ranked row once they have been load-tested and calibrated. The remaining open-weight candidates (Cloudflare `clef`, AutoTrust `JEV-9B/27B`, H2O Lightning 4B, Laya 421M) are in the registry; until they have a row, their public-leaderboard numbers are claims, not measurements.
 
 **Any model, one YAML row.** The gateway does not know the model's name. [`prompts/models.yaml`](prompts/models.yaml) lists each candidate once — wire dialect (`systemone`, `decide`, `anthropic`), endpoint, key variable, model id, list price — and `model: <row>` in `.mergeone.yaml` or `--model <row>` in gatebench uses it. A private llama.cpp or vLLM server serving open weights is a `provider:` block in the policy; no code, no rebuild. `mergeone models` prints the registry.
 
