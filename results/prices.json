@@ -1,6 +1,28 @@
 {
   "_note": "List prices on the run date. USD per million tokens. Update and record the date when re-running.",
   "recorded_on": "2026-10-13",
-  "haiku": {"model": "claude-haiku-5-5", "input_per_mtok": 0.10, "output_per_mtok": 0.50, "source": "https://platform.claude.com/docs/en/models/haiku-5-5/overview (tiered, 'from')"},
-  "jev": {"model": "jev-latest", "input_per_mtok": 0.042, "output_per_mtok": 0.0, "source": "https://typesafe.ai ($42 per billion input tokens, output free)"}
+  "haiku": {
+    "model": "claude-haiku-5-5",
+    "input_per_mtok": 0.1,
+    "output_per_mtok": 0.5,
+    "source": "https://platform.claude.com/docs/en/models/haiku-5-5/overview (tiered, 'from')"
+  },
+  "jev": {
+    "model": "jev-latest",
+    "input_per_mtok": 0.042,
+    "output_per_mtok": 0.0,
+    "source": "https://typesafe.ai ($42 per billion input tokens, output free)"
+  },
+  "pplx": {
+    "model": "pplx-decider-v1.2",
+    "input_per_mtok": 0.02,
+    "output_per_mtok": 0.0,
+    "source": "https://docs.perplexity.ai/docs/decisions/quickstart ($0.02 per million input tokens, output free); recorded 2026-10-17"
+  },
+  "pplx-flash": {
+    "model": "pplx-decider-flash-v1.2",
+    "input_per_mtok": 0.01,
+    "output_per_mtok": 0.0,
+    "source": "Perplexity announcement 2026-10-16 (1 cent per million tokens); recorded 2026-10-17"
+  }
 }

@@ -50,7 +50,7 @@ PR ──▶ decision model ──▶ calibrated probabilities ──▶ .mergeo
 
 ```bash
 curl -fsSL https://mergeone.dev/install.sh | sh          # one static binary; or: go install github.com/haalp/mergeone/gate/cmd/mergeone@latest
-export TYPESAFE_API_KEY=...                                # Jev. Or model: haiku + ANTHROPIC_API_KEY
+export TYPESAFE_API_KEY=...                                # Jev. Or model: pplx + PERPLEXITY_API_KEY, or haiku + ANTHROPIC_API_KEY
 cp ~/.mergeone/policy.yaml .mergeone.yaml
 mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```

@@ -26,17 +26,22 @@ QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.jso
 
 class JevModel:
     name = "jev"
+    endpoint = ENDPOINT
+    key_env = "TYPESAFE_API_KEY"
+    default_model = "jev-latest"
+    default_prices = {"input_per_mtok": 0.042, "output_per_mtok": 0.0}
 
-    def __init__(self, prices: dict | None = None, model: str = "jev-latest", timeout: float = 30.0, version: str = "v1"):
-        key = os.environ.get("TYPESAFE_API_KEY")
+    def __init__(self, prices: dict | None = None, model: str | None = None, timeout: float = 30.0, version: str = "v1"):
+        key = os.environ.get(self.key_env)
         if not key:
-            raise RuntimeError("TYPESAFE_API_KEY not set")
+            raise RuntimeError(f"{self.key_env} not set")
+        model = model or self.default_model
         self.model = model
-        self.pinned: str | None = None if model == "jev-latest" else model
+        self.pinned: str | None = None if model.endswith("-latest") else model
         self.version = version
         self.questions = json.loads(QUESTIONS[version].read_text())
         self.client = httpx.Client(timeout=timeout, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
-        p = (prices or {}).get("jev", {"input_per_mtok": 0.042, "output_per_mtok": 0.0})
+        p = (prices or {}).get(self.name, self.default_prices)
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6
 
@@ -48,7 +53,7 @@ class JevModel:
         }
         try:
             with Timer() as t:
-                r = self.client.post(ENDPOINT, json=body)
+                r = self.client.post(self.endpoint, json=body)
             if r.status_code != 200:
                 return Decision(probs={q: float("nan") for q in questions}, latency_ms=t.ms,
                                 error=f"HTTP {r.status_code}: {r.text[:300]}", model_version=self.pinned or self.model)
@@ -79,3 +84,21 @@ class JevModel:
                             raw={"usage": usage, **({"choice": raw_choice} if raw_choice else {})})
         except Exception as e:
             return Decision(probs={q: float("nan") for q in questions}, error=f"{type(e).__name__}: {e}", model_version=self.pinned or self.model)
+
+
+class PplxModel(JevModel):
+    """Perplexity Decisions API (pplx-decider). Wire-compatible with the System One schema:
+    POST /v1/decisions with {model, state, questions{noul|choice|score}} → answers with the same shapes.
+    Open weights (Apache-2.0) exist on Hugging Face; this adapter uses the hosted API. 10 rps per org."""
+
+    name = "pplx"
+    endpoint = "https://api.perplexity.ai/v1/decisions"
+    key_env = "PERPLEXITY_API_KEY"
+    default_model = os.environ.get("PPLX_DECIDER_MODEL", "pplx-decider-v1.2")
+    default_prices = {"input_per_mtok": 0.02, "output_per_mtok": 0.0}
+
+
+class PplxFlashModel(PplxModel):
+    name = "pplx-flash"
+    default_model = "pplx-decider-flash-v1.2"
+    default_prices = {"input_per_mtok": 0.01, "output_per_mtok": 0.0}

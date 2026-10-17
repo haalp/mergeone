@@ -114,6 +114,12 @@ def build_model(name: str, version: str = "v1"):
     if name == "jev":
         from .models.jev import JevModel
         return JevModel(load_prices(), version=version)
+    if name == "pplx":
+        from .models.jev import PplxModel
+        return PplxModel(load_prices(), version=version)
+    if name == "pplx-flash":
+        from .models.jev import PplxFlashModel
+        return PplxFlashModel(load_prices(), version=version)
     raise SystemExit(f"unknown model {name}")
 
 
@@ -376,7 +382,7 @@ def main(argv=None):
     cr.set_defaults(fn=cmd_close_reasons)
     sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
     p = sub.add_parser("predict")
-    p.add_argument("--model", required=True, choices=["rules", "gbm", "haiku", "jev"])
+    p.add_argument("--model", required=True, choices=["rules", "gbm", "haiku", "jev", "pplx", "pplx-flash"])
     p.add_argument("--split", required=True, choices=["train", "val", "test"])
     p.add_argument("--run", default="run1")
     p.add_argument("--limit", type=int)

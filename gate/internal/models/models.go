@@ -37,13 +37,36 @@ type Jev struct {
 	InPerMTok  float64 // USD per million input tokens (list: 0.042)
 	OutPerMTok float64
 	pinned     string
+	name       string
 }
 
 // NewJev builds a client from TYPESAFE_API_KEY and a questions file.
 func NewJev(questionsPath string) (*Jev, error) {
-	key := os.Getenv("TYPESAFE_API_KEY")
+	return newDecider("jev", "https://api.typesafe.ai/v1/systemone", "TYPESAFE_API_KEY", "jev-latest", 0.042, questionsPath)
+}
+
+// NewPplx builds a Perplexity Decisions API client (wire-compatible with the System One schema).
+// modelID "" → pplx-decider-v1.2; "flash" → pplx-decider-flash-v1.2. Open weights exist; this is the hosted API.
+func NewPplx(questionsPath, modelID string) (*Jev, error) {
+	price := 0.02
+	switch modelID {
+	case "", "pplx-decider-v1.2":
+		modelID = "pplx-decider-v1.2"
+	case "flash", "pplx-decider-flash-v1.2":
+		modelID, price = "pplx-decider-flash-v1.2", 0.01
+	}
+	j, err := newDecider("pplx", "https://api.perplexity.ai/v1/decisions", "PERPLEXITY_API_KEY", modelID, price, questionsPath)
+	if err != nil {
+		return nil, err
+	}
+	j.pinned = modelID
+	return j, nil
+}
+
+func newDecider(name, endpoint, keyEnv, modelID string, inPerMTok float64, questionsPath string) (*Jev, error) {
+	key := os.Getenv(keyEnv)
 	if key == "" {
-		return nil, fmt.Errorf("TYPESAFE_API_KEY not set")
+		return nil, fmt.Errorf("%s not set", keyEnv)
 	}
 	b, err := os.ReadFile(questionsPath)
 	if err != nil {
@@ -53,11 +76,16 @@ func NewJev(questionsPath string) (*Jev, error) {
 	if err := json.Unmarshal(b, &qs); err != nil {
 		return nil, fmt.Errorf("questions %s: %w", questionsPath, err)
 	}
-	return &Jev{Endpoint: "https://api.typesafe.ai/v1/systemone", Key: key, ModelID: "jev-latest", Questions: qs,
-		Client: &http.Client{Timeout: 30 * time.Second}, InPerMTok: 0.042}, nil
+	return &Jev{name: name, Endpoint: endpoint, Key: key, ModelID: modelID, Questions: qs,
+		Client: &http.Client{Timeout: 30 * time.Second}, InPerMTok: inPerMTok}, nil
 }
 
-func (j *Jev) Name() string { return "jev" }
+func (j *Jev) Name() string {
+	if j.name != "" {
+		return j.name
+	}
+	return "jev"
+}
 
 // AddQuestions merges another questions file (e.g. prompts/jev_pair.json) into the client.
 func (j *Jev) AddQuestions(path string) error {

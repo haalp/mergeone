@@ -112,6 +112,7 @@ type cond struct {
 type Policy struct {
 	Version          int      `yaml:"version"`
 	Model            string   `yaml:"model"`
+	ModelID          string   `yaml:"model_id"` // optional pin, e.g. pplx-decider-flash-v1.2
 	QuestionSet      string   `yaml:"question_set"`
 	Calibration      string   `yaml:"calibration"`
 	AlwaysHumanPaths []string `yaml:"always_human_paths"`

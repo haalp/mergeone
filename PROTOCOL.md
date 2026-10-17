@@ -257,3 +257,12 @@ the labels revealed. Direction remains a human decision (hold is the correct ver
 `jev` and `haiku` for the pair question; `rules` floor for retrieval-only (duplicate_of = retrieval score).
 No frontier model as a candidate. No threshold or prompt is changed after the first test-split call;
 changes before that are logged in CHANGELOG with timestamps.
+
+### R4.6 Added candidate (dated amendment)
+
+2026-10-17 00:14Z — before any run-4 model call (labels, retrieval and pairs had not been
+built yet; memory fetch was still running). Perplexity released open-weight decision models on 2026-10-15/16
+(`pplx-decider-v1.2`, 26B; `pplx-decider-flash-v1.2`, 4.5B; Apache-2.0). Their Decisions API is wire-compatible
+with the System One schema used in runs 1–4, so the same question files apply unchanged. Both are added as
+run-4 candidates for the pair question with the same bars (R4-H2). This amends R4.5; it adds candidates, it does
+not change any hypothesis, threshold, prompt or label.

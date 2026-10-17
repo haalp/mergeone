@@ -10,8 +10,8 @@ C="${CONCURRENCY:-8}"; PAIRS=results/run4/pairs.jsonl
 $PY -m mergeone.cli run4-labels
 $PY -m mergeone.cli run4-retrieve
 $PY -m mergeone.cli run4-pairs
-for model in jev haiku; do
-  key=$([ "$model" = jev ] && echo TYPESAFE_API_KEY || echo ANTHROPIC_API_KEY)
+for model in jev pplx pplx-flash haiku; do
+  case $model in jev) key=TYPESAFE_API_KEY;; pplx*) key=PERPLEXITY_API_KEY;; *) key=ANTHROPIC_API_KEY;; esac
   if [ -z "${!key:-}" ]; then echo "skip $model: $key not set"; continue; fi
   for sp in val test; do
     f="results/run4/predictions_${model}_${sp}_all.jsonl"

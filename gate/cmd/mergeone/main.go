@@ -89,6 +89,12 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 		m = &models.Mock{LatencyMS: 300, JitterMS: 60}
 	case p.Model == "jev":
 		m, err = models.NewJev(findAsset(assetsDir, "jev_"+p.QuestionSet+".json"))
+	case p.Model == "pplx" || p.Model == "pplx-flash":
+		id := p.ModelID
+		if p.Model == "pplx-flash" && id == "" {
+			id = "flash"
+		}
+		m, err = models.NewPplx(findAsset(assetsDir, "jev_"+p.QuestionSet+".json"), id) // same typed question files
 	case p.Model == "haiku":
 		m, err = models.NewHaiku(findAsset(assetsDir, "haiku_"+p.QuestionSet+".md"))
 	default:
