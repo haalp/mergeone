@@ -115,6 +115,20 @@ def build_model(name: str, version: str = "v1"):
         raise SystemExit(f"unknown model {name!r}; known: {', '.join(registry.names())} (add one to prompts/models.yaml)")
 
 
+def cmd_compact(args):
+    """Rewrite prediction files keeping one row per pr_number: the last non-error row if any, else the last row."""
+    for f in args.files:
+        f = Path(f); rows = {}; n = 0
+        for l in f.open():
+            n += 1; r = json.loads(l)
+            k = r["pr_number"]
+            if k not in rows or r["decision"].get("error") is None or rows[k]["decision"].get("error") is not None:
+                rows[k] = r
+        f.write_text("".join(json.dumps(r) + "\n" for r in rows.values()))
+        err = sum(1 for r in rows.values() if r["decision"].get("error"))
+        print(f"{f}: {n} → {len(rows)} rows, {err} still errored")
+
+
 def cmd_models(args):
     from .models import registry
     reg = registry.load_registry()
@@ -431,6 +445,8 @@ def main(argv=None):
     r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
     r.add_argument("--run4", action="store_true", help="run4 report (PR memory, duplicate detection)")
     r.set_defaults(fn=lambda a: __import__("mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
+    cp = sub.add_parser("compact", help="dedupe prediction files after --append re-runs (keep last non-error row per PR)")
+    cp.add_argument("files", nargs="+"); cp.set_defaults(fn=cmd_compact)
     sub.add_parser("models", help="list the decision-model registry (prompts/models.yaml)").set_defaults(fn=cmd_models)
     lb = sub.add_parser("leaderboard", help="rank every model that has been run under PROTOCOL.md on gateway-relevant metrics → results/leaderboard.md")
     lb.set_defaults(fn=lambda a: __import__("mergeone.eval.leaderboard", fromlist=["x"]).run())

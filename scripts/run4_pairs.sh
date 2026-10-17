@@ -15,9 +15,11 @@ for model in jev pplx pplx-flash haiku; do
   if [ -z "${!key:-}" ]; then echo "skip $model: $key not set"; continue; fi
   for sp in val test; do
     f="results/run4/predictions_${model}_${sp}_all.jsonl"
-    $PY -m mergeone.cli predict --model $model --split $sp --run run4 --qset pair --dataset $PAIRS --concurrency $C --append --only-missing-from "$f"
+    c=$C; case $model in pplx*) c=2;; esac   # Perplexity: 10 rps per org
+    $PY -m mergeone.cli predict --model $model --split $sp --run run4 --qset pair --dataset $PAIRS --concurrency $c --append --only-missing-from "$f"
   done
 done
+$PY -m mergeone.cli compact results/run4/predictions_*.jsonl
 echo "--- error counts:"; for f in results/run4/predictions_*.jsonl; do echo "$f $(grep -c '"error": "' $f || true)"; done
 $PY -m mergeone.cli report results/run4 --run4 | head -60
 $PY -m mergeone.cli leaderboard >/dev/null && echo "--- results/leaderboard.md updated"

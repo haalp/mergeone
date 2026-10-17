@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 
 import httpx
@@ -27,6 +28,8 @@ QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.jso
 
 class SystemOneModel:
     """Any model that speaks the System One schema. Construct from a registry ModelSpec."""
+
+    max_retries_429 = 5
 
     def __init__(self, spec: ModelSpec, prices: dict | None = None, model: str | None = None, timeout: float = 30.0, version: str = "v1"):
         self.spec = spec
@@ -57,6 +60,11 @@ class SystemOneModel:
         try:
             with Timer() as t:
                 r = self.client.post(self.endpoint, json=body)
+                for attempt in range(self.max_retries_429):  # hosted rate limits (pplx: 10 rps/org); retried latency is recorded as-is
+                    if r.status_code != 429:
+                        break
+                    time.sleep(min(8.0, 0.5 * 2 ** attempt))
+                    r = self.client.post(self.endpoint, json=body)
             if r.status_code != 200:
                 return Decision(probs={q: float("nan") for q in questions}, latency_ms=t.ms,
                                 error=f"HTTP {r.status_code}: {r.text[:300]}", model_version=self.pinned or self.model)
