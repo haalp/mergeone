@@ -8,5 +8,14 @@
       "related": "Same area, different work; both could land",
       "unrelated": "Different work"
     }
+  },
+  "assumption_conflict": {
+    "type": "choice",
+    "instructions": "You are shown two pull requests from the same repository, A and B, each with the premises its author declared (what the change takes for granted). Decide whether they can land independently. 'conflict': A and B assume contradictory things about the same target, or one changes a target the other assumes unchanged, so merging both as written would break one of them or require rework. 'depends': one can only be correct after the other has merged (it builds on, rebases on, or needs the other's change). 'independent': both can merge in either order without affecting each other's correctness.",
+    "criteria": {
+      "conflict": "Contradictory premises about the same target, or one changes what the other assumes; both cannot land as written",
+      "depends": "One needs the other merged first",
+      "independent": "Either order, no effect on each other"
+    }
   }
 }

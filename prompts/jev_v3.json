@@ -1,0 +1,42 @@
+{
+  "is_logic_change": {
+    "type": "noul",
+    "instructions": "This pull request changes program behaviour. It is NOT only documentation, comments, formatting, renames, test-only changes, generated files, or dependency version bumps."
+  },
+  "weakens_tests": {
+    "type": "noul",
+    "instructions": "This pull request weakens test coverage or strictness: it removes tests, adds skips (t.Skip, Pending, ginkgo.Skip, xfail), loosens assertions, raises timeouts, disables checks, or marks tests as flaky."
+  },
+  "message_matches_diff": {
+    "type": "noul",
+    "instructions": "The pull request title and message accurately describe what the diff does. There are no undisclosed changes in the diff and no claims in the message that the diff does not implement."
+  },
+  "touches_concurrency": {
+    "type": "noul",
+    "instructions": "The diff modifies code with concurrency hazards: locks, mutexes, goroutines, channels, wait groups, caches, retries with shared state, or other shared mutable state accessed from multiple goroutines."
+  },
+  "needs_human_review": {
+    "type": "noul",
+    "instructions": "A careful maintainer of this repository would want a human to review this pull request before it merges, because it changes behaviour in a non-trivial way, touches risky code, weakens tests, or because its message does not fully explain the diff. Trivial, mechanical, documentation-only, or clearly safe changes do not need a human."
+  },
+  "exceeds_scope": {
+    "type": "noul",
+    "instructions": "This pull request does more than its title and stated purpose: it includes unrelated refactors, drive-by fixes, formatting of untouched code, new features, or changes to files that the described task does not require."
+  },
+  "breaking_change": {
+    "type": "noul",
+    "instructions": "This pull request changes a public or shared contract in a way that can break existing callers or users: removed or renamed exported symbols, changed function signatures or return types, changed API routes, response shapes, CLI flags, config keys, database schemas, or default behaviour that others depend on."
+  },
+  "tests_cover_change": {
+    "type": "noul",
+    "instructions": "The behaviour this pull request changes is exercised by tests in the diff: new or updated test cases target the changed code paths. Answer low if behaviour changed with no test change, or if the only test changes are unrelated to the behaviour change."
+  },
+  "hard_to_revert": {
+    "type": "noul",
+    "instructions": "Reverting this pull request after merge would be difficult or unsafe: it includes a data migration, a schema change, a one-way format change, a deletion of data or history, a change other in-flight work builds on, or a release/version bump that downstream consumers will pick up."
+  },
+  "follows_conventions": {
+    "type": "noul",
+    "instructions": "The change follows the conventions visible in the surrounding code of this repository: naming, error handling, logging, file placement, test style, and commit message format. Answer low if the diff introduces a different style, duplicates existing helpers, or ignores patterns the neighbouring code clearly uses."
+  }
+}
