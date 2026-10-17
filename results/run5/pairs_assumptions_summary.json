@@ -1,0 +1,29 @@
+{
+  "pairs": 44,
+  "candidates_source": "run-4 retrieval recomputed in-process (fallback: results/run5/candidates.jsonl not present)",
+  "prs_without_candidates": 0,
+  "kinds": {
+    "labelled": 4,
+    "retrieved": 20,
+    "random": 20
+  },
+  "by_split_kind": {
+    "val/labelled": 4,
+    "val/random": 20,
+    "val/retrieved": 20
+  },
+  "positives_by_relation": {
+    "conflicts": 2,
+    "depends": 2
+  },
+  "positives_shares_file": {
+    "False": 3,
+    "True": 1
+  },
+  "positives_by_split_relation_shares_file": {
+    "val/conflicts/False": 2,
+    "val/depends/False": 1,
+    "val/depends/True": 1
+  },
+  "missing_assumptions_rows": {}
+}

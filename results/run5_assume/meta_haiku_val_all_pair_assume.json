@@ -1,0 +1,13 @@
+{
+  "model": "haiku",
+  "split": "val",
+  "variant": "all",
+  "n": 44,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "pair_assume",
+  "finished_at": "2026-10-17T23:37:11.632349+00:00",
+  "host": "vm",
+  "python": "3.13.16",
+  "qset": "pair_assume"
+}

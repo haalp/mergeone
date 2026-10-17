@@ -1,0 +1,177 @@
+{
+  "pairs": {
+    "pairs": 44,
+    "candidates_source": "run-4 retrieval recomputed in-process (fallback: results/run5/candidates.jsonl not present)",
+    "prs_without_candidates": 0,
+    "kinds": {
+      "labelled": 4,
+      "retrieved": 20,
+      "random": 20
+    },
+    "by_split_kind": {
+      "val/labelled": 4,
+      "val/random": 20,
+      "val/retrieved": 20
+    },
+    "positives_by_relation": {
+      "conflicts": 2,
+      "depends": 2
+    },
+    "positives_shares_file": {
+      "False": 3,
+      "True": 1
+    },
+    "positives_by_split_relation_shares_file": {
+      "val/conflicts/False": 2,
+      "val/depends/False": 1,
+      "val/depends/True": 1
+    },
+    "missing_assumptions_rows": {}
+  },
+  "extraction": {
+    "dataset": {
+      "n": 2196,
+      "errors": 0,
+      "empty_body": 2,
+      "calls": 2194,
+      "with_ge1": 2185,
+      "mean_count": 6.315118397085611,
+      "kinds": {
+        "behaviour": 6176,
+        "dependency": 1473,
+        "test": 1710,
+        "api": 2003,
+        "config": 1091,
+        "data": 1415
+      },
+      "truncated_to_8": 21,
+      "input_tokens": 2955054,
+      "output_tokens": 1053070,
+      "cost_usd": 0.822,
+      "latency_p50_ms": 2585.0864509998246,
+      "latency_p99_ms": 4654.418948999819,
+      "model_versions": {
+        "claude-haiku-5-5": 2194
+      }
+    },
+    "memory_partners": {
+      "n": 44,
+      "errors": 0,
+      "empty_body": 0,
+      "calls": 44,
+      "with_ge1": 44,
+      "mean_count": 6.840909090909091,
+      "kinds": {
+        "behaviour": 129,
+        "test": 53,
+        "api": 71,
+        "data": 20,
+        "dependency": 16,
+        "config": 12
+      },
+      "truncated_to_8": 4,
+      "input_tokens": 58674,
+      "output_tokens": 22993,
+      "cost_usd": 0.0174,
+      "latency_p50_ms": 2652.4012170000333,
+      "latency_p99_ms": 3470.5380440000226,
+      "model_versions": {
+        "claude-haiku-5-5": 44
+      }
+    }
+  },
+  "models": {
+    "haiku": {
+      "test": {
+        "n": 0,
+        "n_pairs_in_split": 0,
+        "coverage": null,
+        "positives": 0,
+        "no_shared_file_positives": 0
+      },
+      "val": {
+        "n": 44,
+        "n_pairs_in_split": 44,
+        "coverage": 1.0,
+        "positives": 4,
+        "roc_auc": 0.7875,
+        "ci95": [
+          0.3892857142857143,
+          1.0
+        ],
+        "pr_auc": 0.5181818181818182,
+        "no_shared_file_positives": 3,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 3,
+          "n_random_pairs": 20,
+          "model_caught": 0.0,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": 0.0,
+          "delta_pp": 0.0,
+          "caught_all_positives": 0.0
+        }
+      }
+    },
+    "floor_dir_jaccard": {
+      "test": {
+        "n": 0,
+        "n_pairs_in_split": 0,
+        "coverage": null,
+        "positives": 0,
+        "no_shared_file_positives": 0
+      },
+      "val": {
+        "n": 44,
+        "n_pairs_in_split": 44,
+        "coverage": 1.0,
+        "positives": 4,
+        "roc_auc": 0.528125,
+        "ci95": [
+          0.21845238095238098,
+          0.8023255813953488
+        ],
+        "pr_auc": 0.1018939393939394,
+        "no_shared_file_positives": 3
+      }
+    }
+  },
+  "hypotheses": {
+    "R5-H4[haiku]": {
+      "roc_auc": null,
+      "ci95": null,
+      "n": 0,
+      "positives": 0,
+      "coverage": null,
+      "evaluable": false,
+      "pass": false,
+      "bar": ">= 0.75"
+    },
+    "R5-H4[floor_dir_jaccard]": {
+      "roc_auc": null,
+      "ci95": null,
+      "n": 0,
+      "positives": 0,
+      "coverage": null,
+      "evaluable": false,
+      "pass": false,
+      "bar": ">= 0.75"
+    }
+  },
+  "prediction_dir": "results/run5_assume",
+  "relation_labels": {
+    "by_label": {
+      "comments_not_fetched": 1254,
+      "not_marked": 884,
+      "relation_unknown": 52,
+      "related_to_outside_memory": 2,
+      "related_to": 4
+    },
+    "by_relation_split": {
+      "val/conflicts": 2,
+      "val/depends": 2
+    }
+  }
+}
