@@ -497,11 +497,13 @@ def cmd_report(a):
         rep["models"][model] = e
         t = e.get("test", {})
         rep["hypotheses"][f"R5-H4[{model}]"] = {"roc_auc": t.get("roc_auc"), "ci95": t.get("ci95"), "n": t.get("n"), "positives": t.get("positives"),
-                                                "coverage": t.get("coverage"), "pass": bool(t.get("roc_auc") is not None and t["roc_auc"] >= 0.75), "bar": ">= 0.75"}
+                                                "coverage": t.get("coverage"), "evaluable": t.get("roc_auc") is not None,
+                                                "pass": bool(t.get("roc_auc") is not None and t["roc_auc"] >= 0.75), "bar": ">= 0.75"}
         if "h4b" in t:
             h = t["h4b"]
             rep["hypotheses"][f"R5-H4b[{model}]"] = {"caught": h["model_caught"], "floor_caught": h["floor_caught"], "delta_pp": h["delta_pp"],
                                                      "fpr_random": h["model_fpr_random"], "n": h["n_no_shared_file_positives"],
+                                                     "evaluable": bool(h["n_no_shared_file_positives"] and h["n_random_pairs"]),
                                                      "pass": bool(h["delta_pp"] == h["delta_pp"] and h["delta_pp"] >= 15), "bar": ">= +15 pp over dir-Jaccard floor at same random-pair FPR"}
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "assumptions_metrics.json").write_text(json.dumps(rep, indent=2, default=float))
@@ -549,8 +551,8 @@ def _tables(rep) -> str:
                 L.append(f"| {m} | {s} | {h['n_no_shared_file_positives']} | {_f(h['model_caught'])} | {_f(h['model_fpr_random'])} | {_f(h['floor_threshold'])} | {_f(h['floor_fpr_random'])} | {_f(h['floor_caught'])} | {_f(h['delta_pp'], 1)} |")
     L += ["", "## Pre-registered criteria (test)", "", "| hypothesis | result | bar | pass |", "|---|---|---|---|"]
     for h, r in rep["hypotheses"].items():
-        shown = {k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items() if k not in ("pass", "bar")}
-        L.append(f"| {h} | {json.dumps(shown)} | {r['bar']} | {'✅' if r['pass'] else '❌'} |")
+        shown = {k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items() if k not in ("pass", "bar", "evaluable")}
+        L.append(f"| {h} | {json.dumps(shown)} | {r['bar']} | {('✅' if r['pass'] else '❌') if r.get('evaluable') else 'not evaluable'} |")
     return "\n".join(L) + "\n"
 
 
