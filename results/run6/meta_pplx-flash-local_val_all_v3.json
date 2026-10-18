@@ -1,0 +1,14 @@
+{
+  "model": "pplx-flash-local",
+  "split": "val",
+  "variant": "all",
+  "n": 1491,
+  "errors": 0,
+  "concurrency": 16,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-10-18T17:10:45.686771+00:00",
+  "host": "dd7f31a6ac0f",
+  "python": "3.12.3",
+  "qset": "v3",
+  "mode": "joint"
+}
