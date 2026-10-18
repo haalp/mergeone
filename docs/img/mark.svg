@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" fill="none" role="img" aria-label="mergeone">
   <rect width="320" height="320" rx="64" fill="#0E0F12"/>
-  <path d="M56 86 C 128 86, 142 160, 178 160" stroke="#A371F7" stroke-width="22" stroke-linecap="round"/>
-  <path d="M56 160 L 178 160" stroke="#A371F7" stroke-width="22" stroke-linecap="round" opacity="0.72"/>
-  <path d="M56 234 C 128 234, 142 160, 178 160" stroke="#A371F7" stroke-width="22" stroke-linecap="round" opacity="0.5"/>
-  <path d="M178 160 L 272 160" stroke="#ECECEA" stroke-width="22" stroke-linecap="round"/>
-  <circle cx="178" cy="160" r="30" fill="#0E0F12" stroke="#ECECEA" stroke-width="12"/>
+  <path d="M44 58 L160 152" stroke="#A371F7" stroke-width="22"/>
+  <path d="M44 160 L150 160" stroke="#A371F7" stroke-width="22" opacity="0.72"/>
+  <path d="M44 262 L160 168" stroke="#A371F7" stroke-width="22" opacity="0.5"/>
+  <path d="M194 136 L262 136 L246 158 L300 158 L212 222 L234 178 L194 178 Z" fill="#ECECEA" stroke="#ECECEA" stroke-width="4" stroke-linejoin="miter"/>
+  <circle cx="166" cy="160" r="30" fill="#0E0F12" stroke="#ECECEA" stroke-width="12"/>
 </svg>
