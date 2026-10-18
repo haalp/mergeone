@@ -69,7 +69,7 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 
 - R5-H1 ❌ recall@5 0.655 test (run 4: 0.55; bar 0.70); A1+A2 identical to A1 on test. R5-H2 ✅ Go A1 p99 3.3 ms. R5-H3a ❌ all models (pass-group bad rate 0.35–0.43, bar 0.234); R5-H3b ✅ pplx +21.6 pp, pplx-flash +18.4 pp, ❌ jev +8.5, haiku +10.5, rules +12.5. R5-H4 not evaluable (9 labelled relations; 3 test positives). R5-H5 ❌ as written: single-question bar ✅ jev 0.756, pplx-flash 0.758, ❌ pplx 0.686; stack ❌ all System One (best 0.737, bar 0.75). R5-H6 ❌ pplx and pplx-flash: 71% HTTP 429 at 100× (10 rps/org), p99 flat. See `results/run5/README.md`.
 - Run on the Mac (`scripts/run5_mac.sh`): patches 00:05–03:10Z (17,421 targets, 16,664 ok, 597 HTTP 301 = kentcdodds/kody renamed, val only, kept A1 rank), retrieve 03:13Z, v3 jev/pplx/pplx-flash, merged-PR comments (84 GraphQL calls), relation labels 2,196 PRs, assumption pairs + predictions, new same_change pairs (2,118 test), load tests 04:00–06:15Z, report 06:16Z.
-- Retrieval v2 becomes the Go store's default (`gate/internal/memory/retrieval_v2.go`); v1 kept for reproduction. Default question set stays v2.
+- Retrieval v2 becomes the Go store's default: `Store.Candidates` (`gate/internal/memory/adapter.go`) runs A1 (`retrieval_v2.go`) and fills the v1 `Candidate` from the stored entry, so `PairState` renders unchanged; default `top_k` stays 5; the v2 index is rebuilt lazily after each `Upsert`. v1 kept for reproduction via `Store.RetrievalVersion = 1`. Test `TestStoreCandidatesUsesV2`. Default question set stays v2.
 
 
 ## 2026-10-18 — run6 A tooling committed before any self-hosted call

@@ -1,19 +1,64 @@
 package memory
 
 import (
+	"sort"
+	"time"
+
 	"github.com/haalp/mergeone/gate/internal/engine"
 )
 
 // Candidates implements engine.Memory: retrieval + pair-state rendering for the gate.
+// Retrieval v2 (A1, run 5) is the default; Store.RetrievalVersion = 1 selects the run-4 v1 formula.
 func (s *Store) Candidates(meta engine.PRMeta, aState string, k int) []engine.Candidate {
 	r := s.Repo(meta.Repo)
 	if r.Len() == 0 {
 		return nil
 	}
-	cs := r.Candidates(meta.Number, meta.Title, meta.Body, meta.Paths, meta.Author, meta.CreatedAt, k)
+	if k <= 0 {
+		k = TopK // default top_k stays 5 for both versions
+	}
+	var cs []Candidate
+	if s.RetrievalVersion == 1 {
+		cs = r.Candidates(meta.Number, meta.Title, meta.Body, meta.Paths, meta.Author, meta.CreatedAt, k)
+	} else {
+		cs = r.candidatesV2AsV1(meta, k)
+	}
 	out := make([]engine.Candidate, 0, len(cs))
 	for _, c := range cs {
 		out = append(out, engine.Candidate{Number: c.Number, Score: c.Score, State: c.State, Title: c.Title, PairState: PairState(aState, c)})
+	}
+	return out
+}
+
+// candidatesV2AsV1 runs A1 and fills the v1 Candidate struct (body cut at 1,500, sorted paths ≤ 60, as v1)
+// from the stored Entry, so PairState renders exactly as before.
+func (r *Repo) candidatesV2AsV1(meta engine.PRMeta, k int) []Candidate {
+	created := meta.CreatedAt
+	if created.IsZero() {
+		created = time.Now().UTC()
+	}
+	q := NewQueryV2(r.name, meta.Number, meta.Title, meta.Body, meta.Paths, meta.Author, created)
+	hits := r.CandidatesV2(q, k)
+	out := make([]Candidate, 0, len(hits))
+	for _, h := range hits {
+		e, ok := r.Get(h.Number)
+		if !ok {
+			continue
+		}
+		paths := make([]string, 0, len(e.Files))
+		for _, f := range e.Files {
+			paths = append(paths, f.Path)
+		}
+		sort.Strings(paths)
+		if len(paths) > 60 {
+			paths = paths[:60]
+		}
+		b := e.Body
+		if len(b) > 1500 {
+			b = b[:1500]
+		}
+		out = append(out, Candidate{Number: h.Number, Score: round4(h.Score), Jaccard: round4(h.Jaccard), BM25: round4(h.BM25), SameAuthor: h.SameAuthor,
+			State: e.State, Title: e.Title, Body: b, Author: e.Author, CreatedAt: e.CreatedAt, MergedAt: e.MergedAt, Files: paths})
 	}
 	return out
 }

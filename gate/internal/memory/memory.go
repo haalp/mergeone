@@ -301,6 +301,10 @@ type Store struct {
 	mu    sync.Mutex
 	dir   string
 	repos map[string]*Repo
+
+	// RetrievalVersion selects the retrieval behind Store.Candidates: 2 (default; also used for 0) is
+	// retrieval v2 / A1 (retrieval_v2.go, run 5), 1 is the run-4 formula above, kept for reproduction.
+	RetrievalVersion int
 }
 
 // Open loads <dir>/*.jsonl. A missing dir is created; an empty store is valid.
@@ -310,7 +314,7 @@ func Open(dir string) (*Store, error) {
 			return nil, err
 		}
 	}
-	s := &Store{dir: dir, repos: map[string]*Repo{}}
+	s := &Store{dir: dir, repos: map[string]*Repo{}, RetrievalVersion: 2}
 	if dir == "" {
 		return s, nil
 	}
