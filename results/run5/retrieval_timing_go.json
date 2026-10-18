@@ -1,0 +1,32 @@
+{
+  "bar": "R5-H2: Go A1 p99 <= 20 ms",
+  "go_a1_max_ms": 5.266945,
+  "go_a1_p50_ms": 0.544288,
+  "go_a1_p99_ms": 3.343695,
+  "hardware": {
+    "go": "go1.24.7",
+    "goarch": "amd64",
+    "goos": "linux",
+    "num_cpu": 2
+  },
+  "later_passes_p99_ms": [
+    3.035227,
+    3.142053
+  ],
+  "measured": "NewQueryV2 + Repo.CandidatesV2 (tokenise, window prune, score, top-20); memory loaded and v2 index built beforehand; state parsing excluded (as Python)",
+  "measured_at": "2026-10-17T23:47:47Z",
+  "memory_load_ms": 13081.086,
+  "memory_prs": 100228,
+  "n": 2196,
+  "pass": true,
+  "passes": 3,
+  "v2_index_build_ms": 37429.932,
+  "weights": {
+    "author": 0,
+    "dir": 0.1,
+    "file": 0.2,
+    "issue": 0.5,
+    "text": 0.2
+  },
+  "window_days": 90
+}

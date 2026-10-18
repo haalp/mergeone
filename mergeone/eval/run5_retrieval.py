@@ -137,8 +137,8 @@ def cmd_retrieve(a):
         from ..memory import symbols as S
         sym = S if S.available() else None
     sym_lists = {}
-    out = RUN_DIR / "candidates.jsonl"
-    with out.open("w") as f:
+    tmp_out = RUN_DIR / "candidates.jsonl.tmp"
+    with tmp_out.open("w") as f:
         for r in ds:
             m = mems[r["repo"]]
             s = R.parse_state(r["state"])
@@ -182,30 +182,40 @@ def cmd_retrieve(a):
     n_cand = sum(fetches_per_pr)
     uniq = {k for k in ident_cache}
     uniq_fetched = sum(1 for k, (ids, _) in ident_cache.items() if ids is not None)
+    uniq_status = Counter((rec or {}).get("status", "not_attempted") for _, rec in ident_cache.values())
+    a2_ran = uniq_fetched > 0
+    # candidates.jsonl is reserved for the A1+A2 top-5; without any fetched patch the A1-only list goes elsewhere
+    out = RUN_DIR / ("candidates.jsonl" if a2_ran else "candidates_a1_only.jsonl")
+    tmp_out.replace(out)
     timing = {"computed_at": _now(), "n": len(lat), "python_a1_p50_ms": _pct(lat, 0.5), "python_a1_p99_ms": _pct(lat, 0.99),
               "python_a1_max_ms": max(lat), "measured": "Query.make + Memory.a1 (tokenise, window, score, top-20); memory pre-loaded",
               "a2_patch_fetches_per_pr": {"mean": n_cand / len(ds), "max": max(fetches_per_pr), "bar": "<= 20"},
               "a2_api_calls_per_pr_uncached": {"mean": sum(calls_per_pr) / len(ds), "max": max(calls_per_pr), "note": "pulls/{n}/files pages (<=3 per candidate) if no candidate were cached"},
-              "a2_unique_candidates": len(uniq), "a2_unique_fetched_ok": uniq_fetched}
+              "a2_unique_candidates": len(uniq), "a2_unique_fetched_ok": uniq_fetched, "a2_unique_by_status": dict(uniq_status)}
     (RUN_DIR / "retrieval_timing.json").write_text(json.dumps(timing, indent=2))
     met = {"computed_at": _now(), "weights": dict(zip(R.FEATURES, R.WEIGHTS)), "window_days": R.WINDOW_DAYS,
            "note": "val numbers are tuned (A1 weights were fit on the val gold pairs); test is the R5-H1 number",
+           "a2_status": "ran" if a2_ran else "not run: no candidate patch was fetched (GitHub REST pulls/{n}/files not reachable from this session)",
+           "candidates_file": str(out), "a2_unique_candidates": len(uniq), "a2_unique_by_status": dict(uniq_status),
            "unfetchable_candidate_slots": dict(unfetch), "unfetchable_candidate_slots_total": sum(unfetch.values()), "candidate_slots": n_cand}
     for sp in ("val", "test"):
         g = _gold(sp, dsd)
         met[sp] = {"n_gold": len(g),
                    "a1": {"recall_at_5": _recall(g, a1_lists, 5), "recall_at_20": _recall(g, a1_lists, 20)},
-                   "a1_a2": {"recall_at_5": _recall(g, a2_lists, 5), "recall_at_20": _recall(g, a2_lists, 20)},
+                   "a1_a2": {"recall_at_5": _recall(g, a2_lists, 5), "recall_at_20": _recall(g, a2_lists, 20)} if a2_ran else None,
                    "gold_ranks": [{"repo": l["repo"], "number": l["number"], "gold": l["superseded_by"],
                                    "a1_rank": (a1_lists.get(l["pr_number"], []).index(l["superseded_by"]) + 1) if l["superseded_by"] in a1_lists.get(l["pr_number"], []) else None,
-                                   "a2_rank": (a2_lists.get(l["pr_number"], []).index(l["superseded_by"]) + 1) if l["superseded_by"] in a2_lists.get(l["pr_number"], []) else None}
+                                   "a2_rank": None if not a2_ran else (a2_lists.get(l["pr_number"], []).index(l["superseded_by"]) + 1) if l["superseded_by"] in a2_lists.get(l["pr_number"], []) else None}
                                   for l in g] if sp == "val" else None}
-        if sym is not None:
+        if sym is not None and a2_ran:
             met[sp]["exploratory_tree_sitter"] = {"recall_at_5": _recall(g, sym_lists, 5), "recall_at_20": _recall(g, sym_lists, 20)}
-    r5 = met["test"]["a1_a2"]["recall_at_5"]
+    r5 = met["test"]["a1_a2"]["recall_at_5"] if a2_ran else None
     met["R5-H1"] = {"recall_at_5_a1_a2_test": r5, "n_gold": met["test"]["n_gold"], "bar": ">= 0.70 (below 0.60: no improvement)",
-                    "pass": r5 is not None and r5 >= 0.70, "no_improvement": r5 is not None and r5 < 0.60}
+                    "pass": (r5 >= 0.70) if r5 is not None else None, "no_improvement": (r5 < 0.60) if r5 is not None else None,
+                    "evaluable": a2_ran, "a1_only_recall_at_5_test": met["test"]["a1"]["recall_at_5"]}
     met["exploratory_tree_sitter"] = sym.describe() if sym is not None else {"status": "not available"}
+    if sym is not None and not a2_ran:
+        met["exploratory_tree_sitter"]["status"] = "parsers available; not run (needs the A2 candidate patches)"
     (RUN_DIR / "retrieval_metrics.json").write_text(json.dumps(met, indent=2))
     print(json.dumps({k: v for k, v in met.items()}, indent=2, default=str))
     print(json.dumps(timing, indent=2))
@@ -224,7 +234,7 @@ def cmd_go_fixture(a):
     for repo in rng.sample(repos, 4):
         rows = [r for r in ds if r["repo"] == repo]
         m = mems[repo]
-        for r in rng.sample(rows, min(5, len(rows))):
+        for r in rng.sample(rows, min(3, len(rows))):
             q = R.Query.from_row(r)
             top = m.a1(q, k=10)
             if not top:
@@ -237,7 +247,9 @@ def cmd_go_fixture(a):
             for line in (MEM_DIR / (repo.replace("/", "__") + ".jsonl")).open():
                 x = json.loads(line)
                 if x["number"] in nums:
-                    raw[x["number"]] = {k: x.get(k) for k in ("number", "title", "body", "author", "state", "created_at", "merged_at", "closed_at", "changed_files", "files")}
+                    raw[x["number"]] = {k: x.get(k) for k in ("number", "title", "body", "author", "state", "created_at", "merged_at", "closed_at", "changed_files")}
+                    raw[x["number"]]["body"] = (x.get("body") or "")[:1500]  # keep the fixture small; expected values are computed on this row
+                    raw[x["number"]]["files"] = [{"path": f["path"]} for f in x.get("files") or []]
             sub = R.Memory(repo)
             for n in nums:
                 sub.add(raw[n])
@@ -284,10 +296,11 @@ def cmd_go_fixture(a):
 
 def cmd_go_compare(a):
     """Compare a Go A1 dump (JSONL: pr_number, candidates[{number, score}]) with Python on every PR."""
-    go = {r["pr_number"]: r["candidates"] for r in _rows(Path(a.file))}
+    go = {r["pr_number"]: r["candidates"] or [] for r in _rows(Path(a.file))}
     ds = _rows(DATASET)
     mems = R.load_all(MEM_DIR)
     max_diff, same_lists, n, n_pairs = 0.0, 0, 0, 0
+    max_feat, flag_mismatch = {"dir_jaccard": 0.0, "jaccard": 0.0, "bm25": 0.0}, Counter()
     bad = []
     for r in ds:
         if r["pr_number"] not in go:
@@ -299,12 +312,18 @@ def cmd_go_compare(a):
             same_lists += 1
         elif len(bad) < 5:
             bad.append({"repo": r["repo"], "number": r["number"], "py": [(c["number"], c["score"]) for c in py][:5], "go": [(c["number"], c["score"]) for c in g][:5]})
-        gs = {c["number"]: c["score"] for c in g}
+        gs = {c["number"]: c for c in g}
         for c in py:
             if c["number"] in gs:
                 n_pairs += 1
-                max_diff = max(max_diff, abs(gs[c["number"]] - c["score"]))
-    res = {"n_prs": n, "identical_top20_lists": same_lists, "n_scored_pairs_compared": n_pairs, "max_abs_score_diff": max_diff, "mismatches": bad}
+                x = gs[c["number"]]
+                max_diff = max(max_diff, abs(x["score"] - c["score"]))
+                for k in ("dir_jaccard", "jaccard", "bm25"):
+                    max_feat[k] = max(max_feat[k], abs(x[k] - c[k]))
+                for k in ("issue_ref", "same_author"):
+                    flag_mismatch[k] += int(bool(x[k]) != bool(c[k]))
+    res = {"n_prs": n, "identical_top20_lists": same_lists, "n_scored_pairs_compared": n_pairs, "max_abs_score_diff": max_diff,
+           "max_abs_feature_diff": max_feat, "flag_mismatches": dict(flag_mismatch), "mismatches": bad, "computed_at": _now()}
     print(json.dumps(res, indent=2))
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=2))

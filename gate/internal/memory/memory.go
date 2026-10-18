@@ -114,6 +114,9 @@ type Repo struct {
 	prs    map[int]*Entry
 	df     map[string]int
 	avgLen float64
+
+	v2   *v2Index   // retrieval v2 (A1) index, built lazily; reset on Upsert
+	v2mu sync.Mutex // serialises CandidatesV2 (window stamp array)
 }
 
 func (e *Entry) prep() {
@@ -157,6 +160,7 @@ func (r *Repo) Upsert(e Entry) error {
 	r.mu.Lock()
 	r.prs[e.Number] = &e
 	r.reindex()
+	r.v2 = nil
 	r.mu.Unlock()
 	if r.path == "" {
 		return nil

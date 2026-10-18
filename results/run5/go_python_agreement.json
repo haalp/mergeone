@@ -1,0 +1,17 @@
+{
+  "n_prs": 2196,
+  "identical_top20_lists": 2196,
+  "n_scored_pairs_compared": 42984,
+  "max_abs_score_diff": 1.1102230246251565e-16,
+  "max_abs_feature_diff": {
+    "dir_jaccard": 0.0,
+    "jaccard": 0.0,
+    "bm25": 3.3306690738754696e-16
+  },
+  "flag_mismatches": {
+    "issue_ref": 0,
+    "same_author": 0
+  },
+  "mismatches": [],
+  "computed_at": "2026-10-17T23:51:37+00:00"
+}

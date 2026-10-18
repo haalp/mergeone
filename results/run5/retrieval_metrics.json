@@ -1,0 +1,219 @@
+{
+  "computed_at": "2026-10-18T00:01:08+00:00",
+  "weights": {
+    "issue": 0.5,
+    "dir": 0.1,
+    "file": 0.2,
+    "text": 0.2,
+    "author": 0.0
+  },
+  "window_days": 90,
+  "note": "val numbers are tuned (A1 weights were fit on the val gold pairs); test is the R5-H1 number",
+  "a2_status": "not run: no candidate patch was fetched (GitHub REST pulls/{n}/files not reachable from this session)",
+  "candidates_file": "results/run5/candidates_a1_only.jsonl",
+  "a2_unique_candidates": 17421,
+  "a2_unique_by_status": {
+    "not_attempted": 17421
+  },
+  "unfetchable_candidate_slots": {
+    "missing": 42984
+  },
+  "unfetchable_candidate_slots_total": 42984,
+  "candidate_slots": 42984,
+  "val": {
+    "n_gold": 22,
+    "a1": {
+      "recall_at_5": 0.8636363636363636,
+      "recall_at_20": 0.9090909090909091
+    },
+    "a1_a2": null,
+    "gold_ranks": [
+      {
+        "repo": "BerriAI/litellm",
+        "number": 39821,
+        "gold": 41349,
+        "a1_rank": 3,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 41837,
+        "gold": 46111,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 45328,
+        "gold": 46082,
+        "a1_rank": 5,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 40256,
+        "gold": 45703,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 44929,
+        "gold": 44930,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 36450,
+        "gold": 40139,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "BerriAI/litellm",
+        "number": 39546,
+        "gold": 39585,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "nodetool-ai/nodetool",
+        "number": 2623,
+        "gold": 2753,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "PrefectHQ/prefect",
+        "number": 23387,
+        "gold": 23388,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "PrefectHQ/prefect",
+        "number": 23349,
+        "gold": 23339,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "PrefectHQ/prefect",
+        "number": 23241,
+        "gold": 23240,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "PrefectHQ/prefect",
+        "number": 22897,
+        "gold": 22946,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "microsoft/aspire",
+        "number": 19751,
+        "gold": 20345,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "microsoft/aspire",
+        "number": 18479,
+        "gold": 18535,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "microsoft/aspire",
+        "number": 13121,
+        "gold": 17988,
+        "a1_rank": null,
+        "a2_rank": null
+      },
+      {
+        "repo": "opensanctions/opensanctions",
+        "number": 5334,
+        "gold": 5337,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "TracecatHQ/tracecat",
+        "number": 3564,
+        "gold": 3570,
+        "a1_rank": null,
+        "a2_rank": null
+      },
+      {
+        "repo": "TracecatHQ/tracecat",
+        "number": 3582,
+        "gold": 3600,
+        "a1_rank": 5,
+        "a2_rank": null
+      },
+      {
+        "repo": "TracecatHQ/tracecat",
+        "number": 3520,
+        "gold": 3536,
+        "a1_rank": 2,
+        "a2_rank": null
+      },
+      {
+        "repo": "camunda/camunda",
+        "number": 59214,
+        "gold": 59213,
+        "a1_rank": 1,
+        "a2_rank": null
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "number": 4892,
+        "gold": 4738,
+        "a1_rank": 16,
+        "a2_rank": null
+      },
+      {
+        "repo": "openai/openai-agents-python",
+        "number": 4123,
+        "gold": 3998,
+        "a1_rank": 1,
+        "a2_rank": null
+      }
+    ]
+  },
+  "test": {
+    "n_gold": 29,
+    "a1": {
+      "recall_at_5": 0.6551724137931034,
+      "recall_at_20": 0.8620689655172413
+    },
+    "a1_a2": null,
+    "gold_ranks": null
+  },
+  "R5-H1": {
+    "recall_at_5_a1_a2_test": null,
+    "n_gold": 29,
+    "bar": ">= 0.70 (below 0.60: no improvement)",
+    "pass": null,
+    "no_improvement": null,
+    "evaluable": false,
+    "a1_only_recall_at_5_test": 0.6551724137931034
+  },
+  "exploratory_tree_sitter": {
+    "status": "parsers available; not run (needs the A2 candidate patches)",
+    "languages": [
+      "c_sharp",
+      "go",
+      "java",
+      "javascript",
+      "python",
+      "ruby",
+      "tsx",
+      "typescript"
+    ],
+    "method": "Symbols of a diff: for each changed file in a language with an installed parser (Python, TypeScript/TSX, JavaScript, Go, C#, Java, Ruby), each hunk is rebuilt as its new side (context + added lines) and its old side (context + removed lines); both are parsed with tree-sitter (error-tolerant on fragments) and the names of definition nodes (functions, methods, classes, types\u2026) whose span covers a changed line are collected, plus the definitions named in the hunk header's function context. Re-rank: 0.5\u00b7A1_norm + 0.5\u00b7jaccard(symbols), the same rule as A2, with unfetched candidates keeping their A1 position."
+  }
+}

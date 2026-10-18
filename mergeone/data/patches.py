@@ -91,6 +91,8 @@ class Fetcher:
             rem, reset = r.headers.get("x-ratelimit-remaining"), r.headers.get("x-ratelimit-reset")
             if rem is not None and reset is not None and int(rem) < 30:
                 self.lim.pause_until(int(reset) + 2)
+            if r.status_code == 403 and rem is None and "retry-after" not in r.headers:
+                return r  # policy denial (e.g. repository not enabled for this session): not a rate limit, do not retry
             if r.status_code in (403, 429):
                 ra = r.headers.get("retry-after")
                 if rem == "0" and reset:
@@ -122,6 +124,8 @@ class Fetcher:
                 rec["calls"] += 1
                 if r.status_code == 404:
                     status = "not_found"; break
+                if r.status_code == 403 and "x-ratelimit-remaining" not in r.headers:
+                    status = "error"; rec["error"] = f"HTTP 403 (access denied): {r.text[:200]}"; break
                 if r.status_code != 200:
                     status = "error"; rec["error"] = f"HTTP {r.status_code}: {r.text[:200]}"; break
                 items = r.json()
