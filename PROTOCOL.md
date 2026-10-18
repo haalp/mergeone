@@ -449,3 +449,66 @@ set is the run-5 test set and is *not* used to tune anything. The saturation cur
 
 1. Commit this addendum. 2. Commit `serve/` and the registry row. 3. Bring the VM up, record `serve_meta.json`.
 4. Equivalence (H1). 5. Quality (H3), joint vs single (H4). 6. Load (H2 + curve). 7. VM down; report.
+
+---
+
+# Run 6 addendum, part B — wider candidate pool and hold precision (pre-registered)
+
+**Status:** added 2026-10-18 15:05Z, after run-5 results and before any part-B retrieval, label or model call.
+Same repositories and split as runs 3–5 (test seen in aggregate four times; stated, not reshuffled).
+
+## R6B.1 Why
+
+Run 5 left two numbers unexplained. Retrieval v2 finds the gold superseding PR in the top 5 for 66% of test
+cases but in the top 20 for 86%: the answer is usually there, one cut-off too deep. And every dedup variant
+in runs 4–5 held 100–180 PRs per model without halving the pass group's bad-outcome rate, because the labels
+cannot say whether a hold on an unmarked PR was a useful pointer or a false alarm. Part B measures both.
+
+## R6B.2 Components
+
+**B1 — pool size k.** Retrieval v2 (A1, frozen weights; A2 unchanged, it moved nothing) with `k ∈ {5, 10, 20}`.
+The pair question `same_change` is asked for every (PR, candidate) not already answered in runs 4–5
+(predictions reused where the pair is identical; this is the run-5 rule). `duplicate_of` per PR = max over
+its k candidates. Candidates: `jev`, `pplx-flash` (the two models that cleared R5-H5), `haiku` for continuity.
+Cost per PR is reported per k.
+
+**B2 — hold precision, human-labelled.** From the test PRs that the `duplicate_of ≥ 0.7` rule holds at
+k = 20 for `pplx-flash`, a stratified random sample of **100** (seed 6; strata: maintainer-labelled
+superseded / closed-unmarked / merged) is labelled by one human (the author) **blind to the model's score
+and to the candidate's rank**, seeing only PR A, the top candidate B and the repository, with three labels:
+- `duplicate` — A and B are the same change or B makes A unnecessary; holding A was right;
+- `pointer` — not the same change, but B is something A's author should have looked at first (same issue,
+  same area, conflicting approach); holding A with "see #B" is useful;
+- `unrelated` — the hold was a false alarm.
+Labels are written to `data/run6/hold_labels.jsonl` with the labeller's timestamp **before** any precision
+number is computed. The same 100 PRs' holds at k = 5 are evaluated from the same labels (no second pass).
+A second labeller is not pre-registered; if one exists, agreement is reported.
+
+**B3 — policy consequence, mechanical.** With the labelled precision, the rule `duplicate_of ≥ 0.7 → hold`
+is re-evaluated at thresholds {0.6, 0.7, 0.8, 0.9} on the sample; the threshold is *not* changed in this run.
+
+## R6B.3 Pre-registered criteria (test repositories)
+
+- **R6B-H1 (pool):** recall@k of the gold superseding PR at k = 20 ≥ **0.80** (run 5: 0.86 at k = 20 for
+  A1; this re-states it under the pair pipeline). The hypothesis that matters: with k = 20, **R4-H3** (pass-group
+  bad-outcome rate ≤ 0.5 × base) for at least one of `jev`, `pplx-flash`. If it fails at every k, the pool size
+  is reported as not the missing lever.
+- **R6B-H2 (precision):** on the 100-PR sample, `duplicate ∪ pointer` ≥ **0.60** and `duplicate` alone ≥
+  **0.30** for `pplx-flash` at k = 20. Below 0.40 on the union the dedup rule is reported as not fit to hold PRs
+  and is demoted to `annotate` (comment, no hold) in the default policy.
+- **R6B-H3 (cost of k):** model calls per PR = 1 + k; the k = 20 row must stay ≤ **$0.002** per PR at list
+  price for `pplx-flash` (it is $0.0004 at k = 5), else k = 10 is the product default regardless of H1.
+- **R6B-H4 (k = 5 vs k = 20 on the same labels):** precision at k = 5 is computed on the subset of the 100 held
+  at both; reported, not a bar.
+
+## R6B.4 What is not allowed
+
+No change to retrieval weights, the pair prompt, or the 0.7 threshold before the labels are written. The
+labeller does not see scores, ranks or model names. The sample is drawn once; a PR whose B is deleted or
+inaccessible is labelled `unrelated` and counted. Haiku's precision is reported only on PRs it also holds.
+
+## R6B.5 Order
+
+1. Commit this addendum. 2. Retrieve at k = 20 (deterministic), build pairs, predict new pairs (jev,
+pplx-flash, haiku; Mac). 3. Draw the 100-PR sample, commit `data/run6/hold_sample.jsonl` (PR ids only).
+4. Human labels → `data/run6/hold_labels.jsonl`, committed. 5. Report. Timestamps in CHANGELOG.
