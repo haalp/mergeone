@@ -95,13 +95,43 @@ a second GPU before the 100× bar is in reach. The honest reading: the open weig
 limit and replace it with a capacity-planning problem, and a single 24 GB card is below the gateway's
 stated scale target by an order of magnitude.
 
+
+### Pass 2 — length-aware batching on the same L4 (not the verdict; a VM measurement under R6A.4)
+
+Hypothesis after pass 1: the L4 was spending its time on padding (batches formed in arrival order, padded to
+the longest request). `serve/systemone_server.py --batch-tokens N` groups queued requests by length. Measured
+on a second L4 pod (`31ayow6p3cx1lb`, EU-RO-1, $0.59/h, 19:02–20:10Z, $0.69), files in `pass2-l4/`:
+
+| probe (200 PRs, closed loop, conc. 32) | req/s | padding efficiency |
+|---|---|---|
+| budget 0 (pass-1 batching) | 1.54 | 0.64 |
+| 16k | 1.47 | **0.91** |
+| 32k | 2.15 | 0.79 |
+| 64k | 1.79 | 0.71 |
+| 128k (chosen) | **2.33** | 0.66 |
+
+Padding efficiency went from 0.64 to 0.91 and throughput did not move; the load curve with the chosen budget
+is the pass-1 curve (×1 p99 1,487 ms, 0 errors; ×10 p99 29,817 ms, 89% errors; saturation at ×10; $0.472/1k).
+The server's own counters say why: under load a batch of ~30 requests took ~30 s, i.e. **~1 s per request,
+the same as one request alone**. The vendor's `decide(list)` gives no throughput over sequential calls on this
+card — a 4B BF16 forward pass over a 4–16k-token diff is enough to saturate an L4 by itself (16k tokens ≈
+1.3e14 FLOP ≈ 1 s at the card's peak). The bottleneck is compute per request, not scheduling; batching
+policy, micro-batch window and padding are not levers here. What would be: a faster card (H100 ≈ 8× the
+BF16 throughput; $3.99/h Secure at the time, not run), more cards behind a balancer (cost scales linearly),
+or fewer tokens per PR (the 4k-vs-16k diff ablation, a quality question for run 7). The pass-1 numbers stay
+the run-6A verdict; pass 2 changes the explanation, not the result.
+
+Setup note for the next pod: installing into the network-mounted `/workspace` took 27 min in pass 1; on the
+container's local disk it took 4 min.
+
 ### Scorecard and product consequence
 
 R6A-H1 ❌ · H2 ❌ · H3 reported (0.747, not compared) · H4 ❌ (joint stays). Rows in
 [`results/leaderboard.md`](../leaderboard.md): `pplx-flash-local` ranks below the hosted row on every axis
 but calibration. The registry keeps the row; the default for self-hosted deployments stays the joint request;
 `docs/run6-gpu.md` records what a pod needs. The next measurement that would change a decision is the same
-server on an A100/H100 or two L4s behind a balancer — a VM measurement, not a protocol change.
+server on an H100 (pass 2 showed the limit is compute per request, so a faster card is the only single-box lever) — a VM
+measurement, not a protocol change.
 
 ### Housekeeping
 

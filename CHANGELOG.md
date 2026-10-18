@@ -108,3 +108,9 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 
 - Pass 1 served ~5k tokens/s on the L4 against ~15k possible: batches formed in arrival order are padded to their longest request. `serve/systemone_server.py --batch-tokens N` (off by default = pass 1) picks, from everything queued, the requests nearest in length to the oldest one while `count × longest ≤ N` (chars/4 estimate). The vendor call, prompts, questions, temperature and the model are unchanged; only which requests share a forward pass. R6A.4 allows re-running the saturation curve as a VM measurement; pass-2 files go to `results/run6/<PASS>/` (pass-1 files stay and remain the run-6A verdict). A `probe` stage reports closed-loop requests/s per budget so the choice of N is logged, not tuned on anything scored. H1/H3/H4 are not re-run (same model, same answers).
 - Planned: pass2-l4 (same pod class) and pass2-h100 (one H100 80 GB) — cost rows beside the pass-1 one.
+
+## 2026-10-18 — run6 A pass 2 executed (RunPod L4 EU-RO-1, pod 31ayow6p3cx1lb, 19:02Z–20:10Z, $0.69)
+
+- Length-aware batching raised padding efficiency 0.64 → 0.91 at 16k budget with no throughput gain; best probe 2.33 req/s at 128k vs 1.54 at pass-1 batching (closed loop, noisy). Load curve unchanged: saturation ×10, ×1 p99 1,487 ms, $0.472/1k PRs. Server counters: ~1 s per request inside a 30-request batch = the single-request latency → the vendor `decide(list)` gives no batch speed-up on an L4; compute per request is the limit. Pass-1 numbers remain the verdict. Files `results/run6/pass2-l4/`.
+- H100 80 GB (Secure, $3.99/h) not run: above the $3.50/h cap set for the agent; PCIe/NVL variants out of stock. Decision left to the operator.
+- The 120 s gap between load steps was again not enough to drain the ×10 backlog; later steps queued behind it. Reported as measured.
