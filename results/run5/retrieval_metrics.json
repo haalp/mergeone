@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-10-18T00:01:08+00:00",
+  "computed_at": "2026-10-18T03:13:08+00:00",
   "weights": {
     "issue": 0.5,
     "dir": 0.1,
@@ -9,16 +9,19 @@
   },
   "window_days": 90,
   "note": "val numbers are tuned (A1 weights were fit on the val gold pairs); test is the R5-H1 number",
-  "a2_status": "not run: no candidate patch was fetched (GitHub REST pulls/{n}/files not reachable from this session)",
-  "candidates_file": "results/run5/candidates_a1_only.jsonl",
+  "a2_status": "ran",
+  "candidates_file": "results/run5/candidates.jsonl",
   "a2_unique_candidates": 17421,
   "a2_unique_by_status": {
-    "not_attempted": 17421
+    "ok": 16664,
+    "too_many_files": 160,
+    "error": 597
   },
   "unfetchable_candidate_slots": {
-    "missing": 42984
+    "too_many_files": 409,
+    "error": 1620
   },
-  "unfetchable_candidate_slots_total": 42984,
+  "unfetchable_candidate_slots_total": 2029,
   "candidate_slots": 42984,
   "val": {
     "n_gold": 22,
@@ -26,105 +29,108 @@
       "recall_at_5": 0.8636363636363636,
       "recall_at_20": 0.9090909090909091
     },
-    "a1_a2": null,
+    "a1_a2": {
+      "recall_at_5": 0.8181818181818182,
+      "recall_at_20": 0.9090909090909091
+    },
     "gold_ranks": [
       {
         "repo": "BerriAI/litellm",
         "number": 39821,
         "gold": 41349,
         "a1_rank": 3,
-        "a2_rank": null
+        "a2_rank": 3
       },
       {
         "repo": "BerriAI/litellm",
         "number": 41837,
         "gold": 46111,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "BerriAI/litellm",
         "number": 45328,
         "gold": 46082,
         "a1_rank": 5,
-        "a2_rank": null
+        "a2_rank": 5
       },
       {
         "repo": "BerriAI/litellm",
         "number": 40256,
         "gold": 45703,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "BerriAI/litellm",
         "number": 44929,
         "gold": 44930,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "BerriAI/litellm",
         "number": 36450,
         "gold": 40139,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "BerriAI/litellm",
         "number": 39546,
         "gold": 39585,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "nodetool-ai/nodetool",
         "number": 2623,
         "gold": 2753,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "PrefectHQ/prefect",
         "number": 23387,
         "gold": 23388,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "PrefectHQ/prefect",
         "number": 23349,
         "gold": 23339,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "PrefectHQ/prefect",
         "number": 23241,
         "gold": 23240,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "PrefectHQ/prefect",
         "number": 22897,
         "gold": 22946,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "microsoft/aspire",
         "number": 19751,
         "gold": 20345,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "microsoft/aspire",
         "number": 18479,
         "gold": 18535,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "microsoft/aspire",
@@ -138,7 +144,7 @@
         "number": 5334,
         "gold": 5337,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "TracecatHQ/tracecat",
@@ -152,37 +158,41 @@
         "number": 3582,
         "gold": 3600,
         "a1_rank": 5,
-        "a2_rank": null
+        "a2_rank": 6
       },
       {
         "repo": "TracecatHQ/tracecat",
         "number": 3520,
         "gold": 3536,
         "a1_rank": 2,
-        "a2_rank": null
+        "a2_rank": 2
       },
       {
         "repo": "camunda/camunda",
         "number": 59214,
         "gold": 59213,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       },
       {
         "repo": "openai/openai-agents-python",
         "number": 4892,
         "gold": 4738,
         "a1_rank": 16,
-        "a2_rank": null
+        "a2_rank": 13
       },
       {
         "repo": "openai/openai-agents-python",
         "number": 4123,
         "gold": 3998,
         "a1_rank": 1,
-        "a2_rank": null
+        "a2_rank": 1
       }
-    ]
+    ],
+    "exploratory_tree_sitter": {
+      "recall_at_5": 0.8636363636363636,
+      "recall_at_20": 0.9090909090909091
+    }
   },
   "test": {
     "n_gold": 29,
@@ -190,20 +200,27 @@
       "recall_at_5": 0.6551724137931034,
       "recall_at_20": 0.8620689655172413
     },
-    "a1_a2": null,
-    "gold_ranks": null
+    "a1_a2": {
+      "recall_at_5": 0.6551724137931034,
+      "recall_at_20": 0.8620689655172413
+    },
+    "gold_ranks": null,
+    "exploratory_tree_sitter": {
+      "recall_at_5": 0.6551724137931034,
+      "recall_at_20": 0.8620689655172413
+    }
   },
   "R5-H1": {
-    "recall_at_5_a1_a2_test": null,
+    "recall_at_5_a1_a2_test": 0.6551724137931034,
     "n_gold": 29,
     "bar": ">= 0.70 (below 0.60: no improvement)",
-    "pass": null,
-    "no_improvement": null,
-    "evaluable": false,
+    "pass": false,
+    "no_improvement": false,
+    "evaluable": true,
     "a1_only_recall_at_5_test": 0.6551724137931034
   },
   "exploratory_tree_sitter": {
-    "status": "parsers available; not run (needs the A2 candidate patches)",
+    "status": "available",
     "languages": [
       "c_sharp",
       "go",

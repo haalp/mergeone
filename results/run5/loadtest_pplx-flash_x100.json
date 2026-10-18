@@ -1,0 +1,4821 @@
+{
+ "summary": {
+  "model": "pplx-flash",
+  "multiplier": 100.0,
+  "base_rate_per_s": 0.3472222222222222,
+  "rate_per_s": 34.72222222222222,
+  "n": 600,
+  "p50_ms": 277.0505420048721,
+  "p99_ms": 501.16333400364965,
+  "p99_schedule_lag_s": 0.01011708301701475,
+  "error_rate": 0.7133333333333334,
+  "concurrency": 64,
+  "qset": "v3",
+  "retry_429": 0,
+  "n_429": 428,
+  "wall_s": 17.51729187500314,
+  "finished_at": "2026-10-18T05:29:35.544558+00:00"
+ },
+ "samples": [
+  {
+   "i": 10,
+   "scheduled_s": 0.28800000000000003,
+   "started_s": 0.2961363330250606,
+   "lag_s": 0.00813633302506056,
+   "latency_ms": 189.17304099886678,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 1,
+   "scheduled_s": 0.0288,
+   "started_s": 0.03882800001883879,
+   "lag_s": 0.010028000018838794,
+   "latency_ms": 454.1827499924693,
+   "error": null
+  },
+  {
+   "i": 5,
+   "scheduled_s": 0.14400000000000002,
+   "started_s": 0.1455480830045417,
+   "lag_s": 0.0015480830045416782,
+   "latency_ms": 358.3120830007829,
+   "error": null
+  },
+  {
+   "i": 11,
+   "scheduled_s": 0.3168,
+   "started_s": 0.3191980830160901,
+   "lag_s": 0.002398083016090069,
+   "latency_ms": 184.98454199288972,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 0,
+   "scheduled_s": 0.0,
+   "started_s": 0.00014741701306775212,
+   "lag_s": 0.00014741701306775212,
+   "latency_ms": 504.4017909967806,
+   "error": null
+  },
+  {
+   "i": 7,
+   "scheduled_s": 0.2016,
+   "started_s": 0.20947987501858734,
+   "lag_s": 0.007879875018587335,
+   "latency_ms": 309.4180000189226,
+   "error": null
+  },
+  {
+   "i": 3,
+   "scheduled_s": 0.0864,
+   "started_s": 0.09017654199851677,
+   "lag_s": 0.0037765419985167636,
+   "latency_ms": 443.8854579930194,
+   "error": null
+  },
+  {
+   "i": 2,
+   "scheduled_s": 0.0576,
+   "started_s": 0.06504712501191534,
+   "lag_s": 0.007447125011915343,
+   "latency_ms": 475.58466700138524,
+   "error": null
+  },
+  {
+   "i": 6,
+   "scheduled_s": 0.1728,
+   "started_s": 0.18167820799862966,
+   "lag_s": 0.00887820799862965,
+   "latency_ms": 359.31475000688806,
+   "error": null
+  },
+  {
+   "i": 12,
+   "scheduled_s": 0.3456,
+   "started_s": 0.35564308302127756,
+   "lag_s": 0.010043083021277543,
+   "latency_ms": 189.12379202083685,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 8,
+   "scheduled_s": 0.2304,
+   "started_s": 0.24042600000393577,
+   "lag_s": 0.010026000003935776,
+   "latency_ms": 320.9212919755373,
+   "error": null
+  },
+  {
+   "i": 4,
+   "scheduled_s": 0.1152,
+   "started_s": 0.12080441700527444,
+   "lag_s": 0.005604417005274448,
+   "latency_ms": 453.60099998652004,
+   "error": null
+  },
+  {
+   "i": 9,
+   "scheduled_s": 0.2592,
+   "started_s": 0.269264500006102,
+   "lag_s": 0.01006450000610204,
+   "latency_ms": 313.25462501263246,
+   "error": null
+  },
+  {
+   "i": 17,
+   "scheduled_s": 0.48960000000000004,
+   "started_s": 0.5003334170032758,
+   "lag_s": 0.010733417003275791,
+   "latency_ms": 152.95970800798386,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 16,
+   "scheduled_s": 0.4608,
+   "started_s": 0.47084424999775365,
+   "lag_s": 0.010044249997753663,
+   "latency_ms": 184.30220798472874,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 18,
+   "scheduled_s": 0.5184,
+   "started_s": 0.5262293750129174,
+   "lag_s": 0.007829375012917472,
+   "latency_ms": 147.73825000156648,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 19,
+   "scheduled_s": 0.5472,
+   "started_s": 0.5557439580152277,
+   "lag_s": 0.00854395801522767,
+   "latency_ms": 144.2137910053134,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 20,
+   "scheduled_s": 0.5760000000000001,
+   "started_s": 0.5853653330123052,
+   "lag_s": 0.009365333012305133,
+   "latency_ms": 145.10062499903142,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 21,
+   "scheduled_s": 0.6048,
+   "started_s": 0.6147319580195472,
+   "lag_s": 0.00993195801954716,
+   "latency_ms": 147.11987497867085,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 22,
+   "scheduled_s": 0.6336,
+   "started_s": 0.6375067080080044,
+   "lag_s": 0.0039067080080043,
+   "latency_ms": 150.45004201238044,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 13,
+   "scheduled_s": 0.3744,
+   "started_s": 0.3844431250181515,
+   "lag_s": 0.010043125018151466,
+   "latency_ms": 414.0250839991495,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 14,
+   "scheduled_s": 0.4032,
+   "started_s": 0.4055045830027666,
+   "lag_s": 0.0023045830027665914,
+   "latency_ms": 418.03891700692475,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 23,
+   "scheduled_s": 0.6624,
+   "started_s": 0.6707265830191318,
+   "lag_s": 0.008326583019131806,
+   "latency_ms": 153.4162909956649,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 24,
+   "scheduled_s": 0.6912,
+   "started_s": 0.7003271670255344,
+   "lag_s": 0.0091271670255344,
+   "latency_ms": 152.45266698184423,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 15,
+   "scheduled_s": 0.432,
+   "started_s": 0.43269908300135285,
+   "lag_s": 0.0006990830013528515,
+   "latency_ms": 427.5679159909487,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 25,
+   "scheduled_s": 0.72,
+   "started_s": 0.7275233750115149,
+   "lag_s": 0.007523375011514899,
+   "latency_ms": 142.91083300486207,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 26,
+   "scheduled_s": 0.7488,
+   "started_s": 0.756136708019767,
+   "lag_s": 0.007336708019766935,
+   "latency_ms": 141.90275000873953,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 27,
+   "scheduled_s": 0.7776000000000001,
+   "started_s": 0.7798421250190586,
+   "lag_s": 0.0022421250190585162,
+   "latency_ms": 149.16400000220165,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 28,
+   "scheduled_s": 0.8064,
+   "started_s": 0.8093875000195112,
+   "lag_s": 0.0029875000195112023,
+   "latency_ms": 152.3792080115527,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 29,
+   "scheduled_s": 0.8352,
+   "started_s": 0.8426830000244081,
+   "lag_s": 0.007483000024408049,
+   "latency_ms": 153.05741599877365,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 30,
+   "scheduled_s": 0.864,
+   "started_s": 0.8738200830121059,
+   "lag_s": 0.009820083012105907,
+   "latency_ms": 149.9606250145007,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 31,
+   "scheduled_s": 0.8928,
+   "started_s": 0.8994526250171475,
+   "lag_s": 0.006652625017147473,
+   "latency_ms": 154.78283300762996,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 32,
+   "scheduled_s": 0.9216,
+   "started_s": 0.9294891669997014,
+   "lag_s": 0.007889166999701436,
+   "latency_ms": 143.47345801070333,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 33,
+   "scheduled_s": 0.9504,
+   "started_s": 0.9589350000023842,
+   "lag_s": 0.008535000002384163,
+   "latency_ms": 152.94358300161548,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 34,
+   "scheduled_s": 0.9792000000000001,
+   "started_s": 0.9869718750123866,
+   "lag_s": 0.00777187501238652,
+   "latency_ms": 151.53987499070354,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 35,
+   "scheduled_s": 1.008,
+   "started_s": 1.0180477920221165,
+   "lag_s": 0.010047792022116475,
+   "latency_ms": 155.44420899823308,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 36,
+   "scheduled_s": 1.0368,
+   "started_s": 1.044638457999099,
+   "lag_s": 0.007838457999099102,
+   "latency_ms": 150.69454198237509,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 37,
+   "scheduled_s": 1.0656,
+   "started_s": 1.0722071670170408,
+   "lag_s": 0.0066071670170406716,
+   "latency_ms": 271.3597080146428,
+   "error": null
+  },
+  {
+   "i": 39,
+   "scheduled_s": 1.1232,
+   "started_s": 1.128901083022356,
+   "lag_s": 0.005701083022356057,
+   "latency_ms": 240.5687079881318,
+   "error": null
+  },
+  {
+   "i": 38,
+   "scheduled_s": 1.0944,
+   "started_s": 1.104426792007871,
+   "lag_s": 0.010026792007870933,
+   "latency_ms": 266.8440420238767,
+   "error": null
+  },
+  {
+   "i": 41,
+   "scheduled_s": 1.1808,
+   "started_s": 1.1908307080157101,
+   "lag_s": 0.010030708015710044,
+   "latency_ms": 268.5511249874253,
+   "error": null
+  },
+  {
+   "i": 40,
+   "scheduled_s": 1.1520000000000001,
+   "started_s": 1.1620399170205928,
+   "lag_s": 0.010039917020592704,
+   "latency_ms": 297.746249998454,
+   "error": null
+  },
+  {
+   "i": 42,
+   "scheduled_s": 1.2096,
+   "started_s": 1.211359833017923,
+   "lag_s": 0.0017598330179229293,
+   "latency_ms": 263.8299999816809,
+   "error": null
+  },
+  {
+   "i": 43,
+   "scheduled_s": 1.2384,
+   "started_s": 1.2422558329999447,
+   "lag_s": 0.0038558329999447416,
+   "latency_ms": 269.78470900212415,
+   "error": null
+  },
+  {
+   "i": 47,
+   "scheduled_s": 1.3536000000000001,
+   "started_s": 1.3635993330099154,
+   "lag_s": 0.00999933300991529,
+   "latency_ms": 149.62491698679514,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 44,
+   "scheduled_s": 1.2672,
+   "started_s": 1.2743641670094803,
+   "lag_s": 0.0071641670094801935,
+   "latency_ms": 271.8047079979442,
+   "error": null
+  },
+  {
+   "i": 48,
+   "scheduled_s": 1.3824,
+   "started_s": 1.3915617919992656,
+   "lag_s": 0.009161791999265478,
+   "latency_ms": 158.97512499941513,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 49,
+   "scheduled_s": 1.4112,
+   "started_s": 1.4190785420069005,
+   "lag_s": 0.007878542006900524,
+   "latency_ms": 146.1288330028765,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 50,
+   "scheduled_s": 1.44,
+   "started_s": 1.4443220000248402,
+   "lag_s": 0.004322000024840289,
+   "latency_ms": 145.05700001609512,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 45,
+   "scheduled_s": 1.296,
+   "started_s": 1.2988860420009587,
+   "lag_s": 0.002886042000958655,
+   "latency_ms": 309.4203749787994,
+   "error": null
+  },
+  {
+   "i": 46,
+   "scheduled_s": 1.3248,
+   "started_s": 1.3348400830000173,
+   "lag_s": 0.010040083000017352,
+   "latency_ms": 277.80087501741946,
+   "error": null
+  },
+  {
+   "i": 51,
+   "scheduled_s": 1.4688,
+   "started_s": 1.4722849170211703,
+   "lag_s": 0.003484917021170153,
+   "latency_ms": 144.26291699055582,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 52,
+   "scheduled_s": 1.4976,
+   "started_s": 1.5043264580017421,
+   "lag_s": 0.006726458001742097,
+   "latency_ms": 157.74745898670517,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 53,
+   "scheduled_s": 1.5264,
+   "started_s": 1.5345740420161746,
+   "lag_s": 0.008174042016174665,
+   "latency_ms": 158.82895898539573,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 54,
+   "scheduled_s": 1.5552000000000001,
+   "started_s": 1.5642063750128727,
+   "lag_s": 0.009006375012872603,
+   "latency_ms": 147.49687499715947,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 55,
+   "scheduled_s": 1.584,
+   "started_s": 1.594044167024549,
+   "lag_s": 0.010044167024549022,
+   "latency_ms": 153.75841700006276,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 56,
+   "scheduled_s": 1.6128,
+   "started_s": 1.6228349580196664,
+   "lag_s": 0.010034958019666362,
+   "latency_ms": 145.3445829974953,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 57,
+   "scheduled_s": 1.6416,
+   "started_s": 1.651635583024472,
+   "lag_s": 0.01003558302447205,
+   "latency_ms": 150.84412501892075,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 58,
+   "scheduled_s": 1.6704,
+   "started_s": 1.6804313750180881,
+   "lag_s": 0.01003137501808804,
+   "latency_ms": 155.0129170063883,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 59,
+   "scheduled_s": 1.6992,
+   "started_s": 1.7087810420198366,
+   "lag_s": 0.009581042019836561,
+   "latency_ms": 146.93966699996963,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 60,
+   "scheduled_s": 1.728,
+   "started_s": 1.7374019999988377,
+   "lag_s": 0.009401999998837729,
+   "latency_ms": 142.8695000067819,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 61,
+   "scheduled_s": 1.7568000000000001,
+   "started_s": 1.7645665000018198,
+   "lag_s": 0.007766500001819665,
+   "latency_ms": 150.8945829991717,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 62,
+   "scheduled_s": 1.7856,
+   "started_s": 1.789512083021691,
+   "lag_s": 0.003912083021690993,
+   "latency_ms": 142.05258400761522,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 63,
+   "scheduled_s": 1.8144,
+   "started_s": 1.8193443750205915,
+   "lag_s": 0.004944375020591529,
+   "latency_ms": 151.62241601501592,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 64,
+   "scheduled_s": 1.8432,
+   "started_s": 1.8520531250105705,
+   "lag_s": 0.008853125010570562,
+   "latency_ms": 150.3303330100607,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 65,
+   "scheduled_s": 1.872,
+   "started_s": 1.8792524580203462,
+   "lag_s": 0.007252458020346131,
+   "latency_ms": 147.1384579781443,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 66,
+   "scheduled_s": 1.9008,
+   "started_s": 1.9090152920107357,
+   "lag_s": 0.008215292010735675,
+   "latency_ms": 153.90066700638272,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 67,
+   "scheduled_s": 1.9296,
+   "started_s": 1.9395817500189878,
+   "lag_s": 0.009981750018987823,
+   "latency_ms": 145.2460830041673,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 68,
+   "scheduled_s": 1.9584000000000001,
+   "started_s": 1.9674727500241715,
+   "lag_s": 0.009072750024171405,
+   "latency_ms": 153.31854100804776,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 69,
+   "scheduled_s": 1.9872,
+   "started_s": 1.992027208005311,
+   "lag_s": 0.00482720800531089,
+   "latency_ms": 151.55366700491868,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 70,
+   "scheduled_s": 2.016,
+   "started_s": 2.025606125011109,
+   "lag_s": 0.009606125011108801,
+   "latency_ms": 149.85104199149646,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 71,
+   "scheduled_s": 2.0448,
+   "started_s": 2.0548434579977766,
+   "lag_s": 0.010043457997776617,
+   "latency_ms": 152.65025000553578,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 75,
+   "scheduled_s": 2.16,
+   "started_s": 2.1606239170068875,
+   "lag_s": 0.0006239170068873534,
+   "latency_ms": 150.74120901408605,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 72,
+   "scheduled_s": 2.0736,
+   "started_s": 2.081103750009788,
+   "lag_s": 0.0075037500097883125,
+   "latency_ms": 273.33487500436604,
+   "error": null
+  },
+  {
+   "i": 74,
+   "scheduled_s": 2.1312,
+   "started_s": 2.140499291999731,
+   "lag_s": 0.009299291999731008,
+   "latency_ms": 280.35041701514274,
+   "error": null
+  },
+  {
+   "i": 73,
+   "scheduled_s": 2.1024000000000003,
+   "started_s": 2.1105777920165565,
+   "lag_s": 0.008177792016556218,
+   "latency_ms": 310.6339579971973,
+   "error": null
+  },
+  {
+   "i": 76,
+   "scheduled_s": 2.1888,
+   "started_s": 2.1985885000030976,
+   "lag_s": 0.0097885000030975,
+   "latency_ms": 281.2057089759037,
+   "error": null
+  },
+  {
+   "i": 77,
+   "scheduled_s": 2.2176,
+   "started_s": 2.2177890420134645,
+   "lag_s": 0.0001890420134644799,
+   "latency_ms": 273.9839169953484,
+   "error": null
+  },
+  {
+   "i": 79,
+   "scheduled_s": 2.2752,
+   "started_s": 2.2765217080013826,
+   "lag_s": 0.0013217080013827598,
+   "latency_ms": 236.91345800762065,
+   "error": null
+  },
+  {
+   "i": 78,
+   "scheduled_s": 2.2464,
+   "started_s": 2.256256332999328,
+   "lag_s": 0.009856332999328199,
+   "latency_ms": 261.254083015956,
+   "error": null
+  },
+  {
+   "i": 83,
+   "scheduled_s": 2.3904,
+   "started_s": 2.3972755830036476,
+   "lag_s": 0.006875583003647545,
+   "latency_ms": 149.4294999865815,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 80,
+   "scheduled_s": 2.3040000000000003,
+   "started_s": 2.306825083011063,
+   "lag_s": 0.0028250830110625458,
+   "latency_ms": 242.28004101314582,
+   "error": null
+  },
+  {
+   "i": 84,
+   "scheduled_s": 2.4192,
+   "started_s": 2.4271992920257617,
+   "lag_s": 0.007999292025761662,
+   "latency_ms": 141.6206249850802,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 85,
+   "scheduled_s": 2.448,
+   "started_s": 2.449709333013743,
+   "lag_s": 0.0017093330137432083,
+   "latency_ms": 148.60954199684784,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 81,
+   "scheduled_s": 2.3328,
+   "started_s": 2.3395470830146223,
+   "lag_s": 0.006747083014622124,
+   "latency_ms": 269.8937079985626,
+   "error": null
+  },
+  {
+   "i": 86,
+   "scheduled_s": 2.4768,
+   "started_s": 2.4822111670218874,
+   "lag_s": 0.005411167021887486,
+   "latency_ms": 149.04304197989404,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 82,
+   "scheduled_s": 2.3616,
+   "started_s": 2.3686247919977177,
+   "lag_s": 0.00702479199771755,
+   "latency_ms": 269.32541700080037,
+   "error": null
+  },
+  {
+   "i": 87,
+   "scheduled_s": 2.5056000000000003,
+   "started_s": 2.5150577920139767,
+   "lag_s": 0.009457792013976452,
+   "latency_ms": 147.08054199581966,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 88,
+   "scheduled_s": 2.5344,
+   "started_s": 2.5433167080045678,
+   "lag_s": 0.008916708004567564,
+   "latency_ms": 149.70304199960083,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 89,
+   "scheduled_s": 2.5632,
+   "started_s": 2.565836042020237,
+   "lag_s": 0.0026360420202369284,
+   "latency_ms": 152.85708400188014,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 90,
+   "scheduled_s": 2.592,
+   "started_s": 2.597453583002789,
+   "lag_s": 0.005453583002788864,
+   "latency_ms": 155.1281659922097,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 91,
+   "scheduled_s": 2.6208,
+   "started_s": 2.6266117080231197,
+   "lag_s": 0.005811708023119699,
+   "latency_ms": 149.8884999891743,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 92,
+   "scheduled_s": 2.6496,
+   "started_s": 2.6585949170112144,
+   "lag_s": 0.008994917011214465,
+   "latency_ms": 151.7382500169333,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 93,
+   "scheduled_s": 2.6784,
+   "started_s": 2.6873481670045294,
+   "lag_s": 0.008948167004529495,
+   "latency_ms": 146.10374998301268,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 94,
+   "scheduled_s": 2.7072000000000003,
+   "started_s": 2.7085122500138823,
+   "lag_s": 0.0013122500138820214,
+   "latency_ms": 140.38766600424424,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 95,
+   "scheduled_s": 2.736,
+   "started_s": 2.742617208015872,
+   "lag_s": 0.006617208015871956,
+   "latency_ms": 150.62883400241844,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 96,
+   "scheduled_s": 2.7648,
+   "started_s": 2.7734022920194548,
+   "lag_s": 0.008602292019454616,
+   "latency_ms": 151.07433299999684,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 97,
+   "scheduled_s": 2.7936,
+   "started_s": 2.8001912080217153,
+   "lag_s": 0.0065912080217152,
+   "latency_ms": 145.57074999902397,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 98,
+   "scheduled_s": 2.8224,
+   "started_s": 2.829269875015598,
+   "lag_s": 0.006869875015597771,
+   "latency_ms": 150.5861250043381,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 99,
+   "scheduled_s": 2.8512,
+   "started_s": 2.853448917012429,
+   "lag_s": 0.002248917012428908,
+   "latency_ms": 151.27462497912347,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 100,
+   "scheduled_s": 2.88,
+   "started_s": 2.882610917004058,
+   "lag_s": 0.002610917004058244,
+   "latency_ms": 142.12195898289792,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 101,
+   "scheduled_s": 2.9088000000000003,
+   "started_s": 2.914890917018056,
+   "lag_s": 0.0060909170180556416,
+   "latency_ms": 141.10279199667275,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 102,
+   "scheduled_s": 2.9376,
+   "started_s": 2.94663833300001,
+   "lag_s": 0.009038333000009668,
+   "latency_ms": 150.66424998803996,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 103,
+   "scheduled_s": 2.9664,
+   "started_s": 2.9726209580258,
+   "lag_s": 0.006220958025799916,
+   "latency_ms": 147.01149999746121,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 104,
+   "scheduled_s": 2.9952,
+   "started_s": 2.999950458004605,
+   "lag_s": 0.0047504580046049405,
+   "latency_ms": 166.53600000427105,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 105,
+   "scheduled_s": 3.024,
+   "started_s": 3.0319951249985024,
+   "lag_s": 0.007995124998502412,
+   "latency_ms": 145.9573750034906,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 106,
+   "scheduled_s": 3.0528,
+   "started_s": 3.0549370830121916,
+   "lag_s": 0.0021370830121916207,
+   "latency_ms": 148.56970799155533,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 109,
+   "scheduled_s": 3.1392,
+   "started_s": 3.141372833022615,
+   "lag_s": 0.0021728330226147285,
+   "latency_ms": 145.6419579917565,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 107,
+   "scheduled_s": 3.0816,
+   "started_s": 3.0913422080047894,
+   "lag_s": 0.009742208004789532,
+   "latency_ms": 266.49787501082756,
+   "error": null
+  },
+  {
+   "i": 108,
+   "scheduled_s": 3.1104000000000003,
+   "started_s": 3.115588292013854,
+   "lag_s": 0.005188292013853513,
+   "latency_ms": 273.1426659738645,
+   "error": null
+  },
+  {
+   "i": 110,
+   "scheduled_s": 3.168,
+   "started_s": 3.1714868750132155,
+   "lag_s": 0.003486875013215318,
+   "latency_ms": 254.39120800001547,
+   "error": null
+  },
+  {
+   "i": 111,
+   "scheduled_s": 3.1968,
+   "started_s": 3.1979500000015832,
+   "lag_s": 0.0011500000015831624,
+   "latency_ms": 236.7450000019744,
+   "error": null
+  },
+  {
+   "i": 112,
+   "scheduled_s": 3.2256,
+   "started_s": 3.234678333014017,
+   "lag_s": 0.009078333014016948,
+   "latency_ms": 267.9594169894699,
+   "error": null
+  },
+  {
+   "i": 118,
+   "scheduled_s": 3.3984,
+   "started_s": 3.40675220801495,
+   "lag_s": 0.008352208014950069,
+   "latency_ms": 148.08983402326703,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 115,
+   "scheduled_s": 3.3120000000000003,
+   "started_s": 3.3195023330044933,
+   "lag_s": 0.007502333004492989,
+   "latency_ms": 244.51112499809824,
+   "error": null
+  },
+  {
+   "i": 113,
+   "scheduled_s": 3.2544,
+   "started_s": 3.2567461669968907,
+   "lag_s": 0.0023461669968907195,
+   "latency_ms": 307.7354159904644,
+   "error": null
+  },
+  {
+   "i": 114,
+   "scheduled_s": 3.2832,
+   "started_s": 3.2901407919998746,
+   "lag_s": 0.00694079199987474,
+   "latency_ms": 281.4513749908656,
+   "error": null
+  },
+  {
+   "i": 119,
+   "scheduled_s": 3.4272,
+   "started_s": 3.432125624996843,
+   "lag_s": 0.004925624996842792,
+   "latency_ms": 140.25520801078528,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 116,
+   "scheduled_s": 3.3408,
+   "started_s": 3.3468305420246907,
+   "lag_s": 0.006030542024690444,
+   "latency_ms": 238.54637498152442,
+   "error": null
+  },
+  {
+   "i": 117,
+   "scheduled_s": 3.3696,
+   "started_s": 3.3770661250164267,
+   "lag_s": 0.007466125016426517,
+   "latency_ms": 231.58929200144485,
+   "error": null
+  },
+  {
+   "i": 120,
+   "scheduled_s": 3.456,
+   "started_s": 3.4620577919995412,
+   "lag_s": 0.006057791999541262,
+   "latency_ms": 151.0126249922905,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 121,
+   "scheduled_s": 3.4848,
+   "started_s": 3.4934607920004055,
+   "lag_s": 0.008660792000405593,
+   "latency_ms": 150.07316699484363,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 122,
+   "scheduled_s": 3.5136000000000003,
+   "started_s": 3.5167889580188785,
+   "lag_s": 0.0031889580188781963,
+   "latency_ms": 138.31570799811743,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 123,
+   "scheduled_s": 3.5424,
+   "started_s": 3.55177962500602,
+   "lag_s": 0.009379625006019854,
+   "latency_ms": 150.0263750203885,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 124,
+   "scheduled_s": 3.5712,
+   "started_s": 3.5812720420071855,
+   "lag_s": 0.010072042007185367,
+   "latency_ms": 146.36987500125542,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 125,
+   "scheduled_s": 3.6,
+   "started_s": 3.6037044580152724,
+   "lag_s": 0.003704458015272305,
+   "latency_ms": 153.26816702145152,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 126,
+   "scheduled_s": 3.6288,
+   "started_s": 3.638832333002938,
+   "lag_s": 0.010032333002937932,
+   "latency_ms": 148.83558300789446,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 127,
+   "scheduled_s": 3.6576,
+   "started_s": 3.6650777500180993,
+   "lag_s": 0.007477750018099361,
+   "latency_ms": 144.07387498067692,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 128,
+   "scheduled_s": 3.6864,
+   "started_s": 3.6882721669971943,
+   "lag_s": 0.001872166997194391,
+   "latency_ms": 147.61150002595969,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 129,
+   "scheduled_s": 3.7152000000000003,
+   "started_s": 3.7239459170086775,
+   "lag_s": 0.008745917008677218,
+   "latency_ms": 146.34695899439976,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 130,
+   "scheduled_s": 3.744,
+   "started_s": 3.753316167014418,
+   "lag_s": 0.009316167014417953,
+   "latency_ms": 149.64087499538437,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 131,
+   "scheduled_s": 3.7728,
+   "started_s": 3.7817417080223095,
+   "lag_s": 0.008941708022309314,
+   "latency_ms": 146.8934170261491,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 132,
+   "scheduled_s": 3.8016,
+   "started_s": 3.8080458330223337,
+   "lag_s": 0.006445833022333591,
+   "latency_ms": 153.4481249982491,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 133,
+   "scheduled_s": 3.8304,
+   "started_s": 3.840062041999772,
+   "lag_s": 0.009662041999772164,
+   "latency_ms": 140.67937500658445,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 134,
+   "scheduled_s": 3.8592,
+   "started_s": 3.860203458025353,
+   "lag_s": 0.0010034580253530656,
+   "latency_ms": 147.33700000215322,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 135,
+   "scheduled_s": 3.888,
+   "started_s": 3.890094083006261,
+   "lag_s": 0.002094083006261016,
+   "latency_ms": 145.58650000253692,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 136,
+   "scheduled_s": 3.9168000000000003,
+   "started_s": 3.9243403330037836,
+   "lag_s": 0.007540333003783317,
+   "latency_ms": 150.60279102181084,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 137,
+   "scheduled_s": 3.9456,
+   "started_s": 3.9495229580206797,
+   "lag_s": 0.0039229580206794346,
+   "latency_ms": 150.42241700575687,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 138,
+   "scheduled_s": 3.9744,
+   "started_s": 3.98129075000179,
+   "lag_s": 0.006890750001789847,
+   "latency_ms": 156.90983401145786,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 139,
+   "scheduled_s": 4.0032,
+   "started_s": 4.011957500013523,
+   "lag_s": 0.008757500013523156,
+   "latency_ms": 149.37133400235325,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 140,
+   "scheduled_s": 4.032,
+   "started_s": 4.0374568330007605,
+   "lag_s": 0.005456833000760497,
+   "latency_ms": 144.76704198750667,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 141,
+   "scheduled_s": 4.0608,
+   "started_s": 4.066634000017075,
+   "lag_s": 0.005834000017074459,
+   "latency_ms": 149.10620800219476,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 144,
+   "scheduled_s": 4.1472,
+   "started_s": 4.148777292022714,
+   "lag_s": 0.0015772920227146159,
+   "latency_ms": 150.77162501984276,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 142,
+   "scheduled_s": 4.0896,
+   "started_s": 4.095988792018034,
+   "lag_s": 0.006388792018033662,
+   "latency_ms": 282.65641699545085,
+   "error": null
+  },
+  {
+   "i": 147,
+   "scheduled_s": 4.2336,
+   "started_s": 4.240130500023952,
+   "lag_s": 0.006530500023951724,
+   "latency_ms": 146.33116600452922,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 143,
+   "scheduled_s": 4.1184,
+   "started_s": 4.123423458018806,
+   "lag_s": 0.005023458018805549,
+   "latency_ms": 268.99008301552385,
+   "error": null
+  },
+  {
+   "i": 146,
+   "scheduled_s": 4.2048000000000005,
+   "started_s": 4.214613083022414,
+   "lag_s": 0.009813083022413238,
+   "latency_ms": 227.32062501017936,
+   "error": null
+  },
+  {
+   "i": 145,
+   "scheduled_s": 4.176,
+   "started_s": 4.183949917001883,
+   "lag_s": 0.007949917001882412,
+   "latency_ms": 269.43316601682454,
+   "error": null
+  },
+  {
+   "i": 148,
+   "scheduled_s": 4.2624,
+   "started_s": 4.264852042018902,
+   "lag_s": 0.002452042018901146,
+   "latency_ms": 241.2330000079237,
+   "error": null
+  },
+  {
+   "i": 149,
+   "scheduled_s": 4.2912,
+   "started_s": 4.2984239580109715,
+   "lag_s": 0.007223958010971643,
+   "latency_ms": 246.2072909984272,
+   "error": null
+  },
+  {
+   "i": 150,
+   "scheduled_s": 4.32,
+   "started_s": 4.325527500011958,
+   "lag_s": 0.005527500011957898,
+   "latency_ms": 238.69754100451246,
+   "error": null
+  },
+  {
+   "i": 154,
+   "scheduled_s": 4.4352,
+   "started_s": 4.438838041998679,
+   "lag_s": 0.003638041998678787,
+   "latency_ms": 156.97108302265406,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 155,
+   "scheduled_s": 4.464,
+   "started_s": 4.470729417022085,
+   "lag_s": 0.006729417022084405,
+   "latency_ms": 153.63645800971426,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 156,
+   "scheduled_s": 4.4928,
+   "started_s": 4.502066125016427,
+   "lag_s": 0.009266125016426763,
+   "latency_ms": 147.30475001852028,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 152,
+   "scheduled_s": 4.3776,
+   "started_s": 4.383882333000656,
+   "lag_s": 0.00628233300065606,
+   "latency_ms": 286.36583298793994,
+   "error": null
+  },
+  {
+   "i": 157,
+   "scheduled_s": 4.5216,
+   "started_s": 4.530542792024789,
+   "lag_s": 0.008942792024789092,
+   "latency_ms": 145.3958330093883,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 153,
+   "scheduled_s": 4.4064000000000005,
+   "started_s": 4.416388417012058,
+   "lag_s": 0.00998841701205766,
+   "latency_ms": 284.8607079940848,
+   "error": null
+  },
+  {
+   "i": 158,
+   "scheduled_s": 4.5504,
+   "started_s": 4.557292417011922,
+   "lag_s": 0.006892417011922447,
+   "latency_ms": 147.86212501348928,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 151,
+   "scheduled_s": 4.3488,
+   "started_s": 4.351047292002477,
+   "lag_s": 0.002247292002476975,
+   "latency_ms": 366.9677499856334,
+   "error": null
+  },
+  {
+   "i": 159,
+   "scheduled_s": 4.5792,
+   "started_s": 4.587955958006205,
+   "lag_s": 0.008755958006204878,
+   "latency_ms": 141.60350000020117,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 160,
+   "scheduled_s": 4.6080000000000005,
+   "started_s": 4.613981292000972,
+   "lag_s": 0.0059812920009711945,
+   "latency_ms": 149.89604099537246,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 161,
+   "scheduled_s": 4.6368,
+   "started_s": 4.646490250015631,
+   "lag_s": 0.009690250015631285,
+   "latency_ms": 148.7364999775309,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 162,
+   "scheduled_s": 4.6656,
+   "started_s": 4.674105125013739,
+   "lag_s": 0.008505125013738457,
+   "latency_ms": 147.4644590052776,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 163,
+   "scheduled_s": 4.6944,
+   "started_s": 4.698344917007489,
+   "lag_s": 0.003944917007489224,
+   "latency_ms": 150.97529199556448,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 164,
+   "scheduled_s": 4.7232,
+   "started_s": 4.732436417019926,
+   "lag_s": 0.009236417019925725,
+   "latency_ms": 146.46187500329688,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 165,
+   "scheduled_s": 4.752,
+   "started_s": 4.759975749999285,
+   "lag_s": 0.007975749999284965,
+   "latency_ms": 146.76500001223758,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 166,
+   "scheduled_s": 4.7808,
+   "started_s": 4.790617749997182,
+   "lag_s": 0.009817749997181657,
+   "latency_ms": 149.25874999607913,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 167,
+   "scheduled_s": 4.8096000000000005,
+   "started_s": 4.818750125006773,
+   "lag_s": 0.009150125006772036,
+   "latency_ms": 150.11870799935423,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 168,
+   "scheduled_s": 4.8384,
+   "started_s": 4.8483215830056,
+   "lag_s": 0.009921583005599643,
+   "latency_ms": 153.8134999864269,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 169,
+   "scheduled_s": 4.8672,
+   "started_s": 4.877668333007023,
+   "lag_s": 0.010468333007022323,
+   "latency_ms": 153.81175000220537,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 170,
+   "scheduled_s": 4.896,
+   "started_s": 4.899055875022896,
+   "lag_s": 0.0030558750228957265,
+   "latency_ms": 153.764582995791,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 171,
+   "scheduled_s": 4.9248,
+   "started_s": 4.933450417011045,
+   "lag_s": 0.008650417011044631,
+   "latency_ms": 154.6247090154793,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 172,
+   "scheduled_s": 4.9536,
+   "started_s": 4.9631765829981305,
+   "lag_s": 0.00957658299813069,
+   "latency_ms": 159.44849999505095,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 173,
+   "scheduled_s": 4.9824,
+   "started_s": 4.991242750023957,
+   "lag_s": 0.00884275002395718,
+   "latency_ms": 144.70191701548174,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 174,
+   "scheduled_s": 5.0112000000000005,
+   "started_s": 5.01571133302059,
+   "lag_s": 0.004511333020589703,
+   "latency_ms": 144.23599999281578,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 175,
+   "scheduled_s": 5.04,
+   "started_s": 5.048425957997097,
+   "lag_s": 0.008425957997096667,
+   "latency_ms": 147.77987499837764,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 176,
+   "scheduled_s": 5.0688,
+   "started_s": 5.078619375010021,
+   "lag_s": 0.009819375010020615,
+   "latency_ms": 141.4037499926053,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 179,
+   "scheduled_s": 5.1552,
+   "started_s": 5.16510120802559,
+   "lag_s": 0.009901208025589803,
+   "latency_ms": 144.6099999884609,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 177,
+   "scheduled_s": 5.0976,
+   "started_s": 5.103984125016723,
+   "lag_s": 0.006384125016722919,
+   "latency_ms": 241.5135420160368,
+   "error": null
+  },
+  {
+   "i": 182,
+   "scheduled_s": 5.2416,
+   "started_s": 5.25013412500266,
+   "lag_s": 0.00853412500265982,
+   "latency_ms": 148.11000000918284,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 178,
+   "scheduled_s": 5.1264,
+   "started_s": 5.136272042000201,
+   "lag_s": 0.00987204200020031,
+   "latency_ms": 283.40416701394133,
+   "error": null
+  },
+  {
+   "i": 180,
+   "scheduled_s": 5.184,
+   "started_s": 5.190104708017316,
+   "lag_s": 0.006104708017315552,
+   "latency_ms": 264.84662501025014,
+   "error": null
+  },
+  {
+   "i": 181,
+   "scheduled_s": 5.2128000000000005,
+   "started_s": 5.216481958021177,
+   "lag_s": 0.0036819580211764347,
+   "latency_ms": 247.15716700302437,
+   "error": null
+  },
+  {
+   "i": 183,
+   "scheduled_s": 5.2704,
+   "started_s": 5.274187833012547,
+   "lag_s": 0.003787833012546926,
+   "latency_ms": 238.8829169794917,
+   "error": null
+  },
+  {
+   "i": 188,
+   "scheduled_s": 5.4144000000000005,
+   "started_s": 5.416087167017395,
+   "lag_s": 0.001687167017394131,
+   "latency_ms": 142.3896249907557,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 184,
+   "scheduled_s": 5.2992,
+   "started_s": 5.30714191700099,
+   "lag_s": 0.00794191700099045,
+   "latency_ms": 275.77062501222827,
+   "error": null
+  },
+  {
+   "i": 190,
+   "scheduled_s": 5.472,
+   "started_s": 5.481756417022552,
+   "lag_s": 0.009756417022551922,
+   "latency_ms": 154.10529199289158,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 186,
+   "scheduled_s": 5.3568,
+   "started_s": 5.36509004200343,
+   "lag_s": 0.008290042003430642,
+   "latency_ms": 281.03254101006314,
+   "error": null
+  },
+  {
+   "i": 191,
+   "scheduled_s": 5.5008,
+   "started_s": 5.509217208018526,
+   "lag_s": 0.008417208018526523,
+   "latency_ms": 148.20554098696448,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 192,
+   "scheduled_s": 5.5296,
+   "started_s": 5.533462457999121,
+   "lag_s": 0.003862457999121105,
+   "latency_ms": 144.60058399708942,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 187,
+   "scheduled_s": 5.3856,
+   "started_s": 5.391587542020716,
+   "lag_s": 0.005987542020715608,
+   "latency_ms": 298.8226249872241,
+   "error": null
+  },
+  {
+   "i": 185,
+   "scheduled_s": 5.328,
+   "started_s": 5.334621917019831,
+   "lag_s": 0.006621917019830725,
+   "latency_ms": 367.24295900785364,
+   "error": null
+  },
+  {
+   "i": 193,
+   "scheduled_s": 5.5584,
+   "started_s": 5.56509850002476,
+   "lag_s": 0.0066985000247603566,
+   "latency_ms": 147.57141598965973,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 189,
+   "scheduled_s": 5.4432,
+   "started_s": 5.446448833012255,
+   "lag_s": 0.0032488330122548703,
+   "latency_ms": 288.4782500041183,
+   "error": null
+  },
+  {
+   "i": 194,
+   "scheduled_s": 5.5872,
+   "started_s": 5.594221833016491,
+   "lag_s": 0.0070218330164903975,
+   "latency_ms": 150.6895830098074,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 195,
+   "scheduled_s": 5.6160000000000005,
+   "started_s": 5.622129750001477,
+   "lag_s": 0.0061297500014765305,
+   "latency_ms": 161.88004100695252,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 196,
+   "scheduled_s": 5.6448,
+   "started_s": 5.654452707996825,
+   "lag_s": 0.009652707996824716,
+   "latency_ms": 151.30374999716878,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 197,
+   "scheduled_s": 5.6736,
+   "started_s": 5.68059629201889,
+   "lag_s": 0.00699629201888996,
+   "latency_ms": 148.71191600104794,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 198,
+   "scheduled_s": 5.7024,
+   "started_s": 5.710420583025552,
+   "lag_s": 0.008020583025552419,
+   "latency_ms": 143.97175001795404,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 199,
+   "scheduled_s": 5.7312,
+   "started_s": 5.740095833025407,
+   "lag_s": 0.008895833025406752,
+   "latency_ms": 152.89962498354726,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 200,
+   "scheduled_s": 5.76,
+   "started_s": 5.767762708012015,
+   "lag_s": 0.007762708012014841,
+   "latency_ms": 153.8643750245683,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 201,
+   "scheduled_s": 5.7888,
+   "started_s": 5.79745704200468,
+   "lag_s": 0.008657042004680093,
+   "latency_ms": 143.72320799157023,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 202,
+   "scheduled_s": 5.8176000000000005,
+   "started_s": 5.821483292005723,
+   "lag_s": 0.0038832920057227938,
+   "latency_ms": 156.30654100095853,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 203,
+   "scheduled_s": 5.8464,
+   "started_s": 5.84798162500374,
+   "lag_s": 0.0015816250037401502,
+   "latency_ms": 142.3373330035247,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 204,
+   "scheduled_s": 5.8752,
+   "started_s": 5.885247541998979,
+   "lag_s": 0.010047541998978282,
+   "latency_ms": 149.24558301572688,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 205,
+   "scheduled_s": 5.904,
+   "started_s": 5.907832541997777,
+   "lag_s": 0.0038325419977773834,
+   "latency_ms": 148.87187498970889,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 206,
+   "scheduled_s": 5.9328,
+   "started_s": 5.941546583024319,
+   "lag_s": 0.008746583024318966,
+   "latency_ms": 158.74833401176147,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 207,
+   "scheduled_s": 5.9616,
+   "started_s": 5.965911500010407,
+   "lag_s": 0.00431150001040681,
+   "latency_ms": 142.20162498531863,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 208,
+   "scheduled_s": 5.9904,
+   "started_s": 6.000459792005131,
+   "lag_s": 0.010059792005130852,
+   "latency_ms": 149.50816601049155,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 209,
+   "scheduled_s": 6.0192000000000005,
+   "started_s": 6.027042833011365,
+   "lag_s": 0.007842833011364014,
+   "latency_ms": 151.15308298845775,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 210,
+   "scheduled_s": 6.048,
+   "started_s": 6.0533314580097795,
+   "lag_s": 0.005331458009779411,
+   "latency_ms": 151.707124983659,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 211,
+   "scheduled_s": 6.0768,
+   "started_s": 6.085429375001695,
+   "lag_s": 0.008629375001694584,
+   "latency_ms": 142.75145801366307,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 214,
+   "scheduled_s": 6.1632,
+   "started_s": 6.172298542020144,
+   "lag_s": 0.009098542020144151,
+   "latency_ms": 147.16449999832548,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 217,
+   "scheduled_s": 6.2496,
+   "started_s": 6.2577388750214595,
+   "lag_s": 0.00813887502145949,
+   "latency_ms": 150.060082989512,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 213,
+   "scheduled_s": 6.1344,
+   "started_s": 6.14009379199706,
+   "lag_s": 0.005693791997059883,
+   "latency_ms": 283.4141249768436,
+   "error": null
+  },
+  {
+   "i": 212,
+   "scheduled_s": 6.1056,
+   "started_s": 6.105910083017079,
+   "lag_s": 0.00031008301707924346,
+   "latency_ms": 368.3044589997735,
+   "error": null
+  },
+  {
+   "i": 216,
+   "scheduled_s": 6.2208000000000006,
+   "started_s": 6.221324917016318,
+   "lag_s": 0.0005249170163175165,
+   "latency_ms": 256.6070410248358,
+   "error": null
+  },
+  {
+   "i": 215,
+   "scheduled_s": 6.192,
+   "started_s": 6.2000059170241,
+   "lag_s": 0.008005917024100029,
+   "latency_ms": 299.76191697642207,
+   "error": null
+  },
+  {
+   "i": 218,
+   "scheduled_s": 6.2784,
+   "started_s": 6.2876206250221,
+   "lag_s": 0.00922062502209986,
+   "latency_ms": 276.3717499910854,
+   "error": null
+  },
+  {
+   "i": 223,
+   "scheduled_s": 6.4224000000000006,
+   "started_s": 6.42745775001822,
+   "lag_s": 0.005057750018219842,
+   "latency_ms": 148.2739999773912,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 219,
+   "scheduled_s": 6.3072,
+   "started_s": 6.314968749997206,
+   "lag_s": 0.007768749997206115,
+   "latency_ms": 279.941916000098,
+   "error": null
+  },
+  {
+   "i": 220,
+   "scheduled_s": 6.336,
+   "started_s": 6.34039350002422,
+   "lag_s": 0.0043935000242196764,
+   "latency_ms": 268.9936660171952,
+   "error": null
+  },
+  {
+   "i": 225,
+   "scheduled_s": 6.48,
+   "started_s": 6.486572250025347,
+   "lag_s": 0.006572250025346449,
+   "latency_ms": 146.15716598927975,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 221,
+   "scheduled_s": 6.3648,
+   "started_s": 6.3729172500025015,
+   "lag_s": 0.008117250002501741,
+   "latency_ms": 266.4005839906167,
+   "error": null
+  },
+  {
+   "i": 226,
+   "scheduled_s": 6.5088,
+   "started_s": 6.518788208020851,
+   "lag_s": 0.009988208020851097,
+   "latency_ms": 149.71200001309626,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 222,
+   "scheduled_s": 6.3936,
+   "started_s": 6.399066917016171,
+   "lag_s": 0.005466917016170747,
+   "latency_ms": 274.7091659985017,
+   "error": null
+  },
+  {
+   "i": 227,
+   "scheduled_s": 6.5376,
+   "started_s": 6.544119917001808,
+   "lag_s": 0.006519917001807762,
+   "latency_ms": 148.98624998750165,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 228,
+   "scheduled_s": 6.5664,
+   "started_s": 6.573445375019219,
+   "lag_s": 0.00704537501921898,
+   "latency_ms": 156.70879199751653,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 229,
+   "scheduled_s": 6.5952,
+   "started_s": 6.599635208025575,
+   "lag_s": 0.004435208025574511,
+   "latency_ms": 151.03333399747498,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 224,
+   "scheduled_s": 6.4512,
+   "started_s": 6.460786833020393,
+   "lag_s": 0.00958683302039276,
+   "latency_ms": 312.3179170070216,
+   "error": null
+  },
+  {
+   "i": 230,
+   "scheduled_s": 6.6240000000000006,
+   "started_s": 6.632100500020897,
+   "lag_s": 0.008100500020896462,
+   "latency_ms": 151.18054201593623,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 231,
+   "scheduled_s": 6.6528,
+   "started_s": 6.660803542006761,
+   "lag_s": 0.008003542006760789,
+   "latency_ms": 150.43300000252202,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 232,
+   "scheduled_s": 6.6816,
+   "started_s": 6.690123708016472,
+   "lag_s": 0.00852370801647151,
+   "latency_ms": 148.05083302780986,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 233,
+   "scheduled_s": 6.7104,
+   "started_s": 6.718769583007088,
+   "lag_s": 0.00836958300708801,
+   "latency_ms": 151.89924999140203,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 234,
+   "scheduled_s": 6.7392,
+   "started_s": 6.748523250018479,
+   "lag_s": 0.009323250018479001,
+   "latency_ms": 154.69620801741257,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 235,
+   "scheduled_s": 6.768,
+   "started_s": 6.777090083021903,
+   "lag_s": 0.009090083021903617,
+   "latency_ms": 149.7778750199359,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 236,
+   "scheduled_s": 6.7968,
+   "started_s": 6.80664500000421,
+   "lag_s": 0.009845000004209403,
+   "latency_ms": 151.4351250079926,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 237,
+   "scheduled_s": 6.8256000000000006,
+   "started_s": 6.8317815830232576,
+   "lag_s": 0.006181583023256998,
+   "latency_ms": 149.34112501214258,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 238,
+   "scheduled_s": 6.8544,
+   "started_s": 6.859984125010669,
+   "lag_s": 0.005584125010669183,
+   "latency_ms": 148.81000001332723,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 239,
+   "scheduled_s": 6.8832,
+   "started_s": 6.893154667021008,
+   "lag_s": 0.00995466702100778,
+   "latency_ms": 149.85145899117924,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 240,
+   "scheduled_s": 6.912,
+   "started_s": 6.91467766702408,
+   "lag_s": 0.0026776670240797884,
+   "latency_ms": 154.17120800702833,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 241,
+   "scheduled_s": 6.9408,
+   "started_s": 6.949470624997048,
+   "lag_s": 0.008670624997047405,
+   "latency_ms": 144.51770798768848,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 242,
+   "scheduled_s": 6.9696,
+   "started_s": 6.978704792010831,
+   "lag_s": 0.00910479201083092,
+   "latency_ms": 148.94845898379572,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 243,
+   "scheduled_s": 6.9984,
+   "started_s": 7.002784208016237,
+   "lag_s": 0.004384208016237068,
+   "latency_ms": 148.45970799797215,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 244,
+   "scheduled_s": 7.027200000000001,
+   "started_s": 7.034784583025612,
+   "lag_s": 0.00758458302561138,
+   "latency_ms": 152.97745799762197,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 245,
+   "scheduled_s": 7.056,
+   "started_s": 7.062635625014082,
+   "lag_s": 0.006635625014081548,
+   "latency_ms": 148.6659999936819,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 246,
+   "scheduled_s": 7.0848,
+   "started_s": 7.0909062920254655,
+   "lag_s": 0.006106292025465088,
+   "latency_ms": 150.6195419933647,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 249,
+   "scheduled_s": 7.1712,
+   "started_s": 7.177467125002295,
+   "lag_s": 0.006267125002294982,
+   "latency_ms": 141.34858301258646,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 252,
+   "scheduled_s": 7.2576,
+   "started_s": 7.265275333018508,
+   "lag_s": 0.007675333018507757,
+   "latency_ms": 152.4291250098031,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 247,
+   "scheduled_s": 7.1136,
+   "started_s": 7.1236537500226405,
+   "lag_s": 0.010053750022640529,
+   "latency_ms": 295.03354098415,
+   "error": null
+  },
+  {
+   "i": 248,
+   "scheduled_s": 7.1424,
+   "started_s": 7.152435500000138,
+   "lag_s": 0.010035500000137532,
+   "latency_ms": 270.16145901870914,
+   "error": null
+  },
+  {
+   "i": 253,
+   "scheduled_s": 7.2864,
+   "started_s": 7.2913770000159275,
+   "lag_s": 0.004977000015927047,
+   "latency_ms": 145.47312501235865,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 250,
+   "scheduled_s": 7.2,
+   "started_s": 7.206768833013484,
+   "lag_s": 0.006768833013484077,
+   "latency_ms": 239.52341699623503,
+   "error": null
+  },
+  {
+   "i": 251,
+   "scheduled_s": 7.228800000000001,
+   "started_s": 7.23413850000361,
+   "lag_s": 0.005338500003609248,
+   "latency_ms": 263.4663329808973,
+   "error": null
+  },
+  {
+   "i": 255,
+   "scheduled_s": 7.344,
+   "started_s": 7.352140667004278,
+   "lag_s": 0.008140667004277624,
+   "latency_ms": 241.8145420087967,
+   "error": null
+  },
+  {
+   "i": 254,
+   "scheduled_s": 7.3152,
+   "started_s": 7.322856333019445,
+   "lag_s": 0.007656333019444794,
+   "latency_ms": 296.1478749930393,
+   "error": null
+  },
+  {
+   "i": 260,
+   "scheduled_s": 7.488,
+   "started_s": 7.49466370799928,
+   "lag_s": 0.006663707999279289,
+   "latency_ms": 152.986166998744,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 258,
+   "scheduled_s": 7.430400000000001,
+   "started_s": 7.430618667014642,
+   "lag_s": 0.00021866701464112737,
+   "latency_ms": 227.92641597334296,
+   "error": null
+  },
+  {
+   "i": 256,
+   "scheduled_s": 7.3728,
+   "started_s": 7.382849750021705,
+   "lag_s": 0.010049750021705606,
+   "latency_ms": 276.0441249993164,
+   "error": null
+  },
+  {
+   "i": 261,
+   "scheduled_s": 7.5168,
+   "started_s": 7.522788917005528,
+   "lag_s": 0.0059889170055278385,
+   "latency_ms": 146.09320799354464,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 257,
+   "scheduled_s": 7.4016,
+   "started_s": 7.406242375000147,
+   "lag_s": 0.00464237500014697,
+   "latency_ms": 266.84841699898243,
+   "error": null
+  },
+  {
+   "i": 259,
+   "scheduled_s": 7.4592,
+   "started_s": 7.464672250003787,
+   "lag_s": 0.005472250003786705,
+   "latency_ms": 231.3989580143243,
+   "error": null
+  },
+  {
+   "i": 262,
+   "scheduled_s": 7.5456,
+   "started_s": 7.553029625007184,
+   "lag_s": 0.007429625007183915,
+   "latency_ms": 158.70758399250917,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 263,
+   "scheduled_s": 7.5744,
+   "started_s": 7.581250957999146,
+   "lag_s": 0.0068509579991458125,
+   "latency_ms": 151.30679099820554,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 265,
+   "scheduled_s": 7.632000000000001,
+   "started_s": 7.64012554200599,
+   "lag_s": 0.00812554200598914,
+   "latency_ms": 144.25420798943378,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 266,
+   "scheduled_s": 7.6608,
+   "started_s": 7.670820958010154,
+   "lag_s": 0.010020958010153791,
+   "latency_ms": 150.59862501220778,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 267,
+   "scheduled_s": 7.6896,
+   "started_s": 7.699397582997335,
+   "lag_s": 0.009797582997334686,
+   "latency_ms": 174.94125000666827,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 268,
+   "scheduled_s": 7.7184,
+   "started_s": 7.728420375002315,
+   "lag_s": 0.01002037500231534,
+   "latency_ms": 146.85462499619462,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 269,
+   "scheduled_s": 7.7472,
+   "started_s": 7.755434582999442,
+   "lag_s": 0.008234582999441464,
+   "latency_ms": 157.44237499893643,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 270,
+   "scheduled_s": 7.776,
+   "started_s": 7.782021207996877,
+   "lag_s": 0.006021207996877109,
+   "latency_ms": 148.80750002339482,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 271,
+   "scheduled_s": 7.8048,
+   "started_s": 7.807383750012377,
+   "lag_s": 0.002583750012377095,
+   "latency_ms": 146.22662498732097,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 272,
+   "scheduled_s": 7.833600000000001,
+   "started_s": 7.840040208015125,
+   "lag_s": 0.006440208015124682,
+   "latency_ms": 150.69999999832362,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 273,
+   "scheduled_s": 7.8624,
+   "started_s": 7.870439457998145,
+   "lag_s": 0.008039457998145316,
+   "latency_ms": 153.80604198435321,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 264,
+   "scheduled_s": 7.6032,
+   "started_s": 7.612791667022975,
+   "lag_s": 0.009591667022974981,
+   "latency_ms": 425.4022499953862,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 274,
+   "scheduled_s": 7.8912,
+   "started_s": 7.895141208020505,
+   "lag_s": 0.003941208020504128,
+   "latency_ms": 151.21050001471303,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 275,
+   "scheduled_s": 7.92,
+   "started_s": 7.927991375006968,
+   "lag_s": 0.007991375006968227,
+   "latency_ms": 149.82279200921766,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 276,
+   "scheduled_s": 7.9488,
+   "started_s": 7.949303458008217,
+   "lag_s": 0.0005034580082163842,
+   "latency_ms": 153.13087499816902,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 277,
+   "scheduled_s": 7.9776,
+   "started_s": 7.987154750007903,
+   "lag_s": 0.009554750007903401,
+   "latency_ms": 141.27591700525954,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 278,
+   "scheduled_s": 8.0064,
+   "started_s": 8.015973917004885,
+   "lag_s": 0.009573917004885857,
+   "latency_ms": 151.99662500526756,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 279,
+   "scheduled_s": 8.0352,
+   "started_s": 8.044639708008617,
+   "lag_s": 0.009439708008617487,
+   "latency_ms": 151.827041991055,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 280,
+   "scheduled_s": 8.064,
+   "started_s": 8.068978750001406,
+   "lag_s": 0.00497875000140624,
+   "latency_ms": 148.4198750113137,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 281,
+   "scheduled_s": 8.0928,
+   "started_s": 8.09942716700607,
+   "lag_s": 0.006627167006069357,
+   "latency_ms": 149.7894579952117,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 282,
+   "scheduled_s": 8.1216,
+   "started_s": 8.124297875008779,
+   "lag_s": 0.002697875008777828,
+   "latency_ms": 153.00675001344644,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 283,
+   "scheduled_s": 8.1504,
+   "started_s": 8.15479608302121,
+   "lag_s": 0.0043960830212110835,
+   "latency_ms": 278.72929102159105,
+   "error": null
+  },
+  {
+   "i": 287,
+   "scheduled_s": 8.265600000000001,
+   "started_s": 8.27628062502481,
+   "lag_s": 0.010680625024809487,
+   "latency_ms": 160.13895798823796,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 284,
+   "scheduled_s": 8.1792,
+   "started_s": 8.182431749999523,
+   "lag_s": 0.003231749999523359,
+   "latency_ms": 265.77495798119344,
+   "error": null
+  },
+  {
+   "i": 288,
+   "scheduled_s": 8.2944,
+   "started_s": 8.304131000011694,
+   "lag_s": 0.009731000011694135,
+   "latency_ms": 153.18237501196563,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 285,
+   "scheduled_s": 8.208,
+   "started_s": 8.217635417007841,
+   "lag_s": 0.009635417007840985,
+   "latency_ms": 243.08704197756015,
+   "error": null
+  },
+  {
+   "i": 286,
+   "scheduled_s": 8.2368,
+   "started_s": 8.24683758302126,
+   "lag_s": 0.010037583021260232,
+   "latency_ms": 277.0505420048721,
+   "error": null
+  },
+  {
+   "i": 289,
+   "scheduled_s": 8.3232,
+   "started_s": 8.326831750018755,
+   "lag_s": 0.0036317500187550422,
+   "latency_ms": 237.53395900712349,
+   "error": null
+  },
+  {
+   "i": 291,
+   "scheduled_s": 8.3808,
+   "started_s": 8.389854625012958,
+   "lag_s": 0.009054625012957729,
+   "latency_ms": 238.3578330045566,
+   "error": null
+  },
+  {
+   "i": 290,
+   "scheduled_s": 8.352,
+   "started_s": 8.357450250012334,
+   "lag_s": 0.0054502500123341235,
+   "latency_ms": 271.0587079927791,
+   "error": null
+  },
+  {
+   "i": 295,
+   "scheduled_s": 8.496,
+   "started_s": 8.506040000007488,
+   "lag_s": 0.010040000007487393,
+   "latency_ms": 146.64966700365767,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 296,
+   "scheduled_s": 8.5248,
+   "started_s": 8.530247667018557,
+   "lag_s": 0.005447667018556146,
+   "latency_ms": 141.48483300232328,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 292,
+   "scheduled_s": 8.409600000000001,
+   "started_s": 8.418671792023815,
+   "lag_s": 0.00907179202381414,
+   "latency_ms": 289.90604099817574,
+   "error": null
+  },
+  {
+   "i": 297,
+   "scheduled_s": 8.5536,
+   "started_s": 8.557258208020357,
+   "lag_s": 0.003658208020357989,
+   "latency_ms": 152.47662502224557,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 293,
+   "scheduled_s": 8.4384,
+   "started_s": 8.447286625014385,
+   "lag_s": 0.00888662501438553,
+   "latency_ms": 292.22904198104516,
+   "error": null
+  },
+  {
+   "i": 298,
+   "scheduled_s": 8.5824,
+   "started_s": 8.591323291999288,
+   "lag_s": 0.008923291999288097,
+   "latency_ms": 150.6697080039885,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 294,
+   "scheduled_s": 8.4672,
+   "started_s": 8.4748892080097,
+   "lag_s": 0.0076892080096993,
+   "latency_ms": 271.95991700864397,
+   "error": null
+  },
+  {
+   "i": 299,
+   "scheduled_s": 8.6112,
+   "started_s": 8.61946045802324,
+   "lag_s": 0.008260458023240602,
+   "latency_ms": 148.83966598426923,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 300,
+   "scheduled_s": 8.64,
+   "started_s": 8.648445583006833,
+   "lag_s": 0.00844558300683218,
+   "latency_ms": 147.86183298565447,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 301,
+   "scheduled_s": 8.668800000000001,
+   "started_s": 8.677470833004918,
+   "lag_s": 0.008670833004917,
+   "latency_ms": 151.80225000949576,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 302,
+   "scheduled_s": 8.6976,
+   "started_s": 8.69983116700314,
+   "lag_s": 0.0022311670031402997,
+   "latency_ms": 151.32325000013225,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 303,
+   "scheduled_s": 8.7264,
+   "started_s": 8.737970750022214,
+   "lag_s": 0.011570750022213971,
+   "latency_ms": 150.09149999241345,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 304,
+   "scheduled_s": 8.7552,
+   "started_s": 8.76512691701646,
+   "lag_s": 0.009926917016459313,
+   "latency_ms": 152.1952909824904,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 305,
+   "scheduled_s": 8.784,
+   "started_s": 8.791137250023894,
+   "lag_s": 0.007137250023893316,
+   "latency_ms": 150.6383329979144,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 306,
+   "scheduled_s": 8.812800000000001,
+   "started_s": 8.822730583022349,
+   "lag_s": 0.009930583022347506,
+   "latency_ms": 147.61758397798985,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 307,
+   "scheduled_s": 8.8416,
+   "started_s": 8.8481488750258,
+   "lag_s": 0.006548875025799816,
+   "latency_ms": 142.0398330083117,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 308,
+   "scheduled_s": 8.8704,
+   "started_s": 8.880119667010149,
+   "lag_s": 0.009719667010148925,
+   "latency_ms": 151.42624999862164,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 309,
+   "scheduled_s": 8.8992,
+   "started_s": 8.906227625004249,
+   "lag_s": 0.00702762500424825,
+   "latency_ms": 163.7318329885602,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 310,
+   "scheduled_s": 8.928,
+   "started_s": 8.932240583002567,
+   "lag_s": 0.004240583002566467,
+   "latency_ms": 155.70879200822674,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 311,
+   "scheduled_s": 8.9568,
+   "started_s": 8.964625749998959,
+   "lag_s": 0.007825749998959353,
+   "latency_ms": 148.90716699301265,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 312,
+   "scheduled_s": 8.9856,
+   "started_s": 8.989127958018798,
+   "lag_s": 0.0035279580187985715,
+   "latency_ms": 146.7678339977283,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 313,
+   "scheduled_s": 9.0144,
+   "started_s": 9.014509125001496,
+   "lag_s": 0.00010912500149551363,
+   "latency_ms": 146.4506659831386,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 314,
+   "scheduled_s": 9.0432,
+   "started_s": 9.050792042020475,
+   "lag_s": 0.007592042020474921,
+   "latency_ms": 150.2137909992598,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 315,
+   "scheduled_s": 9.072000000000001,
+   "started_s": 9.078665500011994,
+   "lag_s": 0.00666550001199262,
+   "latency_ms": 153.032667003572,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 316,
+   "scheduled_s": 9.1008,
+   "started_s": 9.100972583022667,
+   "lag_s": 0.00017258302266753844,
+   "latency_ms": 149.31300000171177,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 317,
+   "scheduled_s": 9.1296,
+   "started_s": 9.132873125025071,
+   "lag_s": 0.0032731250250712662,
+   "latency_ms": 147.87308301310986,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 322,
+   "scheduled_s": 9.2736,
+   "started_s": 9.282064833008917,
+   "lag_s": 0.008464833008916983,
+   "latency_ms": 151.92004101118073,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 318,
+   "scheduled_s": 9.1584,
+   "started_s": 9.166707791999215,
+   "lag_s": 0.008307791999214942,
+   "latency_ms": 275.1652080041822,
+   "error": null
+  },
+  {
+   "i": 323,
+   "scheduled_s": 9.3024,
+   "started_s": 9.309454792004544,
+   "lag_s": 0.007054792004543842,
+   "latency_ms": 151.9030419876799,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 319,
+   "scheduled_s": 9.1872,
+   "started_s": 9.19084350002231,
+   "lag_s": 0.0036435000223100644,
+   "latency_ms": 277.6153750019148,
+   "error": null
+  },
+  {
+   "i": 320,
+   "scheduled_s": 9.216000000000001,
+   "started_s": 9.226117083017016,
+   "lag_s": 0.01011708301701475,
+   "latency_ms": 277.3704160063062,
+   "error": null
+  },
+  {
+   "i": 321,
+   "scheduled_s": 9.2448,
+   "started_s": 9.252667833003215,
+   "lag_s": 0.007867833003215807,
+   "latency_ms": 307.33808400691487,
+   "error": null
+  },
+  {
+   "i": 324,
+   "scheduled_s": 9.3312,
+   "started_s": 9.33226399999694,
+   "lag_s": 0.001063999996938847,
+   "latency_ms": 257.23520800238475,
+   "error": null
+  },
+  {
+   "i": 325,
+   "scheduled_s": 9.36,
+   "started_s": 9.365458875021432,
+   "lag_s": 0.0054588750214321635,
+   "latency_ms": 258.42283401289023,
+   "error": null
+  },
+  {
+   "i": 326,
+   "scheduled_s": 9.3888,
+   "started_s": 9.39867745799711,
+   "lag_s": 0.009877457997109929,
+   "latency_ms": 261.8868330027908,
+   "error": null
+  },
+  {
+   "i": 331,
+   "scheduled_s": 9.5328,
+   "started_s": 9.540892625023844,
+   "lag_s": 0.00809262502384378,
+   "latency_ms": 149.5874999964144,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 332,
+   "scheduled_s": 9.5616,
+   "started_s": 9.569950958015397,
+   "lag_s": 0.00835095801539687,
+   "latency_ms": 152.18570802244358,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 327,
+   "scheduled_s": 9.4176,
+   "started_s": 9.423228542000288,
+   "lag_s": 0.0056285420002879505,
+   "latency_ms": 305.20258299657144,
+   "error": null
+  },
+  {
+   "i": 328,
+   "scheduled_s": 9.4464,
+   "started_s": 9.456109292019391,
+   "lag_s": 0.009709292019390858,
+   "latency_ms": 274.36379200662486,
+   "error": null
+  },
+  {
+   "i": 333,
+   "scheduled_s": 9.5904,
+   "started_s": 9.598557625024114,
+   "lag_s": 0.008157625024113102,
+   "latency_ms": 146.61445902311243,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 334,
+   "scheduled_s": 9.619200000000001,
+   "started_s": 9.628366250020918,
+   "lag_s": 0.009166250020916422,
+   "latency_ms": 149.6474170126021,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 329,
+   "scheduled_s": 9.475200000000001,
+   "started_s": 9.483997875009663,
+   "lag_s": 0.008797875009662448,
+   "latency_ms": 305.12541701318696,
+   "error": null
+  },
+  {
+   "i": 335,
+   "scheduled_s": 9.648,
+   "started_s": 9.65406341702328,
+   "lag_s": 0.006063417023280948,
+   "latency_ms": 149.13262499612756,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 336,
+   "scheduled_s": 9.6768,
+   "started_s": 9.684493125008885,
+   "lag_s": 0.007693125008884749,
+   "latency_ms": 144.56404198426753,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 337,
+   "scheduled_s": 9.7056,
+   "started_s": 9.714050917013083,
+   "lag_s": 0.008450917013082204,
+   "latency_ms": 150.64304100815207,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 338,
+   "scheduled_s": 9.7344,
+   "started_s": 9.744381833006628,
+   "lag_s": 0.009981833006627028,
+   "latency_ms": 150.6313330028206,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 330,
+   "scheduled_s": 9.504,
+   "started_s": 9.508899875014322,
+   "lag_s": 0.004899875014322319,
+   "latency_ms": 393.3408749871887,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 339,
+   "scheduled_s": 9.7632,
+   "started_s": 9.77324629202485,
+   "lag_s": 0.010046292024851411,
+   "latency_ms": 148.92312500160187,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 340,
+   "scheduled_s": 9.792,
+   "started_s": 9.799172541999724,
+   "lag_s": 0.007172541999723947,
+   "latency_ms": 148.80220801569521,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 341,
+   "scheduled_s": 9.8208,
+   "started_s": 9.828074832999846,
+   "lag_s": 0.007274832999845771,
+   "latency_ms": 152.32549997745082,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 342,
+   "scheduled_s": 9.8496,
+   "started_s": 9.857353083003545,
+   "lag_s": 0.007753083003544603,
+   "latency_ms": 149.3452499853447,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 343,
+   "scheduled_s": 9.878400000000001,
+   "started_s": 9.887545375007903,
+   "lag_s": 0.009145375007902246,
+   "latency_ms": 152.00983299291693,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 344,
+   "scheduled_s": 9.9072,
+   "started_s": 9.910621083021397,
+   "lag_s": 0.0034210830213972088,
+   "latency_ms": 141.45070800441317,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 345,
+   "scheduled_s": 9.936,
+   "started_s": 9.944896250002785,
+   "lag_s": 0.008896250002784711,
+   "latency_ms": 144.3304579879623,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 346,
+   "scheduled_s": 9.9648,
+   "started_s": 9.973828708025394,
+   "lag_s": 0.009028708025393684,
+   "latency_ms": 152.10987499449402,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 347,
+   "scheduled_s": 9.9936,
+   "started_s": 9.997334958025021,
+   "lag_s": 0.0037349580250207737,
+   "latency_ms": 148.91849999548867,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 348,
+   "scheduled_s": 10.022400000000001,
+   "started_s": 10.032439458009321,
+   "lag_s": 0.010039458009320157,
+   "latency_ms": 145.0401670008432,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 349,
+   "scheduled_s": 10.0512,
+   "started_s": 10.060579958022572,
+   "lag_s": 0.00937995802257241,
+   "latency_ms": 144.40283298608847,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 350,
+   "scheduled_s": 10.08,
+   "started_s": 10.088509875000454,
+   "lag_s": 0.008509875000454414,
+   "latency_ms": 143.93354099593125,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 351,
+   "scheduled_s": 10.1088,
+   "started_s": 10.118788792024134,
+   "lag_s": 0.009988792024133275,
+   "latency_ms": 150.29304201016203,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 352,
+   "scheduled_s": 10.1376,
+   "started_s": 10.146671750000678,
+   "lag_s": 0.00907175000067717,
+   "latency_ms": 142.73191601387225,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 357,
+   "scheduled_s": 10.281600000000001,
+   "started_s": 10.291603542020312,
+   "lag_s": 0.010003542020310618,
+   "latency_ms": 151.04058300494216,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 358,
+   "scheduled_s": 10.3104,
+   "started_s": 10.32013375000679,
+   "lag_s": 0.009733750006789776,
+   "latency_ms": 152.37220798735507,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 354,
+   "scheduled_s": 10.1952,
+   "started_s": 10.200073000014527,
+   "lag_s": 0.004873000014526951,
+   "latency_ms": 326.5040830010548,
+   "error": null
+  },
+  {
+   "i": 356,
+   "scheduled_s": 10.2528,
+   "started_s": 10.26205645801383,
+   "lag_s": 0.009256458013830127,
+   "latency_ms": 283.50045799743384,
+   "error": null
+  },
+  {
+   "i": 353,
+   "scheduled_s": 10.1664,
+   "started_s": 10.172977333015297,
+   "lag_s": 0.006577333015297171,
+   "latency_ms": 374.75966598140076,
+   "error": null
+  },
+  {
+   "i": 355,
+   "scheduled_s": 10.224,
+   "started_s": 10.22422808301053,
+   "lag_s": 0.00022808301052990032,
+   "latency_ms": 325.5779590108432,
+   "error": null
+  },
+  {
+   "i": 359,
+   "scheduled_s": 10.3392,
+   "started_s": 10.343160917022033,
+   "lag_s": 0.003960917022032717,
+   "latency_ms": 325.6344590045046,
+   "error": null
+  },
+  {
+   "i": 360,
+   "scheduled_s": 10.368,
+   "started_s": 10.3738345830061,
+   "lag_s": 0.005834583006100402,
+   "latency_ms": 297.0130000030622,
+   "error": null
+  },
+  {
+   "i": 361,
+   "scheduled_s": 10.3968,
+   "started_s": 10.406856083020102,
+   "lag_s": 0.010056083020101525,
+   "latency_ms": 282.9218750121072,
+   "error": null
+  },
+  {
+   "i": 366,
+   "scheduled_s": 10.5408,
+   "started_s": 10.544559166999534,
+   "lag_s": 0.003759166999532937,
+   "latency_ms": 148.46837500226684,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 365,
+   "scheduled_s": 10.512,
+   "started_s": 10.521743208024418,
+   "lag_s": 0.009743208024417527,
+   "latency_ms": 180.36654201569036,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 362,
+   "scheduled_s": 10.425600000000001,
+   "started_s": 10.435323292011162,
+   "lag_s": 0.009723292011161178,
+   "latency_ms": 270.2956249995623,
+   "error": null
+  },
+  {
+   "i": 367,
+   "scheduled_s": 10.5696,
+   "started_s": 10.577116708009271,
+   "lag_s": 0.007516708009271511,
+   "latency_ms": 150.6123330036644,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 363,
+   "scheduled_s": 10.4544,
+   "started_s": 10.463512917020125,
+   "lag_s": 0.009112917020125622,
+   "latency_ms": 276.73016701010056,
+   "error": null
+  },
+  {
+   "i": 368,
+   "scheduled_s": 10.5984,
+   "started_s": 10.605835875001503,
+   "lag_s": 0.007435875001503334,
+   "latency_ms": 147.7596659970004,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 364,
+   "scheduled_s": 10.4832,
+   "started_s": 10.490776208025636,
+   "lag_s": 0.0075762080256360775,
+   "latency_ms": 278.14850001595914,
+   "error": null
+  },
+  {
+   "i": 369,
+   "scheduled_s": 10.6272,
+   "started_s": 10.63602712500142,
+   "lag_s": 0.008827125001419134,
+   "latency_ms": 148.00029099569656,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 371,
+   "scheduled_s": 10.684800000000001,
+   "started_s": 10.686609333002707,
+   "lag_s": 0.0018093330027060262,
+   "latency_ms": 154.59004198783077,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 370,
+   "scheduled_s": 10.656,
+   "started_s": 10.660304208024172,
+   "lag_s": 0.00430420802417153,
+   "latency_ms": 187.59741701069288,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 372,
+   "scheduled_s": 10.7136,
+   "started_s": 10.72346008301247,
+   "lag_s": 0.009860083012469545,
+   "latency_ms": 150.986416003434,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 373,
+   "scheduled_s": 10.7424,
+   "started_s": 10.744306917011272,
+   "lag_s": 0.0019069170112722134,
+   "latency_ms": 150.6269590172451,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 374,
+   "scheduled_s": 10.7712,
+   "started_s": 10.780975750007201,
+   "lag_s": 0.009775750007200656,
+   "latency_ms": 146.25916598015465,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 375,
+   "scheduled_s": 10.8,
+   "started_s": 10.802364792005392,
+   "lag_s": 0.002364792005391081,
+   "latency_ms": 143.37612499366514,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 376,
+   "scheduled_s": 10.828800000000001,
+   "started_s": 10.829357583017554,
+   "lag_s": 0.0005575830175530427,
+   "latency_ms": 152.11608400568366,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 377,
+   "scheduled_s": 10.8576,
+   "started_s": 10.867661417025374,
+   "lag_s": 0.010061417025374553,
+   "latency_ms": 152.68666701740585,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 378,
+   "scheduled_s": 10.8864,
+   "started_s": 10.890585417015245,
+   "lag_s": 0.0041854170152451076,
+   "latency_ms": 152.48249997966923,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 379,
+   "scheduled_s": 10.9152,
+   "started_s": 10.924230000004172,
+   "lag_s": 0.009030000004171868,
+   "latency_ms": 146.5635829954408,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 380,
+   "scheduled_s": 10.944,
+   "started_s": 10.947183125012089,
+   "lag_s": 0.0031831250120877286,
+   "latency_ms": 150.51437501097098,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 381,
+   "scheduled_s": 10.9728,
+   "started_s": 10.980700083018746,
+   "lag_s": 0.007900083018746784,
+   "latency_ms": 149.73166599520482,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 382,
+   "scheduled_s": 11.0016,
+   "started_s": 11.010461500001838,
+   "lag_s": 0.008861500001838607,
+   "latency_ms": 144.43216598010622,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 383,
+   "scheduled_s": 11.0304,
+   "started_s": 11.032472083024913,
+   "lag_s": 0.0020720830249132405,
+   "latency_ms": 152.14449999621138,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 384,
+   "scheduled_s": 11.0592,
+   "started_s": 11.065650000004098,
+   "lag_s": 0.006450000004097234,
+   "latency_ms": 152.015208004741,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 385,
+   "scheduled_s": 11.088000000000001,
+   "started_s": 11.089092542009894,
+   "lag_s": 0.0010925420098928385,
+   "latency_ms": 151.57454198924825,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 386,
+   "scheduled_s": 11.1168,
+   "started_s": 11.126698042004136,
+   "lag_s": 0.009898042004136798,
+   "latency_ms": 146.9171670032665,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 387,
+   "scheduled_s": 11.1456,
+   "started_s": 11.153646457998548,
+   "lag_s": 0.008046457998547751,
+   "latency_ms": 149.3085410038475,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 392,
+   "scheduled_s": 11.2896,
+   "started_s": 11.299486917007016,
+   "lag_s": 0.009886917007015938,
+   "latency_ms": 152.4825420056004,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 388,
+   "scheduled_s": 11.1744,
+   "started_s": 11.18180050002411,
+   "lag_s": 0.007400500024109746,
+   "latency_ms": 274.0651250060182,
+   "error": null
+  },
+  {
+   "i": 393,
+   "scheduled_s": 11.3184,
+   "started_s": 11.327137083018897,
+   "lag_s": 0.00873708301889664,
+   "latency_ms": 143.75670900335535,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 389,
+   "scheduled_s": 11.2032,
+   "started_s": 11.20698883300065,
+   "lag_s": 0.003788833000649916,
+   "latency_ms": 304.1896669892594,
+   "error": null
+  },
+  {
+   "i": 390,
+   "scheduled_s": 11.232000000000001,
+   "started_s": 11.2352531250217,
+   "lag_s": 0.0032531250216987218,
+   "latency_ms": 308.0587089934852,
+   "error": null
+  },
+  {
+   "i": 391,
+   "scheduled_s": 11.2608,
+   "started_s": 11.269940625003073,
+   "lag_s": 0.009140625003073666,
+   "latency_ms": 273.7504999968223,
+   "error": null
+  },
+  {
+   "i": 394,
+   "scheduled_s": 11.3472,
+   "started_s": 11.356546082999557,
+   "lag_s": 0.009346082999556415,
+   "latency_ms": 280.0903329916764,
+   "error": null
+  },
+  {
+   "i": 395,
+   "scheduled_s": 11.376,
+   "started_s": 11.3851047080243,
+   "lag_s": 0.009104708024301189,
+   "latency_ms": 275.25558398338035,
+   "error": null
+  },
+  {
+   "i": 400,
+   "scheduled_s": 11.52,
+   "started_s": 11.521584166999673,
+   "lag_s": 0.0015841669996738972,
+   "latency_ms": 148.32041700719856,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 396,
+   "scheduled_s": 11.4048,
+   "started_s": 11.406191792018944,
+   "lag_s": 0.001391792018944571,
+   "latency_ms": 283.4733750205487,
+   "error": null
+  },
+  {
+   "i": 401,
+   "scheduled_s": 11.5488,
+   "started_s": 11.556438166997395,
+   "lag_s": 0.007638166997395501,
+   "latency_ms": 151.6525829792954,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 397,
+   "scheduled_s": 11.4336,
+   "started_s": 11.440245958016021,
+   "lag_s": 0.00664595801602097,
+   "latency_ms": 281.33137500844896,
+   "error": null
+  },
+  {
+   "i": 402,
+   "scheduled_s": 11.5776,
+   "started_s": 11.585352791997138,
+   "lag_s": 0.007752791997138075,
+   "latency_ms": 146.46058299695142,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 399,
+   "scheduled_s": 11.491200000000001,
+   "started_s": 11.498478250025073,
+   "lag_s": 0.007278250025072097,
+   "latency_ms": 275.7204170047771,
+   "error": null
+  },
+  {
+   "i": 398,
+   "scheduled_s": 11.4624,
+   "started_s": 11.472382083011325,
+   "lag_s": 0.00998208301132486,
+   "latency_ms": 307.4239589914214,
+   "error": null
+  },
+  {
+   "i": 404,
+   "scheduled_s": 11.635200000000001,
+   "started_s": 11.640876083023613,
+   "lag_s": 0.005676083023612222,
+   "latency_ms": 142.7361250098329,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 405,
+   "scheduled_s": 11.664,
+   "started_s": 11.667942875006702,
+   "lag_s": 0.003942875006702096,
+   "latency_ms": 147.9859579994809,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 406,
+   "scheduled_s": 11.6928,
+   "started_s": 11.694218375021592,
+   "lag_s": 0.0014183750215917001,
+   "latency_ms": 146.447959006764,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 407,
+   "scheduled_s": 11.7216,
+   "started_s": 11.7253856669995,
+   "lag_s": 0.0037856669994997816,
+   "latency_ms": 145.10479199816473,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 408,
+   "scheduled_s": 11.7504,
+   "started_s": 11.760144208004931,
+   "lag_s": 0.009744208004930144,
+   "latency_ms": 154.60766598698683,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 409,
+   "scheduled_s": 11.7792,
+   "started_s": 11.788029542018194,
+   "lag_s": 0.008829542018194303,
+   "latency_ms": 151.03062498383224,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 410,
+   "scheduled_s": 11.808,
+   "started_s": 11.817304958007298,
+   "lag_s": 0.00930495800729858,
+   "latency_ms": 150.08158300770447,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 403,
+   "scheduled_s": 11.6064,
+   "started_s": 11.607272916997317,
+   "lag_s": 0.0008729169973165085,
+   "latency_ms": 364.9203749955632,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 411,
+   "scheduled_s": 11.8368,
+   "started_s": 11.844823375024134,
+   "lag_s": 0.008023375024134083,
+   "latency_ms": 148.98812500177883,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 412,
+   "scheduled_s": 11.8656,
+   "started_s": 11.873748125013663,
+   "lag_s": 0.008148125013661911,
+   "latency_ms": 144.297666993225,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 413,
+   "scheduled_s": 11.894400000000001,
+   "started_s": 11.897763625020161,
+   "lag_s": 0.003363625020160299,
+   "latency_ms": 149.2762499838136,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 414,
+   "scheduled_s": 11.9232,
+   "started_s": 11.931180708023021,
+   "lag_s": 0.007980708023021421,
+   "latency_ms": 148.3529590186663,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 415,
+   "scheduled_s": 11.952,
+   "started_s": 11.960061750025488,
+   "lag_s": 0.008061750025488479,
+   "latency_ms": 151.443290989846,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 416,
+   "scheduled_s": 11.9808,
+   "started_s": 11.981811708013993,
+   "lag_s": 0.0010117080139924184,
+   "latency_ms": 146.75129199167714,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 417,
+   "scheduled_s": 12.0096,
+   "started_s": 12.013367958017625,
+   "lag_s": 0.0037679580176241956,
+   "latency_ms": 142.232416983461,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 418,
+   "scheduled_s": 12.038400000000001,
+   "started_s": 12.041334750014357,
+   "lag_s": 0.002934750014356169,
+   "latency_ms": 152.1995000075549,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 419,
+   "scheduled_s": 12.0672,
+   "started_s": 12.074343417014461,
+   "lag_s": 0.007143417014461306,
+   "latency_ms": 152.11304198601283,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 420,
+   "scheduled_s": 12.096,
+   "started_s": 12.098626167018665,
+   "lag_s": 0.0026261670186649155,
+   "latency_ms": 153.14545799628831,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 421,
+   "scheduled_s": 12.1248,
+   "started_s": 12.133459708013106,
+   "lag_s": 0.008659708013105671,
+   "latency_ms": 153.73812499456108,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 422,
+   "scheduled_s": 12.1536,
+   "started_s": 12.15680229201098,
+   "lag_s": 0.00320229201097888,
+   "latency_ms": 142.3296660068445,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 423,
+   "scheduled_s": 12.1824,
+   "started_s": 12.190142208011821,
+   "lag_s": 0.007742208011821461,
+   "latency_ms": 258.33945799968205,
+   "error": null
+  },
+  {
+   "i": 427,
+   "scheduled_s": 12.297600000000001,
+   "started_s": 12.302377958025318,
+   "lag_s": 0.004777958025316664,
+   "latency_ms": 148.4157920058351,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 428,
+   "scheduled_s": 12.3264,
+   "started_s": 12.336358417000156,
+   "lag_s": 0.009958417000156317,
+   "latency_ms": 148.63358400180005,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 429,
+   "scheduled_s": 12.3552,
+   "started_s": 12.357815791998291,
+   "lag_s": 0.002615791998291428,
+   "latency_ms": 145.0313339882996,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 424,
+   "scheduled_s": 12.2112,
+   "started_s": 12.218991917005042,
+   "lag_s": 0.007791917005041782,
+   "latency_ms": 297.40154201863334,
+   "error": null
+  },
+  {
+   "i": 425,
+   "scheduled_s": 12.24,
+   "started_s": 12.24785262500518,
+   "lag_s": 0.007852625005179803,
+   "latency_ms": 287.2882079973351,
+   "error": null
+  },
+  {
+   "i": 426,
+   "scheduled_s": 12.2688,
+   "started_s": 12.269375292002223,
+   "lag_s": 0.000575292002222838,
+   "latency_ms": 282.0912919996772,
+   "error": null
+  },
+  {
+   "i": 430,
+   "scheduled_s": 12.384,
+   "started_s": 12.394036208017496,
+   "lag_s": 0.010036208017496051,
+   "latency_ms": 270.64649999374524,
+   "error": null
+  },
+  {
+   "i": 431,
+   "scheduled_s": 12.4128,
+   "started_s": 12.415139000018826,
+   "lag_s": 0.0023390000188250326,
+   "latency_ms": 271.8492920103017,
+   "error": null
+  },
+  {
+   "i": 436,
+   "scheduled_s": 12.5568,
+   "started_s": 12.566700833005598,
+   "lag_s": 0.009900833005596965,
+   "latency_ms": 153.7530829955358,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 432,
+   "scheduled_s": 12.441600000000001,
+   "started_s": 12.449363375024404,
+   "lag_s": 0.007763375024403274,
+   "latency_ms": 285.22604098543525,
+   "error": null
+  },
+  {
+   "i": 437,
+   "scheduled_s": 12.5856,
+   "started_s": 12.592135917017004,
+   "lag_s": 0.006535917017004067,
+   "latency_ms": 151.99399998527952,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 433,
+   "scheduled_s": 12.4704,
+   "started_s": 12.479214792023413,
+   "lag_s": 0.008814792023413176,
+   "latency_ms": 277.5769589934498,
+   "error": null
+  },
+  {
+   "i": 434,
+   "scheduled_s": 12.4992,
+   "started_s": 12.507021833007457,
+   "lag_s": 0.007821833007456647,
+   "latency_ms": 264.22974999877624,
+   "error": null
+  },
+  {
+   "i": 438,
+   "scheduled_s": 12.6144,
+   "started_s": 12.624463000014657,
+   "lag_s": 0.01006300001465732,
+   "latency_ms": 147.16133300680667,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 439,
+   "scheduled_s": 12.6432,
+   "started_s": 12.652222917007748,
+   "lag_s": 0.009022917007747822,
+   "latency_ms": 149.94516700971872,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 435,
+   "scheduled_s": 12.528,
+   "started_s": 12.532878917001653,
+   "lag_s": 0.004878917001652994,
+   "latency_ms": 282.06616698298603,
+   "error": null
+  },
+  {
+   "i": 440,
+   "scheduled_s": 12.672,
+   "started_s": 12.67337766700075,
+   "lag_s": 0.001377667000749483,
+   "latency_ms": 153.56879201135598,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 441,
+   "scheduled_s": 12.700800000000001,
+   "started_s": 12.70645041699754,
+   "lag_s": 0.0056504169975397645,
+   "latency_ms": 148.4282090095803,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 442,
+   "scheduled_s": 12.7296,
+   "started_s": 12.730568541999673,
+   "lag_s": 0.0009685419996738887,
+   "latency_ms": 154.15349998511374,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 443,
+   "scheduled_s": 12.7584,
+   "started_s": 12.758509792009136,
+   "lag_s": 0.00010979200913574516,
+   "latency_ms": 148.86362498509698,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 444,
+   "scheduled_s": 12.7872,
+   "started_s": 12.794794625020586,
+   "lag_s": 0.00759462502058561,
+   "latency_ms": 145.71016700938344,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 445,
+   "scheduled_s": 12.816,
+   "started_s": 12.825641333009116,
+   "lag_s": 0.009641333009115627,
+   "latency_ms": 143.97229099995457,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 446,
+   "scheduled_s": 12.844800000000001,
+   "started_s": 12.853877792018466,
+   "lag_s": 0.009077792018464592,
+   "latency_ms": 149.81220802292228,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 447,
+   "scheduled_s": 12.8736,
+   "started_s": 12.88239962499938,
+   "lag_s": 0.008799624999380029,
+   "latency_ms": 156.58395798527636,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 448,
+   "scheduled_s": 12.9024,
+   "started_s": 12.90390854200814,
+   "lag_s": 0.0015085420081391021,
+   "latency_ms": 154.31533299852163,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 449,
+   "scheduled_s": 12.9312,
+   "started_s": 12.939439333014889,
+   "lag_s": 0.008239333014888217,
+   "latency_ms": 144.37229197937995,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 450,
+   "scheduled_s": 12.96,
+   "started_s": 12.968882583023515,
+   "lag_s": 0.008882583023513746,
+   "latency_ms": 152.32787499553524,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 451,
+   "scheduled_s": 12.9888,
+   "started_s": 12.995178000011947,
+   "lag_s": 0.006378000011947549,
+   "latency_ms": 144.56650000647642,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 452,
+   "scheduled_s": 13.0176,
+   "started_s": 13.020841917023063,
+   "lag_s": 0.003241917023062868,
+   "latency_ms": 145.35195799544454,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 453,
+   "scheduled_s": 13.0464,
+   "started_s": 13.056021374999546,
+   "lag_s": 0.009621374999545296,
+   "latency_ms": 149.76287499302998,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 454,
+   "scheduled_s": 13.0752,
+   "started_s": 13.07906925000134,
+   "lag_s": 0.003869250001338642,
+   "latency_ms": 147.4502500204835,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 455,
+   "scheduled_s": 13.104000000000001,
+   "started_s": 13.114045875001466,
+   "lag_s": 0.010045875001464921,
+   "latency_ms": 145.74441697914153,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 456,
+   "scheduled_s": 13.1328,
+   "started_s": 13.142713083012495,
+   "lag_s": 0.009913083012495605,
+   "latency_ms": 144.14954200037755,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 457,
+   "scheduled_s": 13.1616,
+   "started_s": 13.165169667016016,
+   "lag_s": 0.0035696670160163535,
+   "latency_ms": 152.3102920036763,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 462,
+   "scheduled_s": 13.3056,
+   "started_s": 13.314891583024291,
+   "lag_s": 0.009291583024291228,
+   "latency_ms": 153.92904198961332,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 458,
+   "scheduled_s": 13.1904,
+   "started_s": 13.198488292022375,
+   "lag_s": 0.008088292022375043,
+   "latency_ms": 278.60995798255317,
+   "error": null
+  },
+  {
+   "i": 463,
+   "scheduled_s": 13.3344,
+   "started_s": 13.340104750008322,
+   "lag_s": 0.005704750008321824,
+   "latency_ms": 150.85016598459333,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 459,
+   "scheduled_s": 13.2192,
+   "started_s": 13.225265667017084,
+   "lag_s": 0.0060656670170828875,
+   "latency_ms": 277.57070801453665,
+   "error": null
+  },
+  {
+   "i": 464,
+   "scheduled_s": 13.3632,
+   "started_s": 13.371263167005964,
+   "lag_s": 0.008063167005962768,
+   "latency_ms": 147.82945800106972,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 461,
+   "scheduled_s": 13.2768,
+   "started_s": 13.285899000009522,
+   "lag_s": 0.009099000009522129,
+   "latency_ms": 287.55350000574253,
+   "error": null
+  },
+  {
+   "i": 460,
+   "scheduled_s": 13.248000000000001,
+   "started_s": 13.257367583020823,
+   "lag_s": 0.009367583020821968,
+   "latency_ms": 322.47462499071844,
+   "error": null
+  },
+  {
+   "i": 465,
+   "scheduled_s": 13.392,
+   "started_s": 13.402056042017648,
+   "lag_s": 0.010056042017648537,
+   "latency_ms": 271.47154198610224,
+   "error": null
+  },
+  {
+   "i": 466,
+   "scheduled_s": 13.4208,
+   "started_s": 13.42138304200489,
+   "lag_s": 0.0005830420048908991,
+   "latency_ms": 301.9892919983249,
+   "error": null
+  },
+  {
+   "i": 471,
+   "scheduled_s": 13.5648,
+   "started_s": 13.573594125016825,
+   "lag_s": 0.008794125016825305,
+   "latency_ms": 150.5942500079982,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 467,
+   "scheduled_s": 13.4496,
+   "started_s": 13.454554875002941,
+   "lag_s": 0.004954875002940895,
+   "latency_ms": 288.2766659895424,
+   "error": null
+  },
+  {
+   "i": 472,
+   "scheduled_s": 13.5936,
+   "started_s": 13.603636500018183,
+   "lag_s": 0.010036500018182792,
+   "latency_ms": 152.3584579990711,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 468,
+   "scheduled_s": 13.4784,
+   "started_s": 13.485372583003482,
+   "lag_s": 0.0069725830034812475,
+   "latency_ms": 271.0052079928573,
+   "error": null
+  },
+  {
+   "i": 473,
+   "scheduled_s": 13.6224,
+   "started_s": 13.631844707997516,
+   "lag_s": 0.009444707997515067,
+   "latency_ms": 143.10212500276975,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 469,
+   "scheduled_s": 13.507200000000001,
+   "started_s": 13.51439150000806,
+   "lag_s": 0.007191500008058682,
+   "latency_ms": 276.63974999450147,
+   "error": null
+  },
+  {
+   "i": 474,
+   "scheduled_s": 13.651200000000001,
+   "started_s": 13.659034208016237,
+   "lag_s": 0.007834208016236133,
+   "latency_ms": 144.3672500026878,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 475,
+   "scheduled_s": 13.68,
+   "started_s": 13.68993233301444,
+   "lag_s": 0.009932333014440076,
+   "latency_ms": 158.64558299654163,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 476,
+   "scheduled_s": 13.7088,
+   "started_s": 13.718777292000595,
+   "lag_s": 0.009977292000595384,
+   "latency_ms": 153.87954100151546,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 477,
+   "scheduled_s": 13.7376,
+   "started_s": 13.746026292006718,
+   "lag_s": 0.008426292006717517,
+   "latency_ms": 149.27804199396633,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 478,
+   "scheduled_s": 13.7664,
+   "started_s": 13.776045708014863,
+   "lag_s": 0.009645708014861754,
+   "latency_ms": 154.84104200731963,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 479,
+   "scheduled_s": 13.7952,
+   "started_s": 13.79994258302031,
+   "lag_s": 0.004742583020311386,
+   "latency_ms": 140.47225000103936,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 480,
+   "scheduled_s": 13.824,
+   "started_s": 13.832805833022576,
+   "lag_s": 0.008805833022575982,
+   "latency_ms": 163.1658749829512,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 481,
+   "scheduled_s": 13.8528,
+   "started_s": 13.861861542012775,
+   "lag_s": 0.009061542012775092,
+   "latency_ms": 146.0034580086358,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 482,
+   "scheduled_s": 13.8816,
+   "started_s": 13.891536208015168,
+   "lag_s": 0.00993620801516748,
+   "latency_ms": 147.4302079877816,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 470,
+   "scheduled_s": 13.536,
+   "started_s": 13.545920083008241,
+   "lag_s": 0.00992008300824132,
+   "latency_ms": 501.16333400364965,
+   "error": null
+  },
+  {
+   "i": 483,
+   "scheduled_s": 13.910400000000001,
+   "started_s": 13.915149167005438,
+   "lag_s": 0.004749167005437371,
+   "latency_ms": 151.80295798927546,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 484,
+   "scheduled_s": 13.9392,
+   "started_s": 13.948229583009379,
+   "lag_s": 0.009029583009379394,
+   "latency_ms": 147.2525839926675,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 485,
+   "scheduled_s": 13.968,
+   "started_s": 13.978046750009526,
+   "lag_s": 0.010046750009525596,
+   "latency_ms": 150.5621669930406,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 486,
+   "scheduled_s": 13.9968,
+   "started_s": 14.005006207997212,
+   "lag_s": 0.008206207997211834,
+   "latency_ms": 143.4176250186283,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 487,
+   "scheduled_s": 14.0256,
+   "started_s": 14.031880667025689,
+   "lag_s": 0.006280667025688302,
+   "latency_ms": 156.76499999244697,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 488,
+   "scheduled_s": 14.054400000000001,
+   "started_s": 14.064121667004656,
+   "lag_s": 0.009721667004654932,
+   "latency_ms": 154.64687498752028,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 489,
+   "scheduled_s": 14.0832,
+   "started_s": 14.092048749997048,
+   "lag_s": 0.008848749997047989,
+   "latency_ms": 154.67541699763387,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 490,
+   "scheduled_s": 14.112,
+   "started_s": 14.121873625001172,
+   "lag_s": 0.009873625001171504,
+   "latency_ms": 148.82937498623505,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 491,
+   "scheduled_s": 14.1408,
+   "started_s": 14.145393333019456,
+   "lag_s": 0.0045933330194554145,
+   "latency_ms": 144.41270800307393,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 492,
+   "scheduled_s": 14.1696,
+   "started_s": 14.175634792016353,
+   "lag_s": 0.006034792016352597,
+   "latency_ms": 147.46633401955478,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 496,
+   "scheduled_s": 14.2848,
+   "started_s": 14.28655637500924,
+   "lag_s": 0.0017563750092399744,
+   "latency_ms": 149.83216702239588,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 494,
+   "scheduled_s": 14.2272,
+   "started_s": 14.23546433300362,
+   "lag_s": 0.00826433300361984,
+   "latency_ms": 250.61508399085142,
+   "error": null
+  },
+  {
+   "i": 493,
+   "scheduled_s": 14.1984,
+   "started_s": 14.206392417021561,
+   "lag_s": 0.007992417021561948,
+   "latency_ms": 280.088874977082,
+   "error": null
+  },
+  {
+   "i": 498,
+   "scheduled_s": 14.3424,
+   "started_s": 14.352144208009122,
+   "lag_s": 0.009744208009122346,
+   "latency_ms": 149.1990420036018,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 499,
+   "scheduled_s": 14.3712,
+   "started_s": 14.380059500021162,
+   "lag_s": 0.008859500021161537,
+   "latency_ms": 147.49425000627525,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 495,
+   "scheduled_s": 14.256,
+   "started_s": 14.256807333003962,
+   "lag_s": 0.0008073330039621851,
+   "latency_ms": 289.5659590139985,
+   "error": null
+  },
+  {
+   "i": 497,
+   "scheduled_s": 14.313600000000001,
+   "started_s": 14.319780542020453,
+   "lag_s": 0.006180542020452151,
+   "latency_ms": 276.32091601844877,
+   "error": null
+  },
+  {
+   "i": 500,
+   "scheduled_s": 14.4,
+   "started_s": 14.40799337500357,
+   "lag_s": 0.007993375003570335,
+   "latency_ms": 254.85766600468196,
+   "error": null
+  },
+  {
+   "i": 501,
+   "scheduled_s": 14.4288,
+   "started_s": 14.438670500006992,
+   "lag_s": 0.009870500006991634,
+   "latency_ms": 276.0549579979852,
+   "error": null
+  },
+  {
+   "i": 506,
+   "scheduled_s": 14.5728,
+   "started_s": 14.582718500023475,
+   "lag_s": 0.009918500023474053,
+   "latency_ms": 146.87749999575317,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 502,
+   "scheduled_s": 14.457600000000001,
+   "started_s": 14.463055750005879,
+   "lag_s": 0.005455750005877391,
+   "latency_ms": 282.0842079818249,
+   "error": null
+  },
+  {
+   "i": 507,
+   "scheduled_s": 14.6016,
+   "started_s": 14.608237958018435,
+   "lag_s": 0.006637958018435697,
+   "latency_ms": 139.61058302083984,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 503,
+   "scheduled_s": 14.4864,
+   "started_s": 14.4948521250044,
+   "lag_s": 0.008452125004399846,
+   "latency_ms": 271.7822080012411,
+   "error": null
+  },
+  {
+   "i": 508,
+   "scheduled_s": 14.6304,
+   "started_s": 14.640476166998269,
+   "lag_s": 0.010076166998269187,
+   "latency_ms": 149.70150002045557,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 504,
+   "scheduled_s": 14.5152,
+   "started_s": 14.523517000023276,
+   "lag_s": 0.008317000023275511,
+   "latency_ms": 273.5822919930797,
+   "error": null
+  },
+  {
+   "i": 509,
+   "scheduled_s": 14.6592,
+   "started_s": 14.665318250015844,
+   "lag_s": 0.006118250015843429,
+   "latency_ms": 152.46125002158806,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 505,
+   "scheduled_s": 14.544,
+   "started_s": 14.553572250006255,
+   "lag_s": 0.00957225000625428,
+   "latency_ms": 289.1028329904657,
+   "error": null
+  },
+  {
+   "i": 511,
+   "scheduled_s": 14.716800000000001,
+   "started_s": 14.725144042022293,
+   "lag_s": 0.008344042022292442,
+   "latency_ms": 155.87033299379982,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 510,
+   "scheduled_s": 14.688,
+   "started_s": 14.698032542015426,
+   "lag_s": 0.01003254201542525,
+   "latency_ms": 190.75474998680875,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 512,
+   "scheduled_s": 14.7456,
+   "started_s": 14.748968166997656,
+   "lag_s": 0.0033681669976566297,
+   "latency_ms": 152.3200000228826,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 513,
+   "scheduled_s": 14.7744,
+   "started_s": 14.784039332997054,
+   "lag_s": 0.009639332997053884,
+   "latency_ms": 150.33291600411758,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 514,
+   "scheduled_s": 14.8032,
+   "started_s": 14.810784875007812,
+   "lag_s": 0.007584875007811576,
+   "latency_ms": 147.46420900337398,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 517,
+   "scheduled_s": 14.8896,
+   "started_s": 14.898489917017287,
+   "lag_s": 0.008889917017286919,
+   "latency_ms": 151.29645800334401,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 518,
+   "scheduled_s": 14.9184,
+   "started_s": 14.926156208006432,
+   "lag_s": 0.007756208006432175,
+   "latency_ms": 149.7349590063095,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 519,
+   "scheduled_s": 14.9472,
+   "started_s": 14.955001958005596,
+   "lag_s": 0.007801958005595466,
+   "latency_ms": 157.46195800602436,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 520,
+   "scheduled_s": 14.976,
+   "started_s": 14.981450457999017,
+   "lag_s": 0.005450457999016223,
+   "latency_ms": 150.2645830041729,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 522,
+   "scheduled_s": 15.0336,
+   "started_s": 15.043080833012937,
+   "lag_s": 0.009480833012936785,
+   "latency_ms": 141.49549999274313,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 515,
+   "scheduled_s": 14.832,
+   "started_s": 14.83987341701868,
+   "lag_s": 0.007873417018679163,
+   "latency_ms": 379.5209999952931,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 523,
+   "scheduled_s": 15.0624,
+   "started_s": 15.071629333018791,
+   "lag_s": 0.009229333018790697,
+   "latency_ms": 149.2784999718424,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 524,
+   "scheduled_s": 15.0912,
+   "started_s": 15.098605542007135,
+   "lag_s": 0.007405542007134613,
+   "latency_ms": 141.38820799416862,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 516,
+   "scheduled_s": 14.860800000000001,
+   "started_s": 14.870782333018724,
+   "lag_s": 0.009982333018722755,
+   "latency_ms": 384.88570900517516,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 525,
+   "scheduled_s": 15.120000000000001,
+   "started_s": 15.126739875006024,
+   "lag_s": 0.0067398750060228,
+   "latency_ms": 144.42691698786803,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 526,
+   "scheduled_s": 15.1488,
+   "started_s": 15.148846708005294,
+   "lag_s": 4.6708005294604504e-05,
+   "latency_ms": 150.28575001633726,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 521,
+   "scheduled_s": 15.0048,
+   "started_s": 15.010750667017419,
+   "lag_s": 0.00595066701741942,
+   "latency_ms": 395.2718329965137,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 531,
+   "scheduled_s": 15.2928,
+   "started_s": 15.295511417003581,
+   "lag_s": 0.0027114170035815732,
+   "latency_ms": 148.3836660045199,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 528,
+   "scheduled_s": 15.2064,
+   "started_s": 15.215153875004034,
+   "lag_s": 0.008753875004034128,
+   "latency_ms": 279.8762090096716,
+   "error": null
+  },
+  {
+   "i": 533,
+   "scheduled_s": 15.3504,
+   "started_s": 15.356342167011462,
+   "lag_s": 0.005942167011461663,
+   "latency_ms": 150.43425001204014,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 529,
+   "scheduled_s": 15.2352,
+   "started_s": 15.244058542011771,
+   "lag_s": 0.00885854201177061,
+   "latency_ms": 272.26170801441185,
+   "error": null
+  },
+  {
+   "i": 534,
+   "scheduled_s": 15.3792,
+   "started_s": 15.386990583006991,
+   "lag_s": 0.007790583006990204,
+   "latency_ms": 147.08720799535513,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 530,
+   "scheduled_s": 15.264000000000001,
+   "started_s": 15.27193920800346,
+   "lag_s": 0.007939208003458376,
+   "latency_ms": 276.83795799384825,
+   "error": null
+  },
+  {
+   "i": 532,
+   "scheduled_s": 15.3216,
+   "started_s": 15.331638583011227,
+   "lag_s": 0.01003858301122662,
+   "latency_ms": 240.42395898140967,
+   "error": null
+  },
+  {
+   "i": 527,
+   "scheduled_s": 15.1776,
+   "started_s": 15.181486333021894,
+   "lag_s": 0.0038863330218941172,
+   "latency_ms": 398.9091250114143,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 535,
+   "scheduled_s": 15.408,
+   "started_s": 15.416325124999275,
+   "lag_s": 0.008325124999275957,
+   "latency_ms": 238.51108399685472,
+   "error": null
+  },
+  {
+   "i": 536,
+   "scheduled_s": 15.4368,
+   "started_s": 15.44675341702532,
+   "lag_s": 0.009953417025320377,
+   "latency_ms": 289.26741701434366,
+   "error": null
+  },
+  {
+   "i": 541,
+   "scheduled_s": 15.5808,
+   "started_s": 15.588809042004868,
+   "lag_s": 0.008009042004868405,
+   "latency_ms": 151.25300001818687,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 537,
+   "scheduled_s": 15.4656,
+   "started_s": 15.475631708017318,
+   "lag_s": 0.010031708017317342,
+   "latency_ms": 289.9937499896623,
+   "error": null
+  },
+  {
+   "i": 543,
+   "scheduled_s": 15.6384,
+   "started_s": 15.640100875025382,
+   "lag_s": 0.0017008750253815208,
+   "latency_ms": 151.41608301200904,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 538,
+   "scheduled_s": 15.4944,
+   "started_s": 15.502154750021873,
+   "lag_s": 0.007754750021872425,
+   "latency_ms": 289.6824170020409,
+   "error": null
+  },
+  {
+   "i": 539,
+   "scheduled_s": 15.523200000000001,
+   "started_s": 15.532064875005744,
+   "lag_s": 0.0088648750057434,
+   "latency_ms": 277.19912500469945,
+   "error": null
+  },
+  {
+   "i": 544,
+   "scheduled_s": 15.667200000000001,
+   "started_s": 15.676517708023312,
+   "lag_s": 0.009317708023310445,
+   "latency_ms": 152.89645898155868,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 540,
+   "scheduled_s": 15.552,
+   "started_s": 15.560510167008033,
+   "lag_s": 0.00851016700803342,
+   "latency_ms": 269.36899998690933,
+   "error": null
+  },
+  {
+   "i": 545,
+   "scheduled_s": 15.696,
+   "started_s": 15.698717708000913,
+   "lag_s": 0.0027177080009135324,
+   "latency_ms": 147.06124999793246,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 547,
+   "scheduled_s": 15.7536,
+   "started_s": 15.762795292015653,
+   "lag_s": 0.009195292015652612,
+   "latency_ms": 150.112542003626,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 548,
+   "scheduled_s": 15.7824,
+   "started_s": 15.790765833022306,
+   "lag_s": 0.00836583302230487,
+   "latency_ms": 142.37874999525957,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 549,
+   "scheduled_s": 15.8112,
+   "started_s": 15.820649958011927,
+   "lag_s": 0.009449958011927606,
+   "latency_ms": 147.36666702083312,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 550,
+   "scheduled_s": 15.84,
+   "started_s": 15.849080125015462,
+   "lag_s": 0.00908012501546196,
+   "latency_ms": 153.48920901305974,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 542,
+   "scheduled_s": 15.6096,
+   "started_s": 15.615153749997262,
+   "lag_s": 0.005553749997261548,
+   "latency_ms": 394.8707089875825,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 551,
+   "scheduled_s": 15.8688,
+   "started_s": 15.873506250005448,
+   "lag_s": 0.004706250005447998,
+   "latency_ms": 152.0741250133142,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 552,
+   "scheduled_s": 15.8976,
+   "started_s": 15.90540591700119,
+   "lag_s": 0.007805917001189044,
+   "latency_ms": 149.95562500553206,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 553,
+   "scheduled_s": 15.926400000000001,
+   "started_s": 15.933300042001065,
+   "lag_s": 0.006900042001063866,
+   "latency_ms": 150.9960000112187,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 546,
+   "scheduled_s": 15.7248,
+   "started_s": 15.731846417009365,
+   "lag_s": 0.007046417009364703,
+   "latency_ms": 384.5157919859048,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 554,
+   "scheduled_s": 15.9552,
+   "started_s": 15.965198083024006,
+   "lag_s": 0.009998083024006732,
+   "latency_ms": 154.05437498702668,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 555,
+   "scheduled_s": 15.984,
+   "started_s": 15.993836750014452,
+   "lag_s": 0.009836750014452278,
+   "latency_ms": 142.05129200126976,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 556,
+   "scheduled_s": 16.0128,
+   "started_s": 16.02275324999937,
+   "lag_s": 0.009953249999369973,
+   "latency_ms": 151.5167919860687,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 557,
+   "scheduled_s": 16.0416,
+   "started_s": 16.048489458014956,
+   "lag_s": 0.006889458014956773,
+   "latency_ms": 150.321958004497,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 558,
+   "scheduled_s": 16.0704,
+   "started_s": 16.08011420801631,
+   "lag_s": 0.009714208016312398,
+   "latency_ms": 151.53737500077114,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 559,
+   "scheduled_s": 16.0992,
+   "started_s": 16.108078125020256,
+   "lag_s": 0.008878125020256533,
+   "latency_ms": 151.3795419887174,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 560,
+   "scheduled_s": 16.128,
+   "started_s": 16.133177792013157,
+   "lag_s": 0.005177792013157045,
+   "latency_ms": 142.32970899320208,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 561,
+   "scheduled_s": 16.1568,
+   "started_s": 16.16550866700709,
+   "lag_s": 0.008708667007088167,
+   "latency_ms": 144.58200000808574,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 562,
+   "scheduled_s": 16.1856,
+   "started_s": 16.193331957998453,
+   "lag_s": 0.007731957998451833,
+   "latency_ms": 150.53087499109097,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 566,
+   "scheduled_s": 16.3008,
+   "started_s": 16.306849000015063,
+   "lag_s": 0.006049000015064365,
+   "latency_ms": 149.82724998844787,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 567,
+   "scheduled_s": 16.3296,
+   "started_s": 16.332466583000496,
+   "lag_s": 0.002866583000496803,
+   "latency_ms": 146.79720901767723,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 563,
+   "scheduled_s": 16.2144,
+   "started_s": 16.21609475000878,
+   "lag_s": 0.0016947500087773903,
+   "latency_ms": 278.33137501147576,
+   "error": null
+  },
+  {
+   "i": 564,
+   "scheduled_s": 16.2432,
+   "started_s": 16.250782583025284,
+   "lag_s": 0.007582583025282474,
+   "latency_ms": 258.366333990125,
+   "error": null
+  },
+  {
+   "i": 565,
+   "scheduled_s": 16.272000000000002,
+   "started_s": 16.274865375016816,
+   "lag_s": 0.0028653750168139425,
+   "latency_ms": 269.89212501212023,
+   "error": null
+  },
+  {
+   "i": 569,
+   "scheduled_s": 16.3872,
+   "started_s": 16.391036000015447,
+   "lag_s": 0.0038360000154469276,
+   "latency_ms": 162.41616601473652,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 568,
+   "scheduled_s": 16.3584,
+   "started_s": 16.368124166998314,
+   "lag_s": 0.009724166998314132,
+   "latency_ms": 281.2804999994114,
+   "error": null
+  },
+  {
+   "i": 570,
+   "scheduled_s": 16.416,
+   "started_s": 16.417443042009836,
+   "lag_s": 0.0014430420098356933,
+   "latency_ms": 288.95229200134054,
+   "error": null
+  },
+  {
+   "i": 571,
+   "scheduled_s": 16.4448,
+   "started_s": 16.455342500004917,
+   "lag_s": 0.010542500004916633,
+   "latency_ms": 252.85275001078844,
+   "error": null
+  },
+  {
+   "i": 576,
+   "scheduled_s": 16.5888,
+   "started_s": 16.59831812500488,
+   "lag_s": 0.009518125004881028,
+   "latency_ms": 158.04066602140665,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 572,
+   "scheduled_s": 16.4736,
+   "started_s": 16.481895125005394,
+   "lag_s": 0.00829512500539309,
+   "latency_ms": 290.80016701482236,
+   "error": null
+  },
+  {
+   "i": 577,
+   "scheduled_s": 16.6176,
+   "started_s": 16.626714917016216,
+   "lag_s": 0.00911491701621614,
+   "latency_ms": 153.00812499481253,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 578,
+   "scheduled_s": 16.6464,
+   "started_s": 16.648677625023993,
+   "lag_s": 0.0022776250239928686,
+   "latency_ms": 156.65979200275615,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 573,
+   "scheduled_s": 16.5024,
+   "started_s": 16.506787542020902,
+   "lag_s": 0.004387542020900526,
+   "latency_ms": 299.06670801574364,
+   "error": null
+  },
+  {
+   "i": 579,
+   "scheduled_s": 16.6752,
+   "started_s": 16.677404125017347,
+   "lag_s": 0.00220412501734657,
+   "latency_ms": 152.47854200424626,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 574,
+   "scheduled_s": 16.531200000000002,
+   "started_s": 16.539934792002896,
+   "lag_s": 0.008734792002893954,
+   "latency_ms": 302.9041250119917,
+   "error": null
+  },
+  {
+   "i": 580,
+   "scheduled_s": 16.704,
+   "started_s": 16.713589042017702,
+   "lag_s": 0.009589042017701388,
+   "latency_ms": 140.75633298489265,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 575,
+   "scheduled_s": 16.56,
+   "started_s": 16.56975308302208,
+   "lag_s": 0.009753083022079778,
+   "latency_ms": 319.53199999406934,
+   "error": null
+  },
+  {
+   "i": 581,
+   "scheduled_s": 16.7328,
+   "started_s": 16.740895374998217,
+   "lag_s": 0.008095374998216442,
+   "latency_ms": 162.1892909752205,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 582,
+   "scheduled_s": 16.7616,
+   "started_s": 16.770882500015432,
+   "lag_s": 0.009282500015430628,
+   "latency_ms": 149.19570900383405,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 583,
+   "scheduled_s": 16.7904,
+   "started_s": 16.791861458012136,
+   "lag_s": 0.0014614580121339316,
+   "latency_ms": 151.13883398589678,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 584,
+   "scheduled_s": 16.819200000000002,
+   "started_s": 16.82840637501795,
+   "lag_s": 0.0092063750179463,
+   "latency_ms": 149.23245800309815,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 585,
+   "scheduled_s": 16.848,
+   "started_s": 16.856829083000775,
+   "lag_s": 0.00882908300077645,
+   "latency_ms": 148.1565409922041,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 586,
+   "scheduled_s": 16.8768,
+   "started_s": 16.8775200000091,
+   "lag_s": 0.0007200000090996639,
+   "latency_ms": 144.52999999048188,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 587,
+   "scheduled_s": 16.9056,
+   "started_s": 16.91503787500551,
+   "lag_s": 0.009437875005509966,
+   "latency_ms": 139.0170419763308,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 588,
+   "scheduled_s": 16.9344,
+   "started_s": 16.944398999999976,
+   "lag_s": 0.009998999999975666,
+   "latency_ms": 147.71662501152605,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 589,
+   "scheduled_s": 16.9632,
+   "started_s": 16.972988333000103,
+   "lag_s": 0.009788333000102512,
+   "latency_ms": 148.6849170178175,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 590,
+   "scheduled_s": 16.992,
+   "started_s": 16.99630637501832,
+   "lag_s": 0.004306375018320097,
+   "latency_ms": 149.6447499957867,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 591,
+   "scheduled_s": 17.0208,
+   "started_s": 17.029436542012263,
+   "lag_s": 0.008636542012261827,
+   "latency_ms": 149.94962498894893,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 592,
+   "scheduled_s": 17.0496,
+   "started_s": 17.058768542017788,
+   "lag_s": 0.009168542017786052,
+   "latency_ms": 143.94858400919475,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 593,
+   "scheduled_s": 17.078400000000002,
+   "started_s": 17.084893417020794,
+   "lag_s": 0.006493417020791981,
+   "latency_ms": 153.27099998830818,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 594,
+   "scheduled_s": 17.1072,
+   "started_s": 17.109015125024598,
+   "lag_s": 0.00181512502459924,
+   "latency_ms": 153.04641702095978,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 595,
+   "scheduled_s": 17.136,
+   "started_s": 17.145149375020992,
+   "lag_s": 0.009149375020992778,
+   "latency_ms": 152.77758301817812,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 596,
+   "scheduled_s": 17.1648,
+   "started_s": 17.16526670800522,
+   "lag_s": 0.0004667080052200845,
+   "latency_ms": 148.5123750171624,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 597,
+   "scheduled_s": 17.1936,
+   "started_s": 17.203066292015137,
+   "lag_s": 0.009466292015137157,
+   "latency_ms": 155.4853749985341,
+   "error": "HTTP 429: {\"error\":{\"code\":null,\"message\":\"Request rate limit exceeded, please try again later.\",\"param\":null,\"type\":\"too_many_requests\"}}\n"
+  },
+  {
+   "i": 598,
+   "scheduled_s": 17.2224,
+   "started_s": 17.23185250000097,
+   "lag_s": 0.0094525000009682,
+   "latency_ms": 268.83633399847895,
+   "error": null
+  },
+  {
+   "i": 599,
+   "scheduled_s": 17.2512,
+   "started_s": 17.256854083010694,
+   "lag_s": 0.005654083010693256,
+   "latency_ms": 257.085958000971,
+   "error": null
+  }
+ ]
+}

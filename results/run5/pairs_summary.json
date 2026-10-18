@@ -1,0 +1,15 @@
+{
+  "pairs": 10862,
+  "already_in_run4_any_model": 4397,
+  "new_vs_run4": 6465,
+  "retrieved_new_by_split": {
+    "test": 2118,
+    "val": 4347
+  },
+  "todo": {
+    "jev": 6465,
+    "haiku": 6465,
+    "pplx": 6465,
+    "pplx-flash": 6465
+  }
+}

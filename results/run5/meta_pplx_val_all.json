@@ -1,0 +1,13 @@
+{
+  "model": "pplx",
+  "split": "val",
+  "variant": "all",
+  "n": 4347,
+  "errors": 0,
+  "concurrency": 2,
+  "model_version": "pplx-decider-v1.2",
+  "finished_at": "2026-10-18T03:47:39.949244+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair"
+}

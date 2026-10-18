@@ -18,8 +18,18 @@ R4-H1..H3 pass.
   models), retrieval does not (recall@5 0.55, p99 198 ms), so H3/H4 land at a third of the bar.
   Stays opt-in. Next: retrieval that reads the diff (not the file list) and the Go store's latency
   as the pre-registered number — a run-5 addendum, not a re-run.
+- **Run 5 result (2026-10-18):** retrieval v2 (shared-issue refs + directory overlap) 0.55 → 0.66 recall@5
+  (bar 0.70); the changed-line content stage moved nothing on test; Go store p99 3.3 ms ✅. Coverage of
+  closed PRs crosses +15 pp for pplx/pplx-flash; pass-group bad rate still does not halve for anyone —
+  hold *precision* is the unmeasured thing. v2 replaces v1 in the store; memory stays opt-in. Next lever is
+  a wider candidate pool (gold is usually at rank 6–20), which is a protocol change.
 
-## v0.3 — `assumptions` (agent-declared premises)
+## v0.3 — `assumptions` (agent-declared premises) — run 5: component built, claim untestable on GitHub
+Run 5 extracted typed premises for 2,298 PRs from descriptions alone (Haiku, $0.0004/PR, 99.9% non-empty)
+and found that maintainers write a numbered "depends on / conflicts with #N" comment on 9 of 2,196 agent
+PRs — no ground truth to score against. `assumptions` ships as a `gate_decide` input the policy can use,
+with no accuracy claim. A test needs a repo where agents already declare premises, or a merge-conflict label.
+
 Agents know what their change *relies on*; today the gate has to infer it from the diff.
 Let the agent say it:
 

@@ -1,0 +1,13 @@
+{
+  "model": "pplx-flash",
+  "split": "val",
+  "variant": "all",
+  "n": 64,
+  "errors": 0,
+  "concurrency": 2,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-10-18T03:30:27.508502+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair_assume"
+}

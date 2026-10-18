@@ -1,30 +1,35 @@
 {
   "pairs": {
-    "pairs": 44,
-    "candidates_source": "run-4 retrieval recomputed in-process (fallback: results/run5/candidates.jsonl not present)",
+    "pairs": 97,
+    "candidates_source": "results/run5/candidates.jsonl",
     "prs_without_candidates": 0,
     "kinds": {
-      "labelled": 4,
-      "retrieved": 20,
-      "random": 20
+      "labelled": 9,
+      "retrieved": 44,
+      "random": 44
     },
     "by_split_kind": {
-      "val/labelled": 4,
-      "val/random": 20,
-      "val/retrieved": 20
+      "test/labelled": 3,
+      "test/random": 15,
+      "test/retrieved": 15,
+      "val/labelled": 6,
+      "val/random": 29,
+      "val/retrieved": 29
     },
     "positives_by_relation": {
-      "conflicts": 2,
-      "depends": 2
+      "conflicts": 3,
+      "depends": 6
     },
     "positives_shares_file": {
       "False": 3,
-      "True": 1
+      "True": 6
     },
     "positives_by_split_relation_shares_file": {
+      "test/conflicts/True": 1,
+      "test/depends/True": 2,
       "val/conflicts/False": 2,
       "val/depends/False": 1,
-      "val/depends/True": 1
+      "val/depends/True": 3
     },
     "missing_assumptions_rows": {}
   },
@@ -55,56 +60,74 @@
       }
     },
     "memory_partners": {
-      "n": 44,
+      "n": 102,
       "errors": 0,
       "empty_body": 0,
-      "calls": 44,
-      "with_ge1": 44,
-      "mean_count": 6.840909090909091,
+      "calls": 102,
+      "with_ge1": 102,
+      "mean_count": 6.509803921568627,
       "kinds": {
-        "behaviour": 129,
-        "test": 53,
-        "api": 71,
-        "data": 20,
-        "dependency": 16,
-        "config": 12
+        "behaviour": 300,
+        "test": 105,
+        "api": 134,
+        "data": 46,
+        "dependency": 49,
+        "config": 30
       },
-      "truncated_to_8": 4,
-      "input_tokens": 58674,
-      "output_tokens": 22993,
-      "cost_usd": 0.0174,
+      "truncated_to_8": 5,
+      "input_tokens": 133927,
+      "output_tokens": 49968,
+      "cost_usd": 0.0384,
       "latency_p50_ms": 2652.4012170000333,
-      "latency_p99_ms": 3470.5380440000226,
+      "latency_p99_ms": 3644.6622500079684,
       "model_versions": {
-        "claude-haiku-5-5": 44
+        "claude-haiku-5-5": 102
       }
     }
   },
   "models": {
     "haiku": {
       "test": {
-        "n": 0,
-        "n_pairs_in_split": 0,
-        "coverage": null,
-        "positives": 0,
-        "no_shared_file_positives": 0
+        "n": 33,
+        "n_pairs_in_split": 33,
+        "coverage": 1.0,
+        "positives": 3,
+        "roc_auc": 0.6111111111111112,
+        "ci95": [
+          0.22580645161290325,
+          0.9516507056451613
+        ],
+        "pr_auc": 0.17095238095238097,
+        "no_shared_file_positives": 0,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 0,
+          "n_random_pairs": 15,
+          "model_caught": NaN,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": NaN,
+          "delta_pp": NaN,
+          "caught_all_positives": 0.0
+        }
       },
       "val": {
-        "n": 44,
-        "n_pairs_in_split": 44,
+        "n": 64,
+        "n_pairs_in_split": 64,
         "coverage": 1.0,
-        "positives": 4,
-        "roc_auc": 0.7875,
+        "positives": 6,
+        "roc_auc": 0.8218390804597702,
         "ci95": [
-          0.3892857142857143,
-          1.0
+          0.6228944672131148,
+          0.9751493731962482
         ],
-        "pr_auc": 0.5181818181818182,
+        "pr_auc": 0.49422433138358535,
         "no_shared_file_positives": 3,
         "h4b": {
           "threshold": 0.7,
           "n_no_shared_file_positives": 3,
-          "n_random_pairs": 20,
+          "n_random_pairs": 29,
           "model_caught": 0.0,
           "model_fpr_random": 0.0,
           "floor_threshold": Infinity,
@@ -115,47 +138,294 @@
         }
       }
     },
+    "jev": {
+      "test": {
+        "n": 33,
+        "n_pairs_in_split": 33,
+        "coverage": 1.0,
+        "positives": 3,
+        "roc_auc": 0.8555555555555556,
+        "ci95": [
+          0.625,
+          1.0
+        ],
+        "pr_auc": 0.5277777777777778,
+        "no_shared_file_positives": 0,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 0,
+          "n_random_pairs": 15,
+          "model_caught": NaN,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": NaN,
+          "delta_pp": NaN,
+          "caught_all_positives": 0.3333333333333333
+        }
+      },
+      "val": {
+        "n": 64,
+        "n_pairs_in_split": 64,
+        "coverage": 1.0,
+        "positives": 6,
+        "roc_auc": 0.7514367816091955,
+        "ci95": [
+          0.4978183295647258,
+          0.9624060150375939
+        ],
+        "pr_auc": 0.43099435286935284,
+        "no_shared_file_positives": 3,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 3,
+          "n_random_pairs": 29,
+          "model_caught": 0.3333333333333333,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": 0.0,
+          "delta_pp": 33.33333333333333,
+          "caught_all_positives": 0.16666666666666666
+        }
+      }
+    },
+    "pplx-flash": {
+      "test": {
+        "n": 33,
+        "n_pairs_in_split": 33,
+        "coverage": 1.0,
+        "positives": 3,
+        "roc_auc": 0.7444444444444445,
+        "ci95": [
+          0.3548387096774194,
+          1.0
+        ],
+        "pr_auc": 0.47619047619047616,
+        "no_shared_file_positives": 0,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 0,
+          "n_random_pairs": 15,
+          "model_caught": NaN,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": NaN,
+          "delta_pp": NaN,
+          "caught_all_positives": 0.0
+        }
+      },
+      "val": {
+        "n": 64,
+        "n_pairs_in_split": 64,
+        "coverage": 1.0,
+        "positives": 6,
+        "roc_auc": 0.7557471264367815,
+        "ci95": [
+          0.5452610693400167,
+          0.937194683908046
+        ],
+        "pr_auc": 0.3024134145892527,
+        "no_shared_file_positives": 3,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 3,
+          "n_random_pairs": 29,
+          "model_caught": 0.0,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": 0.0,
+          "delta_pp": 0.0,
+          "caught_all_positives": 0.0
+        }
+      }
+    },
+    "pplx": {
+      "test": {
+        "n": 33,
+        "n_pairs_in_split": 33,
+        "coverage": 1.0,
+        "positives": 3,
+        "roc_auc": 0.9,
+        "ci95": [
+          0.7498611111111111,
+          1.0
+        ],
+        "pr_auc": 0.5694444444444444,
+        "no_shared_file_positives": 0,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 0,
+          "n_random_pairs": 15,
+          "model_caught": NaN,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": NaN,
+          "delta_pp": NaN,
+          "caught_all_positives": 0.3333333333333333
+        }
+      },
+      "val": {
+        "n": 64,
+        "n_pairs_in_split": 64,
+        "coverage": 1.0,
+        "positives": 6,
+        "roc_auc": 0.7413793103448276,
+        "ci95": [
+          0.5041666666666667,
+          0.9366431451612903
+        ],
+        "pr_auc": 0.27391774891774895,
+        "no_shared_file_positives": 3,
+        "h4b": {
+          "threshold": 0.7,
+          "n_no_shared_file_positives": 3,
+          "n_random_pairs": 29,
+          "model_caught": 0.3333333333333333,
+          "model_fpr_random": 0.0,
+          "floor_threshold": Infinity,
+          "floor_fpr_random": 0.0,
+          "floor_caught": 0.0,
+          "delta_pp": 33.33333333333333,
+          "caught_all_positives": 0.16666666666666666
+        }
+      }
+    },
     "floor_dir_jaccard": {
       "test": {
-        "n": 0,
-        "n_pairs_in_split": 0,
-        "coverage": null,
-        "positives": 0,
+        "n": 33,
+        "n_pairs_in_split": 33,
+        "coverage": 1.0,
+        "positives": 3,
+        "roc_auc": 0.711111111111111,
+        "ci95": [
+          0.47580645161290325,
+          0.916733870967742
+        ],
+        "pr_auc": 0.1619047619047619,
         "no_shared_file_positives": 0
       },
       "val": {
-        "n": 44,
-        "n_pairs_in_split": 44,
+        "n": 64,
+        "n_pairs_in_split": 64,
         "coverage": 1.0,
-        "positives": 4,
-        "roc_auc": 0.528125,
+        "positives": 6,
+        "roc_auc": 0.5632183908045978,
         "ci95": [
-          0.21845238095238098,
-          0.8023255813953488
+          0.3356924521857924,
+          0.7604970914859862
         ],
-        "pr_auc": 0.1018939393939394,
+        "pr_auc": 0.10905714181923859,
         "no_shared_file_positives": 3
       }
     }
   },
   "hypotheses": {
     "R5-H4[haiku]": {
-      "roc_auc": null,
-      "ci95": null,
-      "n": 0,
-      "positives": 0,
-      "coverage": null,
-      "evaluable": false,
+      "roc_auc": 0.6111111111111112,
+      "ci95": [
+        0.22580645161290325,
+        0.9516507056451613
+      ],
+      "n": 33,
+      "positives": 3,
+      "coverage": 1.0,
+      "evaluable": true,
       "pass": false,
       "bar": ">= 0.75"
     },
-    "R5-H4[floor_dir_jaccard]": {
-      "roc_auc": null,
-      "ci95": null,
+    "R5-H4b[haiku]": {
+      "caught": NaN,
+      "floor_caught": NaN,
+      "delta_pp": NaN,
+      "fpr_random": 0.0,
       "n": 0,
-      "positives": 0,
-      "coverage": null,
       "evaluable": false,
+      "pass": false,
+      "bar": ">= +15 pp over dir-Jaccard floor at same random-pair FPR"
+    },
+    "R5-H4[jev]": {
+      "roc_auc": 0.8555555555555556,
+      "ci95": [
+        0.625,
+        1.0
+      ],
+      "n": 33,
+      "positives": 3,
+      "coverage": 1.0,
+      "evaluable": true,
+      "pass": true,
+      "bar": ">= 0.75"
+    },
+    "R5-H4b[jev]": {
+      "caught": NaN,
+      "floor_caught": NaN,
+      "delta_pp": NaN,
+      "fpr_random": 0.0,
+      "n": 0,
+      "evaluable": false,
+      "pass": false,
+      "bar": ">= +15 pp over dir-Jaccard floor at same random-pair FPR"
+    },
+    "R5-H4[pplx-flash]": {
+      "roc_auc": 0.7444444444444445,
+      "ci95": [
+        0.3548387096774194,
+        1.0
+      ],
+      "n": 33,
+      "positives": 3,
+      "coverage": 1.0,
+      "evaluable": true,
+      "pass": false,
+      "bar": ">= 0.75"
+    },
+    "R5-H4b[pplx-flash]": {
+      "caught": NaN,
+      "floor_caught": NaN,
+      "delta_pp": NaN,
+      "fpr_random": 0.0,
+      "n": 0,
+      "evaluable": false,
+      "pass": false,
+      "bar": ">= +15 pp over dir-Jaccard floor at same random-pair FPR"
+    },
+    "R5-H4[pplx]": {
+      "roc_auc": 0.9,
+      "ci95": [
+        0.7498611111111111,
+        1.0
+      ],
+      "n": 33,
+      "positives": 3,
+      "coverage": 1.0,
+      "evaluable": true,
+      "pass": true,
+      "bar": ">= 0.75"
+    },
+    "R5-H4b[pplx]": {
+      "caught": NaN,
+      "floor_caught": NaN,
+      "delta_pp": NaN,
+      "fpr_random": 0.0,
+      "n": 0,
+      "evaluable": false,
+      "pass": false,
+      "bar": ">= +15 pp over dir-Jaccard floor at same random-pair FPR"
+    },
+    "R5-H4[floor_dir_jaccard]": {
+      "roc_auc": 0.711111111111111,
+      "ci95": [
+        0.47580645161290325,
+        0.916733870967742
+      ],
+      "n": 33,
+      "positives": 3,
+      "coverage": 1.0,
+      "evaluable": true,
       "pass": false,
       "bar": ">= 0.75"
     }
@@ -163,15 +433,16 @@
   "prediction_dir": "results/run5_assume",
   "relation_labels": {
     "by_label": {
-      "comments_not_fetched": 1254,
-      "not_marked": 884,
-      "relation_unknown": 52,
-      "related_to_outside_memory": 2,
-      "related_to": 4
+      "not_marked": 2096,
+      "relation_unknown": 88,
+      "related_to_outside_memory": 3,
+      "related_to": 9
     },
     "by_relation_split": {
+      "test/conflicts": 1,
+      "test/depends": 2,
       "val/conflicts": 2,
-      "val/depends": 2
+      "val/depends": 4
     }
   }
 }

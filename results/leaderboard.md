@@ -10,12 +10,12 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 
 | # | model | kind | scale (H5) | quality AUC | calibration ECE | speed p99 ms | cost $/1k PRs | runs | overall |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `jev` | decision model | pass | 0.726 (#3) | 0.076 (#3) | 527 (loadtest x100) (#5) | 0.086 (#5) | 4 | 16 |
+| 1 | `jev` | decision model | pass | 0.732 (#3) | 0.073 (#4) | 527 (loadtest x100) (#4) | 0.089 (#5) | 5 | 16 |
 | 2 | `gbm` | floor (trained classifier) | n/a | 0.605 (#5) | 0.003 (#1) | 9 (in-run) (#1) | 0.000 (#1) | 1 | 8 |
-| 3 | `pplx-flash` | decision model | n/a | 0.842 (#2) | — (#—) | 328 (in-run) (#3) | 0.021 (#3) | 1 | 14 |
-| 4 | `rules` | floor (no model) | n/a | 0.526 (#6) | 0.125 (#4) | 13 (in-run) (#2) | 0.000 (#2) | 3 | 14 |
-| 5 | `pplx` | decision model | n/a | 0.869 (#1) | — (#—) | 524 (in-run) (#4) | 0.042 (#4) | 1 | 15 |
-| 6 | `haiku` | LLM judge | **fail** | 0.704 (#4) | 0.060 (#2) | 9662 (loadtest x100) (#6) | 0.343 (#6) | 4 | 18 |
+| 3 | `rules` | floor (no model) | n/a | 0.576 (#6) | 0.105 (#6) | 9 (in-run) (#2) | 0.000 (#2) | 4 | 16 |
+| 4 | `pplx-flash` | decision model | **fail** | 0.800 (#1) | 0.053 (#2) | 501 (loadtest x100) (#3) | 0.022 (#3) | 2 | 9 |
+| 5 | `pplx` | decision model | **fail** | 0.778 (#2) | 0.078 (#5) | 1032 (loadtest x100) (#5) | 0.044 (#4) | 2 | 16 |
+| 6 | `haiku` | LLM judge | **fail** | 0.711 (#4) | 0.060 (#3) | 9662 (loadtest x100) (#6) | 0.370 (#6) | 5 | 19 |
 
 ## Per run
 
@@ -25,16 +25,21 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 | `jev` | run2 | judge labels ×5 | 0.904 | 0.032 | 736 | — | 0.074 | 0.0% | — |
 | `jev` | run3 | agent-PR outcome | 0.550 | 0.110 | 353 | 417 | 0.091 | 0.0% | pass |
 | `jev` | run4 | same_change pairs | 0.835 | — | 462 | — | 0.104 | 0.0% | — |
+| `jev` | run5 | v3 → review iteration | 0.756 | 0.064 | 348 | — | 0.103 | 0.0% | — |
 | `gbm` | run1 | revert (k8s) | 0.605 | 0.003 | 9 | — | 0.000 | 0.0% | — |
-| `pplx-flash` | run4 | same_change pairs | 0.842 | — | 328 | — | 0.021 | 0.0% | — |
 | `rules` | run1 | revert (k8s) | 0.471 | 0.130 | 0 | — | 0.000 | 0.0% | — |
 | `rules` | run3 | agent-PR outcome | 0.528 | 0.120 | 26 | — | 0.000 | 0.0% | — |
 | `rules` | run4 | same_change pairs | 0.579 | — | — | — | — | — | — |
+| `rules` | run5 | v3 → review iteration | 0.728 | 0.065 | 1 | — | 0.000 | 0.0% | — |
+| `pplx-flash` | run4 | same_change pairs | 0.842 | — | 328 | — | 0.021 | 0.0% | — |
+| `pplx-flash` | run5 | v3 → review iteration | 0.758 | 0.053 | 364 | 501 | 0.023 | 0.0% | fail |
 | `pplx` | run4 | same_change pairs | 0.869 | — | 524 | — | 0.042 | 0.0% | — |
+| `pplx` | run5 | v3 → review iteration | 0.686 | 0.078 | 920 | 1032 | 0.046 | 0.0% | fail |
 | `haiku` | run1 | revert (k8s) | 0.599 | 0.034 | 2510 | 9662 | 0.308 | 0.0% | fail |
 | `haiku` | run2 | judge labels ×5 | 0.903 | 0.028 | 2461 | — | 0.314 | 0.0% | — |
 | `haiku` | run3 | agent-PR outcome | 0.551 | 0.119 | 2580 | 2880 | 0.373 | 0.0% | fail |
 | `haiku` | run4 | same_change pairs | 0.765 | — | 2582 | — | 0.377 | 0.0% | — |
+| `haiku` | run5 | v3 → review iteration | 0.740 | 0.058 | 2941 | — | 0.476 | 0.0% | — |
 
 ## In the registry, not yet run
 

@@ -6,8 +6,11 @@ val 1491 PRs · test 705 PRs · `iterated` base rate: test 0.082, val 0.031 · r
 
 | model | n | ROC-AUC [95% CI] | raw AUC | PR-AUC | R@FPR5 | ECE (cal) | stack AUC [95% CI] | stack unpruned | pruned on val | p50 ms | p99 ms | $/1k |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| haiku | 705 | 0.740 [0.684, 0.790] | 0.738 | 0.155 | 0.086 | 0.055 | 0.784 [0.737, 0.830] | 0.768 | breaking_change, tests_cover_change, hard_to_revert | 1096 | 2619 | 0.472 |
-| rules | 705 | 0.728 [0.667, 0.786] | 0.744 | 0.169 | 0.155 | 0.057 | 0.731 [0.666, 0.785] | 0.731 | exceeds_scope, breaking_change, tests_cover_change, hard_to_revert, follows_conventions | 0 | 1 | 0.000 |
+| haiku | 705 | 0.740 [0.684, 0.790] | 0.738 | 0.155 | 0.086 | 0.058 | 0.784 [0.737, 0.830] | 0.768 | breaking_change, tests_cover_change, hard_to_revert | 1096 | 2619 | 0.472 |
+| jev (S1) | 705 | 0.756 [0.681, 0.813] | 0.777 | 0.208 | 0.224 | 0.064 | 0.718 [0.657, 0.775] | 0.682 | exceeds_scope, breaking_change, tests_cover_change, hard_to_revert | 262 | 384 | 0.102 |
+| pplx (S1) | 705 | 0.686 [0.625, 0.748] | 0.740 | 0.163 | 0.121 | 0.078 | 0.665 [0.603, 0.723] | 0.714 | exceeds_scope, breaking_change, tests_cover_change, hard_to_revert, follows_conventions | 425 | 844 | 0.046 |
+| pplx-flash (S1) | 705 | 0.758 [0.690, 0.819] | 0.767 | 0.201 | 0.086 | 0.053 | 0.737 [0.664, 0.798] | 0.755 | exceeds_scope, tests_cover_change, hard_to_revert, follows_conventions | 275 | 365 | 0.023 |
+| rules | 705 | 0.728 [0.667, 0.786] | 0.744 | 0.169 | 0.155 | 0.065 | 0.731 [0.666, 0.785] | 0.731 | exceeds_scope, breaking_change, tests_cover_change, hard_to_revert, follows_conventions | 0 | 1 | 0.000 |
 
 ## Every v3 question (test ROC-AUC; val AUC is in-sample for calibration and pruning)
 
@@ -15,46 +18,108 @@ val 1491 PRs · test 705 PRs · `iterated` base rate: test 0.082, val 0.031 · r
 
 | question | vs iterated (raw) | vs iterated (cal) | ECE cal | vs rejected | val vs iterated | val marginal gain (stack) |
 |---|---|---|---|---|---|---|
-| is_logic_change | 0.665 | 0.578 | 0.068 | 0.479 | 0.606 | -0.0030 |
-| weakens_tests | 0.809 | 0.797 | 0.063 | 0.559 | 0.597 | -0.0013 |
-| message_matches_diff | 0.356 | 0.477 | 0.082 | 0.397 | 0.392 | 0.0239 |
-| touches_concurrency | 0.642 | 0.631 | 0.058 | 0.482 | 0.643 | 0.0014 |
-| needs_human_review | 0.738 | 0.740 | 0.055 | 0.563 | 0.666 | 0.0040 |
-| exceeds_scope | 0.781 | 0.773 | 0.062 | 0.518 | 0.663 | 0.0142 |
-| breaking_change | 0.750 | 0.700 | 0.064 | 0.499 | 0.611 | -0.0053 (pruned) |
-| tests_cover_change | 0.624 | 0.624 | 0.072 | 0.515 | 0.532 | -0.0039 (pruned) |
+| is_logic_change | 0.665 | 0.578 | 0.065 | 0.479 | 0.606 | -0.0030 |
+| weakens_tests | 0.809 | 0.797 | 0.069 | 0.559 | 0.597 | -0.0013 |
+| message_matches_diff | 0.356 | 0.477 | 0.070 | 0.397 | 0.392 | 0.0239 |
+| touches_concurrency | 0.642 | 0.631 | 0.072 | 0.482 | 0.643 | 0.0014 |
+| needs_human_review | 0.738 | 0.740 | 0.058 | 0.563 | 0.666 | 0.0040 |
+| exceeds_scope | 0.781 | 0.773 | 0.064 | 0.518 | 0.663 | 0.0142 |
+| breaking_change | 0.750 | 0.700 | 0.060 | 0.499 | 0.611 | -0.0053 (pruned) |
+| tests_cover_change | 0.624 | 0.624 | 0.075 | 0.515 | 0.532 | -0.0039 (pruned) |
 | hard_to_revert | 0.808 | 0.789 | 0.063 | 0.508 | 0.644 | -0.0020 (pruned) |
 | follows_conventions | 0.307 | 0.476 | 0.076 | 0.396 | 0.369 | 0.0068 |
 
 val 5-fold stack AUC: all ten 0.652, kept 0.664 (46 val positives).
 
+### jev
+
+| question | vs iterated (raw) | vs iterated (cal) | ECE cal | vs rejected | val vs iterated | val marginal gain (stack) |
+|---|---|---|---|---|---|---|
+| is_logic_change | 0.604 | 0.587 | 0.064 | 0.471 | 0.602 | -0.0097 |
+| weakens_tests | 0.771 | 0.771 | 0.065 | 0.550 | 0.626 | -0.0033 |
+| message_matches_diff | 0.233 | 0.439 | 0.074 | 0.403 | 0.368 | 0.0059 |
+| touches_concurrency | 0.605 | 0.592 | 0.062 | 0.479 | 0.625 | -0.0019 |
+| needs_human_review | 0.777 | 0.756 | 0.064 | 0.547 | 0.671 | 0.0440 |
+| exceeds_scope | 0.795 | 0.782 | 0.062 | 0.511 | 0.658 | 0.0033 (pruned) |
+| breaking_change | 0.708 | 0.641 | 0.063 | 0.493 | 0.562 | -0.0128 (pruned) |
+| tests_cover_change | 0.756 | 0.720 | 0.066 | 0.496 | 0.605 | -0.0087 (pruned) |
+| hard_to_revert | 0.850 | 0.828 | 0.072 | 0.524 | 0.558 | -0.0052 (pruned) |
+| follows_conventions | 0.235 | 0.362 | 0.083 | 0.374 | 0.432 | 0.0281 |
+
+val 5-fold stack AUC: all ten 0.647, kept 0.666 (46 val positives).
+
+### pplx
+
+| question | vs iterated (raw) | vs iterated (cal) | ECE cal | vs rejected | val vs iterated | val marginal gain (stack) |
+|---|---|---|---|---|---|---|
+| is_logic_change | 0.580 | 0.525 | 0.068 | 0.465 | 0.562 | 0.0159 |
+| weakens_tests | 0.789 | 0.771 | 0.061 | 0.541 | 0.641 | -0.0176 |
+| message_matches_diff | 0.289 | 0.471 | 0.077 | 0.400 | 0.376 | -0.0143 |
+| touches_concurrency | 0.654 | 0.661 | 0.067 | 0.512 | 0.647 | -0.0037 |
+| needs_human_review | 0.740 | 0.686 | 0.078 | 0.513 | 0.647 | 0.0589 |
+| exceeds_scope | 0.758 | 0.708 | 0.057 | 0.531 | 0.681 | -0.0078 (pruned) |
+| breaking_change | 0.749 | 0.700 | 0.070 | 0.480 | 0.591 | -0.0236 (pruned) |
+| tests_cover_change | 0.596 | 0.636 | 0.072 | 0.492 | 0.530 | -0.0102 (pruned) |
+| hard_to_revert | 0.841 | 0.801 | 0.074 | 0.537 | 0.583 | -0.0132 (pruned) |
+| follows_conventions | 0.374 | 0.370 | 0.071 | 0.407 | 0.532 | 0.0002 (pruned) |
+
+val 5-fold stack AUC: all ten 0.589, kept 0.626 (46 val positives).
+
+### pplx-flash
+
+| question | vs iterated (raw) | vs iterated (cal) | ECE cal | vs rejected | val vs iterated | val marginal gain (stack) |
+|---|---|---|---|---|---|---|
+| is_logic_change | 0.655 | 0.665 | 0.062 | 0.450 | 0.624 | -0.0110 |
+| weakens_tests | 0.696 | 0.685 | 0.059 | 0.486 | 0.652 | -0.0005 |
+| message_matches_diff | 0.504 | 0.517 | 0.067 | 0.423 | 0.525 | -0.0101 |
+| touches_concurrency | 0.644 | 0.644 | 0.072 | 0.497 | 0.624 | -0.0036 |
+| needs_human_review | 0.767 | 0.758 | 0.053 | 0.501 | 0.694 | 0.0246 |
+| exceeds_scope | 0.735 | 0.707 | 0.059 | 0.503 | 0.639 | -0.0003 (pruned) |
+| breaking_change | 0.682 | 0.626 | 0.068 | 0.465 | 0.566 | 0.0061 |
+| tests_cover_change | 0.708 | 0.655 | 0.071 | 0.473 | 0.567 | -0.0030 (pruned) |
+| hard_to_revert | 0.770 | 0.740 | 0.063 | 0.536 | 0.657 | 0.0038 (pruned) |
+| follows_conventions | 0.641 | 0.636 | 0.060 | 0.483 | 0.660 | 0.0015 (pruned) |
+
+val 5-fold stack AUC: all ten 0.670, kept 0.672 (46 val positives).
+
 ### rules
 
 | question | vs iterated (raw) | vs iterated (cal) | ECE cal | vs rejected | val vs iterated | val marginal gain (stack) |
 |---|---|---|---|---|---|---|
-| is_logic_change | 0.730 | 0.716 | 0.065 | 0.489 | 0.570 | -0.0428 |
-| weakens_tests | 0.491 | 0.500 | 0.087 | 0.499 | 0.490 | 0.0050 |
-| message_matches_diff | 0.294 | 0.417 | 0.082 | 0.421 | 0.489 | 0.0057 |
-| touches_concurrency | 0.403 | 0.500 | 0.087 | 0.473 | 0.422 | 0.0277 |
-| needs_human_review | 0.744 | 0.728 | 0.057 | 0.528 | 0.617 | 0.0134 |
-| exceeds_scope | 0.500 | 0.500 | 0.087 | 0.500 | 0.500 | 0.0000 (pruned) |
-| breaking_change | 0.500 | 0.500 | 0.087 | 0.500 | 0.500 | 0.0000 (pruned) |
-| tests_cover_change | 0.500 | 0.500 | 0.087 | 0.500 | 0.500 | 0.0000 (pruned) |
-| hard_to_revert | 0.500 | 0.500 | 0.087 | 0.500 | 0.500 | 0.0000 (pruned) |
-| follows_conventions | 0.500 | 0.500 | 0.087 | 0.500 | 0.500 | 0.0000 (pruned) |
+| is_logic_change | 0.730 | 0.716 | 0.070 | 0.489 | 0.570 | -0.0428 |
+| weakens_tests | 0.491 | 0.500 | 0.088 | 0.499 | 0.490 | 0.0050 |
+| message_matches_diff | 0.294 | 0.417 | 0.087 | 0.421 | 0.489 | 0.0057 |
+| touches_concurrency | 0.403 | 0.500 | 0.088 | 0.473 | 0.422 | 0.0277 |
+| needs_human_review | 0.744 | 0.728 | 0.065 | 0.528 | 0.617 | 0.0134 |
+| exceeds_scope | 0.500 | 0.500 | 0.088 | 0.500 | 0.500 | 0.0000 (pruned) |
+| breaking_change | 0.500 | 0.500 | 0.088 | 0.500 | 0.500 | 0.0000 (pruned) |
+| tests_cover_change | 0.500 | 0.500 | 0.088 | 0.500 | 0.500 | 0.0000 (pruned) |
+| hard_to_revert | 0.500 | 0.500 | 0.088 | 0.500 | 0.500 | 0.0000 (pruned) |
+| follows_conventions | 0.500 | 0.500 | 0.088 | 0.500 | 0.500 | 0.0000 (pruned) |
 
 val 5-fold stack AUC: all ten 0.588, kept 0.588 (46 val positives).
 
 ## R5-H3: verdict level with component-A top-5 (run-4 pair predictions reused where identical)
 
-**A pending** — results/run5/candidates.jsonl not found (component A); R5-H3 skipped
+| model | status | pair sources (test) | variant | pass % | pass bad-rate | closed not passed | dedup holds | run 4 (with dedup) |
+|---|---|---|---|---|---|---|---|---|
+| jev | ok | run4 1317, run5 2118 | without_dedup | 35.3 | 0.410 | 67.5% | 0 | — |
+| jev | ok | run4 1317, run5 2118 | with_dedup | 30.6 | 0.352 | 76.1% | 137 | 0.355 / 75.7% |
+| haiku | ok | run4 1317, run5 2118 | without_dedup | 59.0 | 0.445 | 44.9% | 0 | — |
+| haiku | ok | run4 1317, run5 2118 | with_dedup | 51.2 | 0.410 | 55.4% | 109 | 0.409 / 55.7% |
+| pplx | ok | run4 1317, run5 2118 | without_dedup | 58.2 | 0.478 | 38.4% | 0 | — |
+| pplx | ok | run4 1317, run5 2118 | with_dedup | 46.1 | 0.397 | 60.0% | 164 | — |
+| pplx-flash | ok | run4 1317, run5 2118 | without_dedup | 48.8 | 0.459 | 49.5% | 0 | — |
+| pplx-flash | ok | run4 1317, run5 2118 | with_dedup | 37.4 | 0.383 | 67.9% | 184 | — |
+| rules | ok | retrieval_score 3435 | without_dedup | 68.2 | 0.466 | 31.1% | 0 | — |
+| rules | ok | retrieval_score 3435 | with_dedup | 61.4 | 0.430 | 43.6% | 91 | 0.473 / 49.2% |
 
 ## R5-H6: load tests (pplx, pplx-flash; adapter 429 retry disabled)
 
 | model | ×1 p99 | ×10 p99 | ×100 p99 | ×100 errors | ×100 429s | in-run p99 | status |
 |---|---|---|---|---|---|---|---|
-| pplx | — | — | — | — | — | — | pending |
-| pplx-flash | — | — | — | — | — | — | pending |
+| pplx | 958 | 988 | 1032 | 0.713 | 428 | 844 | ok |
+| pplx-flash | 561 | 462 | 501 | 0.713 | 428 | 365 | ok |
 
 ## Pre-registered criteria
 
@@ -62,12 +127,27 @@ val 5-fold stack AUC: all ten 0.588, kept 0.588 (46 val positives).
 |---|---|---|---|
 | R5-H5[haiku] | {"roc_auc": 0.74, "ci95": [0.684, 0.79], "system_one": false, "not_replicating": false} | >= 0.70 calibrated needs_human_review → iterated (System One counts; < 0.60 not replicating) | ✅ |
 | R5-H5-stack[haiku] | {"roc_auc": 0.784, "ci95": [0.737, 0.83], "pruned_on_val": ["breaking_change", "tests_cover_change", "hard_to_revert"]} | >= 0.75 (stack fit on val) | ✅ |
+| R5-H5[jev] | {"roc_auc": 0.756, "ci95": [0.681, 0.813], "system_one": true, "not_replicating": false} | >= 0.70 calibrated needs_human_review → iterated (System One counts; < 0.60 not replicating) | ✅ |
+| R5-H5-stack[jev] | {"roc_auc": 0.718, "ci95": [0.657, 0.775], "pruned_on_val": ["exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert"]} | >= 0.75 (stack fit on val) | ❌ |
+| R5-H5[pplx] | {"roc_auc": 0.686, "ci95": [0.625, 0.748], "system_one": true, "not_replicating": false} | >= 0.70 calibrated needs_human_review → iterated (System One counts; < 0.60 not replicating) | ❌ |
+| R5-H5-stack[pplx] | {"roc_auc": 0.665, "ci95": [0.603, 0.723], "pruned_on_val": ["exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert", "follows_conventions"]} | >= 0.75 (stack fit on val) | ❌ |
+| R5-H5[pplx-flash] | {"roc_auc": 0.758, "ci95": [0.69, 0.819], "system_one": true, "not_replicating": false} | >= 0.70 calibrated needs_human_review → iterated (System One counts; < 0.60 not replicating) | ✅ |
+| R5-H5-stack[pplx-flash] | {"roc_auc": 0.737, "ci95": [0.664, 0.798], "pruned_on_val": ["exceeds_scope", "tests_cover_change", "hard_to_revert", "follows_conventions"]} | >= 0.75 (stack fit on val) | ❌ |
 | R5-H5[rules] | {"roc_auc": 0.728, "ci95": [0.667, 0.786], "system_one": false, "not_replicating": false} | >= 0.70 calibrated needs_human_review → iterated (System One counts; < 0.60 not replicating) | ✅ |
 | R5-H5-stack[rules] | {"roc_auc": 0.731, "ci95": [0.666, 0.785], "pruned_on_val": ["exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert", "follows_conventions"]} | >= 0.75 (stack fit on val) | ❌ |
-| R5-H5 | {"status": "System One v3 predictions pending (jev/pplx/pplx-flash run on the Mac)"} | nhr >= 0.70 for >= 1 System One model and stack >= 0.75 | pending |
-| R5-H3 | {"status": "A pending"} | pass bad-rate <= 0.5 x base; closed coverage >= +15 pp | pending |
-| R5-H6[pplx] | {"status": "pending"} | 100×: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off) | pending |
-| R5-H6[pplx-flash] | {"status": "pending"} | 100×: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off) | pending |
+| R5-H5 | {"system_one_models": ["jev", "pplx", "pplx-flash"], "best_nhr_auc": 0.758, "best_stack_auc": 0.737, "not_replicating": false} | nhr >= 0.70 for >= 1 System One model and stack >= 0.75 | ❌ |
+| R5-H3a[jev] | {"pass_bad_rate": 0.352, "base": 0.468, "status": "ok"} | R4-H3: pass bad-rate <= 0.5 x base | ❌ |
+| R5-H3b[jev] | {"closed_nonpass_without": 0.675, "with_dedup": 0.761, "delta_pp": 8.525, "status": "ok"} | R4-H4: >= +15 pp | ❌ |
+| R5-H3a[haiku] | {"pass_bad_rate": 0.41, "base": 0.468, "status": "ok"} | R4-H3: pass bad-rate <= 0.5 x base | ❌ |
+| R5-H3b[haiku] | {"closed_nonpass_without": 0.449, "with_dedup": 0.554, "delta_pp": 10.492, "status": "ok"} | R4-H4: >= +15 pp | ❌ |
+| R5-H3a[pplx] | {"pass_bad_rate": 0.397, "base": 0.468, "status": "ok"} | R4-H3: pass bad-rate <= 0.5 x base | ❌ |
+| R5-H3b[pplx] | {"closed_nonpass_without": 0.384, "with_dedup": 0.6, "delta_pp": 21.639, "status": "ok"} | R4-H4: >= +15 pp | ✅ |
+| R5-H3a[pplx-flash] | {"pass_bad_rate": 0.383, "base": 0.468, "status": "ok"} | R4-H3: pass bad-rate <= 0.5 x base | ❌ |
+| R5-H3b[pplx-flash] | {"closed_nonpass_without": 0.495, "with_dedup": 0.679, "delta_pp": 18.361, "status": "ok"} | R4-H4: >= +15 pp | ✅ |
+| R5-H3a[rules] | {"pass_bad_rate": 0.43, "base": 0.468, "status": "ok"} | R4-H3: pass bad-rate <= 0.5 x base | ❌ |
+| R5-H3b[rules] | {"closed_nonpass_without": 0.311, "with_dedup": 0.436, "delta_pp": 12.459, "status": "ok"} | R4-H4: >= +15 pp | ❌ |
+| R5-H6[pplx] | {"status": "ok", "p99_ms_x100": 1031.617, "error_rate_x100": 0.713, "inrun_p99_ms": 844.06, "x1_p99_ms": 957.871, "pass_vs_x1": false} | 100×: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off) | ❌ |
+| R5-H6[pplx-flash] | {"status": "ok", "p99_ms_x100": 501.163, "error_rate_x100": 0.713, "inrun_p99_ms": 364.933, "x1_p99_ms": 560.837, "pass_vs_x1": false} | 100×: p99 <= in-run p99 + 200 ms, 0 errors (429 = error, retry off) | ❌ |
 
 ## Notes
 

@@ -1,9 +1,9 @@
 {
-  "computed_at": "2026-10-18T00:01:08+00:00",
+  "computed_at": "2026-10-18T03:13:08+00:00",
   "n": 2196,
-  "python_a1_p50_ms": 33.03070299989486,
-  "python_a1_p99_ms": 1232.7120439999817,
-  "python_a1_max_ms": 1486.316601999988,
+  "python_a1_p50_ms": 14.204750012140721,
+  "python_a1_p99_ms": 533.1571669958066,
+  "python_a1_max_ms": 630.3207500022836,
   "measured": "Query.make + Memory.a1 (tokenise, window, score, top-20); memory pre-loaded",
   "a2_patch_fetches_per_pr": {
     "mean": 19.57377049180328,
@@ -11,13 +11,15 @@
     "bar": "<= 20"
   },
   "a2_api_calls_per_pr_uncached": {
-    "mean": 0.0,
-    "max": 0,
+    "mean": 19.694899817850636,
+    "max": 34,
     "note": "pulls/{n}/files pages (<=3 per candidate) if no candidate were cached"
   },
   "a2_unique_candidates": 17421,
-  "a2_unique_fetched_ok": 0,
+  "a2_unique_fetched_ok": 16664,
   "a2_unique_by_status": {
-    "not_attempted": 17421
+    "ok": 16664,
+    "too_many_files": 160,
+    "error": 597
   }
 }
