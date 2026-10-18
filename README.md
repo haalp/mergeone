@@ -181,6 +181,11 @@ Raw predictions, judge labels, calibration maps and figures: `results/run1` … 
 
 ### Which decision model should sit in the gate?
 
+![Decision models under agent-scale load: p99 latency per decision vs load multiplier; each line runs as far as the model answered every call](results/figures/decision_models_under_load.png)
+
+*One line per decision model behind one API key or one GPU; the line runs as far as every call was answered, ✕ is the first load with failures (runs 1, 5, 6). Rebuilt by `scripts/fig_decision_models_under_load.py` from the frozen load-test files.*
+
+
 [`results/leaderboard.md`](results/leaderboard.md) ranks every model that has been run under the protocol on the four things a gateway pays for — quality (AUC vs ground truth), calibration (ECE), speed (p99 at 100× load) and cost — with the scale bar as a hard gate. Reporting only, rebuilt by `mergeone leaderboard`.
 
 | # | model | kind | scale at 100× | quality AUC (mean over runs) | ECE | p99 at 100× | $/1k PRs | runs |
