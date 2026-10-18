@@ -1,0 +1,28 @@
+{
+  "drawn_at": "2026-10-18T17:20:16+00:00",
+  "seed": 6,
+  "n": 100,
+  "k": 20,
+  "model_holds_from": "pplx-flash",
+  "threshold": 0.7,
+  "n_test_prs": 705,
+  "n_held_test": 195,
+  "strata": {
+    "population": {
+      "superseded": 39,
+      "closed_unmarked": 75,
+      "merged": 81
+    },
+    "sampled": {
+      "superseded": 20,
+      "closed_unmarked": 38,
+      "merged": 42
+    }
+  },
+  "allocation": "proportional, largest remainder",
+  "missing_pair_predictions_test_k20": {
+    "jev": 0,
+    "pplx-flash": 0,
+    "haiku": 9422
+  }
+}

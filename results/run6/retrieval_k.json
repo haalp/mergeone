@@ -1,0 +1,49 @@
+{
+  "computed_at": "2026-10-18T15:49:33+00:00",
+  "a2_status": "ran",
+  "prefix_check": {
+    "checked": [
+      5,
+      10,
+      20
+    ]
+  },
+  "n_prs": 2196,
+  "a2_lookup": {
+    "patch_dir": "data/run5/patches",
+    "patch_dir_present": true,
+    "unique_candidates_looked_up": 17421,
+    "unique_fetched_ok": 16664
+  },
+  "recall": {
+    "val": {
+      "n_gold": 22,
+      "recall_at_5": 0.8181818181818182,
+      "a1_recall_at_5": 0.8636363636363636,
+      "recall_at_10": 0.8636363636363636,
+      "a1_recall_at_10": 0.8636363636363636,
+      "recall_at_20": 0.9090909090909091,
+      "a1_recall_at_20": 0.9090909090909091
+    },
+    "test": {
+      "n_gold": 29,
+      "recall_at_5": 0.6551724137931034,
+      "a1_recall_at_5": 0.6551724137931034,
+      "recall_at_10": 0.8620689655172413,
+      "a1_recall_at_10": 0.7931034482758621,
+      "recall_at_20": 0.8620689655172413,
+      "a1_recall_at_20": 0.8620689655172413
+    }
+  },
+  "R6B-H1_recall": {
+    "recall_at_20_test": 0.8620689655172413,
+    "n_gold": 29,
+    "bar": ">= 0.80",
+    "pass": true
+  },
+  "note": "val is tuned (A1 weights fit on val gold pairs); test is the R6B-H1 number. recall@20 is the same for A1 and A1+A2 (A2 re-orders the A1 top-20).",
+  "agreement_with_run5_top5": {
+    "identical": 2196,
+    "n": 2196
+  }
+}

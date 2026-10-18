@@ -1,0 +1,62 @@
+{
+  "computed_at": "2026-10-18T15:49:43+00:00",
+  "pair_rows": 43041,
+  "kinds": {
+    "retrieved": 42984,
+    "gold_not_retrieved": 6,
+    "random_negative": 51
+  },
+  "retrieved_pairs_by_k": {
+    "5": 10797,
+    "10": 21552,
+    "20": 42984
+  },
+  "todo_rule": "retrieved pairs (A, candidate) whose pair id has no error-free same_change row for this model in results/run4 or results/run5 predictions_<model>_{val,test}_all.jsonl; gold_not_retrieved / random_negative rows are built (run-4 format) but not asked",
+  "models": {
+    "jev": {
+      "new_pairs_by_k": {
+        "5": 0,
+        "10": 9369,
+        "20": 29788
+      },
+      "todo": 29788,
+      "todo_by_split": {
+        "test": 9422,
+        "val": 20366
+      },
+      "est_cost_usd_per_pair": 0.00010322453114754099,
+      "est_cost_usd_todo": 3.074852333822951,
+      "cost_basis": "mean list-price cost of this model's 17080 earlier pair rows"
+    },
+    "pplx-flash": {
+      "new_pairs_by_k": {
+        "5": 0,
+        "10": 9369,
+        "20": 29788
+      },
+      "todo": 29788,
+      "todo_by_split": {
+        "test": 9422,
+        "val": 20366
+      },
+      "est_cost_usd_per_pair": 2.099908606557377e-05,
+      "est_cost_usd_todo": 0.6255207757213115,
+      "cost_basis": "mean list-price cost of this model's 17080 earlier pair rows"
+    },
+    "haiku": {
+      "new_pairs_by_k": {
+        "5": 0,
+        "10": 9369,
+        "20": 29788
+      },
+      "todo": 29788,
+      "todo_by_split": {
+        "test": 9422,
+        "val": 20366
+      },
+      "est_cost_usd_per_pair": 0.00038055686182669794,
+      "est_cost_usd_todo": 11.336027800093678,
+      "cost_basis": "mean list-price cost of this model's 17080 earlier pair rows"
+    }
+  }
+}
