@@ -107,7 +107,8 @@ def _loadtest_p99(run_dir: Path, model: str) -> float | None:
     p = run_dir / f"loadtest_{model}_x100.json"
     if not p.exists():
         return None
-    return float(json.loads(p.read_text())["summary"]["p99_ms"])
+    v = json.loads(p.read_text())["summary"].get("p99_ms")
+    return None if v is None else float(v)  # every request failed (run 6A ×100): no p99, the row keeps its scale ❌
 
 
 def collect() -> dict[str, dict]:

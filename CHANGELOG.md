@@ -96,3 +96,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - 17:49Z retrieval v2 at k=20/10/5 (A2 ran): test recall@5/10/20 = 0.655 / 0.862 / 0.862 (R6B-H1 recall bar 0.80 ✅ at k=20); val 0.818 / 0.864 / 0.909 (tuned).
 - 42,984 retrieved pairs; new same_change predictions: jev 29,788 ($3.07 est.), pplx-flash 29,788, haiku 29,788 (running, ~400/min). pplx-flash and jev complete with 0 errors at 17:15Z.
 - 17:20Z blind hold sample drawn per R6B.2-B2 from pplx-flash holds at k=20 (195 held test PRs; strata superseded 39 / closed-unmarked 75 / merged 81 → sampled 20 / 38 / 42, seed 6) with `--max-missing` so haiku predictions (continuity only, still running) were not waited for. `data/run6/hold_sample.jsonl` committed before any label exists.
+
+## 2026-10-18 — run6 A executed (RunPod L4, EU-RO-1, pod b9nme44vl2gh5i, 16:20Z–18:46Z, $1.44)
+
+- Served `pplx-decider-flash-v1.2@6d771ad7` with the vendor package (torch 2.14.0+cu130, transformers 5.17.0, fast path); client on the same pod. No protocol change; thresholds unchanged.
+- Deviations, reporting only: (1) the first H1 pass lost 32 requests to 30 s client timeouts during warm-up; the h1 stage alone was re-run and filled exactly those 32 (0 errors). (2) The ×30/×100/×300 load steps started with the ×10 backlog still queued; the curve was not re-run (R6A.4 allows it) since ×10 is already past capacity. (3) `serve_meta.json` `region` is null; the data centre is in `vm_type`.
+- Results: R6A-H1 ❌ (agreement 0.952, mean |Δp| 0.047) → row reported as a different model; H3 0.747 (pair 0.840) reported, not compared; H4 ❌ (+0.000, joint stays); H2 ❌ (saturation at ×10, ×100 error rate 1.0); cost $0.472/1k PRs at ×1. `results/run6/README.md` part A.
+- `mergeone/eval/leaderboard.py`: `_loadtest_p99` returned `float(None)` when every ×100 request failed; now returns None (row keeps its scale ❌). Found when the runbook's leaderboard step crashed; fixed after the run, reporting only.

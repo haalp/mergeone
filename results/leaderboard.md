@@ -10,12 +10,13 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 
 | # | model | kind | scale (H5) | quality AUC | calibration ECE | speed p99 ms | cost $/1k PRs | runs | overall |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `jev` | decision model | pass | 0.732 (#3) | 0.073 (#4) | 527 (loadtest x100) (#4) | 0.089 (#5) | 5 | 16 |
-| 2 | `gbm` | floor (trained classifier) | n/a | 0.605 (#5) | 0.003 (#1) | 9 (in-run) (#1) | 0.000 (#1) | 1 | 8 |
-| 3 | `rules` | floor (no model) | n/a | 0.576 (#6) | 0.105 (#6) | 9 (in-run) (#2) | 0.000 (#2) | 4 | 16 |
-| 4 | `pplx-flash` | decision model | **fail** | 0.800 (#1) | 0.053 (#2) | 501 (loadtest x100) (#3) | 0.022 (#3) | 2 | 9 |
-| 5 | `pplx` | decision model | **fail** | 0.778 (#2) | 0.078 (#5) | 1032 (loadtest x100) (#5) | 0.044 (#4) | 2 | 16 |
-| 6 | `haiku` | LLM judge | **fail** | 0.711 (#4) | 0.060 (#3) | 9662 (loadtest x100) (#6) | 0.370 (#6) | 5 | 19 |
+| 1 | `jev` | decision model | pass | 0.732 (#4) | 0.073 (#5) | 527 (loadtest x100) (#4) | 0.089 (#5) | 5 | 18 |
+| 2 | `gbm` | floor (trained classifier) | n/a | 0.605 (#6) | 0.003 (#1) | 9 (in-run) (#1) | 0.000 (#1) | 1 | 9 |
+| 3 | `rules` | floor (no model) | n/a | 0.576 (#7) | 0.105 (#7) | 9 (in-run) (#2) | 0.000 (#2) | 4 | 18 |
+| 4 | `pplx-flash` | decision model | **fail** | 0.800 (#1) | 0.053 (#3) | 501 (loadtest x100) (#3) | 0.022 (#3) | 2 | 10 |
+| 5 | `pplx` | decision model | **fail** | 0.778 (#2) | 0.078 (#6) | 1032 (loadtest x100) (#5) | 0.044 (#4) | 2 | 17 |
+| 6 | `pplx-flash-local` | decision model (self-hosted) | **fail** | 0.747 (#3) | 0.052 (#2) | 26025 (in-run) (#7) | 0.472 (#7) | 1 | 19 |
+| 7 | `haiku` | LLM judge | **fail** | 0.711 (#5) | 0.060 (#4) | 9662 (loadtest x100) (#6) | 0.370 (#6) | 5 | 21 |
 
 ## Per run
 
@@ -35,6 +36,7 @@ list prices. **Overall** = Borda over the four axes (lower better); missing axis
 | `pplx-flash` | run5 | v3 → review iteration | 0.758 | 0.053 | 364 | 501 | 0.023 | 0.0% | fail |
 | `pplx` | run4 | same_change pairs | 0.869 | — | 524 | — | 0.042 | 0.0% | — |
 | `pplx` | run5 | v3 → review iteration | 0.686 | 0.078 | 920 | 1032 | 0.046 | 0.0% | fail |
+| `pplx-flash-local` | run6 | v3 → review iteration (self-hosted) | 0.747 | 0.052 | 26025 | — | 0.472 | 0.0% | fail |
 | `haiku` | run1 | revert (k8s) | 0.599 | 0.034 | 2510 | 9662 | 0.308 | 0.0% | fail |
 | `haiku` | run2 | judge labels ×5 | 0.903 | 0.028 | 2461 | — | 0.314 | 0.0% | — |
 | `haiku` | run3 | agent-PR outcome | 0.551 | 0.119 | 2580 | 2880 | 0.373 | 0.0% | fail |
@@ -61,4 +63,4 @@ Listed so the next run can pick them up with `--model <name>`; the numbers here 
 - The scale gate is the decisive column. In every run so far the LLM-judge baseline (`haiku`) fails it and the System One models pass it;
   that, not a few AUC points, is why the gateway defaults to a System One model and keeps the judge for escalation.
 - `rules` is the free floor: no model call, ~0 ms, cost 0. Any paid model that does not beat it on quality in a run is not earning its latency.
-- Cost is at list price for hosted models; self-hosted open weights show 0 and are compared on p99 and quality only.
+- Cost is at list price for hosted models. Self-hosted rows (run 6) show compute cost: VM $/h ÷ PRs/h at the highest 0-error load-test rate.
