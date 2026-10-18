@@ -30,3 +30,6 @@ results/run5/a1_top20.jsonl
 results/run5/a1_targets.jsonl
 results/run5/candidates.jsonl
 results/run5/candidates_a1_only.jsonl
+
+# run 6 VM logs (server log, pip freeze, healthz snapshots)
+results/run6/logs/

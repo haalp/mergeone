@@ -1,0 +1,7 @@
+# Run 6 part A: the self-hosted System One server (serve/systemone_server.py). NOT a dependency of the mergeone package.
+# The inference package itself comes from the checkpoint: pip install "<checkpoint_dir>/source[fast]"
+# (it pins torch 2.14 / transformers 5.17; install it AFTER this file so its pins win).
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30
+huggingface_hub>=0.34
+httpx>=0.27

@@ -16,7 +16,7 @@ from pathlib import Path
 from .data.extract import read_jsonl, MergedPR
 from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
 from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
-from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, QUESTION_SETS, Decision
+from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, QUESTION_SETS, Decision, decide_single
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -116,15 +116,17 @@ def build_model(name: str, version: str = "v1"):
 
 
 def cmd_compact(args):
-    """Rewrite prediction files keeping one row per (pr_number, qset): the last non-error row if any, else the last row.
+    """Rewrite prediction files keeping one row per (pr_number, qset, mode): the last non-error row if any, else the last row.
 
     Keyed by qset too because run 5 writes v3, pair and pair_assume rows into the same predictions file,
-    and a pair_assume row has the same pr_number (hash of A~B) as the same_change row for that pair."""
+    and a pair_assume row has the same pr_number (hash of A~B) as the same_change row for that pair.
+    Keyed by mode too because run 6 writes joint and single-question rows (R6A-H4) into one file; rows
+    without `mode` (runs 1–5) are joint."""
     for f in args.files:
         f = Path(f); rows = {}; n = 0
         for l in f.open():
             n += 1; r = json.loads(l)
-            k = (r["pr_number"], r.get("qset"))
+            k = (r["pr_number"], r.get("qset"), r.get("mode", "joint"))
             if k not in rows or r["decision"].get("error") is None or rows[k]["decision"].get("error") is not None:
                 rows[k] = r
         f.write_text("".join(json.dumps(r) + "\n" for r in rows.values()))
@@ -154,11 +156,14 @@ def cmd_train_gbm(args):
 
 
 def cmd_predict(args):
+    pmode = "single" if getattr(args, "single_question", False) else "joint"
     rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
     if args.only_errors_from or args.only_missing_from:
         src = Path(args.only_errors_from or args.only_missing_from)
         # a row counts as done only for the same question set (run 5 mixes v3 / pair / pair_assume rows in one file)
-        done = {r["pr_number"] for r in map(json.loads, src.open()) if r["decision"].get("error") is None and r.get("qset", args.qset) == args.qset} if src.exists() else set()
+        # and the same mode (run 6 mixes joint and single-question rows; rows without `mode` are joint)
+        done = {r["pr_number"] for r in map(json.loads, src.open()) if r["decision"].get("error") is None and r.get("qset", args.qset) == args.qset
+                and r.get("mode", "joint") == pmode} if src.exists() else set()
         rows = [r for r in rows if r["pr_number"] not in done]
         print(f"{len(rows)} rows not yet predicted (skipping {len(done)})", flush=True)
     if args.subset:
@@ -183,8 +188,9 @@ def cmd_predict(args):
     n_err = 0
 
     def work(r):
-        d = model.decide(r[state_key], r["features"], questions)
-        return r, d
+        if pmode == "single":  # run 6 R6A-H4: one request per question, merged into one Decision
+            return r, decide_single(model, r[state_key], r["features"], tuple(questions))
+        return r, model.decide(r[state_key], r["features"], questions)
 
     with out_path.open(mode) as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         futs = [ex.submit(work, r) for r in rows]
@@ -193,14 +199,16 @@ def cmd_predict(args):
             if d.error:
                 n_err += 1
             f.write(json.dumps({"pr_number": r["pr_number"], "split": r["split"], "labels": r["labels"], "decision": d.to_dict(),
-                                "qset": args.qset, "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
+                                "qset": args.qset, "mode": pmode, "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
             if i % 50 == 0 or i == len(rows):
                 print(f"{args.model} {args.split} {variant}: {i}/{len(rows)} errors={n_err} elapsed={time.time()-t0:.0f}s", flush=True)
     meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
             "concurrency": args.concurrency, "model_version": getattr(model, "pinned", None) or getattr(model, "version", None),
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
     meta["qset"] = args.qset
+    meta["mode"] = pmode
     qsfx = "" if args.qset in ("v1", "v2", "pair") else f"_{args.qset}"  # run 5: v3/pair_assume share the predictions file with pair
+    qsfx += "_single" if pmode == "single" else ""
     (run_dir / f"meta_{args.model}_{args.split}_{variant}{qsfx}.json").write_text(json.dumps(meta, indent=2))
     print(json.dumps(meta, indent=2))
 
@@ -309,6 +317,9 @@ def cmd_loadtest(args):
     rows = load_dataset("test", args.limit, Path(args.dataset) if args.dataset else None)
     if args.no_retry:
         os.environ["MERGEONE_NO_RETRY"] = "1"
+    # the HTTP pool must not be the bottleneck: one connection per worker thread (never below httpx's default 100)
+    max_conn = max(100, args.concurrency)
+    os.environ["MERGEONE_HTTP_MAX_CONNECTIONS"] = str(max_conn)
     model = build_model(args.model, args.qset)
     if args.no_retry and hasattr(model, "max_retries_429"):
         model.max_retries_429 = 0  # R5-H6: 429s count as errors
@@ -337,7 +348,7 @@ def cmd_loadtest(args):
     errs = sum(1 for r in results if r["error"])
     summary = {"model": args.model, "multiplier": args.multiplier, "base_rate_per_s": args.base_rate, "rate_per_s": rate, "n": len(rows),
                "p50_ms": lat[len(lat)//2] if lat else None, "p99_ms": lat[int(len(lat)*0.99)] if lat else None,
-               "p99_schedule_lag_s": lag[int(len(lag)*0.99)], "error_rate": errs / len(rows), "concurrency": args.concurrency,
+               "p99_schedule_lag_s": lag[int(len(lag)*0.99)], "error_rate": errs / len(rows), "concurrency": args.concurrency, "http_max_connections": max_conn,
                "qset": args.qset, "retry_429": getattr(model, "max_retries_429", None), "n_429": sum(1 for r in results if r["error"] and "429" in r["error"]),
                "wall_s": time.perf_counter() - t0, "finished_at": datetime.now(timezone.utc).isoformat()}
     run_dir = RESULTS / args.run
@@ -424,6 +435,7 @@ def main(argv=None):
     p.add_argument("--qset", choices=["v1", "v2", "v3", "pair", "pair_assume"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), pair = run4 same_change, pair_assume = run5 assumption_conflict")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
+    p.add_argument("--single-question", action="store_true", help="run 6 R6A-H4: one request per question, answers merged into one row (mode=single); default joint")
     p.set_defaults(fn=cmd_predict)
     j = sub.add_parser("judge")
     j.add_argument("--split", required=True, choices=["val", "test"])
@@ -447,7 +459,7 @@ def main(argv=None):
     l.add_argument("--multiplier", type=float, required=True)
     l.add_argument("--limit", type=int, default=600)
     l.add_argument("--base-rate", type=float, default=30000 / 86400, help="decisions/s at multiplier 1 (default: 30k/day)")
-    l.add_argument("--concurrency", type=int, default=64)
+    l.add_argument("--concurrency", type=int, default=64, help="worker threads (= max in-flight requests incl. those sleeping until their slot); run 6 uses 512 so 300× (104/s) is not throttled")
     l.add_argument("--run", default="run1")
     l.add_argument("--dataset")
     l.add_argument("--qset", choices=["v1", "v2", "v3"], default="v1")
@@ -459,7 +471,8 @@ def main(argv=None):
     r.add_argument("--run3", action="store_true", help="run3 report (agent PRs, outcome labels)")
     r.add_argument("--run4", action="store_true", help="run4 report (PR memory, duplicate detection)")
     r.add_argument("--run5", action="store_true", help="run5 report, component C (v3 questions → review iteration, R5-H3/H5/H6)")
-    r.set_defaults(fn=lambda a: __import__("mergeone.eval.run5" if a.run5 else "mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
+    r.add_argument("--run6", action="store_true", help="run6 part A report (self-hosted pplx-flash: R6A-H1..H4, cost row)")
+    r.set_defaults(fn=lambda a: __import__("mergeone.eval.run6" if a.run6 else "mergeone.eval.run5" if a.run5 else "mergeone.eval.run4" if a.run4 else "mergeone.eval.report_run3" if a.run3 else ("mergeone.eval.report_v2" if a.v2 else "mergeone.eval.report"), fromlist=["x"]).run(Path(a.run_dir)))
     cp = sub.add_parser("compact", help="dedupe prediction files after --append re-runs (keep last non-error row per PR)")
     cp.add_argument("files", nargs="+"); cp.set_defaults(fn=cmd_compact)
     sub.add_parser("models", help="list the decision-model registry (prompts/models.yaml)").set_defaults(fn=cmd_models)

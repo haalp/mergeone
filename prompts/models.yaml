@@ -147,6 +147,19 @@ models:
     params_b: 0.42
     notes: "421M, runs on CPU. ECE 0.466 → 0.081 after temperature refit on own labels — a calibration-first candidate for the cheapest gate tier."
 
+  pplx-flash-local:
+    dialect: systemone
+    endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: pplx-decider-flash-v1.2   # the server answers `pplx-decider-flash-v1.2@<revision>` (serve/systemone_server.py)
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: perplexity-ai/pplx-decider-flash-v1.2
+    license: Apache-2.0
+    params_b: 4.5
+    notes: "run 6A self-hosted row; compute cost reported separately"
+
   local:
     dialect: systemone
     endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}

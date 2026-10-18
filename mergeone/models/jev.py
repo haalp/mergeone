@@ -50,7 +50,10 @@ class SystemOneModel:
         headers = {"Content-Type": "application/json"}
         if key:
             headers["Authorization"] = f"Bearer {key}"
-        self.client = httpx.Client(timeout=timeout, headers=headers)
+        # run 6 load tests at 300× need more than httpx's default 100-connection pool; unset = httpx defaults (runs 1–5)
+        mc = os.environ.get("MERGEONE_HTTP_MAX_CONNECTIONS")
+        limits = httpx.Limits(max_connections=int(mc), max_keepalive_connections=int(mc)) if mc else httpx.Limits(max_connections=100, max_keepalive_connections=20)
+        self.client = httpx.Client(timeout=timeout, headers=headers, limits=limits)
         p = (prices or {}).get(self.name) or {"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok}
         self.in_price = p["input_per_mtok"] / 1e6
         self.out_price = p["output_per_mtok"] / 1e6

@@ -48,6 +48,33 @@ class Decision:
         return asdict(self)
 
 
+def decide_single(model, state: str, features: dict[str, float], questions: tuple[str, ...]) -> Decision:
+    """Run 6 (R6A-H4): ask one question per request, sequentially, and merge the answers into one Decision.
+
+    latency_ms = wall-clock of the whole PR (the calls are sequential, so ≈ the sum of the per-call latencies);
+    tokens and cost are summed; `error` is set if any call failed (that question's prob is NaN); raw.mode = "single"."""
+    t0 = time.perf_counter()
+    probs, conf, raw_q, choice = {}, {}, {}, {}
+    it = ot = 0
+    cost = 0.0
+    errors, version = [], ""
+    for q in questions:
+        d = model.decide(state, features, (q,))
+        probs.update(d.probs)
+        conf.update(d.confidence)
+        it += d.input_tokens; ot += d.output_tokens; cost += d.cost_usd
+        version = version or d.model_version
+        if d.error:
+            errors.append(f"{q}: {d.error}")
+        raw_q[q] = {"latency_ms": d.latency_ms, "input_tokens": d.input_tokens, "output_tokens": d.output_tokens, "error": d.error}
+        choice.update((d.raw or {}).get("choice") or {})
+    raw = {"mode": "single", "usage": {"input_tokens": it, "output_tokens": ot, "requests": len(questions)}, "per_question": raw_q}
+    if choice:
+        raw["choice"] = choice
+    return Decision(probs=probs, confidence=conf, latency_ms=(time.perf_counter() - t0) * 1000.0, input_tokens=it, output_tokens=ot,
+                    cost_usd=cost, model_version=version, error="; ".join(errors) if errors else None, raw=raw)
+
+
 class DecisionModel(Protocol):
     name: str
 

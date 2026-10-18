@@ -29,10 +29,12 @@ from pathlib import Path
 import numpy as np
 
 RESULTS = Path(__file__).resolve().parents[2] / "results"
-RUNS = ("run1", "run2", "run3", "run4", "run5")
-RUN_QSET = {"run5": "v3"}  # run 5 files mix v3, pair and pair_assume rows; in-run latency/cost is the v3 decision
-KIND = {"rules": "floor (no model)", "gbm": "floor (trained classifier)", "mock": "floor"}
-RUN_LABEL = {"run1": "revert (k8s)", "run2": "judge labels ×5", "run3": "agent-PR outcome", "run4": "same_change pairs", "run5": "v3 → review iteration"}
+RUNS = ("run1", "run2", "run3", "run4", "run5", "run6")
+# run 5/6 files mix v3, pair and pair_assume rows (run 6 also joint/single modes); in-run latency/cost is the joint v3 decision
+RUN_QSET = {"run5": "v3", "run6": "v3"}
+KIND = {"rules": "floor (no model)", "gbm": "floor (trained classifier)", "mock": "floor", "pplx-flash-local": "decision model (self-hosted)"}
+RUN_LABEL = {"run1": "revert (k8s)", "run2": "judge labels ×5", "run3": "agent-PR outcome", "run4": "same_change pairs", "run5": "v3 → review iteration",
+             "run6": "v3 → review iteration (self-hosted)"}
 
 
 def _q(x):
@@ -47,6 +49,8 @@ def _pred_stats(run_dir: Path, model: str, qset: str | None = None) -> dict | No
     for line in p.open():
         row = json.loads(line)
         if qset is not None and row.get("qset") != qset:
+            continue
+        if row.get("mode", "joint") != "joint":  # run 6 single-question rows (R6A-H4) are not the row's in-run latency
             continue
         d = row["decision"]
         n += 1
@@ -74,7 +78,7 @@ def _quality(run: str, m: dict, model: str) -> tuple[float | None, float | None]
         if run == "run4":
             t = m["models"][model]["pair_test"]
             return _q(t["roc_auc"]), None
-        if run == "run5":
+        if run in ("run5", "run6"):  # run 6: R6A-H3 AUC (calibrated if self-hosted val was run, else raw)
             t = m["models"][model]["nhr_v3cal"]
             return _q(t.get("roc_auc")), _q(t.get("ece"))
     except KeyError:
@@ -92,6 +96,9 @@ def _scale(run: str, m: dict, model: str) -> bool | None:
         return None if v is None else bool(v["pass"])
     if run == "run5":
         v = h.get(f"R5-H6[{model}]")
+        return None if v is None or v.get("pass") is None else bool(v["pass"])
+    if run == "run6":
+        v = h.get(f"R6A-H2[{model}]")
         return None if v is None or v.get("pass") is None else bool(v["pass"])
     return None
 
@@ -115,13 +122,17 @@ def collect() -> dict[str, dict]:
         for model in sorted(models):
             auc, ece = _quality(run, m, model)
             ps = _pred_stats(rd, model, RUN_QSET.get(run))
+            comp = m["models"][model].get("compute_usd_per_1k") if isinstance(m["models"][model], dict) else None
+            if comp is not None:  # self-hosted (run 6): compute $/1k from VM $/h ÷ measured throughput replaces the 0 list price
+                ps = {**(ps or {}), "usd_per_1k": comp, "cost_source": "compute"}
             sc = _scale(run, m, model)
             lt = _loadtest_p99(rd, model)
             r = rows[model]
             r["runs"][run] = {"auc": auc, "ece": ece, "scale": sc, "p99_100x": lt, **(ps or {})}
             if auc is not None: r["auc"].append(auc)
             if ece is not None: r["ece"].append(ece)
-            if ps: r["p99"].append(ps["p99_ms"]); r["usd"].append(ps["usd_per_1k"])
+            if ps and "p99_ms" in ps: r["p99"].append(ps["p99_ms"])
+            if ps and ps.get("usd_per_1k") is not None: r["usd"].append(ps["usd_per_1k"])
             if lt is not None: r["p99_100x"].append(lt)
             if sc is not None:
                 r["scale"] = sc if r["scale"] is None else (r["scale"] and sc)
@@ -180,6 +191,8 @@ def render(ranked: list[tuple[str, dict]], registry: dict) -> str:
         sc = {True: "pass", False: "**fail**", None: "n/a"}[b["scale_pass"]]
         rk = b.get("rank", {})
         kind = KIND.get(n) or ("LLM judge" if getattr(registry.get(n), "dialect", "") == "anthropic" else "decision model")
+        if n not in KIND and "run6" in b["runs"]:
+            kind = "decision model (self-hosted)"
         L.append(f"| {i} | `{n}` | {kind} | {sc} | {_f(b['quality'])} (#{rk.get('quality') or '—'}) | {_f(b['calibration'])} (#{rk.get('calibration') or '—'}) | "
                  f"{_f(b['speed_p99_ms'], '{:.0f}')} {('(' + b['speed_source'] + ')') if b['speed_source'] else ''} (#{rk.get('speed_p99_ms') or '—'}) | "
                  f"{_f(b['cost_usd_per_1k'], '{:.3f}')} (#{rk.get('cost_usd_per_1k') or '—'}) | {b['n_runs']} | {b['borda']} |")
@@ -202,7 +215,7 @@ def render(ranked: list[tuple[str, dict]], registry: dict) -> str:
           "- The scale gate is the decisive column. In every run so far the LLM-judge baseline (`haiku`) fails it and the System One models pass it;",
           "  that, not a few AUC points, is why the gateway defaults to a System One model and keeps the judge for escalation.",
           "- `rules` is the free floor: no model call, ~0 ms, cost 0. Any paid model that does not beat it on quality in a run is not earning its latency.",
-          "- Cost is at list price for hosted models; self-hosted open weights show 0 and are compared on p99 and quality only.", ""]
+          "- Cost is at list price for hosted models. Self-hosted rows (run 6) show compute cost: VM $/h ÷ PRs/h at the highest 0-error load-test rate.", ""]
     return "\n".join(L)
 
 
