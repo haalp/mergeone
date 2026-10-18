@@ -24,7 +24,7 @@ Anthropic's monorepo went from 2,500 to **30,000 merges a day**, almost all agen
 
 `mergeone` is an attempt at the answer: a small, fast, *typed* decision layer in front of trunk. A System One model answers five fixed questions per PR with calibrated probabilities in one ~300 ms call; a policy file you own turns them into `pass` / `hold` / `block`; a planner lands non-conflicting PRs in waves. It ships as one Go binary with a GitHub webhook, an HTTP API and an MCP server for agents.
 
-It is also a benchmark. Every claim below was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed, and **two of the four runs failed**. They are reported anyway.
+It is also a benchmark. Every claim below was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed, and **three of the six runs failed outright, two half-failed**. They are reported anyway.
 
 ## Scoreboard
 

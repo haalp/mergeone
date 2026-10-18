@@ -5,6 +5,7 @@
     "rules",
     "pplx-flash",
     "pplx",
+    "pplx-flash-local",
     "haiku"
   ],
   "models": {
@@ -30,12 +31,12 @@
       "cost_usd_per_1k": 0.0,
       "scale_pass": null,
       "rank": {
-        "quality": 5,
+        "quality": 6,
         "calibration": 1,
         "speed_p99_ms": 1,
         "cost_usd_per_1k": 1
       },
-      "borda": 8
+      "borda": 9
     },
     "haiku": {
       "runs": {
@@ -103,12 +104,12 @@
       "cost_usd_per_1k": 0.3695057209721092,
       "scale_pass": false,
       "rank": {
-        "quality": 4,
-        "calibration": 3,
+        "quality": 5,
+        "calibration": 4,
         "speed_p99_ms": 6,
         "cost_usd_per_1k": 6
       },
-      "borda": 19
+      "borda": 21
     },
     "jev": {
       "runs": {
@@ -176,12 +177,12 @@
       "cost_usd_per_1k": 0.08938919279872955,
       "scale_pass": true,
       "rank": {
-        "quality": 3,
-        "calibration": 4,
+        "quality": 4,
+        "calibration": 5,
         "speed_p99_ms": 4,
         "cost_usd_per_1k": 5
       },
-      "borda": 16
+      "borda": 18
     },
     "rules": {
       "runs": {
@@ -233,12 +234,12 @@
       "cost_usd_per_1k": 0.0,
       "scale_pass": null,
       "rank": {
-        "quality": 6,
-        "calibration": 6,
+        "quality": 7,
+        "calibration": 7,
         "speed_p99_ms": 2,
         "cost_usd_per_1k": 2
       },
-      "borda": 16
+      "borda": 18
     },
     "pplx": {
       "runs": {
@@ -274,11 +275,11 @@
       "scale_pass": false,
       "rank": {
         "quality": 2,
-        "calibration": 5,
+        "calibration": 6,
         "speed_p99_ms": 5,
         "cost_usd_per_1k": 4
       },
-      "borda": 16
+      "borda": 17
     },
     "pplx-flash": {
       "runs": {
@@ -314,11 +315,41 @@
       "scale_pass": false,
       "rank": {
         "quality": 1,
-        "calibration": 2,
+        "calibration": 3,
         "speed_p99_ms": 3,
         "cost_usd_per_1k": 3
       },
-      "borda": 9
+      "borda": 10
+    },
+    "pplx-flash-local": {
+      "runs": {
+        "run6": {
+          "auc": 0.7471752917976869,
+          "ece": 0.052134769814277025,
+          "scale": false,
+          "p99_100x": null,
+          "n": 705,
+          "error_rate": 0.0,
+          "p50_ms": 7384.117251262069,
+          "p99_ms": 26024.590595513582,
+          "usd_per_1k": 0.472,
+          "cost_source": "compute"
+        }
+      },
+      "n_runs": 1,
+      "quality": 0.7471752917976869,
+      "calibration": 0.052134769814277025,
+      "speed_p99_ms": 26024.590595513582,
+      "speed_source": "in-run",
+      "cost_usd_per_1k": 0.472,
+      "scale_pass": false,
+      "rank": {
+        "quality": 3,
+        "calibration": 2,
+        "speed_p99_ms": 7,
+        "cost_usd_per_1k": 7
+      },
+      "borda": 19
     }
   }
 }
