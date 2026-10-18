@@ -46,7 +46,7 @@ before running the script. Everything below is the same.
 git clone https://github.com/haalp/mergeone && cd mergeone        # at the commit that holds serve/ and this file
 curl -LsSf https://astral.sh/uv/install.sh | sh && source ~/.local/bin/env
 uv venv --seed --python 3.12 .venv                                 # mergeone needs Python >= 3.11; Ubuntu 22.04 ships 3.10
-echo "HF_TOKEN=hf_..." > .env                                      # a token whose account accepted the model's gated licence
+# optional: echo "HF_TOKEN=hf_..." > .env   # the repo is public; a token only raises the download rate limit
 ```
 
 The dataset is not in git. From the machine that has it (the run-5 Mac):

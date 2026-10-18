@@ -34,7 +34,7 @@ ckpt() { cat "$LOG/checkpoint_dir" 2>/dev/null || true; }
 
 if want setup; then
   echo "=== setup"
-  [ -n "${HF_TOKEN:-}" ] || { echo "HF_TOKEN not set (the checkpoint is gated; accept the licence on huggingface.co first)"; exit 1; }
+  [ -n "${HF_TOKEN:-}" ] || echo "HF_TOKEN not set — the checkpoint repo is public (verified 2026-10-18), continuing anonymously; a token only raises the download rate limit"
   nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv | tee "$LOG/nvidia-smi.csv"
   $PY -m pip install -q -e .
   $PY -m pip install -q -r serve/requirements.txt
