@@ -137,5 +137,5 @@ func newDeciderWithKey(name, endpoint, key, modelID string, inPerMTok float64, q
 		return nil, err
 	}
 	return &Jev{name: name, Endpoint: endpoint, Key: key, ModelID: modelID, Questions: qs,
-		Client: &http.Client{Timeout: 30 * time.Second}, InPerMTok: inPerMTok}, nil
+		Client: &http.Client{Timeout: 30 * time.Second, Transport: Transport()}, InPerMTok: inPerMTok}, nil
 }

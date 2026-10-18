@@ -16,6 +16,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/goccy/go-yaml"
@@ -51,12 +52,15 @@ type Result struct {
 	Probs        map[string]float64 `json:"probs"`
 	RawProbs     map[string]float64 `json:"raw_probs"`
 	ModelVersion string             `json:"model_version"`
-	LatencyMS    float64            `json:"latency_ms"`
-	CostUSD      float64            `json:"cost_usd"`
-	InputSHA256  string             `json:"input_sha256"`
-	Error        string             `json:"error,omitempty"`
-	TS           time.Time          `json:"ts"`
-	Extra        map[string]any     `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
+	LatencyMS    float64            `json:"latency_ms"` // DecideFor with a memory: wall clock of the whole decision
+	// ModelLatencySumMS is the sum of every counted model call's latency (main + pair calls) — what
+	// LatencyMS recorded before pair calls ran concurrently with each other and with the main call.
+	ModelLatencySumMS float64        `json:"model_latency_sum_ms,omitempty"`
+	CostUSD           float64        `json:"cost_usd"`
+	InputSHA256       string         `json:"input_sha256"`
+	Error             string         `json:"error,omitempty"`
+	TS                time.Time      `json:"ts"`
+	Extra             map[string]any `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
 }
 
 // PRMeta is what the PR memory needs about the change under decision (all optional).
@@ -243,89 +247,183 @@ type Gate struct {
 	Cal    *Calibrator
 	Memory Memory // nil → duplicate_of is never set and dedup rules never fire
 	PairK  int    // candidates asked per PR (default 5)
+	// PairConcurrency bounds the same_change calls in flight for one decision (default 8; 1 = sequential).
+	// It changes latency only: aggregation is in candidate order whatever the completion order.
+	PairConcurrency int
 }
 
-// Decide runs the full pipeline for one change. It never panics on model
-// failure: on_error applies (fail closed).
-func (g *Gate) Decide(state string, paths []string) Result {
-	sum := sha256.Sum256([]byte(state))
-	sha := hex.EncodeToString(sum[:])
-	now := time.Now().UTC()
+// precheck returns the result for a change that never reaches the model (protected path, no model).
+func (g *Gate) precheck(sha string, now time.Time, paths []string) *Result {
 	for _, prefix := range g.Policy.AlwaysHumanPaths {
 		for _, p := range paths {
 			if strings.HasPrefix(p, prefix) {
-				return Result{Verdict: "hold", Route: "human", Reason: "touches protected path " + prefix, Rule: "always_human_paths",
+				return &Result{Verdict: "hold", Route: "human", Reason: "touches protected path " + prefix, Rule: "always_human_paths",
 					Probs: map[string]float64{}, RawProbs: map[string]float64{}, InputSHA256: sha, TS: now}
 			}
 		}
 	}
 	if g.Model == nil {
-		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason + ": no model", Rule: "on_error",
+		return &Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason + ": no model", Rule: "on_error",
 			Probs: map[string]float64{}, RawProbs: map[string]float64{}, InputSHA256: sha, Error: "no model configured", TS: now}
 	}
-	d := g.Model.Decide(state, QuestionsV2)
+	return nil
+}
+
+// finish turns the main QuestionsV2 decision into a result (on_error on model failure).
+func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 	if d.Error != "" {
 		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason, Rule: "on_error",
-			Probs: map[string]float64{}, RawProbs: map[string]float64{}, ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, CostUSD: d.CostUSD,
-			InputSHA256: sha, Error: d.Error, TS: now}
+			Probs: map[string]float64{}, RawProbs: map[string]float64{}, ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS,
+			CostUSD: d.CostUSD, InputSHA256: sha, Error: d.Error, TS: now}
 	}
 	cal := g.Cal.Apply(d.Probs)
 	rule, out := g.Match(cal)
 	return Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
-		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now}
+		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now}
+}
+
+func inputSHA(state string) string {
+	sum := sha256.Sum256([]byte(state))
+	return hex.EncodeToString(sum[:])
+}
+
+// Decide runs the full pipeline for one change. It never panics on model
+// failure: on_error applies (fail closed).
+func (g *Gate) Decide(state string, paths []string) Result {
+	sha := inputSHA(state)
+	now := time.Now().UTC()
+	if r := g.precheck(sha, now, paths); r != nil {
+		return *r
+	}
+	return g.finish(g.Model.Decide(state, QuestionsV2), sha, now)
+}
+
+// pairStage is the memory half of DecideFor: retrieval + one same_change call per candidate.
+type pairStage struct {
+	cands []Candidate
+	ds    []Decision // ds[i] answers cands[i]
+}
+
+// pairs retrieves the top-k candidates and asks same_change for each, at most PairConcurrency at a time.
+// Results are indexed by candidate, so the caller aggregates in candidate order.
+func (g *Gate) pairs(state string, meta PRMeta) pairStage {
+	k := g.PairK
+	if k <= 0 {
+		k = 5
+	}
+	cands := g.Memory.Candidates(meta, state, k)
+	ds := make([]Decision, len(cands))
+	conc := g.PairConcurrency
+	if conc <= 0 {
+		conc = 8
+	}
+	if conc == 1 || len(cands) <= 1 {
+		for i, c := range cands {
+			ds[i] = g.Model.Decide(c.PairState, []string{"same_change"})
+		}
+		return pairStage{cands, ds}
+	}
+	sem := make(chan struct{}, conc)
+	var wg sync.WaitGroup
+	for i := range cands {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(i int) {
+			defer func() { <-sem; wg.Done() }()
+			ds[i] = g.Model.Decide(cands[i].PairState, []string{"same_change"})
+		}(i)
+	}
+	wg.Wait()
+	return pairStage{cands, ds}
 }
 
 // DecideFor is Decide plus the run-4 signals when a PR memory is configured:
 // duplicate_of = max over top-k candidates of same_change, silent_days from UpdatedAt.
 // Both are added to the probability map so policy rules can reference them.
+//
+// With a memory, the main QuestionsV2 call and the pair stage (retrieval + same_change calls, which need
+// only state and meta) run at the same time and are joined before policy matching; pair calls run
+// PairConcurrency at a time. Result.LatencyMS is then the wall clock of the whole decision and
+// Result.ModelLatencySumMS the sum over every model call counted (the pre-parallel LatencyMS).
 func (g *Gate) DecideFor(state string, meta PRMeta) Result {
+	if g.Memory == nil || meta.Repo == "" {
+		return g.decideForNoMemory(state, meta)
+	}
+	t0 := time.Now()
+	sha := inputSHA(state)
+	now := time.Now().UTC()
+	if r := g.precheck(sha, now, meta.Paths); r != nil {
+		return *r
+	}
+	mainCh := make(chan Decision, 1)
+	go func() { mainCh <- g.Model.Decide(state, QuestionsV2) }()
+	ps := g.pairs(state, meta)
+	res := g.finish(<-mainCh, sha, now)
+	if res.Error != "" {
+		res.LatencyMS = wallMS(t0)
+		return res // pair answers are discarded, as when they were never asked
+	}
+	extra := map[string]any{}
+	g.silentDays(&res, meta, extra)
+	best, bestN := 0.0, 0
+	var seen []map[string]any
+	for i, c := range ps.cands {
+		d := ps.ds[i]
+		res.ModelLatencySumMS += d.LatencyMS
+		res.CostUSD += d.CostUSD
+		p := d.Probs["same_change"]
+		if d.Error != "" || math.IsNaN(p) {
+			p = 0
+		}
+		seen = append(seen, map[string]any{"number": c.Number, "state": c.State, "title": c.Title, "retrieval": c.Score, "duplicate_of": math.Round(p*1000) / 1000})
+		if p > best {
+			best, bestN = p, c.Number
+		}
+	}
+	res.Probs["duplicate_of"] = math.Round(best*1000) / 1000
+	extra["candidates"] = seen
+	if bestN != 0 {
+		extra["duplicate_candidate"] = bestN
+	}
+	g.rematch(&res, extra)
+	res.LatencyMS = wallMS(t0)
+	return res
+}
+
+// decideForNoMemory is DecideFor without a memory (or without a repo): unchanged from before the pair stage
+// was parallelised, LatencyMS is the main call's latency.
+func (g *Gate) decideForNoMemory(state string, meta PRMeta) Result {
 	res := g.Decide(state, meta.Paths)
 	if res.Error != "" || res.Rule == "always_human_paths" || g.Model == nil {
 		return res
 	}
 	extra := map[string]any{}
+	g.silentDays(&res, meta, extra)
+	g.rematch(&res, extra)
+	return res
+}
+
+func (g *Gate) silentDays(res *Result, meta PRMeta, extra map[string]any) {
 	if !meta.UpdatedAt.IsZero() {
 		days := time.Since(meta.UpdatedAt).Hours() / 24
 		res.Probs["silent_days"] = math.Round(days*10) / 10
 		extra["silent_days"] = res.Probs["silent_days"]
 	}
-	if g.Memory != nil && meta.Repo != "" {
-		k := g.PairK
-		if k <= 0 {
-			k = 5
-		}
-		cands := g.Memory.Candidates(meta, state, k)
-		best, bestN := 0.0, 0
-		var seen []map[string]any
-		for _, c := range cands {
-			d := g.Model.Decide(c.PairState, []string{"same_change"})
-			res.LatencyMS += d.LatencyMS
-			res.CostUSD += d.CostUSD
-			p := d.Probs["same_change"]
-			if d.Error != "" || math.IsNaN(p) {
-				p = 0
-			}
-			seen = append(seen, map[string]any{"number": c.Number, "state": c.State, "title": c.Title, "retrieval": c.Score, "duplicate_of": math.Round(p*1000) / 1000})
-			if p > best {
-				best, bestN = p, c.Number
-			}
-		}
-		res.Probs["duplicate_of"] = math.Round(best*1000) / 1000
-		extra["candidates"] = seen
-		if bestN != 0 {
-			extra["duplicate_candidate"] = bestN
-		}
-	}
-	if len(extra) > 0 {
-		res.Extra = extra
-		rule, out := g.Match(res.Probs)
-		res.Rule, res.Verdict, res.Route, res.Reason = rule, out.Verdict, out.Route, out.Reason
-		if n, ok := extra["duplicate_candidate"].(int); ok && rule == "duplicate-of" {
-			res.Reason = fmt.Sprintf("%s (#%d)", out.Reason, n)
-		}
-	}
-	return res
 }
+
+func (g *Gate) rematch(res *Result, extra map[string]any) {
+	if len(extra) == 0 {
+		return
+	}
+	res.Extra = extra
+	rule, out := g.Match(res.Probs)
+	res.Rule, res.Verdict, res.Route, res.Reason = rule, out.Verdict, out.Route, out.Reason
+	if n, ok := extra["duplicate_candidate"].(int); ok && rule == "duplicate-of" {
+		res.Reason = fmt.Sprintf("%s (#%d)", out.Reason, n)
+	}
+}
+
+func wallMS(t0 time.Time) float64 { return float64(time.Since(t0).Microseconds()) / 1000 }
 
 // Match applies the rules to (calibrated) probabilities. Exported for `gate replay`.
 func (g *Gate) Match(probs map[string]float64) (string, Outcome) {

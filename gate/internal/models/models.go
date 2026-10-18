@@ -5,6 +5,7 @@ package models
 import (
 	"bytes"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -13,10 +14,38 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
 )
+
+// ---------------------------------------------------------------- transport
+
+var (
+	transportOnce sync.Once
+	transport     *http.Transport
+)
+
+// Transport is the one connection pool every decision client shares (Jev/pplx/local deciders, Haiku, and
+// whatever Build returns): keep-alive to the model endpoint across PRs and across a decision's concurrent
+// pair calls, HTTP/2 where offered, TLS session resumption. Proxy, dial and handshake settings are
+// http.DefaultTransport's.
+func Transport() *http.Transport {
+	transportOnce.Do(func() {
+		t := http.DefaultTransport.(*http.Transport).Clone()
+		t.MaxIdleConns = 256
+		t.MaxIdleConnsPerHost = 256
+		t.IdleConnTimeout = 90 * time.Second
+		t.ForceAttemptHTTP2 = true
+		if t.TLSClientConfig == nil {
+			t.TLSClientConfig = &tls.Config{}
+		}
+		t.TLSClientConfig.ClientSessionCache = tls.NewLRUClientSessionCache(256)
+		transport = t
+	})
+	return transport
+}
 
 // ---------------------------------------------------------------- Jev
 
@@ -37,6 +66,7 @@ type Jev struct {
 	InPerMTok  float64 // USD per million input tokens (list: 0.042)
 	OutPerMTok float64
 	pinned     string
+	pinMu      sync.Mutex // guards pinned: pair calls for one decision run concurrently
 	name       string
 }
 
@@ -114,9 +144,11 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		}
 	}
 	model := j.ModelID
+	j.pinMu.Lock()
 	if j.pinned != "" {
 		model = j.pinned
 	}
+	j.pinMu.Unlock()
 	body, _ := json.Marshal(map[string]any{"state": state, "model": model, "questions": qs})
 	t0 := time.Now()
 	req, _ := http.NewRequest("POST", j.Endpoint, bytes.NewReader(body))
@@ -135,10 +167,10 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw)}
 	}
 	var out struct {
-		Model     string                `json:"model"`
+		Model     string               `json:"model"`
 		Answers   map[string]jevAnswer `json:"answers"`
 		Decisions map[string]jevAnswer `json:"decisions"` // /v1/decide dialect
-		Usage struct {
+		Usage     struct {
 			In  int `json:"input_tokens"`
 			Out int `json:"output_tokens"`
 		} `json:"usage"`
@@ -146,9 +178,11 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: "bad JSON: " + err.Error()}
 	}
+	j.pinMu.Lock()
 	if j.pinned == "" && out.Model != "" {
 		j.pinned = out.Model
 	}
+	j.pinMu.Unlock()
 	if out.Answers == nil {
 		out.Answers = out.Decisions
 	}
@@ -215,7 +249,7 @@ func NewHaiku(promptPath string) (*Haiku, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Haiku{Key: key, ModelID: "claude-haiku-5-5", System: string(b), Client: &http.Client{Timeout: 60 * time.Second}, InPerMTok: 0.10, OutPerMTok: 0.50}, nil
+	return &Haiku{Key: key, ModelID: "claude-haiku-5-5", System: string(b), Client: &http.Client{Timeout: 60 * time.Second, Transport: Transport()}, InPerMTok: 0.10, OutPerMTok: 0.50}, nil
 }
 
 func (h *Haiku) Name() string {

@@ -245,6 +245,9 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		repo, pr, sha := ev.Repository.FullName, ev.PullRequest.Number, ev.PullRequest.Head.SHA
 		switch ev.Action {
 		case "opened", "synchronize", "reopened", "ready_for_review":
+			if ev.Action == "synchronize" {
+				gw.GitHub.InvalidateHead(repo, pr, sha)
+			}
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", nil)})
 		case "closed":
 			gw.Store.ClosePR(repo, pr)

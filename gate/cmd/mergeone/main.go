@@ -5,6 +5,7 @@
 //	mergeone decide  --policy .mergeone.yaml --state file.txt [--paths a.go,b.go]
 //	mergeone replay  --policy .mergeone.yaml --predictions results/run2/predictions_jev_test_all.jsonl
 //	mergeone loadtest --url http://localhost:8787 --rate 35 --n 1200
+//	mergeone loadtest --mock --k 5 --rate 34.7 --n 600 [--pair-concurrency 8]   (in-process, synthetic memory)
 //	mergeone mcp     --policy .mergeone.yaml [--mock]
 //
 // Exit codes for pr/decide: 0 pass, 1 hold, 2 block, 3 error.
@@ -408,7 +409,19 @@ func cmdLoadtest(args []string) error {
 	url := fs.String("url", "http://localhost:8787", "gateway URL")
 	rate := fs.Float64("rate", 35, "decisions per second (30k/day = 0.35)")
 	n := fs.Int("n", 1200, "requests")
+	mock := fs.Bool("mock", false, "in-process: mock model (300±60 ms) + synthetic PR memory, no gateway; prints a per-decision breakdown")
+	policy := fs.String("policy", "", "policy for --mock (default: policy.yaml found near the working directory)")
+	k := fs.Int("k", 5, "--mock: candidates per PR (pair calls)")
+	memN := fs.Int("memory", 200, "--mock: synthetic PRs in memory")
+	pairConc := fs.Int("pair-concurrency", 0, "--mock: Gate.PairConcurrency (0 = default 8, 1 = sequential)")
 	fs.Parse(args)
+	if *mock {
+		pp := *policy
+		if pp == "" {
+			pp = findAsset(".", "policy.yaml")
+		}
+		return loadtestMock(pp, *rate, *n, *k, *memN, func(g *engine.Gate) { g.PairConcurrency = *pairConc })
+	}
 	return server.Loadtest(*url, *rate, *n)
 }
 

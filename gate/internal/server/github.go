@@ -18,6 +18,14 @@ type GitHub struct {
 	Token  string
 	API    string
 	Client *http.Client
+	diffs  *diffCache // files + diff by repo#pr@sha (512 heads); nil = no cache
+}
+
+// InvalidateHead drops cached files/diffs of repo#pr for every head other than sha (webhook synchronize).
+func (g *GitHub) InvalidateHead(repo string, pr int, sha string) {
+	if g != nil {
+		g.diffs.invalidate(repo, pr, sha)
+	}
 }
 
 // NewGitHub returns nil when token is empty (gateway then runs API-only).
@@ -25,7 +33,7 @@ func NewGitHub(token string) *GitHub {
 	if token == "" {
 		return nil
 	}
-	return &GitHub{Token: token, API: "https://api.github.com", Client: &http.Client{Timeout: 30 * time.Second}}
+	return &GitHub{Token: token, API: "https://api.github.com", Client: &http.Client{Timeout: 30 * time.Second}, diffs: newDiffCache(512)}
 }
 
 func (g *GitHub) do(method, url, accept string, body any) ([]byte, int, error) {
@@ -82,30 +90,41 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 	_ = json.Unmarshal(meta, &m)
-	for page := 1; page <= 30; page++ {
-		b, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d/files?per_page=100&page=%d", g.API, repo, pr, page), "application/vnd.github+json", nil)
-		if err != nil || code != 200 {
-			break
+	var diff string
+	if cf, cd, ok := g.diffs.get(repo, pr, m.Head.SHA); ok {
+		files, diff = cf, cd
+	} else {
+		filesOK := true
+		for page := 1; page <= 30; page++ {
+			b, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d/files?per_page=100&page=%d", g.API, repo, pr, page), "application/vnd.github+json", nil)
+			if err != nil || code != 200 {
+				filesOK = false
+				break
+			}
+			var fs []struct {
+				Filename  string `json:"filename"`
+				Additions int    `json:"additions"`
+				Deletions int    `json:"deletions"`
+			}
+			_ = json.Unmarshal(b, &fs)
+			for _, f := range fs {
+				files = append(files, FileStat{f.Filename, f.Additions, f.Deletions})
+			}
+			if len(fs) < 100 {
+				break
+			}
 		}
-		var fs []struct {
-			Filename  string `json:"filename"`
-			Additions int    `json:"additions"`
-			Deletions int    `json:"deletions"`
-		}
-		_ = json.Unmarshal(b, &fs)
-		for _, f := range fs {
-			files = append(files, FileStat{f.Filename, f.Additions, f.Deletions})
-		}
-		if len(fs) < 100 {
-			break
+		d, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d", g.API, repo, pr), "application/vnd.github.diff", nil)
+		diff = string(d)
+		if filesOK && err == nil && code == 200 { // only complete fetches are cached
+			g.diffs.put(repo, pr, m.Head.SHA, files, diff)
 		}
 	}
-	diff, _, _ := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d", g.API, repo, pr), "application/vnd.github.diff", nil)
 	for _, f := range files {
 		paths = append(paths, f.Path)
 	}
 	pm = engine.PRMeta{Repo: repo, Number: pr, Title: m.Title, Body: m.Body, Author: m.User.Login, Paths: paths, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
-	return RenderState(m.Title, m.Body, files, string(diff)), paths, m.Head.SHA, pm, files, nil
+	return RenderState(m.Title, m.Body, files, diff), paths, m.Head.SHA, pm, files, nil
 }
 
 // RenderState is the byte-for-byte equivalent of gatebench's render_state().
