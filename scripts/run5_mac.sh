@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run 5 on the Mac (after `git pull`, with .env present). Every stage is resumable; re-run the script after any failure.
+#   0. data     component A2: fetch patches for the A1 top-20 (GitHub REST, ~17k calls), then retrieve → results/run5/candidates.jsonl
 #   1. v3       v3 question set for jev, pplx, pplx-flash, val+test            (scripts/run5_v3_predict.sh)
 #   2. assume   component B: scripts/run5_assumptions_predict.sh, if present
 #   3. pairs    same_change for NEW run-5 pairs only (component-A top-5 not answered in run 4), val+test
@@ -13,9 +14,18 @@ cd "$(dirname "$0")/.."
 PY="${PYTHON:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}"
 export PYTHON="$PY"
 C="${CONCURRENCY:-8}"; DS=data/run3/dataset.jsonl; R=results/run5
-STAGES="${STAGES:-v3 assume pairs load report}"
+STAGES="${STAGES:-data v3 assume pairs load report}"
 want() { case " $STAGES " in *" $1 "*) ;; *) return 1;; esac; case " ${SKIP:-} " in *" $1 "*) echo "--- skip stage $1"; return 1;; esac; }
 keyfor() { case $1 in jev) echo TYPESAFE_API_KEY;; pplx*) echo PERPLEXITY_API_KEY;; *) echo ANTHROPIC_API_KEY;; esac; }
+
+if want data; then
+  echo "=== 0. retrieval v2 content stage (component A2)"
+  if [ -z "${GITHUB_TOKEN:-}" ]; then echo "skip: GITHUB_TOKEN not set"; else
+    $PY -m mergeone.eval.run5_retrieval a1 --split all          # deterministic target list (results/run5/a1_targets.jsonl)
+    $PY -m mergeone.data.patches --targets results/run5/a1_targets.jsonl   # resumable; data/run5/patches/
+    $PY -m mergeone.eval.run5_retrieval retrieve                # → results/run5/candidates.jsonl, retrieval_metrics.json (R5-H1)
+  fi
+fi
 
 if want v3; then
   echo "=== 1. v3 predictions"; bash scripts/run5_v3_predict.sh
