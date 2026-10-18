@@ -389,3 +389,63 @@ published as in runs 1–4.
 weights on val; commit the grid result; freeze. 5. Fetch A2 patches for the top-20 of every PR. 6. Build
 candidates and pairs. 7. Extract assumptions for all PRs. 8. Predict (v3 questions; pair questions for new
 pairs). 9. Load tests. 10. Report. Each step's timestamp lands in CHANGELOG.
+
+---
+
+# Run 6 addendum, part A — a self-hosted System One row (pre-registered)
+
+**Status:** added 2026-10-18 14:19Z, after run-5 results were published and before any self-hosted call.
+Nothing in runs 1–5 is re-run or re-scored.
+
+## R6A.1 Why
+
+Run 5 showed the two Perplexity models lead on quality in runs 4–5 and fail the 100× bar only because the
+hosted API refuses calls above 10 rps per organisation. Their weights are Apache-2.0. The gateway's claim
+is that a model is a `provider:` row; this part measures whether the same weights, served by us, clear the
+scale bar the hosted endpoint cannot, and whether they still answer the same way.
+
+## R6A.2 What is served, exactly
+
+- Model: `perplexity-ai/pplx-decider-flash-v1.2`, BF16, revision pinned in `results/run6/serve_meta.json`.
+- Inference code: the vendor's own `pplx_decider` package from the checkpoint's `source/` directory
+  (`Decider.from_pretrained(..., fast=True)`, flash-linear-attention path), unmodified. No quantisation.
+  The 27B model is out of scope for this part (does not fit one 24 GB GPU in BF16).
+- Serving: a thin HTTP wrapper in `serve/systemone_server.py` that exposes `POST /v1/systemone` with the
+  run 1–5 request/answer schema and batches concurrent requests through `decider.decide(list)` with a
+  bounded micro-batch (≤ 32 requests or 20 ms, whichever first). The wrapper does no prompt, question or
+  temperature changes; `decision_config.json`'s temperature is applied by the vendor code exactly once.
+- Hardware: one NVIDIA L4 (24 GB) on a cloud VM (type and region recorded in `serve_meta.json`), the gate
+  benchmark client on the same VM so the network leg is loopback. Nothing else runs on the GPU.
+- Registry: the row is `pplx-flash-local` in `prompts/models.yaml` (dialect `systemone`, `${MERGEONE_LOCAL_ENDPOINT}`,
+  no key, price 0 — compute is reported separately as $/1k PRs from the VM's hourly rate × measured throughput).
+
+## R6A.3 Pre-registered criteria
+
+- **R6A-H1 (equivalence):** on the run-5 **test** v3 predictions (705 PRs × 10 noul questions, joint request
+  as run 5) the self-hosted answers agree with the hosted `pplx-flash` answers: argmax agreement ≥ **95%**
+  and mean |Δp| ≤ **0.02** over all 7,050 answers. If this fails, the row is reported as "a different
+  model" and R6A-H2/H3 are still reported but not compared to the hosted row.
+- **R6A-H2 (scale, the point of the part):** the R3-H5 bar unchanged — open-loop replay at 100× base rate
+  (34.7 rps, 600 decisions, v3 questions): p99 ≤ 1× p99 + 200 ms and **0 errors**. Additionally the
+  *saturation curve*: rate stepped 1×, 10×, 30×, 100×, 300×; the first multiplier at which p99 exceeds
+  2 × (1× p99) is reported as the VM's capacity. Not a hypothesis; the number people will ask for.
+- **R6A-H3 (quality unchanged):** calibrated `needs_human_review` → `iterated` on test with the run-5 val
+  calibration refit on the self-hosted answers: ROC-AUC within **0.02** of the hosted row (0.758). Reported
+  for the run-4 pair task too (`same_change` AUC, hosted 0.842).
+- **R6A-H4 (joint vs single, the model card's warning):** the same 705 test PRs asked **one question per
+  request** (10 calls per PR). Pre-registered bar: single-question `needs_human_review` → `iterated` AUC
+  ≥ joint + **0.02** means the model card's advice holds for this task and the gateway's default for this
+  model switches to single-question; below that, joint stays (it is 10× cheaper in calls). Both p99s reported.
+- **Cost row:** $/1k PRs = (VM $/h) / (PRs per hour at the highest multiplier with 0 errors), reported next
+  to the hosted list price.
+
+## R6A.4 What is not allowed
+
+No change to questions, prompts, calibration method or thresholds. No quantised weights. The equivalence
+set is the run-5 test set and is *not* used to tune anything. The saturation curve may be run more than once
+(it is a measurement of the VM, not of the model); every pass is kept in `results/run6/`.
+
+## R6A.5 Order
+
+1. Commit this addendum. 2. Commit `serve/` and the registry row. 3. Bring the VM up, record `serve_meta.json`.
+4. Equivalence (H1). 5. Quality (H3), joint vs single (H4). 6. Load (H2 + curve). 7. VM down; report.
