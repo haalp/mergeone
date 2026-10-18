@@ -28,7 +28,7 @@ func Loadtest(url string, rate float64, n int) error {
 		go func(i int) {
 			defer wg.Done()
 			state := fmt.Sprintf("PULL REQUEST TITLE: change %d\nFILES CHANGED:\n  pkg/x/%d.go +%d -%d\nDIFF: %s", i, i%50, i%40, i%7, bytes.Repeat([]byte("x"), 3000))
-			body, _ := json.Marshal(map[string]any{"repo": "load/test", "pr": i, "head_sha": fmt.Sprintf("%d-%06d", runID, i), "state": state, "paths": []string{fmt.Sprintf("pkg/x/%d.go", i%50)}})
+			body, _ := json.Marshal(map[string]any{"repo": "load/test", "pr": i, "head_sha": fmt.Sprintf("%d-%06d", runID, i), "state": state, "paths": []string{fmt.Sprintf("pkg/x/%d.go", i%50)}, "actions": false})
 			s := time.Now()
 			r, err := client.Post(url+"/decide", "application/json", bytes.NewReader(body))
 			lat := float64(time.Since(s).Microseconds()) / 1000

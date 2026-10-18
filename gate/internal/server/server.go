@@ -53,18 +53,52 @@ func (gw *Gateway) Decide(repo string, pr int, sha, state string, paths []string
 }
 
 // DecideMeta is Decide with PR metadata, which enables duplicate_of / silent_days when a memory is configured.
+// It never writes to GitHub (the MCP tools use this path).
 func (gw *Gateway) DecideMeta(repo string, pr int, sha, state string, meta engine.PRMeta, source string) engine.Result {
+	return gw.decide(repo, pr, sha, state, meta, source, false)
+}
+
+// DecideAndAct is DecideMeta plus the policy's verdict actions (webhook/CI mode only). The actions report
+// is attached to the result and logged in the same gatelog entry; action errors never change the verdict.
+// A cached decision is not acted on again unless it was never acted on (or was skipped for another reason).
+func (gw *Gateway) DecideAndAct(repo string, pr int, sha, state string, meta engine.PRMeta, source string) engine.Result {
+	return gw.decide(repo, pr, sha, state, meta, source, true)
+}
+
+func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PRMeta, source string, act bool) engine.Result {
 	h := sha256.Sum256([]byte(state))
 	inputSHA := hex.EncodeToString(h[:])
+	var res engine.Result
 	if prev := gw.Store.Latest(repo, sha); prev != nil && prev.Result.InputSHA256 == inputSHA && prev.Result.Error == "" {
-		return prev.Result
+		if !act {
+			return prev.Result
+		}
+		if pa := prev.Result.Actions; pa != nil && (pa.Skipped == "" || pa.Skipped == ActionsSkip(gw.Gate.Policy.Actions, gw.GitHub, repo, pr, sha)) {
+			return prev.Result
+		}
+		res = prev.Result
+	} else {
+		meta.Repo, meta.Number = repo, pr
+		res = gw.Gate.DecideFor(state, meta)
 	}
-	meta.Repo, meta.Number = repo, pr
-	res := gw.Gate.DecideFor(state, meta)
+	if act {
+		res.Actions = ApplyActions(gw.GitHub, gw.Gate.Policy.Actions, repo, pr, sha, res, gw.verdictURL(repo, sha))
+		for _, e := range res.Actions.Errors {
+			log.Printf("actions %s#%d@%s: %s", repo, pr, sha, e)
+		}
+	}
 	if err := gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: source, Result: res, State: state}); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
 	return res
+}
+
+// verdictURL is the public gatelog entry for a head sha, or "" when the server has no public URL.
+func (gw *Gateway) verdictURL(repo, sha string) string {
+	if gw.PublicURL == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/verdict/%s/%s", strings.TrimRight(gw.PublicURL, "/"), repo, sha)
 }
 
 // Submit enqueues an async decision for a PR head. Returns false if already queued.
@@ -93,6 +127,10 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	pr := toInt(j.Payload["pr"])
 	sha, _ := j.Payload["head_sha"].(string)
 	source, _ := j.Payload["source"].(string)
+	act := true // webhook and /decide jobs act unless the caller opted out with "actions": false
+	if v, ok := j.Payload["actions"].(bool); ok {
+		act = v
+	}
 	defer func() { // fail closed on anything unexpected
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic: %v", r)
@@ -101,8 +139,11 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			oe := gw.Gate.Policy.OnError
 			res := engine.Result{Verdict: oe.Verdict, Route: oe.Route, Reason: oe.Reason + ": " + err.Error(), Rule: "on_error",
 				Probs: map[string]float64{}, RawProbs: map[string]float64{}, Error: err.Error(), TS: time.Now().UTC()}
+			if gw.Gate.Policy.Actions.Enabled && act {
+				res.Actions = ApplyStatusOnly(gw.GitHub, gw.Gate.Policy.Actions, repo, pr, sha, res)
+			}
 			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res})
-			if gw.GitHub != nil && sha != "" {
+			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled {
 				gw.GitHub.PostCheck(repo, sha, res, "")
 			}
 		}
@@ -128,7 +169,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			return err
 		}
 	}
-	res := gw.DecideMeta(repo, pr, sha, state, meta, source)
+	res := gw.decide(repo, pr, sha, state, meta, source, act)
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
 	if gw.Memory != nil && meta.Title != "" {
 		mf := make([]memory.FileStat, 0, len(files))
@@ -137,12 +178,10 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 		}
 		_ = gw.Memory.Repo(repo).Upsert(memory.EntryFromPR(meta, "OPEN", mf))
 	}
-	if gw.GitHub != nil {
-		details := ""
-		if gw.PublicURL != "" {
-			details = fmt.Sprintf("%s/verdict/%s/%s", gw.PublicURL, repo, sha)
-		}
-		gw.GitHub.PostCheck(repo, sha, res, details)
+	// Legacy write-back (check-run + gate:/route: labels) stays as it was while actions are off;
+	// with actions enabled the commit status and mergeone:* labels replace it (one signal, one name).
+	if gw.GitHub != nil && !gw.Gate.Policy.Actions.Enabled {
+		gw.GitHub.PostCheck(repo, sha, res, gw.verdictURL(repo, sha))
 		gw.GitHub.SetLabels(repo, pr, res)
 	}
 	return nil
@@ -194,20 +233,23 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			State   string   `json:"state"`
 			Paths   []string `json:"paths"`
 			Wait    *bool    `json:"wait"`
+			Actions *bool    `json:"actions"` // false: never write to GitHub for this call (default: policy decides)
 		}
 		if err := json.NewDecoder(io.LimitReader(r.Body, 8<<20)).Decode(&body); err != nil || body.Repo == "" || body.HeadSHA == "" || body.State == "" {
 			writeJSON(w, 400, map[string]string{"error": "need repo, head_sha, state"})
 			return
 		}
+		act := body.Actions == nil || *body.Actions
 		if body.Wait == nil || *body.Wait {
-			writeJSON(w, 200, gw.Decide(body.Repo, body.PR, body.HeadSHA, body.State, body.Paths, "api"))
+			meta := engine.PRMeta{Repo: body.Repo, Number: body.PR, Paths: body.Paths}
+			writeJSON(w, 200, gw.decide(body.Repo, body.PR, body.HeadSHA, body.State, meta, "api", act))
 			return
 		}
 		ps := make([]any, len(body.Paths))
 		for i, p := range body.Paths {
 			ps[i] = p
 		}
-		queued := gw.Submit(body.Repo, body.PR, body.HeadSHA, "api", map[string]any{"state": body.State, "paths": ps})
+		queued := gw.Submit(body.Repo, body.PR, body.HeadSHA, "api", map[string]any{"state": body.State, "paths": ps, "actions": act})
 		writeJSON(w, 202, map[string]any{"queued": queued, "poll": "/verdict/" + body.Repo + "/" + body.HeadSHA})
 	})
 	mux.HandleFunc("POST /webhook/github", func(w http.ResponseWriter, r *http.Request) {

@@ -63,6 +63,11 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
 - Next: run the open-weight rows (clef, JEV-9B/27B, H2O Lightning 4B, Laya) on a local llama.cpp
   `/v1/systemone` server under the run-2 judge labels, so self-hosted candidates get a measured row.
 
+## Verdict actions (done, gateway v0.2)
+- ✅ `actions:` in the policy writes the verdict back to the PR in webhook/CI mode: commit status for branch
+  protection / auto-merge, exclusive `mergeone:*` labels, one comment per head sha, reviewers on hold/block
+  routed to `human`. Off by default, deterministic, never merges, never changes a verdict.
+
 ## Later
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.

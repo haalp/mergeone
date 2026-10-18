@@ -118,3 +118,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 ## 2026-10-18 — run6 A pass 2 on one H100 80 GB (RunPod Secure AP-IN-1, pod h56ajj6bdk1pzn, 21:17Z–22:18Z, ≈$4.04)
 
 - Same server and budget sweep (probe 4.05 / 6.67 / 9.68 req/s at 0 / 32k / 128k). Load curve: ×1 p99 1,921 ms (six slow requests: three cold-start, one 8 s stall; 185 ms without the first three), ×10 p99 159 ms, ×30 p99 160 ms, all 0 errors; ×100 29.7% client timeouts, ×300 41.8%. Saturation ×100 by the protocol rule. $0.106/1k PRs at ×30 (highest 0-error multiplier). Per-request time inside batches flat (88–98 ms vs 65–110 ms alone) → no batch speed-up on either card. R6A-H2 remains ❌; pass-1 numbers remain the verdict. Files `results/run6/pass2-h100/`. Operator approved the $3.99/h price.
+
+## 2026-10-19 — gateway v0.2 — verdict actions (tooling; no protocol change)
+
+- Policy block `actions:` (off by default): commit status (`status_context`, per-verdict `success|failure|pending|error`), exclusive `mergeone:pass|hold|block` labels, one comment per head sha (hidden `<!-- mergeone:<sha> -->` marker), reviewers / team reviewers on hold or block routed to `human`. Deterministic, no model call, never merges; the status is what branch protection or auto-merge reads.
+- Runs in webhook mode (worker, `POST /decide` with a PR number) and CI mode (`mergeone pr`, PR and sha from `GITHUB_EVENT_PATH`), never from the MCP tools. No retries; failures go to `actions.errors[]` in the gatelog entry and the response and never change the verdict.
+- With actions enabled the status and `mergeone:*` labels replace the existing check-run and `gate:*` / `route:*` labels; with actions off the gateway writes exactly what it wrote before. `/decide` and `mergeone pr` responses gain an `actions` object (`skipped` when disabled); the load generator sends `"actions": false`.
+- GitHub permissions: statuses:write, pull_requests:write, issues:write. Tests: fake GitHub over httptest (pass/hold/block, label exclusivity, comment idempotency, reviewers on hold+human only, disabled = no calls, API error keeps the verdict, worker path, MCP path never acts).

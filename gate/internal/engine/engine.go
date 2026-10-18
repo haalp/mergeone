@@ -61,6 +61,15 @@ type Result struct {
 	Error             string         `json:"error,omitempty"`
 	TS                time.Time      `json:"ts"`
 	Extra             map[string]any `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
+	// Actions is what the verdict-action layer wrote back to GitHub (webhook/CI mode only; nil elsewhere).
+	Actions *ActionsReport `json:"actions,omitempty"`
+}
+
+// ActionsReport records the GitHub writes made for one verdict. Errors never change the verdict.
+type ActionsReport struct {
+	Applied []string `json:"applied"`           // writes performed, e.g. "status:failure", "label+:mergeone:hold"
+	Skipped string   `json:"skipped,omitempty"` // why the whole layer did nothing (disabled, no token, no PR number)
+	Errors  []string `json:"errors"`
 }
 
 // PRMeta is what the PR memory needs about the change under decision (all optional).
@@ -130,6 +139,71 @@ type Policy struct {
 		Enabled bool `yaml:"enabled"`
 		TopK    int  `yaml:"top_k"`
 	} `yaml:"memory"`
+	Actions Actions `yaml:"actions"`
+}
+
+// Actions is the policy's `actions:` block: deterministic GitHub write-back of a verdict (commit status,
+// exclusive labels, one comment per head sha, reviewers). Off by default; used only in webhook/CI mode.
+type Actions struct {
+	Enabled       bool          `yaml:"enabled"`
+	StatusContext string        `yaml:"status_context"` // default "mergeone"
+	Comment       *bool         `yaml:"comment"`        // default true
+	OnPass        VerdictAction `yaml:"on_pass"`
+	OnHold        VerdictAction `yaml:"on_hold"`
+	OnBlock       VerdictAction `yaml:"on_block"`
+}
+
+// VerdictAction is what one verdict writes. A missing labels key takes the default label; `labels: []` sets none.
+type VerdictAction struct {
+	Status        string   `yaml:"status"` // success | failure | pending | error
+	Labels        []string `yaml:"labels"`
+	Reviewers     []string `yaml:"reviewers"`      // hold/block only, and only when route == "human"
+	TeamReviewers []string `yaml:"team_reviewers"` // team slugs, same rule
+}
+
+// For returns the action for a verdict (false for an unknown verdict).
+func (a Actions) For(verdict string) (VerdictAction, bool) {
+	switch verdict {
+	case "pass":
+		return a.OnPass, true
+	case "hold":
+		return a.OnHold, true
+	case "block":
+		return a.OnBlock, true
+	}
+	return VerdictAction{}, false
+}
+
+// CommentEnabled reports whether the per-sha comment is posted (default true).
+func (a Actions) CommentEnabled() bool { return a.Comment == nil || *a.Comment }
+
+// Normalize fills defaults and validates statuses (LoadPolicy calls it; idempotent).
+func (a *Actions) Normalize() error {
+	if a.StatusContext == "" {
+		a.StatusContext = "mergeone"
+	}
+	defaults := []struct {
+		name   string
+		va     *VerdictAction
+		status string
+	}{{"on_pass", &a.OnPass, "success"}, {"on_hold", &a.OnHold, "failure"}, {"on_block", &a.OnBlock, "failure"}}
+	for _, d := range defaults {
+		if d.va.Status == "" {
+			d.va.Status = d.status
+		}
+		switch d.va.Status {
+		case "success", "failure", "pending", "error":
+		default:
+			return fmt.Errorf("actions.%s.status %q: want success|failure|pending|error", d.name, d.va.Status)
+		}
+		if d.va.Labels == nil {
+			d.va.Labels = []string{"mergeone:" + strings.TrimPrefix(d.name, "on_")}
+		}
+	}
+	if len(a.OnPass.Reviewers)+len(a.OnPass.TeamReviewers) > 0 {
+		return fmt.Errorf("actions.on_pass: reviewers are only requested on hold/block")
+	}
+	return nil
 }
 
 var condRE = regexp.MustCompile(`^\s*(>=|<=|>|<|==)\s*([0-9.]+)\s*$`)
@@ -158,6 +232,9 @@ func LoadPolicy(path string) (*Policy, error) {
 	}
 	if err := p.compile(); err != nil {
 		return nil, err
+	}
+	if err := p.Actions.Normalize(); err != nil {
+		return nil, fmt.Errorf("policy %s: %w", path, err)
 	}
 	return &p, nil
 }

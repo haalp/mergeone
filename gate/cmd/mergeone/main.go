@@ -1,7 +1,7 @@
 // mergeone: one decision per merge, at swarm scale.
 //
 //	mergeone serve   --policy .mergeone.yaml [--log .mergeone/gatelog.jsonl] [--workers 16] [--addr :8787] [--mock]
-//	mergeone pr      --policy .mergeone.yaml [--repo .] [--base main] [--head HEAD]
+//	mergeone pr      --policy .mergeone.yaml [--repo .] [--base main] [--head HEAD] [--gh-repo o/r --pr N --head-sha SHA]
 //	mergeone decide  --policy .mergeone.yaml --state file.txt [--paths a.go,b.go]
 //	mergeone replay  --policy .mergeone.yaml --predictions results/run2/predictions_jev_test_all.jsonl
 //	mergeone loadtest --url http://localhost:8787 --rate 35 --n 1200
@@ -310,6 +310,11 @@ func cmdPR(args []string) error {
 	logPath := fs.String("log", ".mergeone/gatelog.jsonl", "gatelog path")
 	mock := fs.Bool("mock", false, "mock model")
 	assets := fs.String("assets", "", "assets dir")
+	// CI mode: with policy actions.enabled, the verdict is written back to this PR (status, labels, comment,
+	// reviewers). Defaults come from GitHub Actions (GITHUB_REPOSITORY, GITHUB_EVENT_PATH); GITHUB_TOKEN authorises.
+	ghRepo := fs.String("gh-repo", os.Getenv("GITHUB_REPOSITORY"), "owner/name for verdict actions")
+	prNum := fs.Int("pr", 0, "PR number for verdict actions (default: from GITHUB_EVENT_PATH)")
+	headSHA := fs.String("head-sha", "", "PR head sha for verdict actions (default: from GITHUB_EVENT_PATH, else git rev-parse --head)")
 	fs.Parse(args)
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
@@ -320,11 +325,50 @@ func cmdPR(args []string) error {
 		return err
 	}
 	res := g.Decide(state, paths)
+	evPR, evSHA := prFromEvent(os.Getenv("GITHUB_EVENT_PATH"))
+	if *prNum == 0 {
+		*prNum = evPR
+	}
+	if *headSHA == "" {
+		*headSHA = evSHA
+	}
+	if *headSHA == "" {
+		if out, err := exec.Command("git", "-C", *repo, "rev-parse", *head).Output(); err == nil {
+			*headSHA = strings.TrimSpace(string(out))
+		}
+	}
+	res.Actions = server.ApplyActions(server.NewGitHub(os.Getenv("GITHUB_TOKEN")), g.Policy.Actions, *ghRepo, *prNum, *headSHA, res, "")
+	for _, e := range res.Actions.Errors {
+		fmt.Fprintln(os.Stderr, "actions:", e)
+	}
 	if st, err := store.Open(*logPath); err == nil {
-		_ = st.Record(store.Record{Repo: *repo, HeadSHA: *head, Source: "cli", Result: res, State: state})
+		_ = st.Record(store.Record{Repo: *repo, PR: *prNum, HeadSHA: *head, Source: "cli", Result: res, State: state})
 	}
 	exitFor(res)
 	return nil
+}
+
+// prFromEvent reads the PR number and head sha from a GitHub Actions pull_request event payload.
+func prFromEvent(path string) (int, string) {
+	if path == "" {
+		return 0, ""
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return 0, ""
+	}
+	var ev struct {
+		PullRequest struct {
+			Number int `json:"number"`
+			Head   struct {
+				SHA string `json:"sha"`
+			} `json:"head"`
+		} `json:"pull_request"`
+	}
+	if json.Unmarshal(b, &ev) != nil {
+		return 0, ""
+	}
+	return ev.PullRequest.Number, ev.PullRequest.Head.SHA
 }
 
 func cmdDecide(args []string) error {
