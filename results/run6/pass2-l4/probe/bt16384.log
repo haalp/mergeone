@@ -1,0 +1,18 @@
+pplx-flash-local test all: 50/200 errors=21 elapsed=54s
+pplx-flash-local test all: 100/200 errors=36 elapsed=74s
+pplx-flash-local test all: 150/200 errors=42 elapsed=103s
+pplx-flash-local test all: 200/200 errors=43 elapsed=136s
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 200,
+  "errors": 43,
+  "concurrency": 32,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-10-18T19:14:56.564094+00:00",
+  "host": "72343d4dddcb",
+  "python": "3.12.3",
+  "qset": "v3",
+  "mode": "joint"
+}

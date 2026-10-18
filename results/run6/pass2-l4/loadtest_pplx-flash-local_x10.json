@@ -1,0 +1,4822 @@
+{
+ "summary": {
+  "model": "pplx-flash-local",
+  "multiplier": 10.0,
+  "base_rate_per_s": 0.3472222222222222,
+  "rate_per_s": 3.4722222222222223,
+  "n": 600,
+  "p50_ms": 20316.843945533037,
+  "p99_ms": 29817.334089428186,
+  "p99_schedule_lag_s": 0.00010682633519110141,
+  "error_rate": 0.8916666666666667,
+  "concurrency": 512,
+  "http_max_connections": 512,
+  "qset": "v3",
+  "retry_429": 0,
+  "n_429": 0,
+  "wall_s": 202.548007465899,
+  "finished_at": "2026-10-18T19:56:11.678383+00:00"
+ },
+ "samples": [
+  {
+   "i": 0,
+   "scheduled_s": 0.0,
+   "started_s": 0.0003603138029575348,
+   "lag_s": 0.0003603138029575348,
+   "latency_ms": 709.2214487493038,
+   "error": null
+  },
+  {
+   "i": 1,
+   "scheduled_s": 0.288,
+   "started_s": 0.28808461129665375,
+   "lag_s": 8.461129665376932e-05,
+   "latency_ms": 1136.5331932902336,
+   "error": null
+  },
+  {
+   "i": 2,
+   "scheduled_s": 0.576,
+   "started_s": 0.5760827958583832,
+   "lag_s": 8.279585838322223e-05,
+   "latency_ms": 849.1380251944065,
+   "error": null
+  },
+  {
+   "i": 4,
+   "scheduled_s": 1.152,
+   "started_s": 1.1520686745643616,
+   "lag_s": 6.867456436165931e-05,
+   "latency_ms": 1717.3811048269272,
+   "error": null
+  },
+  {
+   "i": 3,
+   "scheduled_s": 0.864,
+   "started_s": 0.8640719540417194,
+   "lag_s": 7.195404171944642e-05,
+   "latency_ms": 2005.5816248059273,
+   "error": null
+  },
+  {
+   "i": 5,
+   "scheduled_s": 1.44,
+   "started_s": 1.4400602355599403,
+   "lag_s": 6.0235559940391425e-05,
+   "latency_ms": 5443.137515336275,
+   "error": null
+  },
+  {
+   "i": 7,
+   "scheduled_s": 2.016,
+   "started_s": 2.016083024442196,
+   "lag_s": 8.302444219587812e-05,
+   "latency_ms": 4867.7359484136105,
+   "error": null
+  },
+  {
+   "i": 8,
+   "scheduled_s": 2.304,
+   "started_s": 2.3040785528719425,
+   "lag_s": 7.855287194269422e-05,
+   "latency_ms": 4580.233804881573,
+   "error": null
+  },
+  {
+   "i": 6,
+   "scheduled_s": 1.728,
+   "started_s": 1.728108275681734,
+   "lag_s": 0.00010827568173410462,
+   "latency_ms": 5157.133262604475,
+   "error": null
+  },
+  {
+   "i": 9,
+   "scheduled_s": 2.592,
+   "started_s": 2.592080168426037,
+   "lag_s": 8.0168426036753e-05,
+   "latency_ms": 4293.354265391827,
+   "error": null
+  },
+  {
+   "i": 10,
+   "scheduled_s": 2.88,
+   "started_s": 2.880094174295664,
+   "lag_s": 9.41742956639402e-05,
+   "latency_ms": 16070.50333917141,
+   "error": null
+  },
+  {
+   "i": 14,
+   "scheduled_s": 4.032,
+   "started_s": 4.032106164842844,
+   "lag_s": 0.00010616484284398098,
+   "latency_ms": 14919.203631579876,
+   "error": null
+  },
+  {
+   "i": 18,
+   "scheduled_s": 5.184,
+   "started_s": 5.184080693870783,
+   "lag_s": 8.069387078268875e-05,
+   "latency_ms": 13767.866563051939,
+   "error": null
+  },
+  {
+   "i": 22,
+   "scheduled_s": 6.335999999999999,
+   "started_s": 6.336078613996506,
+   "lag_s": 7.861399650632706e-05,
+   "latency_ms": 12616.434082388878,
+   "error": null
+  },
+  {
+   "i": 15,
+   "scheduled_s": 4.32,
+   "started_s": 4.320067897439003,
+   "lag_s": 6.78974390027065e-05,
+   "latency_ms": 14632.974680513144,
+   "error": null
+  },
+  {
+   "i": 16,
+   "scheduled_s": 4.608,
+   "started_s": 4.608103331178427,
+   "lag_s": 0.00010333117842709072,
+   "latency_ms": 14345.552161335945,
+   "error": null
+  },
+  {
+   "i": 23,
+   "scheduled_s": 6.624,
+   "started_s": 6.624077785760164,
+   "lag_s": 7.778576016459482e-05,
+   "latency_ms": 12330.167416483164,
+   "error": null
+  },
+  {
+   "i": 11,
+   "scheduled_s": 3.1679999999999997,
+   "started_s": 3.168095503002405,
+   "lag_s": 9.55030024054615e-05,
+   "latency_ms": 15786.917958408594,
+   "error": null
+  },
+  {
+   "i": 17,
+   "scheduled_s": 4.896,
+   "started_s": 4.896070241928101,
+   "lag_s": 7.024192810067831e-05,
+   "latency_ms": 14059.615980833769,
+   "error": null
+  },
+  {
+   "i": 13,
+   "scheduled_s": 3.7439999999999998,
+   "started_s": 3.744080498814583,
+   "lag_s": 8.049881458305208e-05,
+   "latency_ms": 15213.306341320276,
+   "error": null
+  },
+  {
+   "i": 21,
+   "scheduled_s": 6.048,
+   "started_s": 6.048066921532154,
+   "lag_s": 6.692153215404062e-05,
+   "latency_ms": 12909.696448594332,
+   "error": null
+  },
+  {
+   "i": 12,
+   "scheduled_s": 3.456,
+   "started_s": 3.456103578209877,
+   "lag_s": 0.00010357820987705324,
+   "latency_ms": 15502.028435468674,
+   "error": null
+  },
+  {
+   "i": 20,
+   "scheduled_s": 5.76,
+   "started_s": 5.760075639933348,
+   "lag_s": 7.563993334791519e-05,
+   "latency_ms": 13198.749106377363,
+   "error": null
+  },
+  {
+   "i": 19,
+   "scheduled_s": 5.4719999999999995,
+   "started_s": 5.472072537988424,
+   "lag_s": 7.25379884247701e-05,
+   "latency_ms": 13487.121295183897,
+   "error": null
+  },
+  {
+   "i": 24,
+   "scheduled_s": 6.912,
+   "started_s": 6.912063971161842,
+   "lag_s": 6.397116184242435e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 25,
+   "scheduled_s": 7.2,
+   "started_s": 7.20007636770606,
+   "lag_s": 7.636770606023191e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 26,
+   "scheduled_s": 7.4879999999999995,
+   "started_s": 7.488071855157614,
+   "lag_s": 7.185515761420902e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 27,
+   "scheduled_s": 7.776,
+   "started_s": 7.776093043386936,
+   "lag_s": 9.30433869363867e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 28,
+   "scheduled_s": 8.064,
+   "started_s": 8.064067859202623,
+   "lag_s": 6.785920262331047e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 29,
+   "scheduled_s": 8.352,
+   "started_s": 8.3520962074399,
+   "lag_s": 9.620743989913194e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 30,
+   "scheduled_s": 8.64,
+   "started_s": 8.640070501714945,
+   "lag_s": 7.050171494427104e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 31,
+   "scheduled_s": 8.927999999999999,
+   "started_s": 8.928080324083567,
+   "lag_s": 8.032408356761778e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 32,
+   "scheduled_s": 9.216,
+   "started_s": 9.216069221496582,
+   "lag_s": 6.922149658272758e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 33,
+   "scheduled_s": 9.504,
+   "started_s": 9.504081133753061,
+   "lag_s": 8.113375306173509e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 34,
+   "scheduled_s": 9.792,
+   "started_s": 9.792077213525772,
+   "lag_s": 7.721352577227947e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 35,
+   "scheduled_s": 10.08,
+   "started_s": 10.080097697675228,
+   "lag_s": 9.769767522804784e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 36,
+   "scheduled_s": 10.368,
+   "started_s": 10.368078093975782,
+   "lag_s": 7.809397578206756e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 37,
+   "scheduled_s": 10.656,
+   "started_s": 10.656072344630957,
+   "lag_s": 7.234463095606714e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 38,
+   "scheduled_s": 10.943999999999999,
+   "started_s": 10.94407832622528,
+   "lag_s": 7.832622528169964e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 39,
+   "scheduled_s": 11.232,
+   "started_s": 11.232105761766434,
+   "lag_s": 0.00010576176643439794,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 40,
+   "scheduled_s": 11.52,
+   "started_s": 11.520077016204596,
+   "lag_s": 7.701620459599212e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 41,
+   "scheduled_s": 11.808,
+   "started_s": 11.808104041963816,
+   "lag_s": 0.00010404196381585962,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 42,
+   "scheduled_s": 12.096,
+   "started_s": 12.096098467707634,
+   "lag_s": 9.84677076338869e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 43,
+   "scheduled_s": 12.384,
+   "started_s": 12.384106867015362,
+   "lag_s": 0.00010686701536144483,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 44,
+   "scheduled_s": 12.671999999999999,
+   "started_s": 12.672104828059673,
+   "lag_s": 0.00010482805967448883,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 45,
+   "scheduled_s": 12.959999999999999,
+   "started_s": 12.960070692002773,
+   "lag_s": 7.069200277420862e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 46,
+   "scheduled_s": 13.248,
+   "started_s": 13.248107731342316,
+   "lag_s": 0.00010773134231634174,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 47,
+   "scheduled_s": 13.536,
+   "started_s": 13.536067947745323,
+   "lag_s": 6.794774532359327e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 48,
+   "scheduled_s": 13.824,
+   "started_s": 13.824074901640415,
+   "lag_s": 7.490164041534797e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 49,
+   "scheduled_s": 14.112,
+   "started_s": 14.112064089626074,
+   "lag_s": 6.40896260737378e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 50,
+   "scheduled_s": 14.4,
+   "started_s": 14.400075074285269,
+   "lag_s": 7.50742852684283e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 51,
+   "scheduled_s": 14.687999999999999,
+   "started_s": 14.688101220875978,
+   "lag_s": 0.00010122087597963514,
+   "latency_ms": 29817.334089428186,
+   "error": null
+  },
+  {
+   "i": 53,
+   "scheduled_s": 15.264,
+   "started_s": 15.264077436178923,
+   "lag_s": 7.74361789233069e-05,
+   "latency_ms": 29242.04273149371,
+   "error": null
+  },
+  {
+   "i": 58,
+   "scheduled_s": 16.704,
+   "started_s": 16.70410682633519,
+   "lag_s": 0.00010682633519110141,
+   "latency_ms": 27802.710574120283,
+   "error": null
+  },
+  {
+   "i": 54,
+   "scheduled_s": 15.552,
+   "started_s": 15.552076194435358,
+   "lag_s": 7.619443535844539e-05,
+   "latency_ms": 28955.410070717335,
+   "error": null
+  },
+  {
+   "i": 61,
+   "scheduled_s": 17.567999999999998,
+   "started_s": 17.568086579442024,
+   "lag_s": 8.657944202639101e-05,
+   "latency_ms": 26939.99145552516,
+   "error": null
+  },
+  {
+   "i": 60,
+   "scheduled_s": 17.28,
+   "started_s": 17.280073426663876,
+   "lag_s": 7.342666387444297e-05,
+   "latency_ms": 27228.661607950926,
+   "error": null
+  },
+  {
+   "i": 62,
+   "scheduled_s": 17.855999999999998,
+   "started_s": 17.856101140379906,
+   "lag_s": 0.00010114037990760494,
+   "latency_ms": 26653.345309197903,
+   "error": null
+  },
+  {
+   "i": 65,
+   "scheduled_s": 18.72,
+   "started_s": 18.720100030303,
+   "lag_s": 0.00010003030300254068,
+   "latency_ms": 25790.073737502098,
+   "error": null
+  },
+  {
+   "i": 57,
+   "scheduled_s": 16.416,
+   "started_s": 16.416082061827183,
+   "lag_s": 8.206182718240029e-05,
+   "latency_ms": 28094.469759613276,
+   "error": null
+  },
+  {
+   "i": 59,
+   "scheduled_s": 16.992,
+   "started_s": 16.992073599249125,
+   "lag_s": 7.35992491236459e-05,
+   "latency_ms": 27519.206952303648,
+   "error": null
+  },
+  {
+   "i": 63,
+   "scheduled_s": 18.144,
+   "started_s": 18.144103068858385,
+   "lag_s": 0.00010306885838673452,
+   "latency_ms": 26367.998622357845,
+   "error": null
+  },
+  {
+   "i": 52,
+   "scheduled_s": 14.975999999999999,
+   "started_s": 14.976082626730204,
+   "lag_s": 8.262673020453803e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 55,
+   "scheduled_s": 15.84,
+   "started_s": 15.840082962065935,
+   "lag_s": 8.2962065935277e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 56,
+   "scheduled_s": 16.128,
+   "started_s": 16.128102388232946,
+   "lag_s": 0.00010238823294628219,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 64,
+   "scheduled_s": 18.432,
+   "started_s": 18.432101778686047,
+   "lag_s": 0.000101778686047993,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 66,
+   "scheduled_s": 19.008,
+   "started_s": 19.008095800876617,
+   "lag_s": 9.580087661831271e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 67,
+   "scheduled_s": 19.296,
+   "started_s": 19.29609790071845,
+   "lag_s": 9.790071845117154e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 68,
+   "scheduled_s": 19.584,
+   "started_s": 19.584099777042866,
+   "lag_s": 9.977704286612266e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 69,
+   "scheduled_s": 19.872,
+   "started_s": 19.872100193053484,
+   "lag_s": 0.0001001930534840767,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 70,
+   "scheduled_s": 20.16,
+   "started_s": 20.16007485240698,
+   "lag_s": 7.485240697846507e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 71,
+   "scheduled_s": 20.448,
+   "started_s": 20.448102965950966,
+   "lag_s": 0.00010296595096548344,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 72,
+   "scheduled_s": 20.736,
+   "started_s": 20.736075460910797,
+   "lag_s": 7.546091079646544e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 73,
+   "scheduled_s": 21.024,
+   "started_s": 21.024074357002974,
+   "lag_s": 7.435700297264702e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 74,
+   "scheduled_s": 21.312,
+   "started_s": 21.31207326054573,
+   "lag_s": 7.326054572942553e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 75,
+   "scheduled_s": 21.599999999999998,
+   "started_s": 21.600101187825203,
+   "lag_s": 0.00010118782520507352,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 76,
+   "scheduled_s": 21.887999999999998,
+   "started_s": 21.888084284961224,
+   "lag_s": 8.428496122547813e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 77,
+   "scheduled_s": 22.176,
+   "started_s": 22.17607681825757,
+   "lag_s": 7.681825757188676e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 78,
+   "scheduled_s": 22.464,
+   "started_s": 22.46410259604454,
+   "lag_s": 0.00010259604454176952,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 79,
+   "scheduled_s": 22.752,
+   "started_s": 22.75207259133458,
+   "lag_s": 7.259133458248357e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 80,
+   "scheduled_s": 23.04,
+   "started_s": 23.04009995982051,
+   "lag_s": 9.995982050980956e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 81,
+   "scheduled_s": 23.328,
+   "started_s": 23.328100103884935,
+   "lag_s": 0.00010010388493597588,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 82,
+   "scheduled_s": 23.616,
+   "started_s": 23.616072848439217,
+   "lag_s": 7.284843921695483e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 83,
+   "scheduled_s": 23.904,
+   "started_s": 23.90410151705146,
+   "lag_s": 0.00010151705145844403,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 84,
+   "scheduled_s": 24.192,
+   "started_s": 24.192099910229445,
+   "lag_s": 9.991022944433325e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 85,
+   "scheduled_s": 24.48,
+   "started_s": 24.480098873376846,
+   "lag_s": 9.887337684588715e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 86,
+   "scheduled_s": 24.768,
+   "started_s": 24.768100012093782,
+   "lag_s": 0.0001000120937817428,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 87,
+   "scheduled_s": 25.056,
+   "started_s": 25.05607882142067,
+   "lag_s": 7.882142066861775e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 88,
+   "scheduled_s": 25.343999999999998,
+   "started_s": 25.34410060942173,
+   "lag_s": 0.0001006094217324005,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 89,
+   "scheduled_s": 25.631999999999998,
+   "started_s": 25.632073175162077,
+   "lag_s": 7.317516207905328e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 90,
+   "scheduled_s": 25.919999999999998,
+   "started_s": 25.920099198818207,
+   "lag_s": 9.919881820863452e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 91,
+   "scheduled_s": 26.208,
+   "started_s": 26.2080998159945,
+   "lag_s": 9.981599450270551e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 92,
+   "scheduled_s": 26.496,
+   "started_s": 26.496073730289936,
+   "lag_s": 7.37302899374015e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 93,
+   "scheduled_s": 26.784,
+   "started_s": 26.784083884209394,
+   "lag_s": 8.388420939553498e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 94,
+   "scheduled_s": 27.072,
+   "started_s": 27.072100412100554,
+   "lag_s": 0.0001004121005543368,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 95,
+   "scheduled_s": 27.36,
+   "started_s": 27.360098395496607,
+   "lag_s": 9.839549660739522e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 96,
+   "scheduled_s": 27.648,
+   "started_s": 27.648100033402443,
+   "lag_s": 0.00010003340244324477,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 97,
+   "scheduled_s": 27.936,
+   "started_s": 27.93609793484211,
+   "lag_s": 9.793484210973702e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 98,
+   "scheduled_s": 28.224,
+   "started_s": 28.22410172596574,
+   "lag_s": 0.00010172596573809756,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 99,
+   "scheduled_s": 28.512,
+   "started_s": 28.512098226696253,
+   "lag_s": 9.822669625236813e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 100,
+   "scheduled_s": 28.8,
+   "started_s": 28.800095446407795,
+   "lag_s": 9.544640779424185e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 101,
+   "scheduled_s": 29.087999999999997,
+   "started_s": 29.088075689971447,
+   "lag_s": 7.568997144957734e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 102,
+   "scheduled_s": 29.375999999999998,
+   "started_s": 29.376100316643715,
+   "lag_s": 0.00010031664371723537,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 106,
+   "scheduled_s": 30.528,
+   "started_s": 30.528047256171703,
+   "lag_s": 4.725617170464602e-05,
+   "latency_ms": 28984.116159379482,
+   "error": null
+  },
+  {
+   "i": 111,
+   "scheduled_s": 31.968,
+   "started_s": 31.968072932213545,
+   "lag_s": 7.2932213544874e-05,
+   "latency_ms": 27544.756539165974,
+   "error": null
+  },
+  {
+   "i": 105,
+   "scheduled_s": 30.24,
+   "started_s": 30.240083042532206,
+   "lag_s": 8.304253220714486e-05,
+   "latency_ms": 29273.124858736992,
+   "error": null
+  },
+  {
+   "i": 144,
+   "scheduled_s": 41.472,
+   "started_s": 41.47210021689534,
+   "lag_s": 0.00010021689534056577,
+   "latency_ms": 18041.833203285933,
+   "error": null
+  },
+  {
+   "i": 139,
+   "scheduled_s": 40.032,
+   "started_s": 40.032070729881525,
+   "lag_s": 7.072988152856396e-05,
+   "latency_ms": 19482.295118272305,
+   "error": null
+  },
+  {
+   "i": 148,
+   "scheduled_s": 42.624,
+   "started_s": 42.62409986183047,
+   "lag_s": 9.986183047061559e-05,
+   "latency_ms": 16890.99830761552,
+   "error": null
+  },
+  {
+   "i": 130,
+   "scheduled_s": 37.44,
+   "started_s": 37.44007281213999,
+   "lag_s": 7.28121399902193e-05,
+   "latency_ms": 22075.79756900668,
+   "error": null
+  },
+  {
+   "i": 128,
+   "scheduled_s": 36.864,
+   "started_s": 36.864072769880295,
+   "lag_s": 7.276988029758513e-05,
+   "latency_ms": 22652.5953784585,
+   "error": null
+  },
+  {
+   "i": 120,
+   "scheduled_s": 34.56,
+   "started_s": 34.5600761026144,
+   "lag_s": 7.610261440049726e-05,
+   "latency_ms": 24957.4053324759,
+   "error": null
+  },
+  {
+   "i": 115,
+   "scheduled_s": 33.12,
+   "started_s": 33.120072457939386,
+   "lag_s": 7.245793938892575e-05,
+   "latency_ms": 26397.78198674321,
+   "error": null
+  },
+  {
+   "i": 149,
+   "scheduled_s": 42.912,
+   "started_s": 42.912075471132994,
+   "lag_s": 7.547113299466446e-05,
+   "latency_ms": 16606.542754918337,
+   "error": null
+  },
+  {
+   "i": 103,
+   "scheduled_s": 29.663999999999998,
+   "started_s": 29.66407472267747,
+   "lag_s": 7.472267747132832e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 104,
+   "scheduled_s": 29.951999999999998,
+   "started_s": 29.952077113091946,
+   "lag_s": 7.711309194746718e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 107,
+   "scheduled_s": 30.816,
+   "started_s": 30.816074311733246,
+   "lag_s": 7.431173324690121e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 108,
+   "scheduled_s": 31.104,
+   "started_s": 31.10407516732812,
+   "lag_s": 7.516732812007376e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 109,
+   "scheduled_s": 31.392,
+   "started_s": 31.39209922030568,
+   "lag_s": 9.922030568176865e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 110,
+   "scheduled_s": 31.68,
+   "started_s": 31.680098742246628,
+   "lag_s": 9.874224662809183e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 112,
+   "scheduled_s": 32.256,
+   "started_s": 32.25607583299279,
+   "lag_s": 7.583299279190214e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 113,
+   "scheduled_s": 32.544,
+   "started_s": 32.544077560305595,
+   "lag_s": 7.75603055984675e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 114,
+   "scheduled_s": 32.832,
+   "started_s": 32.83209812268615,
+   "lag_s": 9.812268614695085e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 116,
+   "scheduled_s": 33.408,
+   "started_s": 33.40807714313269,
+   "lag_s": 7.714313268536444e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 117,
+   "scheduled_s": 33.696,
+   "started_s": 33.6960718408227,
+   "lag_s": 7.184082269873215e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 118,
+   "scheduled_s": 33.984,
+   "started_s": 33.9840742200613,
+   "lag_s": 7.422006130042291e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 119,
+   "scheduled_s": 34.272,
+   "started_s": 34.27210036292672,
+   "lag_s": 0.00010036292672310765,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 121,
+   "scheduled_s": 34.848,
+   "started_s": 34.84809934347868,
+   "lag_s": 9.934347868068016e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 122,
+   "scheduled_s": 35.135999999999996,
+   "started_s": 35.13610088080168,
+   "lag_s": 0.00010088080168202396,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 123,
+   "scheduled_s": 35.424,
+   "started_s": 35.42407524585724,
+   "lag_s": 7.524585723928112e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 124,
+   "scheduled_s": 35.711999999999996,
+   "started_s": 35.71207112446427,
+   "lag_s": 7.112446427726127e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 125,
+   "scheduled_s": 36.0,
+   "started_s": 36.00007161870599,
+   "lag_s": 7.16187059879303e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 126,
+   "scheduled_s": 36.288,
+   "started_s": 36.28809804841876,
+   "lag_s": 9.80484187635966e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 127,
+   "scheduled_s": 36.576,
+   "started_s": 36.57607437670231,
+   "lag_s": 7.43767023081432e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 129,
+   "scheduled_s": 37.152,
+   "started_s": 37.1520796045661,
+   "lag_s": 7.960456609623634e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 131,
+   "scheduled_s": 37.728,
+   "started_s": 37.72807340323925,
+   "lag_s": 7.340323924864833e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 132,
+   "scheduled_s": 38.016,
+   "started_s": 38.016071647405624,
+   "lag_s": 7.16474056261518e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 133,
+   "scheduled_s": 38.304,
+   "started_s": 38.3040654361248,
+   "lag_s": 6.543612479958938e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 134,
+   "scheduled_s": 38.592,
+   "started_s": 38.59207483381033,
+   "lag_s": 7.483381033068781e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 135,
+   "scheduled_s": 38.879999999999995,
+   "started_s": 38.88008114695549,
+   "lag_s": 8.114695549465978e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 136,
+   "scheduled_s": 39.168,
+   "started_s": 39.16807545349002,
+   "lag_s": 7.545349001958357e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 137,
+   "scheduled_s": 39.455999999999996,
+   "started_s": 39.456078343093395,
+   "lag_s": 7.834309339926904e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 138,
+   "scheduled_s": 39.744,
+   "started_s": 39.74407510459423,
+   "lag_s": 7.510459423087923e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 140,
+   "scheduled_s": 40.32,
+   "started_s": 40.3201027661562,
+   "lag_s": 0.00010276615619631002,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 141,
+   "scheduled_s": 40.608,
+   "started_s": 40.60807187482715,
+   "lag_s": 7.187482714954285e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 142,
+   "scheduled_s": 40.896,
+   "started_s": 40.89607262983918,
+   "lag_s": 7.262983918110422e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 143,
+   "scheduled_s": 41.184,
+   "started_s": 41.18407529219985,
+   "lag_s": 7.529219985258351e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 145,
+   "scheduled_s": 41.76,
+   "started_s": 41.760076235979795,
+   "lag_s": 7.623597979744545e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 146,
+   "scheduled_s": 42.048,
+   "started_s": 42.0480750054121,
+   "lag_s": 7.500541209992662e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 147,
+   "scheduled_s": 42.336,
+   "started_s": 42.33607252687216,
+   "lag_s": 7.252687215952847e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 150,
+   "scheduled_s": 43.199999999999996,
+   "started_s": 43.20009737089276,
+   "lag_s": 9.737089276740107e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 151,
+   "scheduled_s": 43.488,
+   "started_s": 43.48807807639241,
+   "lag_s": 7.807639241264042e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 152,
+   "scheduled_s": 43.775999999999996,
+   "started_s": 43.77607451379299,
+   "lag_s": 7.451379299538985e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 153,
+   "scheduled_s": 44.064,
+   "started_s": 44.06407643482089,
+   "lag_s": 7.643482089036979e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 154,
+   "scheduled_s": 44.352,
+   "started_s": 44.35210109874606,
+   "lag_s": 0.00010109874606456515,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 158,
+   "scheduled_s": 45.504,
+   "started_s": 45.50409834459424,
+   "lag_s": 9.834459424240549e-05,
+   "latency_ms": 28952.9401473701,
+   "error": null
+  },
+  {
+   "i": 161,
+   "scheduled_s": 46.368,
+   "started_s": 46.36809912323952,
+   "lag_s": 9.912323951510871e-05,
+   "latency_ms": 28089.316353201866,
+   "error": null
+  },
+  {
+   "i": 173,
+   "scheduled_s": 49.824,
+   "started_s": 49.82408011704683,
+   "lag_s": 8.0117046834971e-05,
+   "latency_ms": 24633.647065609694,
+   "error": null
+  },
+  {
+   "i": 168,
+   "scheduled_s": 48.384,
+   "started_s": 48.38409934565425,
+   "lag_s": 9.934565424885022e-05,
+   "latency_ms": 26073.892172425985,
+   "error": null
+  },
+  {
+   "i": 177,
+   "scheduled_s": 50.976,
+   "started_s": 50.9760785959661,
+   "lag_s": 7.859596610160224e-05,
+   "latency_ms": 23482.22017660737,
+   "error": null
+  },
+  {
+   "i": 159,
+   "scheduled_s": 45.792,
+   "started_s": 45.792098585516214,
+   "lag_s": 9.858551621277911e-05,
+   "latency_ms": 28666.949953883886,
+   "error": null
+  },
+  {
+   "i": 181,
+   "scheduled_s": 52.128,
+   "started_s": 52.128075040876865,
+   "lag_s": 7.504087686527328e-05,
+   "latency_ms": 22331.778585910797,
+   "error": null
+  },
+  {
+   "i": 176,
+   "scheduled_s": 50.687999999999995,
+   "started_s": 50.68807806074619,
+   "lag_s": 7.806074619765013e-05,
+   "latency_ms": 23772.15686440468,
+   "error": null
+  },
+  {
+   "i": 183,
+   "scheduled_s": 52.704,
+   "started_s": 52.70407947525382,
+   "lag_s": 7.947525381979403e-05,
+   "latency_ms": 21756.50328025222,
+   "error": null
+  },
+  {
+   "i": 188,
+   "scheduled_s": 54.144,
+   "started_s": 54.144101195037365,
+   "lag_s": 0.00010119503736660818,
+   "latency_ms": 20316.843945533037,
+   "error": null
+  },
+  {
+   "i": 200,
+   "scheduled_s": 57.6,
+   "started_s": 57.60007655248046,
+   "lag_s": 7.655248045779217e-05,
+   "latency_ms": 16861.794836819172,
+   "error": null
+  },
+  {
+   "i": 203,
+   "scheduled_s": 58.464,
+   "started_s": 58.46407428383827,
+   "lag_s": 7.428383827345897e-05,
+   "latency_ms": 15999.575071036816,
+   "error": null
+  },
+  {
+   "i": 190,
+   "scheduled_s": 54.72,
+   "started_s": 54.72008202597499,
+   "lag_s": 8.202597499007425e-05,
+   "latency_ms": 19743.86750906706,
+   "error": null
+  },
+  {
+   "i": 192,
+   "scheduled_s": 55.296,
+   "started_s": 55.29607628658414,
+   "lag_s": 7.628658413949552e-05,
+   "latency_ms": 19168.44181343913,
+   "error": null
+  },
+  {
+   "i": 179,
+   "scheduled_s": 51.552,
+   "started_s": 51.55209893360734,
+   "lag_s": 9.893360734025691e-05,
+   "latency_ms": 22912.711434066296,
+   "error": null
+  },
+  {
+   "i": 162,
+   "scheduled_s": 46.656,
+   "started_s": 46.656074460595846,
+   "lag_s": 7.446059584736986e-05,
+   "latency_ms": 27808.962013572454,
+   "error": null
+  },
+  {
+   "i": 155,
+   "scheduled_s": 44.64,
+   "started_s": 44.64009742811322,
+   "lag_s": 9.742811322155376e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 156,
+   "scheduled_s": 44.928,
+   "started_s": 44.928094908595085,
+   "lag_s": 9.490859508787253e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 157,
+   "scheduled_s": 45.216,
+   "started_s": 45.21607758104801,
+   "lag_s": 7.758104801069976e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 160,
+   "scheduled_s": 46.08,
+   "started_s": 46.08009906858206,
+   "lag_s": 9.906858205965818e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 163,
+   "scheduled_s": 46.943999999999996,
+   "started_s": 46.94409861788154,
+   "lag_s": 9.86178815409744e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 164,
+   "scheduled_s": 47.232,
+   "started_s": 47.232076682150364,
+   "lag_s": 7.668215036460424e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 165,
+   "scheduled_s": 47.519999999999996,
+   "started_s": 47.520081516355276,
+   "lag_s": 8.151635528008683e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 166,
+   "scheduled_s": 47.808,
+   "started_s": 47.80809869617224,
+   "lag_s": 9.869617223756677e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 167,
+   "scheduled_s": 48.096,
+   "started_s": 48.096103858202696,
+   "lag_s": 0.000103858202699314,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 169,
+   "scheduled_s": 48.672,
+   "started_s": 48.672103852033615,
+   "lag_s": 0.00010385203361806816,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 170,
+   "scheduled_s": 48.96,
+   "started_s": 48.96009664237499,
+   "lag_s": 9.664237499151795e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 171,
+   "scheduled_s": 49.248,
+   "started_s": 49.248069539666176,
+   "lag_s": 6.953966617828655e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 172,
+   "scheduled_s": 49.536,
+   "started_s": 49.53609799593687,
+   "lag_s": 9.799593686921071e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 174,
+   "scheduled_s": 50.112,
+   "started_s": 50.1120981387794,
+   "lag_s": 9.813877939990334e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 175,
+   "scheduled_s": 50.4,
+   "started_s": 50.40007874369621,
+   "lag_s": 7.874369621418964e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 178,
+   "scheduled_s": 51.263999999999996,
+   "started_s": 51.26407893747091,
+   "lag_s": 7.893747091713976e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 180,
+   "scheduled_s": 51.839999999999996,
+   "started_s": 51.84008068963885,
+   "lag_s": 8.068963885676794e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 182,
+   "scheduled_s": 52.416,
+   "started_s": 52.416099831461906,
+   "lag_s": 9.983146190961634e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 184,
+   "scheduled_s": 52.992,
+   "started_s": 52.992068242281675,
+   "lag_s": 6.824228167801039e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 185,
+   "scheduled_s": 53.28,
+   "started_s": 53.280102010816336,
+   "lag_s": 0.00010201081633454123,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 186,
+   "scheduled_s": 53.568,
+   "started_s": 53.56807602569461,
+   "lag_s": 7.60256946108484e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 187,
+   "scheduled_s": 53.856,
+   "started_s": 53.85610108077526,
+   "lag_s": 0.00010108077525927683,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 189,
+   "scheduled_s": 54.431999999999995,
+   "started_s": 54.43207447975874,
+   "lag_s": 7.447975874441681e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 191,
+   "scheduled_s": 55.007999999999996,
+   "started_s": 55.008078906685114,
+   "lag_s": 7.890668511834065e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 193,
+   "scheduled_s": 55.583999999999996,
+   "started_s": 55.58410023897886,
+   "lag_s": 0.00010023897886668465,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 194,
+   "scheduled_s": 55.872,
+   "started_s": 55.87210125476122,
+   "lag_s": 0.00010125476121913835,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 195,
+   "scheduled_s": 56.16,
+   "started_s": 56.160100642591715,
+   "lag_s": 0.00010064259171826961,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 196,
+   "scheduled_s": 56.448,
+   "started_s": 56.4481006860733,
+   "lag_s": 0.00010068607330282475,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 197,
+   "scheduled_s": 56.736,
+   "started_s": 56.73609647527337,
+   "lag_s": 9.647527337364181e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 198,
+   "scheduled_s": 57.024,
+   "started_s": 57.024074859917164,
+   "lag_s": 7.485991716293938e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 199,
+   "scheduled_s": 57.312,
+   "started_s": 57.31210194155574,
+   "lag_s": 0.00010194155574083652,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 201,
+   "scheduled_s": 57.888,
+   "started_s": 57.88810070976615,
+   "lag_s": 0.00010070976615139671,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 202,
+   "scheduled_s": 58.175999999999995,
+   "started_s": 58.17607665061951,
+   "lag_s": 7.665061951200869e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 204,
+   "scheduled_s": 58.751999999999995,
+   "started_s": 58.75207279622555,
+   "lag_s": 7.279622555245169e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 205,
+   "scheduled_s": 59.04,
+   "started_s": 59.04007251188159,
+   "lag_s": 7.251188159074218e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 206,
+   "scheduled_s": 59.327999999999996,
+   "started_s": 59.32807243615389,
+   "lag_s": 7.243615389285196e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 207,
+   "scheduled_s": 59.616,
+   "started_s": 59.616077698767185,
+   "lag_s": 7.769876718555224e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 208,
+   "scheduled_s": 59.903999999999996,
+   "started_s": 59.904076009988785,
+   "lag_s": 7.600998878842802e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 209,
+   "scheduled_s": 60.192,
+   "started_s": 60.19209483638406,
+   "lag_s": 9.483638405782813e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 210,
+   "scheduled_s": 60.48,
+   "started_s": 60.48009533807635,
+   "lag_s": 9.533807635619951e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 211,
+   "scheduled_s": 60.768,
+   "started_s": 60.76807562634349,
+   "lag_s": 7.562634348801112e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 212,
+   "scheduled_s": 61.056,
+   "started_s": 61.05606955289841,
+   "lag_s": 6.955289840959722e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 213,
+   "scheduled_s": 61.344,
+   "started_s": 61.3440991230309,
+   "lag_s": 9.912303089976149e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 214,
+   "scheduled_s": 61.632,
+   "started_s": 61.63207747414708,
+   "lag_s": 7.747414708347833e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 215,
+   "scheduled_s": 61.92,
+   "started_s": 61.92009872943163,
+   "lag_s": 9.87294316274756e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 216,
+   "scheduled_s": 62.208,
+   "started_s": 62.208099849522114,
+   "lag_s": 9.984952211539166e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 217,
+   "scheduled_s": 62.495999999999995,
+   "started_s": 62.4960967078805,
+   "lag_s": 9.67078805018673e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 218,
+   "scheduled_s": 62.784,
+   "started_s": 62.78407730907202,
+   "lag_s": 7.73090720187497e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 219,
+   "scheduled_s": 63.071999999999996,
+   "started_s": 63.07209982722998,
+   "lag_s": 9.9827229981031e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 220,
+   "scheduled_s": 63.36,
+   "started_s": 63.36010017246008,
+   "lag_s": 0.00010017246007976155,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 221,
+   "scheduled_s": 63.647999999999996,
+   "started_s": 63.648098044097424,
+   "lag_s": 9.804409742741882e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 222,
+   "scheduled_s": 63.936,
+   "started_s": 63.93607782572508,
+   "lag_s": 7.782572507863961e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 223,
+   "scheduled_s": 64.224,
+   "started_s": 64.22407568991184,
+   "lag_s": 7.568991183859453e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 224,
+   "scheduled_s": 64.512,
+   "started_s": 64.51207297295332,
+   "lag_s": 7.297295331909481e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 225,
+   "scheduled_s": 64.8,
+   "started_s": 64.80007776245475,
+   "lag_s": 7.776245475099586e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 226,
+   "scheduled_s": 65.088,
+   "started_s": 65.0880998596549,
+   "lag_s": 9.985965490955095e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 227,
+   "scheduled_s": 65.376,
+   "started_s": 65.37607569992542,
+   "lag_s": 7.569992541789361e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 228,
+   "scheduled_s": 65.664,
+   "started_s": 65.66407775878906,
+   "lag_s": 7.775878906102207e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 229,
+   "scheduled_s": 65.952,
+   "started_s": 65.95207710191607,
+   "lag_s": 7.71019160765718e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 230,
+   "scheduled_s": 66.24,
+   "started_s": 66.24010059610009,
+   "lag_s": 0.00010059610009705011,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 231,
+   "scheduled_s": 66.52799999999999,
+   "started_s": 66.52807481214404,
+   "lag_s": 7.481214404947423e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 232,
+   "scheduled_s": 66.816,
+   "started_s": 66.81609884276986,
+   "lag_s": 9.88427698587202e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 233,
+   "scheduled_s": 67.104,
+   "started_s": 67.1041008271277,
+   "lag_s": 0.00010082712769587943,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 234,
+   "scheduled_s": 67.392,
+   "started_s": 67.39209999516606,
+   "lag_s": 9.999516606740144e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 235,
+   "scheduled_s": 67.67999999999999,
+   "started_s": 67.68010085821152,
+   "lag_s": 0.00010085821152472363,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 236,
+   "scheduled_s": 67.968,
+   "started_s": 67.96809697151184,
+   "lag_s": 9.697151183729602e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 237,
+   "scheduled_s": 68.256,
+   "started_s": 68.25610030815005,
+   "lag_s": 0.00010030815005279692,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 238,
+   "scheduled_s": 68.544,
+   "started_s": 68.54409904405475,
+   "lag_s": 9.904405474969735e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 239,
+   "scheduled_s": 68.832,
+   "started_s": 68.8320749849081,
+   "lag_s": 7.498490811030933e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 240,
+   "scheduled_s": 69.12,
+   "started_s": 69.12010150030255,
+   "lag_s": 0.0001015003025486294,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 241,
+   "scheduled_s": 69.408,
+   "started_s": 69.40807529166341,
+   "lag_s": 7.529166340702886e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 242,
+   "scheduled_s": 69.696,
+   "started_s": 69.69608176872134,
+   "lag_s": 8.176872134413316e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 243,
+   "scheduled_s": 69.984,
+   "started_s": 69.98407814651728,
+   "lag_s": 7.81465172821072e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 244,
+   "scheduled_s": 70.27199999999999,
+   "started_s": 70.27209997549653,
+   "lag_s": 9.997549653917304e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 245,
+   "scheduled_s": 70.56,
+   "started_s": 70.5600994899869,
+   "lag_s": 9.948998689424116e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 246,
+   "scheduled_s": 70.848,
+   "started_s": 70.84807843342423,
+   "lag_s": 7.843342423541344e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 247,
+   "scheduled_s": 71.136,
+   "started_s": 71.13609568402171,
+   "lag_s": 9.568402171566959e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 248,
+   "scheduled_s": 71.42399999999999,
+   "started_s": 71.42407570034266,
+   "lag_s": 7.57003426627989e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 252,
+   "scheduled_s": 72.576,
+   "started_s": 72.57610087841749,
+   "lag_s": 0.00010087841749850668,
+   "latency_ms": 29010.20620390773,
+   "error": null
+  },
+  {
+   "i": 257,
+   "scheduled_s": 74.01599999999999,
+   "started_s": 74.01607658714056,
+   "lag_s": 7.658714056901772e-05,
+   "latency_ms": 27570.92846184969,
+   "error": null
+  },
+  {
+   "i": 249,
+   "scheduled_s": 71.712,
+   "started_s": 71.71207996457815,
+   "lag_s": 7.996457814840596e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 250,
+   "scheduled_s": 72.0,
+   "started_s": 72.00010338425636,
+   "lag_s": 0.00010338425636291504,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 251,
+   "scheduled_s": 72.288,
+   "started_s": 72.28810020163655,
+   "lag_s": 0.00010020163655610759,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 253,
+   "scheduled_s": 72.864,
+   "started_s": 72.86409892141819,
+   "lag_s": 9.892141818568234e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 254,
+   "scheduled_s": 73.152,
+   "started_s": 73.15209600329399,
+   "lag_s": 9.600329399006569e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 255,
+   "scheduled_s": 73.44,
+   "started_s": 73.44009803980589,
+   "lag_s": 9.803980589140338e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 256,
+   "scheduled_s": 73.728,
+   "started_s": 73.72807948663831,
+   "lag_s": 7.948663831314207e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 258,
+   "scheduled_s": 74.304,
+   "started_s": 74.3041010312736,
+   "lag_s": 0.00010103127360139297,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 259,
+   "scheduled_s": 74.592,
+   "started_s": 74.59206992015243,
+   "lag_s": 6.992015242701655e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 260,
+   "scheduled_s": 74.88,
+   "started_s": 74.88007481768727,
+   "lag_s": 7.481768727757299e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 261,
+   "scheduled_s": 75.16799999999999,
+   "started_s": 75.16809895634651,
+   "lag_s": 9.895634651968521e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 262,
+   "scheduled_s": 75.456,
+   "started_s": 75.45607428252697,
+   "lag_s": 7.428252696684012e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 263,
+   "scheduled_s": 75.744,
+   "started_s": 75.74409813061357,
+   "lag_s": 9.813061356567232e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 264,
+   "scheduled_s": 76.032,
+   "started_s": 76.03209800645709,
+   "lag_s": 9.80064570939021e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 265,
+   "scheduled_s": 76.32,
+   "started_s": 76.32009526714683,
+   "lag_s": 9.526714683261162e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 266,
+   "scheduled_s": 76.608,
+   "started_s": 76.60807389765978,
+   "lag_s": 7.389765977450224e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 267,
+   "scheduled_s": 76.896,
+   "started_s": 76.89610123634338,
+   "lag_s": 0.00010123634338299325,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 268,
+   "scheduled_s": 77.184,
+   "started_s": 77.18407681584358,
+   "lag_s": 7.681584358465443e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 269,
+   "scheduled_s": 77.472,
+   "started_s": 77.47207357361913,
+   "lag_s": 7.357361913307159e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 270,
+   "scheduled_s": 77.75999999999999,
+   "started_s": 77.7600849866867,
+   "lag_s": 8.498668671563792e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 271,
+   "scheduled_s": 78.048,
+   "started_s": 78.04807771369815,
+   "lag_s": 7.771369814690843e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 272,
+   "scheduled_s": 78.336,
+   "started_s": 78.33607909828424,
+   "lag_s": 7.909828424601528e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 273,
+   "scheduled_s": 78.624,
+   "started_s": 78.62410531565547,
+   "lag_s": 0.00010531565547466926,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 274,
+   "scheduled_s": 78.91199999999999,
+   "started_s": 78.91207841038704,
+   "lag_s": 7.841038704725634e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 275,
+   "scheduled_s": 79.2,
+   "started_s": 79.20010128989816,
+   "lag_s": 0.00010128989815427758,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 276,
+   "scheduled_s": 79.488,
+   "started_s": 79.48807584866881,
+   "lag_s": 7.584866881416019e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 277,
+   "scheduled_s": 79.776,
+   "started_s": 79.77609917521477,
+   "lag_s": 9.917521477120772e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 278,
+   "scheduled_s": 80.064,
+   "started_s": 80.06407471373677,
+   "lag_s": 7.471373677958582e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 279,
+   "scheduled_s": 80.352,
+   "started_s": 80.35209691524506,
+   "lag_s": 9.691524505228699e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 280,
+   "scheduled_s": 80.64,
+   "started_s": 80.64009984210134,
+   "lag_s": 9.984210133495708e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 281,
+   "scheduled_s": 80.928,
+   "started_s": 80.92807794734836,
+   "lag_s": 7.794734835897543e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 282,
+   "scheduled_s": 81.216,
+   "started_s": 81.2160758599639,
+   "lag_s": 7.585996389991578e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 283,
+   "scheduled_s": 81.50399999999999,
+   "started_s": 81.50407762825489,
+   "lag_s": 7.762825489976422e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 284,
+   "scheduled_s": 81.792,
+   "started_s": 81.79207764938474,
+   "lag_s": 7.764938473542315e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 285,
+   "scheduled_s": 82.08,
+   "started_s": 82.08007563650608,
+   "lag_s": 7.563650608233274e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 286,
+   "scheduled_s": 82.368,
+   "started_s": 82.36807395517826,
+   "lag_s": 7.395517826580544e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 287,
+   "scheduled_s": 82.65599999999999,
+   "started_s": 82.6560762822628,
+   "lag_s": 7.628226281042316e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 288,
+   "scheduled_s": 82.944,
+   "started_s": 82.9440747871995,
+   "lag_s": 7.47871994946081e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 289,
+   "scheduled_s": 83.232,
+   "started_s": 83.23209270089865,
+   "lag_s": 9.270089864799047e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 290,
+   "scheduled_s": 83.52,
+   "started_s": 83.52007546648383,
+   "lag_s": 7.546648383538468e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 291,
+   "scheduled_s": 83.80799999999999,
+   "started_s": 83.80807579681277,
+   "lag_s": 7.579681278002681e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 292,
+   "scheduled_s": 84.096,
+   "started_s": 84.09607429802418,
+   "lag_s": 7.429802417391329e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 293,
+   "scheduled_s": 84.384,
+   "started_s": 84.3841018229723,
+   "lag_s": 0.0001018229722973274,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 294,
+   "scheduled_s": 84.672,
+   "started_s": 84.67207612097263,
+   "lag_s": 7.612097263631767e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 295,
+   "scheduled_s": 84.96,
+   "started_s": 84.960085850209,
+   "lag_s": 8.585020900397922e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 296,
+   "scheduled_s": 85.248,
+   "started_s": 85.24808897078037,
+   "lag_s": 8.897078036795847e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 297,
+   "scheduled_s": 85.536,
+   "started_s": 85.5360809713602,
+   "lag_s": 8.097136020523976e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 298,
+   "scheduled_s": 85.824,
+   "started_s": 85.82407457754016,
+   "lag_s": 7.457754016115814e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 299,
+   "scheduled_s": 86.112,
+   "started_s": 86.11207753792405,
+   "lag_s": 7.753792405651438e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 300,
+   "scheduled_s": 86.39999999999999,
+   "started_s": 86.40007358789444,
+   "lag_s": 7.358789444822378e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 301,
+   "scheduled_s": 86.688,
+   "started_s": 86.68807489424944,
+   "lag_s": 7.489424943685208e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 302,
+   "scheduled_s": 86.976,
+   "started_s": 86.97610025852919,
+   "lag_s": 0.00010025852918715827,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 303,
+   "scheduled_s": 87.264,
+   "started_s": 87.26410038396716,
+   "lag_s": 0.000100383967165385,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 304,
+   "scheduled_s": 87.55199999999999,
+   "started_s": 87.55207493156195,
+   "lag_s": 7.493156195437223e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 305,
+   "scheduled_s": 87.84,
+   "started_s": 87.84007208421826,
+   "lag_s": 7.20842182602155e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 306,
+   "scheduled_s": 88.128,
+   "started_s": 88.12806916236877,
+   "lag_s": 6.916236877430038e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 307,
+   "scheduled_s": 88.416,
+   "started_s": 88.41606962680817,
+   "lag_s": 6.962680816968714e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 308,
+   "scheduled_s": 88.704,
+   "started_s": 88.70406812429428,
+   "lag_s": 6.812429428748601e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 309,
+   "scheduled_s": 88.992,
+   "started_s": 88.99206965789199,
+   "lag_s": 6.965789198432049e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 310,
+   "scheduled_s": 89.28,
+   "started_s": 89.28006862476468,
+   "lag_s": 6.862476467972556e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 311,
+   "scheduled_s": 89.568,
+   "started_s": 89.56807290390134,
+   "lag_s": 7.290390134073732e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 312,
+   "scheduled_s": 89.856,
+   "started_s": 89.85607044771314,
+   "lag_s": 7.044771314212994e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 313,
+   "scheduled_s": 90.14399999999999,
+   "started_s": 90.14407154172659,
+   "lag_s": 7.154172659795677e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 314,
+   "scheduled_s": 90.432,
+   "started_s": 90.43206841126084,
+   "lag_s": 6.841126084111693e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 315,
+   "scheduled_s": 90.72,
+   "started_s": 90.72007054463029,
+   "lag_s": 7.054463029021463e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 316,
+   "scheduled_s": 91.008,
+   "started_s": 91.00807068869472,
+   "lag_s": 7.068869471993366e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 317,
+   "scheduled_s": 91.29599999999999,
+   "started_s": 91.29607060179114,
+   "lag_s": 7.060179115114806e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 318,
+   "scheduled_s": 91.584,
+   "started_s": 91.58409570902586,
+   "lag_s": 9.570902585664953e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 319,
+   "scheduled_s": 91.872,
+   "started_s": 91.87207002937794,
+   "lag_s": 7.002937793743058e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 320,
+   "scheduled_s": 92.16,
+   "started_s": 92.16007062792778,
+   "lag_s": 7.062792778356197e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 321,
+   "scheduled_s": 92.448,
+   "started_s": 92.44807103648782,
+   "lag_s": 7.10364878244718e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 322,
+   "scheduled_s": 92.736,
+   "started_s": 92.736069586128,
+   "lag_s": 6.958612799223829e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 323,
+   "scheduled_s": 93.024,
+   "started_s": 93.02406678721309,
+   "lag_s": 6.678721308617241e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 324,
+   "scheduled_s": 93.312,
+   "started_s": 93.31206979975104,
+   "lag_s": 6.979975104570713e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 325,
+   "scheduled_s": 93.6,
+   "started_s": 93.60007025673985,
+   "lag_s": 7.025673986049696e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 326,
+   "scheduled_s": 93.88799999999999,
+   "started_s": 93.88807100057602,
+   "lag_s": 7.100057602826837e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 327,
+   "scheduled_s": 94.176,
+   "started_s": 94.17607288062572,
+   "lag_s": 7.28806257228598e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 328,
+   "scheduled_s": 94.464,
+   "started_s": 94.4640699326992,
+   "lag_s": 6.993269920485545e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 329,
+   "scheduled_s": 94.752,
+   "started_s": 94.75206908211112,
+   "lag_s": 6.908211112488516e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 330,
+   "scheduled_s": 95.03999999999999,
+   "started_s": 95.04006872698665,
+   "lag_s": 6.87269866546103e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 331,
+   "scheduled_s": 95.328,
+   "started_s": 95.32806592807174,
+   "lag_s": 6.592807173433357e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 332,
+   "scheduled_s": 95.616,
+   "started_s": 95.61606965214014,
+   "lag_s": 6.965214014087451e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 333,
+   "scheduled_s": 95.904,
+   "started_s": 95.90406986698508,
+   "lag_s": 6.986698508626432e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 334,
+   "scheduled_s": 96.192,
+   "started_s": 96.19207087159157,
+   "lag_s": 7.087159157492806e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 335,
+   "scheduled_s": 96.48,
+   "started_s": 96.48007108643651,
+   "lag_s": 7.108643650610702e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 336,
+   "scheduled_s": 96.768,
+   "started_s": 96.76806767657399,
+   "lag_s": 6.767657399109339e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 337,
+   "scheduled_s": 97.056,
+   "started_s": 97.05606970563531,
+   "lag_s": 6.970563531183416e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 338,
+   "scheduled_s": 97.344,
+   "started_s": 97.34406907111406,
+   "lag_s": 6.907111406917466e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 339,
+   "scheduled_s": 97.63199999999999,
+   "started_s": 97.6320685222745,
+   "lag_s": 6.852227450337978e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 340,
+   "scheduled_s": 97.92,
+   "started_s": 97.92007013037801,
+   "lag_s": 7.013037800618349e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 341,
+   "scheduled_s": 98.208,
+   "started_s": 98.20806776359677,
+   "lag_s": 6.77635967747392e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 342,
+   "scheduled_s": 98.496,
+   "started_s": 98.49607152491808,
+   "lag_s": 7.152491808426475e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 343,
+   "scheduled_s": 98.78399999999999,
+   "started_s": 98.784069865942,
+   "lag_s": 6.986594200952823e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 344,
+   "scheduled_s": 99.072,
+   "started_s": 99.07206722721457,
+   "lag_s": 6.722721457208536e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 345,
+   "scheduled_s": 99.36,
+   "started_s": 99.3600680269301,
+   "lag_s": 6.802693009433369e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 346,
+   "scheduled_s": 99.648,
+   "started_s": 99.64807030186057,
+   "lag_s": 7.030186057477295e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 347,
+   "scheduled_s": 99.93599999999999,
+   "started_s": 99.93607033789158,
+   "lag_s": 7.033789158583659e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 348,
+   "scheduled_s": 100.224,
+   "started_s": 100.22406997159123,
+   "lag_s": 6.997159123045549e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 349,
+   "scheduled_s": 100.512,
+   "started_s": 100.5120700262487,
+   "lag_s": 7.002624869301144e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 350,
+   "scheduled_s": 100.8,
+   "started_s": 100.80006762966514,
+   "lag_s": 6.762966513917945e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 351,
+   "scheduled_s": 101.088,
+   "started_s": 101.08807188272476,
+   "lag_s": 7.188272476810198e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 352,
+   "scheduled_s": 101.37599999999999,
+   "started_s": 101.37606681883335,
+   "lag_s": 6.681883336057126e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 353,
+   "scheduled_s": 101.664,
+   "started_s": 101.66407833248377,
+   "lag_s": 7.83324837669852e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 354,
+   "scheduled_s": 101.952,
+   "started_s": 101.95206650719047,
+   "lag_s": 6.650719046774611e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 355,
+   "scheduled_s": 102.24,
+   "started_s": 102.24007023125887,
+   "lag_s": 7.023125887428705e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 356,
+   "scheduled_s": 102.52799999999999,
+   "started_s": 102.5280698761344,
+   "lag_s": 6.987613440401219e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 357,
+   "scheduled_s": 102.816,
+   "started_s": 102.81607231497765,
+   "lag_s": 7.231497764337291e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 358,
+   "scheduled_s": 103.104,
+   "started_s": 103.10406950861216,
+   "lag_s": 6.950861215671011e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 359,
+   "scheduled_s": 103.392,
+   "started_s": 103.39207012206316,
+   "lag_s": 7.012206316403535e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 360,
+   "scheduled_s": 103.67999999999999,
+   "started_s": 103.68006877601147,
+   "lag_s": 6.877601147436962e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 361,
+   "scheduled_s": 103.968,
+   "started_s": 103.96806804835796,
+   "lag_s": 6.804835796003772e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 362,
+   "scheduled_s": 104.256,
+   "started_s": 104.25607368350029,
+   "lag_s": 7.368350028968962e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 363,
+   "scheduled_s": 104.544,
+   "started_s": 104.54407188296318,
+   "lag_s": 7.188296318361154e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 364,
+   "scheduled_s": 104.832,
+   "started_s": 104.83206929638982,
+   "lag_s": 6.929638982455799e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 365,
+   "scheduled_s": 105.11999999999999,
+   "started_s": 105.1200700700283,
+   "lag_s": 7.007002831471709e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 366,
+   "scheduled_s": 105.408,
+   "started_s": 105.4080716110766,
+   "lag_s": 7.161107659214849e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 367,
+   "scheduled_s": 105.696,
+   "started_s": 105.69606962427497,
+   "lag_s": 6.962427497114732e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 368,
+   "scheduled_s": 105.984,
+   "started_s": 105.98407674580812,
+   "lag_s": 7.674580812988552e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 369,
+   "scheduled_s": 106.27199999999999,
+   "started_s": 106.2720713056624,
+   "lag_s": 7.130566240221015e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 370,
+   "scheduled_s": 106.56,
+   "started_s": 106.56006786599755,
+   "lag_s": 6.786599755059797e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 371,
+   "scheduled_s": 106.848,
+   "started_s": 106.84806849807501,
+   "lag_s": 6.849807500941552e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 372,
+   "scheduled_s": 107.136,
+   "started_s": 107.13607205078006,
+   "lag_s": 7.20507800622272e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 373,
+   "scheduled_s": 107.42399999999999,
+   "started_s": 107.42406746000051,
+   "lag_s": 6.746000052260115e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 374,
+   "scheduled_s": 107.712,
+   "started_s": 107.71206993237138,
+   "lag_s": 6.993237137464803e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 375,
+   "scheduled_s": 108.0,
+   "started_s": 108.00006819143891,
+   "lag_s": 6.819143891334534e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 376,
+   "scheduled_s": 108.288,
+   "started_s": 108.28806920722127,
+   "lag_s": 6.920722127290446e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 377,
+   "scheduled_s": 108.576,
+   "started_s": 108.57607058808208,
+   "lag_s": 7.058808208171286e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 378,
+   "scheduled_s": 108.86399999999999,
+   "started_s": 108.8640720359981,
+   "lag_s": 7.203599811589356e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 379,
+   "scheduled_s": 109.152,
+   "started_s": 109.15206945687532,
+   "lag_s": 6.945687532322609e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 380,
+   "scheduled_s": 109.44,
+   "started_s": 109.44006840884686,
+   "lag_s": 6.840884685743731e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 381,
+   "scheduled_s": 109.728,
+   "started_s": 109.72806358709931,
+   "lag_s": 6.358709931930662e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 382,
+   "scheduled_s": 110.01599999999999,
+   "started_s": 110.01607149094343,
+   "lag_s": 7.149094344072182e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 383,
+   "scheduled_s": 110.304,
+   "started_s": 110.30406788364053,
+   "lag_s": 6.788364052567886e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 384,
+   "scheduled_s": 110.592,
+   "started_s": 110.5920692384243,
+   "lag_s": 6.923842430239802e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 385,
+   "scheduled_s": 110.88,
+   "started_s": 110.88006656989455,
+   "lag_s": 6.656989455677831e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 386,
+   "scheduled_s": 111.16799999999999,
+   "started_s": 111.16806793957949,
+   "lag_s": 6.793957949469132e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 387,
+   "scheduled_s": 111.456,
+   "started_s": 111.4560662433505,
+   "lag_s": 6.624335050275931e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 388,
+   "scheduled_s": 111.744,
+   "started_s": 111.74406649917364,
+   "lag_s": 6.649917364143221e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 389,
+   "scheduled_s": 112.032,
+   "started_s": 112.03206453099847,
+   "lag_s": 6.453099847192334e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 390,
+   "scheduled_s": 112.32,
+   "started_s": 112.32006786763668,
+   "lag_s": 6.786763668742424e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 391,
+   "scheduled_s": 112.60799999999999,
+   "started_s": 112.60807967185974,
+   "lag_s": 7.967185975132907e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 392,
+   "scheduled_s": 112.896,
+   "started_s": 112.89607054367661,
+   "lag_s": 7.054367661396554e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 393,
+   "scheduled_s": 113.184,
+   "started_s": 113.18407006561756,
+   "lag_s": 7.006561756384144e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 394,
+   "scheduled_s": 113.472,
+   "started_s": 113.47207169607282,
+   "lag_s": 7.169607282264678e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 395,
+   "scheduled_s": 113.75999999999999,
+   "started_s": 113.76007013767958,
+   "lag_s": 7.013767958596873e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 396,
+   "scheduled_s": 114.048,
+   "started_s": 114.04806903004646,
+   "lag_s": 6.90300464611937e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 397,
+   "scheduled_s": 114.336,
+   "started_s": 114.3360692858696,
+   "lag_s": 6.92858695998666e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 398,
+   "scheduled_s": 114.624,
+   "started_s": 114.6240704767406,
+   "lag_s": 7.047674060345344e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 399,
+   "scheduled_s": 114.91199999999999,
+   "started_s": 114.91207059845328,
+   "lag_s": 7.05984532913817e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 400,
+   "scheduled_s": 115.2,
+   "started_s": 115.20007085427642,
+   "lag_s": 7.085427641584374e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 401,
+   "scheduled_s": 115.488,
+   "started_s": 115.48806853964925,
+   "lag_s": 6.853964924857792e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 402,
+   "scheduled_s": 115.776,
+   "started_s": 115.77606988325715,
+   "lag_s": 6.988325715440169e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 403,
+   "scheduled_s": 116.064,
+   "started_s": 116.06406934559345,
+   "lag_s": 6.93455934595022e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 404,
+   "scheduled_s": 116.35199999999999,
+   "started_s": 116.35207210853696,
+   "lag_s": 7.210853696903996e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 405,
+   "scheduled_s": 116.64,
+   "started_s": 116.64007012173533,
+   "lag_s": 7.012173533382793e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 406,
+   "scheduled_s": 116.928,
+   "started_s": 116.92807229980826,
+   "lag_s": 7.229980826650717e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 407,
+   "scheduled_s": 117.216,
+   "started_s": 117.21607008948922,
+   "lag_s": 7.008948922759828e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 408,
+   "scheduled_s": 117.50399999999999,
+   "started_s": 117.50407084822655,
+   "lag_s": 7.084822655656353e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 409,
+   "scheduled_s": 117.792,
+   "started_s": 117.79206691682339,
+   "lag_s": 6.691682338555438e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 410,
+   "scheduled_s": 118.08,
+   "started_s": 118.08006943389773,
+   "lag_s": 6.943389773539366e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 411,
+   "scheduled_s": 118.368,
+   "started_s": 118.3680698722601,
+   "lag_s": 6.987226009869119e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 412,
+   "scheduled_s": 118.65599999999999,
+   "started_s": 118.65607088059187,
+   "lag_s": 7.088059187765339e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 413,
+   "scheduled_s": 118.944,
+   "started_s": 118.94406889751554,
+   "lag_s": 6.889751553273982e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 414,
+   "scheduled_s": 119.232,
+   "started_s": 119.23206949979067,
+   "lag_s": 6.949979066916967e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 415,
+   "scheduled_s": 119.52,
+   "started_s": 119.52007088437676,
+   "lag_s": 7.088437676827652e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 416,
+   "scheduled_s": 119.80799999999999,
+   "started_s": 119.80806865543127,
+   "lag_s": 6.865543127787532e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 417,
+   "scheduled_s": 120.096,
+   "started_s": 120.09606710076332,
+   "lag_s": 6.710076331728487e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 418,
+   "scheduled_s": 120.384,
+   "started_s": 120.38407126069069,
+   "lag_s": 7.126069068874585e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 419,
+   "scheduled_s": 120.672,
+   "started_s": 120.67207036167383,
+   "lag_s": 7.036167383489556e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 420,
+   "scheduled_s": 120.96,
+   "started_s": 120.96006923913956,
+   "lag_s": 6.923913956313754e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 421,
+   "scheduled_s": 121.24799999999999,
+   "started_s": 121.24806878343225,
+   "lag_s": 6.878343225480421e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 422,
+   "scheduled_s": 121.536,
+   "started_s": 121.53606848791242,
+   "lag_s": 6.848791241509389e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 423,
+   "scheduled_s": 121.824,
+   "started_s": 121.8240674175322,
+   "lag_s": 6.741753220751434e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 424,
+   "scheduled_s": 122.112,
+   "started_s": 122.11206794902682,
+   "lag_s": 6.794902682827342e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 425,
+   "scheduled_s": 122.39999999999999,
+   "started_s": 122.40006911382079,
+   "lag_s": 6.911382079977102e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 426,
+   "scheduled_s": 122.688,
+   "started_s": 122.68806654587388,
+   "lag_s": 6.654587387799893e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 427,
+   "scheduled_s": 122.976,
+   "started_s": 122.97606743127108,
+   "lag_s": 6.743127107711189e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 428,
+   "scheduled_s": 123.264,
+   "started_s": 123.26404717937112,
+   "lag_s": 4.7179371122751945e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 429,
+   "scheduled_s": 123.55199999999999,
+   "started_s": 123.55207048729062,
+   "lag_s": 7.048729062830716e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 430,
+   "scheduled_s": 123.84,
+   "started_s": 123.84006940945983,
+   "lag_s": 6.940945982591984e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 431,
+   "scheduled_s": 124.128,
+   "started_s": 124.12806973606348,
+   "lag_s": 6.973606348026351e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 434,
+   "scheduled_s": 124.99199999999999,
+   "started_s": 124.99206826090813,
+   "lag_s": 6.826090813660812e-05,
+   "latency_ms": 29417.06335544586,
+   "error": null
+  },
+  {
+   "i": 432,
+   "scheduled_s": 124.416,
+   "started_s": 124.41607022285461,
+   "lag_s": 7.022285461744104e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 433,
+   "scheduled_s": 124.704,
+   "started_s": 124.70407111942768,
+   "lag_s": 7.111942768744939e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 435,
+   "scheduled_s": 125.28,
+   "started_s": 125.2800694257021,
+   "lag_s": 6.942570209389487e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 436,
+   "scheduled_s": 125.568,
+   "started_s": 125.56807352602482,
+   "lag_s": 7.352602482058046e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 437,
+   "scheduled_s": 125.856,
+   "started_s": 125.85606906563044,
+   "lag_s": 6.906563044140057e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 438,
+   "scheduled_s": 126.14399999999999,
+   "started_s": 126.14406678825617,
+   "lag_s": 6.678825617711937e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 439,
+   "scheduled_s": 126.432,
+   "started_s": 126.43206774815917,
+   "lag_s": 6.774815916799071e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 440,
+   "scheduled_s": 126.72,
+   "started_s": 126.72006998211145,
+   "lag_s": 6.998211145514688e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 441,
+   "scheduled_s": 127.008,
+   "started_s": 127.00806464254856,
+   "lag_s": 6.464254856552998e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 442,
+   "scheduled_s": 127.29599999999999,
+   "started_s": 127.29606875032187,
+   "lag_s": 6.875032187281249e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 443,
+   "scheduled_s": 127.584,
+   "started_s": 127.58407456800342,
+   "lag_s": 7.456800341287817e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 444,
+   "scheduled_s": 127.872,
+   "started_s": 127.87207106873393,
+   "lag_s": 7.106873393070146e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 445,
+   "scheduled_s": 128.16,
+   "started_s": 128.16006736829877,
+   "lag_s": 6.73682987724078e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 446,
+   "scheduled_s": 128.448,
+   "started_s": 128.4480696246028,
+   "lag_s": 6.962460278714389e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 447,
+   "scheduled_s": 128.736,
+   "started_s": 128.73607015237212,
+   "lag_s": 7.015237213181535e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 448,
+   "scheduled_s": 129.024,
+   "started_s": 129.0240689367056,
+   "lag_s": 6.893670558838494e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 449,
+   "scheduled_s": 129.31199999999998,
+   "started_s": 129.3120695129037,
+   "lag_s": 6.951290370693641e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 450,
+   "scheduled_s": 129.6,
+   "started_s": 129.6000722795725,
+   "lag_s": 7.227957249256178e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 451,
+   "scheduled_s": 129.888,
+   "started_s": 129.88806775957346,
+   "lag_s": 6.775957345439565e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 452,
+   "scheduled_s": 130.176,
+   "started_s": 130.17607241868973,
+   "lag_s": 7.241868974006138e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 453,
+   "scheduled_s": 130.464,
+   "started_s": 130.46407145634294,
+   "lag_s": 7.145634293692638e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 454,
+   "scheduled_s": 130.752,
+   "started_s": 130.75207924470305,
+   "lag_s": 7.92447030448784e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 455,
+   "scheduled_s": 131.04,
+   "started_s": 131.04007456079125,
+   "lag_s": 7.456079126200166e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 456,
+   "scheduled_s": 131.328,
+   "started_s": 131.32807236164808,
+   "lag_s": 7.23616480797773e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 457,
+   "scheduled_s": 131.61599999999999,
+   "started_s": 131.61606721952558,
+   "lag_s": 6.721952559018973e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 458,
+   "scheduled_s": 131.904,
+   "started_s": 131.90409398451447,
+   "lag_s": 9.398451447850675e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 459,
+   "scheduled_s": 132.192,
+   "started_s": 132.1920667886734,
+   "lag_s": 6.678867339360295e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 460,
+   "scheduled_s": 132.48,
+   "started_s": 132.48007683828473,
+   "lag_s": 7.683828474114307e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 461,
+   "scheduled_s": 132.768,
+   "started_s": 132.7680751644075,
+   "lag_s": 7.516440749100184e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 462,
+   "scheduled_s": 133.05599999999998,
+   "started_s": 133.05606858804822,
+   "lag_s": 6.858804823650644e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 463,
+   "scheduled_s": 133.344,
+   "started_s": 133.34409318864346,
+   "lag_s": 9.318864346141709e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 464,
+   "scheduled_s": 133.632,
+   "started_s": 133.63208712264895,
+   "lag_s": 8.712264894938926e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 465,
+   "scheduled_s": 133.92,
+   "started_s": 133.92010142281651,
+   "lag_s": 0.00010142281652747442,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 466,
+   "scheduled_s": 134.208,
+   "started_s": 134.20810003578663,
+   "lag_s": 0.00010003578663031476,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 467,
+   "scheduled_s": 134.496,
+   "started_s": 134.4960732795298,
+   "lag_s": 7.327952980062946e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 468,
+   "scheduled_s": 134.784,
+   "started_s": 134.78407302498817,
+   "lag_s": 7.302498818262393e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 469,
+   "scheduled_s": 135.072,
+   "started_s": 135.07206800952554,
+   "lag_s": 6.800952553476236e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 470,
+   "scheduled_s": 135.35999999999999,
+   "started_s": 135.36009230464697,
+   "lag_s": 9.230464698362084e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 471,
+   "scheduled_s": 135.648,
+   "started_s": 135.6480716690421,
+   "lag_s": 7.166904211430847e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 472,
+   "scheduled_s": 135.936,
+   "started_s": 135.93607468903065,
+   "lag_s": 7.468903064022925e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 473,
+   "scheduled_s": 136.224,
+   "started_s": 136.22407554462552,
+   "lag_s": 7.554462553116537e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 474,
+   "scheduled_s": 136.512,
+   "started_s": 136.51207395642996,
+   "lag_s": 7.395642995788876e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 475,
+   "scheduled_s": 136.79999999999998,
+   "started_s": 136.80009412392974,
+   "lag_s": 9.412392975605144e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 476,
+   "scheduled_s": 137.088,
+   "started_s": 137.08806905895472,
+   "lag_s": 6.905895472186785e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 477,
+   "scheduled_s": 137.376,
+   "started_s": 137.3760990202427,
+   "lag_s": 9.902024268626519e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 478,
+   "scheduled_s": 137.664,
+   "started_s": 137.66406563669443,
+   "lag_s": 6.563669444403786e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 479,
+   "scheduled_s": 137.952,
+   "started_s": 137.95207411423326,
+   "lag_s": 7.411423325720534e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 480,
+   "scheduled_s": 138.24,
+   "started_s": 138.24007430672646,
+   "lag_s": 7.430672644659353e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 481,
+   "scheduled_s": 138.528,
+   "started_s": 138.5280690342188,
+   "lag_s": 6.90342187965598e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 482,
+   "scheduled_s": 138.816,
+   "started_s": 138.81607443839312,
+   "lag_s": 7.44383931134962e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 483,
+   "scheduled_s": 139.10399999999998,
+   "started_s": 139.10406882688403,
+   "lag_s": 6.882688404630244e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 484,
+   "scheduled_s": 139.392,
+   "started_s": 139.3920760639012,
+   "lag_s": 7.60639011900821e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 485,
+   "scheduled_s": 139.68,
+   "started_s": 139.68007545918226,
+   "lag_s": 7.545918225559944e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 486,
+   "scheduled_s": 139.968,
+   "started_s": 139.96806685253978,
+   "lag_s": 6.68525397884423e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 487,
+   "scheduled_s": 140.256,
+   "started_s": 140.2560934945941,
+   "lag_s": 9.349459409691008e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 488,
+   "scheduled_s": 140.54399999999998,
+   "started_s": 140.54407035559416,
+   "lag_s": 7.0355594175453e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 489,
+   "scheduled_s": 140.832,
+   "started_s": 140.83207764476538,
+   "lag_s": 7.764476538341114e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 490,
+   "scheduled_s": 141.12,
+   "started_s": 141.12007835507393,
+   "lag_s": 7.835507392428553e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 491,
+   "scheduled_s": 141.408,
+   "started_s": 141.4080803282559,
+   "lag_s": 8.032825590476023e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 492,
+   "scheduled_s": 141.696,
+   "started_s": 141.6960742920637,
+   "lag_s": 7.42920637151201e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 493,
+   "scheduled_s": 141.984,
+   "started_s": 141.98406821861863,
+   "lag_s": 6.821861862249534e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 494,
+   "scheduled_s": 142.272,
+   "started_s": 142.2720921188593,
+   "lag_s": 9.211885929971686e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 495,
+   "scheduled_s": 142.56,
+   "started_s": 142.56006827950478,
+   "lag_s": 6.827950477372724e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 496,
+   "scheduled_s": 142.84799999999998,
+   "started_s": 142.84810250625014,
+   "lag_s": 0.00010250625015828518,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 497,
+   "scheduled_s": 143.136,
+   "started_s": 143.1360702328384,
+   "lag_s": 7.023283839657779e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 498,
+   "scheduled_s": 143.424,
+   "started_s": 143.42410191521049,
+   "lag_s": 0.00010191521047886454,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 499,
+   "scheduled_s": 143.712,
+   "started_s": 143.71207505837083,
+   "lag_s": 7.505837083954248e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 500,
+   "scheduled_s": 144.0,
+   "started_s": 144.0000711865723,
+   "lag_s": 7.118657231330872e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 501,
+   "scheduled_s": 144.28799999999998,
+   "started_s": 144.2880709245801,
+   "lag_s": 7.092458011470626e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 502,
+   "scheduled_s": 144.576,
+   "started_s": 144.57606902718544,
+   "lag_s": 6.902718544665731e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 503,
+   "scheduled_s": 144.864,
+   "started_s": 144.86407087370753,
+   "lag_s": 7.087370752856259e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 504,
+   "scheduled_s": 145.152,
+   "started_s": 145.15207730606198,
+   "lag_s": 7.73060619962962e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 505,
+   "scheduled_s": 145.44,
+   "started_s": 145.44007041677833,
+   "lag_s": 7.041677832830828e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 506,
+   "scheduled_s": 145.728,
+   "started_s": 145.72806782647967,
+   "lag_s": 6.782647966474542e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 507,
+   "scheduled_s": 146.016,
+   "started_s": 146.0161014124751,
+   "lag_s": 0.00010141247511796792,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 508,
+   "scheduled_s": 146.304,
+   "started_s": 146.3040996938944,
+   "lag_s": 9.969389438424514e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 509,
+   "scheduled_s": 146.59199999999998,
+   "started_s": 146.5920730382204,
+   "lag_s": 7.303822042104002e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 510,
+   "scheduled_s": 146.88,
+   "started_s": 146.88007859140635,
+   "lag_s": 7.85914063499149e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 511,
+   "scheduled_s": 147.168,
+   "started_s": 147.16807811707258,
+   "lag_s": 7.811707257587841e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 512,
+   "scheduled_s": 147.456,
+   "started_s": 147.45607564598322,
+   "lag_s": 7.564598323028804e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 513,
+   "scheduled_s": 147.744,
+   "started_s": 147.74407351016998,
+   "lag_s": 7.351016998313753e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 514,
+   "scheduled_s": 148.03199999999998,
+   "started_s": 148.0320766121149,
+   "lag_s": 7.661211492404618e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 515,
+   "scheduled_s": 148.32,
+   "started_s": 148.3200781457126,
+   "lag_s": 7.814571262088066e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 516,
+   "scheduled_s": 148.608,
+   "started_s": 148.6081061474979,
+   "lag_s": 0.00010614749788828703,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 517,
+   "scheduled_s": 148.896,
+   "started_s": 148.89607820659876,
+   "lag_s": 7.820659877211256e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 518,
+   "scheduled_s": 149.184,
+   "started_s": 149.18407982587814,
+   "lag_s": 7.982587814581166e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 519,
+   "scheduled_s": 149.472,
+   "started_s": 149.47208044305444,
+   "lag_s": 8.04430544292245e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 520,
+   "scheduled_s": 149.76,
+   "started_s": 149.76007705181837,
+   "lag_s": 7.705181837991404e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 521,
+   "scheduled_s": 150.048,
+   "started_s": 150.0480763874948,
+   "lag_s": 7.638749480065599e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 522,
+   "scheduled_s": 150.33599999999998,
+   "started_s": 150.33607203513384,
+   "lag_s": 7.203513385434235e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 523,
+   "scheduled_s": 150.624,
+   "started_s": 150.6240744367242,
+   "lag_s": 7.443672419071845e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 524,
+   "scheduled_s": 150.912,
+   "started_s": 150.91208024695516,
+   "lag_s": 8.02469551501872e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 525,
+   "scheduled_s": 151.2,
+   "started_s": 151.20006914809346,
+   "lag_s": 6.914809347335904e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 526,
+   "scheduled_s": 151.488,
+   "started_s": 151.48807336762547,
+   "lag_s": 7.336762547538456e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 527,
+   "scheduled_s": 151.77599999999998,
+   "started_s": 151.77606987953186,
+   "lag_s": 6.987953187831408e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 528,
+   "scheduled_s": 152.064,
+   "started_s": 152.06407962739468,
+   "lag_s": 7.962739468325708e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 529,
+   "scheduled_s": 152.352,
+   "started_s": 152.35207680985332,
+   "lag_s": 7.680985331148804e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 530,
+   "scheduled_s": 152.64,
+   "started_s": 152.64008229225874,
+   "lag_s": 8.229225875311386e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 531,
+   "scheduled_s": 152.928,
+   "started_s": 152.92807402834296,
+   "lag_s": 7.40283429649935e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 532,
+   "scheduled_s": 153.216,
+   "started_s": 153.2160691022873,
+   "lag_s": 6.910228728429502e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 533,
+   "scheduled_s": 153.504,
+   "started_s": 153.50409992411733,
+   "lag_s": 9.992411733605877e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 534,
+   "scheduled_s": 153.792,
+   "started_s": 153.79207212850451,
+   "lag_s": 7.21285045131026e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 535,
+   "scheduled_s": 154.07999999999998,
+   "started_s": 154.08007165044546,
+   "lag_s": 7.165044547718935e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 536,
+   "scheduled_s": 154.368,
+   "started_s": 154.3680726774037,
+   "lag_s": 7.267740369343301e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 537,
+   "scheduled_s": 154.656,
+   "started_s": 154.65607646107674,
+   "lag_s": 7.646107673053848e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 538,
+   "scheduled_s": 154.944,
+   "started_s": 154.9440807402134,
+   "lag_s": 8.07402134057611e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 539,
+   "scheduled_s": 155.232,
+   "started_s": 155.23208928108215,
+   "lag_s": 8.928108215400243e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 540,
+   "scheduled_s": 155.51999999999998,
+   "started_s": 155.52008349448442,
+   "lag_s": 8.349448444278096e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 541,
+   "scheduled_s": 155.808,
+   "started_s": 155.80808379128575,
+   "lag_s": 8.379128576052608e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 542,
+   "scheduled_s": 156.096,
+   "started_s": 156.0960863903165,
+   "lag_s": 8.639031648272066e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 543,
+   "scheduled_s": 156.384,
+   "started_s": 156.38408608734608,
+   "lag_s": 8.608734609083513e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 544,
+   "scheduled_s": 156.672,
+   "started_s": 156.67207631468773,
+   "lag_s": 7.63146877318377e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 545,
+   "scheduled_s": 156.96,
+   "started_s": 156.96007508039474,
+   "lag_s": 7.508039473691497e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 546,
+   "scheduled_s": 157.248,
+   "started_s": 157.2480870038271,
+   "lag_s": 8.700382710458143e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 547,
+   "scheduled_s": 157.536,
+   "started_s": 157.536079056561,
+   "lag_s": 7.905656099183034e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 548,
+   "scheduled_s": 157.82399999999998,
+   "started_s": 157.8240717202425,
+   "lag_s": 7.17202425164487e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 549,
+   "scheduled_s": 158.112,
+   "started_s": 158.11207493022084,
+   "lag_s": 7.493022084759104e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 550,
+   "scheduled_s": 158.4,
+   "started_s": 158.40007012709975,
+   "lag_s": 7.01270997467418e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 551,
+   "scheduled_s": 158.688,
+   "started_s": 158.6880825124681,
+   "lag_s": 8.251246811141755e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 552,
+   "scheduled_s": 158.976,
+   "started_s": 158.97607831284404,
+   "lag_s": 7.831284403891914e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 553,
+   "scheduled_s": 159.26399999999998,
+   "started_s": 159.26407086849213,
+   "lag_s": 7.086849214488211e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 554,
+   "scheduled_s": 159.552,
+   "started_s": 159.55206870660186,
+   "lag_s": 6.870660186564237e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 555,
+   "scheduled_s": 159.84,
+   "started_s": 159.84008580818772,
+   "lag_s": 8.580818771974918e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 556,
+   "scheduled_s": 160.128,
+   "started_s": 160.12809413671494,
+   "lag_s": 9.41367149493999e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 557,
+   "scheduled_s": 160.416,
+   "started_s": 160.41606703028083,
+   "lag_s": 6.703028083165918e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 558,
+   "scheduled_s": 160.704,
+   "started_s": 160.70409186184406,
+   "lag_s": 9.186184405507447e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 559,
+   "scheduled_s": 160.992,
+   "started_s": 160.99207212030888,
+   "lag_s": 7.212030888581467e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 560,
+   "scheduled_s": 161.28,
+   "started_s": 161.28006974980235,
+   "lag_s": 6.974980234986106e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 561,
+   "scheduled_s": 161.56799999999998,
+   "started_s": 161.56806986778975,
+   "lag_s": 6.986778976170172e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 562,
+   "scheduled_s": 161.856,
+   "started_s": 161.85607373341918,
+   "lag_s": 7.373341918537335e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 563,
+   "scheduled_s": 162.144,
+   "started_s": 162.14407523348927,
+   "lag_s": 7.523348926952167e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 564,
+   "scheduled_s": 162.432,
+   "started_s": 162.43206349015236,
+   "lag_s": 6.34901523710596e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 565,
+   "scheduled_s": 162.72,
+   "started_s": 162.7200763747096,
+   "lag_s": 7.637470960730752e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 566,
+   "scheduled_s": 163.00799999999998,
+   "started_s": 163.00809294730425,
+   "lag_s": 9.294730426745446e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 567,
+   "scheduled_s": 163.296,
+   "started_s": 163.29607198014855,
+   "lag_s": 7.198014856157897e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 568,
+   "scheduled_s": 163.584,
+   "started_s": 163.5840707309544,
+   "lag_s": 7.07309544054624e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 569,
+   "scheduled_s": 163.87199999999999,
+   "started_s": 163.87207392975688,
+   "lag_s": 7.392975689413106e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 570,
+   "scheduled_s": 164.16,
+   "started_s": 164.1600831821561,
+   "lag_s": 8.318215608937862e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 571,
+   "scheduled_s": 164.448,
+   "started_s": 164.44807758554816,
+   "lag_s": 7.7585548154957e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 572,
+   "scheduled_s": 164.736,
+   "started_s": 164.73607433214784,
+   "lag_s": 7.433214784668962e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 573,
+   "scheduled_s": 165.024,
+   "started_s": 165.02409962192178,
+   "lag_s": 9.962192177681573e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 574,
+   "scheduled_s": 165.31199999999998,
+   "started_s": 165.31207924708724,
+   "lag_s": 7.92470872568174e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 575,
+   "scheduled_s": 165.6,
+   "started_s": 165.600071080029,
+   "lag_s": 7.108002901645705e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 576,
+   "scheduled_s": 165.888,
+   "started_s": 165.88807779550552,
+   "lag_s": 7.779550551845205e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 577,
+   "scheduled_s": 166.176,
+   "started_s": 166.17610082775354,
+   "lag_s": 0.00010082775355613194,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 578,
+   "scheduled_s": 166.464,
+   "started_s": 166.4640792608261,
+   "lag_s": 7.926082611220409e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 579,
+   "scheduled_s": 166.75199999999998,
+   "started_s": 166.75208061560988,
+   "lag_s": 8.06156099031341e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 580,
+   "scheduled_s": 167.04,
+   "started_s": 167.0400751233101,
+   "lag_s": 7.51233100970694e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 581,
+   "scheduled_s": 167.328,
+   "started_s": 167.32809663191438,
+   "lag_s": 9.663191437425667e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 582,
+   "scheduled_s": 167.61599999999999,
+   "started_s": 167.61607659608126,
+   "lag_s": 7.659608127141837e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 583,
+   "scheduled_s": 167.904,
+   "started_s": 167.90410730615258,
+   "lag_s": 0.00010730615258580656,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 584,
+   "scheduled_s": 168.192,
+   "started_s": 168.19207763671875,
+   "lag_s": 7.763671874272404e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 585,
+   "scheduled_s": 168.48,
+   "started_s": 168.48008001595736,
+   "lag_s": 8.001595736573108e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 586,
+   "scheduled_s": 168.768,
+   "started_s": 168.76807556301355,
+   "lag_s": 7.556301355293726e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 587,
+   "scheduled_s": 169.05599999999998,
+   "started_s": 169.05608448386192,
+   "lag_s": 8.448386194004343e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 588,
+   "scheduled_s": 169.344,
+   "started_s": 169.34407556429505,
+   "lag_s": 7.556429505939377e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 589,
+   "scheduled_s": 169.632,
+   "started_s": 169.6321045346558,
+   "lag_s": 0.00010453465580440024,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 590,
+   "scheduled_s": 169.92,
+   "started_s": 169.92008286714554,
+   "lag_s": 8.286714555083563e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 591,
+   "scheduled_s": 170.208,
+   "started_s": 170.20810198038816,
+   "lag_s": 0.00010198038816611188,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 592,
+   "scheduled_s": 170.496,
+   "started_s": 170.4961040392518,
+   "lag_s": 0.00010403925179502949,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 593,
+   "scheduled_s": 170.784,
+   "started_s": 170.7841003984213,
+   "lag_s": 0.00010039842129572207,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 594,
+   "scheduled_s": 171.072,
+   "started_s": 171.07208507880569,
+   "lag_s": 8.507880568231485e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 595,
+   "scheduled_s": 171.35999999999999,
+   "started_s": 171.36009712144732,
+   "lag_s": 9.71214473395321e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 596,
+   "scheduled_s": 171.648,
+   "started_s": 171.64807899296284,
+   "lag_s": 7.899296284108459e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 597,
+   "scheduled_s": 171.936,
+   "started_s": 171.93610426783562,
+   "lag_s": 0.00010426783561001685,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 598,
+   "scheduled_s": 172.224,
+   "started_s": 172.22407448291779,
+   "lag_s": 7.448291779610372e-05,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  },
+  {
+   "i": 599,
+   "scheduled_s": 172.512,
+   "started_s": 172.51210300251842,
+   "lag_s": 0.0001030025184149963,
+   "latency_ms": 0.0,
+   "error": "ReadTimeout: timed out"
+  }
+ ]
+}
