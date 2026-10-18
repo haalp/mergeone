@@ -11,6 +11,13 @@ the vendor's answers are returned with only a `type` field added where missing. 
 (≤ --batch-max requests or --batch-ms since the oldest queued request, whichever first) into one `decider.decide(list)`
 call on a single worker thread, so the GPU runs one batch at a time.
 
+Pass 2 (--batch-tokens N, off by default): requests are batched by *length*. A batch is padded to its longest request, so
+a 500-token PR next to a 16k-token PR costs 16k; pass 1 (run 6A, 2026-10-18) formed batches in arrival order and spent
+most of the L4 on padding (~5k tokens/s of a ~15k possible). With a budget, the batcher picks, from everything queued,
+the requests closest in length to the oldest one such that `count × longest ≤ N` estimated tokens (chars / 4; no
+tokenizer in the server); the rest wait for the next flush. The vendor call, prompts, questions and temperature are
+unchanged; only which requests share a forward pass. /healthz reports padded vs useful token estimates.
+
 Errors: the vendor's RequestError / LengthError (and malformed requests) → HTTP 400; anything else → 500. A failing batch
 is retried request by request so one bad request cannot fail the others, and the batcher never stops on an exception.
 
@@ -117,11 +124,51 @@ def to_answer_schema(req: dict, out: Any, model_name: str) -> dict:
 
 
 # ----------------------------------------------------------------- micro-batcher
+CHARS_PER_TOKEN = 4.0  # rough estimate for the batch budget; usage in responses still comes from the vendor
+
+
+def estimate_tokens(req: dict) -> int:
+    n = len(req.get("state", ""))
+    for q in (req.get("questions") or {}).values():
+        n += len(q.get("instructions", "")) + sum(len(str(c)) for c in (q.get("criteria") or {}).values())
+    return max(1, int(n / CHARS_PER_TOKEN))
+
+
 @dataclass
 class _Item:
     request: dict
     fut: asyncio.Future
     t_enq: float
+    tokens: int = 1
+
+
+def select_batch(pending: list["_Item"], batch_max: int, batch_tokens: int) -> list["_Item"]:
+    """Pass-2 selection: the oldest request always goes; the rest are the queued requests nearest to it in length while
+    `count × longest ≤ batch_tokens` and `count ≤ batch_max`. Deterministic; returns items in arrival order."""
+    oldest = min(pending, key=lambda it: it.t_enq)
+    if batch_tokens <= 0:
+        return sorted(pending, key=lambda it: it.t_enq)[:batch_max]
+    bylen = sorted(pending, key=lambda it: (it.tokens, it.t_enq))
+    i = bylen.index(oldest)
+    lo = hi = i
+    longest = oldest.tokens
+    grow_up = True
+    while hi - lo + 1 < batch_max:
+        down = lo - 1 if lo > 0 else None
+        up = hi + 1 if grow_up and hi + 1 < len(bylen) else None
+        if down is None and up is None:
+            break
+        take_up = up is not None and (down is None or bylen[up].tokens - oldest.tokens <= oldest.tokens - bylen[down].tokens)
+        if take_up:
+            if (hi - lo + 2) * bylen[up].tokens > batch_tokens:
+                grow_up = False  # anything longer only pads more; shorter requests may still fit
+                continue
+            hi, longest = up, bylen[up].tokens
+        else:
+            if (hi - lo + 2) * longest > batch_tokens:
+                break  # a shorter request does not reduce the padded width
+            lo = down
+    return sorted(bylen[lo:hi + 1], key=lambda it: it.t_enq)
 
 
 @dataclass
@@ -133,11 +180,15 @@ class BatchStats:
     request_errors: int = 0
     decide_s: float = 0.0
     sizes: dict = field(default_factory=dict)
+    useful_tokens_est: int = 0  # sum of per-request estimates
+    padded_tokens_est: int = 0  # sum over batches of count × longest
 
     def as_dict(self) -> dict:
         return {"batches": self.batches, "requests": self.requests, "max_batch": self.max_batch, "batch_errors": self.batch_errors,
                 "request_errors": self.request_errors, "mean_batch": self.requests / self.batches if self.batches else None,
-                "decide_s": round(self.decide_s, 3), "batch_size_histogram": dict(sorted(self.sizes.items()))}
+                "decide_s": round(self.decide_s, 3), "batch_size_histogram": dict(sorted(self.sizes.items())),
+                "useful_tokens_est": self.useful_tokens_est, "padded_tokens_est": self.padded_tokens_est,
+                "padding_efficiency": round(self.useful_tokens_est / self.padded_tokens_est, 3) if self.padded_tokens_est else None}
 
 
 class MicroBatcher:
@@ -146,10 +197,12 @@ class MicroBatcher:
     A flush happens when `batch_max` requests are queued or `batch_ms` after the oldest queued request arrived,
     whichever first. While the GPU works, new requests queue; the next batch forms from them immediately."""
 
-    def __init__(self, decider, batch_max: int = 32, batch_ms: float = 20.0):
+    def __init__(self, decider, batch_max: int = 32, batch_ms: float = 20.0, batch_tokens: int = 0):
         self.decider = decider
         self.batch_max = max(1, int(batch_max))
         self.batch_s = max(0.0, float(batch_ms)) / 1000.0
+        self.batch_tokens = max(0, int(batch_tokens))  # 0 = pass-1 behaviour (arrival order, count only)
+        self._pending: list[_Item] = []
         self.stats = BatchStats()
         self._q: asyncio.Queue | None = None
         self._task: asyncio.Task | None = None
@@ -173,19 +226,20 @@ class MicroBatcher:
         self.start()
         loop = asyncio.get_running_loop()
         fut = loop.create_future()
-        await self._q.put(_Item(request, fut, loop.time()))
+        await self._q.put(_Item(request, fut, loop.time(), estimate_tokens(request)))
         return await fut
 
     async def _run(self) -> None:
         loop = asyncio.get_running_loop()
         while True:
             try:
-                first = await self._q.get()
-                batch = [first]
-                deadline = first.t_enq + self.batch_s
-                while len(batch) < self.batch_max:
+                pending = self._pending
+                if not pending:
+                    pending.append(await self._q.get())
+                deadline = min(it.t_enq for it in pending) + self.batch_s
+                while len(pending) < self.batch_max or self.batch_tokens > 0:  # with a budget, see everything queued before choosing
                     try:
-                        batch.append(self._q.get_nowait())
+                        pending.append(self._q.get_nowait())
                         continue
                     except asyncio.QueueEmpty:
                         pass
@@ -193,9 +247,12 @@ class MicroBatcher:
                     if rem <= 0:
                         break
                     try:
-                        batch.append(await asyncio.wait_for(self._q.get(), rem))
+                        pending.append(await asyncio.wait_for(self._q.get(), rem))
                     except asyncio.TimeoutError:
                         break
+                batch = select_batch(pending, self.batch_max, self.batch_tokens)
+                chosen = set(map(id, batch))
+                self._pending = [it for it in pending if id(it) not in chosen]
                 await self._flush(batch)
             except asyncio.CancelledError:
                 raise
@@ -222,6 +279,8 @@ class MicroBatcher:
         self.stats.requests += len(live)
         self.stats.max_batch = max(self.stats.max_batch, len(live))
         self.stats.sizes[len(live)] = self.stats.sizes.get(len(live), 0) + 1
+        self.stats.useful_tokens_est += sum(it.tokens for it in live)
+        self.stats.padded_tokens_est += len(live) * max(it.tokens for it in live)
         try:
             results = [(o, None) for o in await self._decide(reqs)]
         except Exception as e:
@@ -247,8 +306,8 @@ class MicroBatcher:
 
 
 # ----------------------------------------------------------------- app
-def create_app(decider, model_name: str, batch_max: int = 32, batch_ms: float = 20.0, meta: dict | None = None):
-    batcher = MicroBatcher(decider, batch_max, batch_ms)
+def create_app(decider, model_name: str, batch_max: int = 32, batch_ms: float = 20.0, meta: dict | None = None, batch_tokens: int = 0):
+    batcher = MicroBatcher(decider, batch_max, batch_ms, batch_tokens)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -283,7 +342,7 @@ def create_app(decider, model_name: str, batch_max: int = 32, batch_ms: float = 
 
     @app.get("/healthz")
     async def healthz():
-        return {"ok": True, "model": model_name, "batch_max": batcher.batch_max, "batch_ms": batcher.batch_s * 1000,
+        return {"ok": True, "model": model_name, "batch_max": batcher.batch_max, "batch_ms": batcher.batch_s * 1000, "batch_tokens": batcher.batch_tokens,
                 "stats": batcher.stats.as_dict(), **({"gpu": meta.get("gpu_name")} if meta else {})}
 
     return app
@@ -344,7 +403,8 @@ def build_meta(args, ckpt: Path, revision: str, model_name: str, warmup_s: float
         "model": args.model, "revision": revision, "served_as": model_name, "checkpoint_dir": str(ckpt),
         "decision_config": json.loads(dc.read_text()) if dc.exists() else None,
         "fast": args.fast, "device": args.device, "dtype": "bf16 (vendor default; no quantisation)",
-        "batch_max": args.batch_max, "batch_ms": args.batch_ms,
+        "batch_max": args.batch_max, "batch_ms": args.batch_ms, "batch_tokens": args.batch_tokens,
+        "batching": "length-aware (pass 2)" if args.batch_tokens else "arrival order (pass 1)",
         "gpu_name": gpu, "cuda": cuda,
         "versions": {"torch": torch_v, "transformers": _version("transformers"), "pplx_decider": _version("pplx_decider", "pplx-decider"),
                      "fastapi": _version("fastapi"), "uvicorn": _version("uvicorn"), "python": sys.version.split()[0]},
@@ -367,6 +427,7 @@ def parse_args(argv=None):
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--batch-max", type=int, default=32)
     ap.add_argument("--batch-ms", type=float, default=20.0)
+    ap.add_argument("--batch-tokens", type=int, default=0, help="pass 2: padded-token budget per batch (count × longest, chars/4); 0 = arrival-order batching as pass 1")
     ap.add_argument("--vm-type", help="VM type for serve_meta.json (default: EC2 metadata if reachable)")
     ap.add_argument("--region", help="region for serve_meta.json (default: EC2 metadata if reachable)")
     ap.add_argument("--usd-per-hour", type=float, help="VM on-demand price, for the R6A cost row")
@@ -396,7 +457,7 @@ def main(argv=None) -> None:
     out.write_text(json.dumps(meta, indent=2) + "\n")
     log.info("warm in %.1fs; meta → %s; gpu=%s", warmup_s, out, meta["gpu_name"])
     import uvicorn
-    uvicorn.run(create_app(decider, model_name, args.batch_max, args.batch_ms, meta), host=args.host, port=args.port,
+    uvicorn.run(create_app(decider, model_name, args.batch_max, args.batch_ms, meta, args.batch_tokens), host=args.host, port=args.port,
                 log_level=args.log_level, access_log=args.access_log, workers=1)
 
 

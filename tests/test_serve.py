@@ -162,3 +162,50 @@ def test_revision_from_snapshot_path(tmp_path):
     p.mkdir(parents=True)
     assert srv.resolved_revision(p, "main") == "deadbeef"
     assert srv.resolved_revision(tmp_path, "v1.2") == "v1.2"
+
+
+# ----------------------------------------------------------------- pass 2: length-aware batching
+def _items(tokens, t0=0.0):
+    loop = asyncio.new_event_loop()
+    try:
+        return [srv._Item({"state": "x" * (t * 4)}, loop.create_future(), t0 + i * 1e-3, t) for i, t in enumerate(tokens)]
+    finally:
+        loop.close()
+
+
+def test_select_batch_budget_off_is_arrival_order():
+    its = _items([16000, 500, 600, 700])
+    assert [it.tokens for it in srv.select_batch(its, 3, 0)] == [16000, 500, 600]
+
+
+def test_select_batch_groups_by_length_under_budget():
+    # oldest is a 500-token PR; a 16k PR is queued too. Budget 4k padded tokens → the 16k one waits, short ones go together.
+    its = _items([500, 16000, 600, 450, 700, 8000])
+    got = srv.select_batch(its, 32, 4000)
+    assert sorted(it.tokens for it in got) == [450, 500, 600, 700]  # 4 × 700 = 2,800 ≤ 4,000; adding 8k would be 5 × 8k
+    assert [it.tokens for it in got] == [500, 600, 450, 700]  # arrival order preserved inside the batch
+
+
+def test_select_batch_oldest_always_goes_even_over_budget():
+    its = _items([16000, 500])
+    got = srv.select_batch(its, 32, 1000)
+    assert [it.tokens for it in got] == [16000]
+
+
+def test_select_batch_respects_batch_max():
+    its = _items([100] * 50)
+    assert len(srv.select_batch(its, 8, 10_000)) == 8
+
+
+def test_batch_tokens_end_to_end_padding_stats():
+    dec = FakeDecider(delay=0.03)
+
+    async def go(c, app):
+        rs = await asyncio.gather(*[c.post("/v1/systemone", json=_body(state="a" * n)) for n in [40, 64000, 48, 56, 64000, 52]])
+        h = (await c.get("/healthz")).json()
+        return rs, h
+    rs, h = asyncio.run(_with_client(dec, go, batch_tokens=4000, batch_ms=30.0))
+    assert all(r.status_code == 200 for r in rs)
+    assert h["batch_tokens"] == 4000
+    assert h["stats"]["padding_efficiency"] is not None and h["stats"]["padding_efficiency"] > 0.5  # long ones never padded against short ones
+    assert sum(dec.sizes) == 6 and max(dec.sizes) <= 4

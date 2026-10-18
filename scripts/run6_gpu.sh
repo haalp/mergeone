@@ -15,6 +15,8 @@
 #   report   compact, report results/run6 --run6, leaderboard
 #   stop     stop the server
 # Skip stages with SKIP="pairs single"; run only some with STAGES="load report".
+# Pass 2 (length-aware batching, R6A.4 re-measurement): PASS=pass2-l4 BATCH_TOKENS=<n> STAGES="setup serve load stop" — serve_meta and
+# loadtest files go to results/run6/<PASS>/, the pass-1 files stay. STAGES=probe first prints requests/s per budget.
 # Env: USD_PER_HOUR (VM on-demand $/h, default 0.8048 = g6.xlarge us-east-1 — set it for any other VM), VM_TYPE (default: EC2
 #      metadata), PORT (8080), CONCURRENCY (16, predict), REVISION (first download only; default main), LT_LIMIT (600), LT_GAP (60).
 set -euo pipefail
@@ -52,15 +54,36 @@ if want serve; then
   echo "=== serve"
   if healthy; then echo "server already up on :$PORT"; else
     CK="$(ckpt)"; [ -n "$CK" ] || { echo "no checkpoint recorded; run STAGES=setup first"; exit 1; }
-    nohup $PY serve/systemone_server.py --checkpoint-dir "$CK" --port "$PORT" --fast --batch-max 32 --batch-ms 20 \
-      --usd-per-hour "$USD_PER_HOUR" ${VM_TYPE:+--vm-type "$VM_TYPE"} --meta-out "$R/serve_meta.json" \
+    nohup $PY serve/systemone_server.py --checkpoint-dir "$CK" --port "$PORT" --fast --batch-max "${BATCH_MAX:-32}" --batch-ms "${BATCH_MS:-20}" \
+      --batch-tokens "${BATCH_TOKENS:-0}" \
+      --usd-per-hour "$USD_PER_HOUR" ${VM_TYPE:+--vm-type "$VM_TYPE"} --meta-out "$R${PASS:+/$PASS}/serve_meta.json" \
       >> "$LOG/server.log" 2>&1 &
     echo $! > "$LOG/server.pid"
     for i in $(seq 1 180); do healthy && break; kill -0 "$(cat "$LOG/server.pid")" 2>/dev/null || { echo "server died:"; tail -30 "$LOG/server.log"; exit 1; }; sleep 5; done
     healthy || { echo "server not healthy after 15 min"; tail -30 "$LOG/server.log"; exit 1; }
   fi
   curl -fsS "http://127.0.0.1:${PORT}/healthz"; echo
-  cat "$R/serve_meta.json"
+  cat "$R${PASS:+/$PASS}/serve_meta.json"
+fi
+
+stop_server() { if [ -f "$LOG/server.pid" ] && kill -0 "$(cat "$LOG/server.pid")" 2>/dev/null; then kill "$(cat "$LOG/server.pid")"; sleep 3; fi; }
+
+if want probe; then
+  # Pass 2 (R6A.4: a VM measurement, may be repeated): closed-loop throughput at a few padded-token budgets, 0 = pass-1 batching.
+  # Picks nothing automatically; prints requests/s per budget so the operator sets BATCH_TOKENS for the load stage and logs the choice.
+  echo "=== probe: throughput vs --batch-tokens (closed loop, ${PROBE_N:-200} test PRs, concurrency ${PROBE_C:-32})"
+  PD="$R${PASS:+/$PASS}/probe"; mkdir -p "$PD"
+  for bt in ${PROBE_BUDGETS:-0 16384 32768 65536}; do
+    stop_server
+    BATCH_TOKENS=$bt PASS="${PASS:-pass2}/probe/bt$bt" STAGES=serve bash "$0"
+    t0=$(date +%s)
+    $PY -m mergeone.cli predict --model $M --split test --run "run6${PASS:+/$PASS}/probe/bt$bt" --dataset "$DS" --qset v3 \
+      --concurrency "${PROBE_C:-32}" --limit "${PROBE_N:-200}" > "$PD/bt$bt.log" 2>&1 || echo "probe bt=$bt failed"
+    t1=$(date +%s); curl -fsS "http://127.0.0.1:${PORT}/healthz" > "$PD/healthz_bt$bt.json" || true
+    echo "batch_tokens=$bt  wall=$((t1-t0))s  rps=$(python3 -c "print(round(${PROBE_N:-200}/max(1,$((t1-t0))),2))")  $(python3 -c "import json;print(json.load(open('$PD/healthz_bt$bt.json'))['stats'].get('padding_efficiency'))" 2>/dev/null)"
+  done
+  stop_server
+  echo "set BATCH_TOKENS=<best> and run STAGES='serve load stop' with PASS=pass2-<gpu>"
 fi
 
 predict() {  # predict <split> [extra args...]; always append + resume
@@ -89,12 +112,12 @@ if want load; then
   echo "=== H2: load tests (open loop, v3, 429 retry off, 512 workers)"
   healthy || { echo "server down"; exit 1; }
   for x in 1 10 30 100 300; do
-    f="$R/loadtest_${M}_x${x}.json"
+    f="$R${PASS:+/$PASS}/loadtest_${M}_x${x}.json"
     if [ -f "$f" ]; then
       if [ -z "${FORCE_LOADTEST:-}" ]; then echo "keep $f"; continue; fi
       d="$R/loadtest_passes/$(date -u +%Y%m%dT%H%M%SZ)"; mkdir -p "$d"; mv "$f" "$d/"; echo "previous pass → $d"
     fi
-    MERGEONE_NO_RETRY=1 $PY -m mergeone.cli loadtest --model $M --multiplier $x --limit "${LT_LIMIT:-600}" --run run6 \
+    MERGEONE_NO_RETRY=1 $PY -m mergeone.cli loadtest --model $M --multiplier $x --limit "${LT_LIMIT:-600}" --run "run6${PASS:+/$PASS}" \
       --dataset "$DS" --qset v3 --no-retry --concurrency 512 || echo "loadtest x$x failed (exit $?)"
     curl -fsS "http://127.0.0.1:${PORT}/healthz" > "$LOG/healthz_after_x${x}.json" || true
     sleep "${LT_GAP:-60}"

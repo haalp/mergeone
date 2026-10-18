@@ -37,3 +37,4 @@ results/run6/logs/
 # run 6 part B (rebuildable)
 results/run6/candidates_k*.jsonl
 results/run6/pairs.jsonl
+results/run6/*/probe/**/predictions_*.jsonl
