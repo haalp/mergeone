@@ -33,3 +33,7 @@ results/run5/candidates_a1_only.jsonl
 
 # run 6 VM logs (server log, pip freeze, healthz snapshots)
 results/run6/logs/
+
+# run 6 part B (rebuildable)
+results/run6/candidates_k*.jsonl
+results/run6/pairs.jsonl
