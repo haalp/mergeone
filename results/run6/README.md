@@ -124,14 +124,44 @@ the run-6A verdict; pass 2 changes the explanation, not the result.
 Setup note for the next pod: installing into the network-mounted `/workspace` took 27 min in pass 1; on the
 container's local disk it took 4 min.
 
+
+### Pass 2 on one H100 80 GB — the only lever is a faster card
+
+Same server, same budget sweep, pod `h56ajj6bdk1pzn` (RunPod Secure AP-IN-1, $3.99/h, 21:17–22:18Z, ≈$4.04).
+Probe: 4.05 → 6.67 → **9.68** req/s at budgets 0 / 32k / 128k (chosen 128k; padding efficiency unchanged at
+0.63, so again not a padding effect).
+
+| step | rate /s | p50 ms | p99 ms | errors | L4 pass 2 | hosted (run 5) |
+|---|---|---|---|---|---|---|
+| ×1 | 0.35 | 105 | 1,921 † | 0 | p99 1,487 · 0 | p99 561 · 0 |
+| ×10 | 3.47 | 96 | **159** | 0 | p99 29,817 · 89% | p99 462 · 0 |
+| ×30 | 10.4 | 95 | **160** | 0 | ≥ 99.8% | — |
+| ×100 | 34.7 | 12,205 | 28,878 | 29.7% | ≥ 99.8% | 71% HTTP 429 |
+| ×300 | 104 | 13,236 | 29,980 | 41.8% | ≥ 99.8% | — |
+
+† six of 600 requests: three cold-start calls (7.5 / 4.8 / 1.9 s) and one 8 s stall at ~435 s that held the
+next two; without the first three the ×1 p99 is 185 ms. The measured number stands.
+
+- **Saturation at ×100** (protocol rule: first p99 > 2 × the ×1 p99); the L4's was ×10. One H100 carries
+  **×30 = 10.4 PRs/s with p99 160 ms and 0 errors** — faster than the hosted endpoint at every multiplier it
+  survives, and the first self-hosted configuration to beat it on latency.
+- **R6A-H2 still ❌:** at ×100 (34.7/s) 29.7% of calls time out. The card's ceiling is 11–15 req/s; the 100×
+  bar needs three H100s behind a balancer, or the per-request token cut.
+- **Per-request time inside batches is flat again** (65–110 ms alone, 88–98 ms inside a batch of ~29): the
+  H100 is faster because each forward pass is ~9× faster, not because batching works. Across both cards the
+  vendor's `decide(list)` behaves like sequential calls.
+- **Cost:** $3.99/h ÷ (10.4 × 3.6) = **$0.106/1k PRs at ×30**, the highest 0-error multiplier (R6A.3 rule);
+  $0.32/1k at ×10, $3.19/1k at ×1. Hosted list price $0.023/1k. Self-hosting is 4.6× the hosted price when the
+  box is used at its 0-error ceiling, 20× (L4) to 140× (H100) at the base rate. The crossover does not exist on
+  one card at list prices; what self-hosting buys is the absence of the 10 rps/org ceiling and a p99 of 160 ms.
+
 ### Scorecard and product consequence
 
-R6A-H1 ❌ · H2 ❌ · H3 reported (0.747, not compared) · H4 ❌ (joint stays). Rows in
+R6A-H1 ❌ · H2 ❌ (L4 saturates at ×10; H100 at ×100, clears ×30 at 160 ms p99) · H3 reported (0.747, not compared) · H4 ❌ (joint stays). Rows in
 [`results/leaderboard.md`](../leaderboard.md): `pplx-flash-local` ranks below the hosted row on every axis
 but calibration. The registry keeps the row; the default for self-hosted deployments stays the joint request;
-`docs/run6-gpu.md` records what a pod needs. The next measurement that would change a decision is the same
-server on an H100 (pass 2 showed the limit is compute per request, so a faster card is the only single-box lever) — a VM
-measurement, not a protocol change.
+`docs/run6-gpu.md` records what a pod needs. The next measurement that would change a decision is
+three H100s behind a balancer at ×100, or the 4k-token diff ablation (a quality question, run 7).
 
 ### Housekeeping
 
