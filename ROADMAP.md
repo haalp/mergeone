@@ -68,6 +68,25 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   protection / auto-merge, exclusive `mergeone:*` labels, one comment per head sha, reviewers on hold/block
   routed to `human`. Off by default, deterministic, never merges, never changes a verdict.
 
+## Run 7 candidates (not pre-registered; each becomes a hypothesis only when written into PROTOCOL.md)
+- **Base-branch-aware dedup.** Backports/cherry-picks of one change to release branches look like duplicates and
+  are held; they are legitimate. Read the target branch; same change on a different branch → `annotate`, not
+  `hold`. Run 6B's labels say how much of the hold set this is.
+- **Diff budget ablation, 16k → 4k tokens.** Run 6A pass 2: throughput is per-request compute, so tokens per PR
+  is the only single-box lever (~3× on a GPU, ~3× cheaper hosted). Quality cost unknown; measure on the run-5
+  v3 questions.
+- **Test evidence as a structural feature (free floor).** Run 5's `rules` floor (size, test touch, file mix)
+  sat at AUC 0.73 vs 0.76 for the models; `tests_cover_change` alone scored 0.62–0.68 raw. A modelless feature
+  set — PR touches test files, adds E2E/property tests, has a passing test check or a test log in its body,
+  "evidence attached" vs "diff only" — may lift the floor and is what reviewers increasingly ask for ("review
+  evidence, not diffs"). Cheap to compute, zero latency; worth one pre-registered sub-hypothesis against the
+  rules floor before spending model budget on it.
+- **Prompt tuning on val, frozen before test.** Published results show +0.3 to +13 AP from a few rounds on a
+  small labelled set, the smallest models gaining most. Run 5's val-chosen pruning dropped the best test
+  question, so the risk is real; pre-register the tuning set size and the freeze commit.
+- **More registry rows:** a 4B model that runs on one L4, a 26B MoE with 4B active parameters (27B quality at
+  4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
+
 ## Later
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.
