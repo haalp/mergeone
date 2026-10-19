@@ -1,0 +1,14 @@
+{
+  "model": "haiku",
+  "split": "test",
+  "variant": "all",
+  "n": 9422,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "pair",
+  "finished_at": "2026-10-18T18:16:16.402853+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair",
+  "mode": "joint"
+}
