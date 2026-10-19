@@ -2,6 +2,12 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.2.0 — 2026-10-19 (gateway release; no protocol change)
+
+- `mergeone init` (one-command setup, purple banner, `--ci`/`--mcp`/`--all`), interactive session on a bare `mergeone`, verdict actions (`actions:` in the policy: commit status, exclusive labels, one comment per head SHA, reviewers — off by default, never merges), decision-model registry (`prompts/models.yaml`, `mergeone models`), retrieval v2 default in the Go store, parallel pair calls and HTTP transport reuse (gate/BENCH.md), `serve/systemone_server.py` for self-hosted open weights.
+- Benchmark since v0.1.0: runs 4, 5, 6A (+ pass 2 on L4 and H100); leaderboard; `results/figures/decision_models_under_load.png`.
+- `pr`/`decide`: a bad flag now exits 3 (error) instead of 2 (which means block).
+
 - 2026-10-13: protocol frozen (PROTOCOL.md).
 - 2026-10-13 (before any model call): dataset window set to the most recent 15,000 merged PRs instead of the protocol's minimum of 4,000. Reason: pilot on 1,500 merges showed a positive (revert-within-30d) rate of ~0.3–0.5%, too few positives for stable PR-AUC. Thresholds unchanged.
 - 2026-10-13 (before any model call): revert matching extended to match the quoted title against the PR's own commit subjects, because Kubernetes revert PRs quote the squashed commit subject rather than the PR title in some cases. Pilot: 5/7 revert PRs matched; of the 2 unmatched, one is outside the 30-day horizon by design and one uses a free-text revert title.
