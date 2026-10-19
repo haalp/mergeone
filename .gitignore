@@ -38,3 +38,5 @@ results/run6/logs/
 results/run6/candidates_k*.jsonl
 results/run6/pairs.jsonl
 results/run6/*/probe/**/predictions_*.jsonl
+data/run6/mac.log
+results/run6/pairs_todo_*.jsonl
