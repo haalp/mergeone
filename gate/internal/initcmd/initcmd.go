@@ -371,6 +371,48 @@ func RunEnv(args []string, env Env) int {
 	pr := printer{out, paletteFor(env.Color)}
 
 	d := Detect(o.Dir, env.Getenv)
+	WriteDetected(out, d, env.Color, regFrom != "")
+
+	// Refuse before writing anything, so a refusal never leaves a half-initialised repository.
+	policyPath := filepath.Join(o.Dir, PolicyFile)
+	workflowPath := filepath.Join(o.Dir, WorkflowFile)
+	var clash []string
+	if d.HasPolicy && !o.Force {
+		clash = append(clash, PolicyFile)
+	}
+	if o.CI && d.HasWorkflow && !o.Force {
+		clash = append(clash, WorkflowFile)
+	}
+	if len(clash) > 0 {
+		fmt.Fprintf(env.Stderr, "refusing to overwrite %s (use --force)\n", strings.Join(clash, ", "))
+		return ExitRefused
+	}
+
+	fmt.Fprintln(out, "Wrote")
+	policy, err := RenderPolicy(PolicyData{Model: o.Model, Local: o.Model == "local", RepoOrPlaceholder: d.Remote})
+	if err != nil {
+		fmt.Fprintln(env.Stderr, "error:", err)
+		return ExitError
+	}
+	if err := os.WriteFile(policyPath, policy, 0o644); err != nil {
+		fmt.Fprintln(env.Stderr, "error:", err)
+		return ExitError
+	}
+	pr.line("✓", PolicyFile, "model: "+o.Model+overwrote(d.HasPolicy))
+	return writeRest(o, env, pr, d, spec, workflowPath)
+}
+
+// Status writes the "Detected" checklist for dir (the same one init prints) and nothing else.
+// Key values are never read beyond "is it set".
+func Status(dir string, w io.Writer, getenv func(string) string, m ColorMode) {
+	_, regFrom := LoadModels(findRegistry(dir))
+	WriteDetected(w, Detect(dir, getenv), m, regFrom != "")
+}
+
+// WriteDetected prints the "Detected" checklist for d followed by one blank line. registryFound is
+// whether a models.yaml was found (when not, a note says --model is checked against the built-in list).
+func WriteDetected(out io.Writer, d Detection, m ColorMode, registryFound bool) {
+	pr := printer{out, paletteFor(m)}
 	fmt.Fprintln(out, "Detected")
 	if d.GitRepo {
 		pr.line("✓", "git repository", "")
@@ -404,38 +446,15 @@ func RunEnv(args []string, env Env) int {
 		}
 		pr.line(m, k.Env, k.For)
 	}
-	if regFrom == "" {
+	if !registryFound {
 		pr.line("·", "models.yaml", "not found; --model checked against the built-in list")
 	}
 	fmt.Fprintln(out)
+}
 
-	// Refuse before writing anything, so a refusal never leaves a half-initialised repository.
-	policyPath := filepath.Join(o.Dir, PolicyFile)
-	workflowPath := filepath.Join(o.Dir, WorkflowFile)
-	var clash []string
-	if d.HasPolicy && !o.Force {
-		clash = append(clash, PolicyFile)
-	}
-	if o.CI && d.HasWorkflow && !o.Force {
-		clash = append(clash, WorkflowFile)
-	}
-	if len(clash) > 0 {
-		fmt.Fprintf(env.Stderr, "refusing to overwrite %s (use --force)\n", strings.Join(clash, ", "))
-		return ExitRefused
-	}
-
-	fmt.Fprintln(out, "Wrote")
-	policy, err := RenderPolicy(PolicyData{Model: o.Model, Local: o.Model == "local", RepoOrPlaceholder: d.Remote})
-	if err != nil {
-		fmt.Fprintln(env.Stderr, "error:", err)
-		return ExitError
-	}
-	if err := os.WriteFile(policyPath, policy, 0o644); err != nil {
-		fmt.Fprintln(env.Stderr, "error:", err)
-		return ExitError
-	}
-	pr.line("✓", PolicyFile, "model: "+o.Model+overwrote(d.HasPolicy))
-
+// writeRest writes the optional workflow and CLAUDE.md, then prints the MCP block and next steps.
+func writeRest(o Options, env Env, pr printer, d Detection, spec models.Spec, workflowPath string) int {
+	out := env.Stdout
 	if o.CI {
 		wf, err := RenderWorkflow(WorkflowData{ActionsEnabled: false, SecretEnvs: secretEnvs(spec)})
 		if err == nil {

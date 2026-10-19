@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -12,6 +13,7 @@ import (
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/models"
+	"github.com/haalp/mergeone/gate/internal/server"
 )
 
 // timedModel wraps one decision's model calls and records when the main (QuestionsV2) call and the
@@ -58,7 +60,8 @@ func pct(xs []float64, p float64) float64 {
 // loadtestMock runs open-loop decisions in-process through engine.Gate.DecideFor with the mock model
 // (300±60 ms) and a synthetic PR memory, and prints a per-decision latency breakdown plus a digest of
 // every decision's verdict/probabilities/candidates (equal digests ⇒ identical decisions).
-func loadtestMock(policyPath string, rate float64, n, k, memN int, tune func(*engine.Gate)) error {
+// A cancelled ctx stops issuing decisions; the report covers the ones issued (with "interrupted": true).
+func loadtestMock(ctx context.Context, policyPath string, rate float64, n, k, memN int, tune func(*engine.Gate)) error {
 	p, err := engine.LoadPolicy(policyPath)
 	if err != nil {
 		return err
@@ -77,8 +80,12 @@ func loadtestMock(policyPath string, rate float64, n, k, memN int, tune func(*en
 	rows := make([]row, n)
 	var wg sync.WaitGroup
 	t0 := time.Now()
+	issued := 0
 	for i := 0; i < n; i++ {
-		time.Sleep(time.Until(t0.Add(time.Duration(float64(i) / rate * float64(time.Second)))))
+		if !server.SleepCtx(ctx, time.Until(t0.Add(time.Duration(float64(i)/rate*float64(time.Second))))) {
+			break
+		}
+		issued++
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -99,6 +106,12 @@ func loadtestMock(policyPath string, rate float64, n, k, memN int, tune func(*en
 	}
 	wg.Wait()
 	elapsed := time.Since(t0).Seconds()
+	interrupted := issued < n
+	rows, n = rows[:issued], issued
+	if n == 0 {
+		fmt.Fprintln(stdout, `{"mode":"mock-inprocess","n":0,"interrupted":true}`)
+		return nil
+	}
 	var wall, model, pairs, lat []float64
 	calls := 0
 	h := sha256.New()
@@ -114,7 +127,10 @@ func loadtestMock(policyPath string, rate float64, n, k, memN int, tune func(*en
 		"result_latency_ms_p50":   pct(lat, 0.5),
 		"pair_calls_per_decision": float64(calls) / float64(n),
 		"decisions_sha256":        hex.EncodeToString(h.Sum(nil))[:16]}
+	if interrupted {
+		out["interrupted"] = true
+	}
 	b, _ := json.Marshal(out)
-	fmt.Println(string(b))
+	fmt.Fprintln(stdout, string(b))
 	return nil
 }

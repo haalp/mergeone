@@ -56,6 +56,12 @@ func paletteFor(m ColorMode) palette {
 	return palette{}
 }
 
+// Brand wraps s in the brand purple for mode m (s unchanged for ColorNone).
+func Brand(m ColorMode, s string) string { p := paletteFor(m); return p.brand + s + p.reset }
+
+// Dim wraps s in the dim attribute for mode m (s unchanged for ColorNone).
+func Dim(m ColorMode, s string) string { p := paletteFor(m); return p.dim + s + p.reset }
+
 // glyphs is a hand-drawn five-row block font, only the letters the wordmark needs.
 var glyphs = map[rune][5]string{
 	'm': {

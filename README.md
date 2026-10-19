@@ -55,6 +55,8 @@ Exit code 0 = pass, 1 = hold, 2 = block. No key yet? `mergeone serve --mock` run
 
 `mergeone init --all` also writes a GitHub Actions workflow and the MCP snippet for `CLAUDE.md`.
 
+Just `mergeone` opens a session with the same commands inside.
+
 ## Three ways to run it
 
 | mode | command | what happens |

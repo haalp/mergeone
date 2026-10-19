@@ -9,16 +9,19 @@
 //	mergeone loadtest --mock --k 5 --rate 34.7 --n 600 [--pair-concurrency 8]   (in-process, synthetic memory)
 //	mergeone mcp     --policy .mergeone.yaml [--mock]
 //
-// Exit codes for pr/decide: 0 pass, 1 hold, 2 block, 3 error.
+//	mergeone         (on a terminal) the banner, then an interactive session with the same commands
+//
+// Exit codes for pr/decide: 0 pass, 1 hold, 2 block, 3 error (including a bad flag).
 package main
 
 import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-	"github.com/goccy/go-yaml"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -28,6 +31,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/goccy/go-yaml"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/initcmd"
@@ -40,52 +45,98 @@ import (
 
 var version = "dev"
 
+// The process's streams and environment. Tests replace them; handlers write through stdout/stderr
+// (not fmt.Print*) so a session and its tests see the same output.
+var (
+	stdin  io.Reader = os.Stdin
+	stdout io.Writer = os.Stdout
+	stderr io.Writer = os.Stderr
+	getenv           = os.Getenv
+	// interactive reports whether bare `mergeone` opens a session: stdin and stdout are both TTYs.
+	// Tests force it (they have no TTY).
+	interactive = func() bool { return isTTY(stdin) && isTTY(stdout) }
+)
+
 func main() {
-	if len(os.Args) < 2 {
-		initcmd.PrintBanner(os.Stdout)
+	os.Exit(run(os.Args[1:]))
+}
+
+// commands are the subcommands shared by the one-shot CLI and the session. Each returns the process
+// exit code instead of exiting, so a session survives a verdict, a bad flag or an error.
+var commands = map[string]func([]string) int{
+	"init":     cmdInit,
+	"serve":    cmdServe,
+	"pr":       cmdPR,
+	"decide":   cmdDecide,
+	"replay":   cmdReplay,
+	"loadtest": cmdLoadtest,
+	"index":    cmdIndex,
+	"mcp":      cmdMCP,
+	"models":   cmdModels,
+}
+
+// run is the whole CLI for args (os.Args[1:]); it returns the exit code.
+func run(args []string) int {
+	if len(args) == 0 || (len(args) == 1 && args[0] == "--no-session") {
+		initcmd.PrintBanner(stdout)
+		if len(args) == 0 && interactive() {
+			return runSession()
+		}
 		usage()
-		os.Exit(2)
+		return 2
 	}
-	var err error
-	switch os.Args[1] {
-	case "init":
-		os.Exit(initcmd.Run(os.Args[2:], os.Stdout, os.Stderr))
+	switch args[0] {
 	case "help", "-h", "--help":
-		initcmd.PrintBanner(os.Stdout)
-		fmt.Println(usageLine)
-		return
-	case "serve":
-		err = cmdServe(os.Args[2:])
-	case "pr":
-		err = cmdPR(os.Args[2:])
-	case "decide":
-		err = cmdDecide(os.Args[2:])
-	case "replay":
-		err = cmdReplay(os.Args[2:])
-	case "loadtest":
-		err = cmdLoadtest(os.Args[2:])
-	case "index":
-		err = cmdIndex(os.Args[2:])
-	case "mcp":
-		err = cmdMCP(os.Args[2:])
-	case "models":
-		err = cmdModels(os.Args[2:])
+		initcmd.PrintBanner(stdout)
+		fmt.Fprintln(stdout, usageLine)
+		return 0
 	case "version", "--version", "-v":
-		fmt.Println("mergeone", version)
-	default:
+		printVersion()
+		return 0
+	}
+	cmd, ok := commands[args[0]]
+	if !ok {
 		usage()
-		os.Exit(2)
+		return 2
 	}
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(3)
-	}
+	return cmd(args[1:])
 }
 
 const usageLine = "usage: mergeone <init|serve|pr|decide|replay|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
-	fmt.Fprintln(os.Stderr, usageLine)
+	fmt.Fprintln(stderr, usageLine)
+}
+
+func printVersion() { fmt.Fprintln(stdout, "mergeone", version) }
+
+// fail reports err the way the CLI always has ("error: …") and returns exit code 3.
+func fail(err error) int {
+	fmt.Fprintln(stderr, "error:", err)
+	return 3
+}
+
+// parseFlags parses args into fs without exiting. It returns ok=false with the code to return:
+// 0 for -h/--help, bad (2 for most commands, as flag.ExitOnError did) for anything else.
+func parseFlags(fs *flag.FlagSet, args []string, bad int) (code int, ok bool) {
+	fs.SetOutput(stderr)
+	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return 0, false
+		}
+		return bad, false
+	}
+	return 0, true
+}
+
+// interruptContext is cancelled by Ctrl-C or SIGTERM. While it is live the signal does not kill the
+// process, which is what lets a foreground command inside a session return to the prompt.
+func interruptContext() (context.Context, context.CancelFunc) {
+	return signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+}
+
+func cmdInit(args []string) int {
+	return initcmd.Run(args, stdout, stderr)
 }
 
 // buildGate wires policy + model + calibration. promptsDir holds jev_v2.json / haiku_v2.md;
@@ -167,19 +218,21 @@ func buildModel(p *engine.Policy, assetsDir string) (engine.Model, error) {
 }
 
 // cmdModels prints the decision-model registry the gateway will resolve `model:` against.
-func cmdModels(args []string) error {
-	fs := flag.NewFlagSet("models", flag.ExitOnError)
+func cmdModels(args []string) int {
+	fs := flag.NewFlagSet("models", flag.ContinueOnError)
 	assets := fs.String("assets", ".", "directory holding prompts/models.yaml (or the file's own directory)")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
 	path := findAsset(*assets, "models.yaml")
 	reg, err := models.LoadRegistry(path)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	names := reg.Names()
 	sort.Strings(names)
-	fmt.Printf("%-16s %-10s %-28s %8s  %-34s %s\n", "name", "dialect", "model_id", "$/M in", "weights", "key")
-	fmt.Printf("%-16s %-10s %-28s %8s  %-34s %s\n", "mock", "builtin", "-", "0.000", "-", "-")
+	fmt.Fprintf(stdout, "%-16s %-10s %-28s %8s  %-34s %s\n", "name", "dialect", "model_id", "$/M in", "weights", "key")
+	fmt.Fprintf(stdout, "%-16s %-10s %-28s %8s  %-34s %s\n", "mock", "builtin", "-", "0.000", "-", "-")
 	for _, n := range names {
 		s := reg.Models[n]
 		w := s.Weights
@@ -190,10 +243,10 @@ func cmdModels(args []string) error {
 		if s.KeyOptional {
 			k += " (optional)"
 		}
-		fmt.Printf("%-16s %-10s %-28.28s %8.3f  %-34.34s %s\n", n, s.Dialect, s.ModelID, s.InputPerMTok, w, k)
+		fmt.Fprintf(stdout, "%-16s %-10s %-28.28s %8.3f  %-34.34s %s\n", n, s.Dialect, s.ModelID, s.InputPerMTok, w, k)
 	}
-	fmt.Printf("\n(%s; recorded_on %s)\n", path, reg.RecordedOn)
-	return nil
+	fmt.Fprintf(stdout, "\n(%s; recorded_on %s)\n", path, reg.RecordedOn)
+	return 0
 }
 
 func memoryOf(g *engine.Gate) *memory.Store {
@@ -203,35 +256,37 @@ func memoryOf(g *engine.Gate) *memory.Store {
 	return nil
 }
 
-func cmdIndex(args []string) error {
-	fs := flag.NewFlagSet("index", flag.ExitOnError)
+func cmdIndex(args []string) int {
+	fs := flag.NewFlagSet("index", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file (memory dir is <policy dir>/.mergeone/memory)")
 	days := fs.Int("days", 180, "how far back to index")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
 	if fs.NArg() < 1 {
-		return fmt.Errorf("usage: mergeone index owner/name [--days 180]")
+		return fail(fmt.Errorf("usage: mergeone index owner/name [--days 180]"))
 	}
 	mem, err := memory.Open(filepath.Join(filepath.Dir(*policy), ".mergeone", "memory"))
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	gh := server.NewGitHub(os.Getenv("GITHUB_TOKEN"))
 	if gh == nil {
-		return fmt.Errorf("GITHUB_TOKEN required")
+		return fail(fmt.Errorf("GITHUB_TOKEN required"))
 	}
 	for _, repo := range fs.Args() {
 		t0 := time.Now()
 		n, err := gh.Index(mem, repo, time.Now().AddDate(0, 0, -*days), func(n int) {
 			if n%500 == 0 {
-				fmt.Fprintf(os.Stderr, "  %s: %d PRs…\n", repo, n)
+				fmt.Fprintf(stderr, "  %s: %d PRs…\n", repo, n)
 			}
 		})
 		if err != nil {
-			return fmt.Errorf("%s: %w (indexed %d)", repo, err, n)
+			return fail(fmt.Errorf("%s: %w (indexed %d)", repo, err, n))
 		}
-		fmt.Printf("%s: %d PRs indexed in %s (memory now %d)\n", repo, n, time.Since(t0).Round(time.Second), mem.Repo(repo).Len())
+		fmt.Fprintf(stdout, "%s: %d PRs indexed in %s (memory now %d)\n", repo, n, time.Since(t0).Round(time.Second), mem.Repo(repo).Len())
 	}
-	return nil
+	return 0
 }
 
 // findAsset looks in dir, dir/.mergeone, dir/prompts, dir/mergeone/gate and the executable's dir.
@@ -247,8 +302,8 @@ func findAsset(dir, name string) string {
 	return filepath.Join(dir, name) // may not exist; callers handle
 }
 
-func cmdServe(args []string) error {
-	fs := flag.NewFlagSet("serve", flag.ExitOnError)
+func cmdServe(args []string) int {
+	fs := flag.NewFlagSet("serve", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	logPath := fs.String("log", ".mergeone/gatelog.jsonl", "gatelog path")
 	workers := fs.Int("workers", 16, "async workers")
@@ -256,20 +311,25 @@ func cmdServe(args []string) error {
 	mock := fs.Bool("mock", false, "use the mock model (no API key)")
 	assets := fs.String("assets", "", "directory with prompts and calibration files (default: policy dir)")
 	public := fs.String("public-url", os.Getenv("MERGEONE_PUBLIC_URL"), "public base URL for check-run details links")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	st, err := store.Open(*logPath)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), *workers, *public)
 	gw.Memory = memoryOf(g)
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := interruptContext()
 	defer cancel()
-	return gw.Serve(ctx, *addr, os.Getenv("MERGEONE_WEBHOOK_SECRET"))
+	if err := gw.Serve(ctx, *addr, os.Getenv("MERGEONE_WEBHOOK_SECRET")); err != nil {
+		return fail(err)
+	}
+	return 0
 }
 
 func stateFromGit(repo, base, head string) (string, []string, error) {
@@ -299,21 +359,22 @@ func stateFromGit(repo, base, head string) (string, []string, error) {
 	return server.RenderState(strings.TrimSpace(title), body, files, diff), paths, nil
 }
 
-func exitFor(res engine.Result) {
+// verdictCode prints res as JSON and returns its exit code: 0 pass, 1 hold, 2 block.
+func verdictCode(res engine.Result) int {
 	b, _ := json.MarshalIndent(res, "", "  ")
-	fmt.Println(string(b))
+	fmt.Fprintln(stdout, string(b))
 	switch res.Verdict {
 	case "pass":
-		os.Exit(0)
+		return 0
 	case "block":
-		os.Exit(2)
+		return 2
 	default:
-		os.Exit(1)
+		return 1
 	}
 }
 
-func cmdPR(args []string) error {
-	fs := flag.NewFlagSet("pr", flag.ExitOnError)
+func cmdPR(args []string) int {
+	fs := flag.NewFlagSet("pr", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	repo := fs.String("repo", ".", "git repository")
 	base := fs.String("base", "main", "base ref")
@@ -326,14 +387,17 @@ func cmdPR(args []string) error {
 	ghRepo := fs.String("gh-repo", os.Getenv("GITHUB_REPOSITORY"), "owner/name for verdict actions")
 	prNum := fs.Int("pr", 0, "PR number for verdict actions (default: from GITHUB_EVENT_PATH)")
 	headSHA := fs.String("head-sha", "", "PR head sha for verdict actions (default: from GITHUB_EVENT_PATH, else git rev-parse --head)")
-	fs.Parse(args)
+	// A bad flag is an error (3), not 2: for pr/decide 2 means "block".
+	if code, ok := parseFlags(fs, args, 3); !ok {
+		return code
+	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	state, paths, err := stateFromGit(*repo, *base, *head)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	res := g.Decide(state, paths)
 	evPR, evSHA := prFromEvent(os.Getenv("GITHUB_EVENT_PATH"))
@@ -350,13 +414,12 @@ func cmdPR(args []string) error {
 	}
 	res.Actions = server.ApplyActions(server.NewGitHub(os.Getenv("GITHUB_TOKEN")), g.Policy.Actions, *ghRepo, *prNum, *headSHA, res, "")
 	for _, e := range res.Actions.Errors {
-		fmt.Fprintln(os.Stderr, "actions:", e)
+		fmt.Fprintln(stderr, "actions:", e)
 	}
 	if st, err := store.Open(*logPath); err == nil {
 		_ = st.Record(store.Record{Repo: *repo, PR: *prNum, HeadSHA: *head, Source: "cli", Result: res, State: state})
 	}
-	exitFor(res)
-	return nil
+	return verdictCode(res)
 }
 
 // prFromEvent reads the PR number and head sha from a GitHub Actions pull_request event payload.
@@ -382,50 +445,53 @@ func prFromEvent(path string) (int, string) {
 	return ev.PullRequest.Number, ev.PullRequest.Head.SHA
 }
 
-func cmdDecide(args []string) error {
-	fs := flag.NewFlagSet("decide", flag.ExitOnError)
+func cmdDecide(args []string) int {
+	fs := flag.NewFlagSet("decide", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	stateFile := fs.String("state", "", "file with the rendered PR state")
 	pathsCSV := fs.String("paths", "", "comma-separated changed paths")
 	mock := fs.Bool("mock", false, "mock model")
 	assets := fs.String("assets", "", "assets dir")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 3); !ok {
+		return code
+	}
 	if *stateFile == "" {
-		return fmt.Errorf("--state is required")
+		return fail(fmt.Errorf("--state is required"))
 	}
 	b, err := os.ReadFile(*stateFile)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	var paths []string
 	if *pathsCSV != "" {
 		paths = strings.Split(*pathsCSV, ",")
 	}
-	exitFor(g.Decide(string(b), paths))
-	return nil
+	return verdictCode(g.Decide(string(b), paths))
 }
 
 // replay dry-runs a policy over saved gatebench predictions: no API calls.
-func cmdReplay(args []string) error {
-	fs := flag.NewFlagSet("replay", flag.ExitOnError)
+func cmdReplay(args []string) int {
+	fs := flag.NewFlagSet("replay", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	preds := fs.String("predictions", "", "gatebench predictions_*.jsonl")
 	assets := fs.String("assets", "", "assets dir")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
 	if *preds == "" {
-		return fmt.Errorf("--predictions is required")
+		return fail(fmt.Errorf("--predictions is required"))
 	}
 	g, err := buildGate(*policy, true, *assets)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	f, err := os.Open(*preds)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	defer f.Close()
 	type key struct{ v, r, rule string }
@@ -452,15 +518,15 @@ func cmdReplay(args []string) error {
 		keys = append(keys, k)
 	}
 	sort.Slice(keys, func(i, j int) bool { return counts[keys[i]] > counts[keys[j]] })
-	fmt.Printf("%d PRs\n", total)
+	fmt.Fprintf(stdout, "%d PRs\n", total)
 	for _, k := range keys {
-		fmt.Printf("  %6d  %5.1f%%  %-5s  %-22s  %s\n", counts[k], 100*float64(counts[k])/float64(total), k.v, k.r, k.rule)
+		fmt.Fprintf(stdout, "  %6d  %5.1f%%  %-5s  %-22s  %s\n", counts[k], 100*float64(counts[k])/float64(total), k.v, k.r, k.rule)
 	}
-	return nil
+	return 0
 }
 
-func cmdLoadtest(args []string) error {
-	fs := flag.NewFlagSet("loadtest", flag.ExitOnError)
+func cmdLoadtest(args []string) int {
+	fs := flag.NewFlagSet("loadtest", flag.ContinueOnError)
 	url := fs.String("url", "http://localhost:8787", "gateway URL")
 	rate := fs.Float64("rate", 35, "decisions per second (30k/day = 0.35)")
 	n := fs.Int("n", 1200, "requests")
@@ -469,36 +535,65 @@ func cmdLoadtest(args []string) error {
 	k := fs.Int("k", 5, "--mock: candidates per PR (pair calls)")
 	memN := fs.Int("memory", 200, "--mock: synthetic PRs in memory")
 	pairConc := fs.Int("pair-concurrency", 0, "--mock: Gate.PairConcurrency (0 = default 8, 1 = sequential)")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
+	// One-shot, Ctrl-C kills the load test as it always has; in a session it stops the run, prints the
+	// report for the requests issued so far, and returns to the prompt.
+	ctx := context.Background()
+	if inSession() {
+		var stop context.CancelFunc
+		ctx, stop = interruptContext()
+		defer stop()
+	}
+	var err error
 	if *mock {
 		pp := *policy
 		if pp == "" {
 			pp = findAsset(".", "policy.yaml")
 		}
-		return loadtestMock(pp, *rate, *n, *k, *memN, func(g *engine.Gate) { g.PairConcurrency = *pairConc })
+		err = loadtestMock(ctx, pp, *rate, *n, *k, *memN, func(g *engine.Gate) { g.PairConcurrency = *pairConc })
+	} else {
+		err = server.LoadtestContext(ctx, *url, *rate, *n)
 	}
-	return server.Loadtest(*url, *rate, *n)
+	if err != nil {
+		return fail(err)
+	}
+	return 0
 }
 
-func cmdMCP(args []string) error {
-	fs := flag.NewFlagSet("mcp", flag.ExitOnError)
+func cmdMCP(args []string) int {
+	fs := flag.NewFlagSet("mcp", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	logPath := fs.String("log", ".mergeone/gatelog.jsonl", "gatelog path")
 	mock := fs.Bool("mock", false, "mock model")
 	assets := fs.String("assets", "", "assets dir")
-	fs.Parse(args)
+	if code, ok := parseFlags(fs, args, 2); !ok {
+		return code
+	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	st, err := store.Open(*logPath)
 	if err != nil {
-		return err
+		return fail(err)
 	}
 	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), 4, "")
 	gw.Memory = memoryOf(g)
 	defer gw.Stop()
-	return mcp.Serve(gw, stateFromGit)
+	if inSession() {
+		// The session owns stdin: lines are forwarded to the MCP server until Ctrl-C (or Ctrl-D).
+		ctx, stop := interruptContext()
+		in, release := activeSession.stdinUntil(ctx)
+		err = mcp.ServeIO(ctx, gw, stateFromGit, in, stdout)
+		stop()
+		release()
+	} else {
+		err = mcp.Serve(gw, stateFromGit)
+	}
+	if err != nil {
+		return fail(err)
+	}
+	return 0
 }
-
-var _ = time.Now

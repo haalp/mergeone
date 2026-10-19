@@ -4,7 +4,11 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -19,8 +23,24 @@ import (
 // StateFn renders a PR state from a local git repo (injected by main to avoid an import cycle).
 type StateFn func(repo, base, head string) (string, []string, error)
 
-// Serve runs the MCP server on stdio until the client disconnects.
+// Serve runs the MCP server on stdio until the client disconnects (or SIGINT/SIGTERM).
 func Serve(gw *server.Gateway, fromGit StateFn) error {
+	return mcpserver.ServeStdio(newServer(gw, fromGit))
+}
+
+// ServeIO runs the MCP server over in/out until ctx is cancelled or in reaches EOF. A cancelled ctx
+// is a clean stop, not an error. It installs no signal handlers: the caller owns ctx.
+func ServeIO(ctx context.Context, gw *server.Gateway, fromGit StateFn, in io.Reader, out io.Writer) error {
+	ss := mcpserver.NewStdioServer(newServer(gw, fromGit))
+	ss.SetErrorLogger(log.New(os.Stderr, "", log.LstdFlags))
+	err := ss.Listen(ctx, in, out)
+	if errors.Is(err, context.Canceled) {
+		return nil
+	}
+	return err
+}
+
+func newServer(gw *server.Gateway, fromGit StateFn) *mcpserver.MCPServer {
 	s := mcpserver.NewMCPServer("mergeone", "0.2.0",
 		mcpserver.WithInstructions("Merge gateway. Call gate_decide before merging; a verdict of 'hold' or 'block' means do not merge."))
 
@@ -152,7 +172,7 @@ func Serve(gw *server.Gateway, fromGit StateFn) error {
 		return jsonResult(gw.Store.Stats(secs(w))), nil
 	})
 
-	return mcpserver.ServeStdio(s)
+	return s
 }
 
 func errResult(msg string) *gomcp.CallToolResult {
