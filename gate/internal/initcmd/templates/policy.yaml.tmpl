@@ -1,0 +1,128 @@
+# .mergeone.yaml: the mergeone policy for this repository, written by `mergeone init`.
+#
+# How one decision works:
+#   1. The decision model reads the PR (title, message, diff) and answers five typed questions, each
+#      with a probability: is_logic_change, weakens_tests, message_matches_diff, touches_concurrency,
+#      needs_human_review.
+#   2. The probabilities are calibrated with the maps shipped for the model (0.6 means sixty percent).
+#   3. The rules below run top to bottom. The first rule whose conditions ALL hold sets the verdict
+#      (pass | hold | block) and the route (who or what handles the PR next). No match: `default`.
+#
+# `mergeone pr` exits 0 on pass, 1 on hold, 2 on block, 3 on error.
+# Dry run without any key: `mergeone serve --mock`. Tune thresholds on saved history: `mergeone replay`.
+
+version: 1
+
+# Decision model: any key in prompts/models.yaml (`mergeone models` lists them with prices and key names),
+# e.g. jev | pplx | pplx-flash | haiku | local | pplx-flash-local.
+model: [[.Model]]
+# model_id: pplx-decider-flash-v1.2   # optional: pin one exact model version
+[[- if .Local]]
+
+# `model: local` talks to any /v1/systemone server (llama.cpp, vLLM, serve/systemone_server.py). The registry
+# row reads MERGEONE_LOCAL_ENDPOINT / MERGEONE_LOCAL_MODEL; to pin the server in this file instead, uncomment:
+# provider:
+#   dialect: systemone
+#   endpoint: http://127.0.0.1:8080/v1/systemone
+#   model_id: default
+#   key_env: MERGEONE_LOCAL_KEY
+#   key_optional: true
+#   input_per_mtok: 0
+[[- else]]
+# provider: { ... }   # optional: override or define the model inline (same keys as a models.yaml row)
+[[- end]]
+
+question_set: v2      # which question wording the model gets (prompts/jev_v2.json, prompts/haiku_v2.md)
+calibration: auto     # auto = the calibration file shipped for this model, if any; none = raw probabilities
+
+# Paths that always go to a human, whatever the model says. Prefix match on the changed file paths,
+# checked before any model call (free, mechanical). Uncomment and edit the ones that fit this repository:
+always_human_paths:
+  # - ".github/workflows/"     # CI definitions and their secrets
+  # - "migrations/"            # schema changes
+  # - "deploy/"                # infrastructure, release config
+  # - "CODEOWNERS"             # who reviews what
+
+# PR memory: remembers this repository's recent PRs and asks the model whether the PR duplicates one of
+# the top_k most similar ones. It adds `duplicate_of` and `silent_days` to the probabilities, which the
+# first two rules below use. Opt-in: in runs 4 and 5 the pair question worked but retrieval did not yet
+# find the right PR often enough. To try it, backfill once with `mergeone index [[.RepoOrPlaceholder]]`, then set
+# enabled: true.
+memory:
+  enabled: false
+  top_k: 5
+
+rules:
+  # Needs memory (duplicate_of is never set while memory is off, so this rule cannot fire).
+  - name: duplicate-of
+    when: { duplicate_of: ">= 0.7" }
+    verdict: hold
+    route: dedup
+    reason: "Looks like the same change as an existing PR"
+
+  # Needs memory (silent_days comes from the PR's last activity).
+  - name: stale
+    when: { silent_days: ">= 14" }
+    verdict: hold
+    route: stale
+    reason: "No activity for two weeks; close or rebase"
+
+  # Removing, skipping or loosening tests is the one outright block.
+  - name: weakened-tests
+    when: { weakens_tests: ">= 0.6" }
+    verdict: block
+    route: human
+    reason: "PR appears to remove, skip, or loosen tests"
+
+  # Two conditions are AND: a behaviour change whose message does not explain it.
+  - name: message-mismatch
+    when: { message_matches_diff: "<= 0.4", is_logic_change: ">= 0.5" }
+    verdict: hold
+    route: human
+    reason: "Message does not explain the behavioural change in the diff"
+
+  # Behaviour change in locks, goroutines, threads, async code: route to whoever owns that domain.
+  - name: concurrency-risk
+    when: { touches_concurrency: ">= 0.6", is_logic_change: ">= 0.5" }
+    verdict: hold
+    route: domain-review
+    reason: "Behaviour change in concurrency-sensitive code"
+
+  # The model's own "a maintainer should look" signal.
+  - name: maintainer-judgement
+    when: { needs_human_review: ">= 0.5" }
+    verdict: hold
+    route: human
+    reason: "Decision model thinks a maintainer should look"
+
+  # Docs, formatting, renames: nothing behavioural changed.
+  - name: trivial
+    when: { is_logic_change: "<= 0.2" }
+    verdict: pass
+    route: auto-merge
+    reason: "No behaviour change detected"
+
+# No rule matched: pass, but let CI finish first.
+default:
+  verdict: pass
+  route: auto-merge-after-ci
+  reason: "No rule matched"
+
+# Model error or timeout: fail closed, never a silent pass.
+on_error:
+  verdict: hold
+  route: human
+  reason: "Decision model unavailable"
+
+# Verdict actions: what the gateway writes back to the PR. Deterministic (no model call), webhook mode
+# (`mergeone serve`) and CI mode (`mergeone pr` with a PR number) only, never from the MCP tools, and it
+# never merges: the commit status is what branch protection or auto-merge reads. Needs a GITHUB_TOKEN with
+# statuses: write, pull-requests: write, issues: write. Off until you set enabled: true.
+actions:
+  enabled: false
+  status_context: mergeone       # commit status context to require in branch protection
+  comment: true                  # one comment per head sha (idempotent via a hidden marker)
+  on_pass:  { status: success, labels: ["mergeone:pass"] }
+  # reviewers / team_reviewers are requested only on hold or block routed to `human`
+  on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [], team_reviewers: [] }
+  on_block: { status: failure, labels: ["mergeone:block"] }

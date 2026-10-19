@@ -1,5 +1,6 @@
 // mergeone: one decision per merge, at swarm scale.
 //
+//	mergeone init    [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet]
 //	mergeone serve   --policy .mergeone.yaml [--log .mergeone/gatelog.jsonl] [--workers 16] [--addr :8787] [--mock]
 //	mergeone pr      --policy .mergeone.yaml [--repo .] [--base main] [--head HEAD] [--gh-repo o/r --pr N --head-sha SHA]
 //	mergeone decide  --policy .mergeone.yaml --state file.txt [--paths a.go,b.go]
@@ -29,6 +30,7 @@ import (
 	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/initcmd"
 	"github.com/haalp/mergeone/gate/internal/mcp"
 	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/models"
@@ -40,11 +42,18 @@ var version = "dev"
 
 func main() {
 	if len(os.Args) < 2 {
+		initcmd.PrintBanner(os.Stdout)
 		usage()
 		os.Exit(2)
 	}
 	var err error
 	switch os.Args[1] {
+	case "init":
+		os.Exit(initcmd.Run(os.Args[2:], os.Stdout, os.Stderr))
+	case "help", "-h", "--help":
+		initcmd.PrintBanner(os.Stdout)
+		fmt.Println(usageLine)
+		return
 	case "serve":
 		err = cmdServe(os.Args[2:])
 	case "pr":
@@ -73,8 +82,10 @@ func main() {
 	}
 }
 
+const usageLine = "usage: mergeone <init|serve|pr|decide|replay|loadtest|index|models|mcp|version> [flags]"
+
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: mergeone <serve|pr|decide|replay|loadtest|index|models|mcp|version> [flags]")
+	fmt.Fprintln(os.Stderr, usageLine)
 }
 
 // buildGate wires policy + model + calibration. promptsDir holds jev_v2.json / haiku_v2.md;

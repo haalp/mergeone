@@ -1,0 +1,58 @@
+# .github/workflows/mergeone.yml, written by `mergeone init --ci`.
+# Runs the mergeone gate on every pull request against .mergeone.yaml.
+# `mergeone pr` exits 0 pass, 1 hold, 2 block, 3 error: hold leaves the job green with a warning
+# (a human decides), block and error fail it (fail closed).
+name: mergeone
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+[[- if .ActionsEnabled]]
+  statuses: write        # commit status `mergeone`
+  pull-requests: write   # reviewers
+  issues: write          # labels and the verdict comment
+[[- else]]
+  # actions.enabled is false in .mergeone.yaml. When you turn verdict actions on, add:
+  # statuses: write        # commit status `mergeone`
+  # pull-requests: write   # reviewers
+  # issues: write          # labels and the verdict comment
+[[- end]]
+
+concurrency:
+  group: mergeone-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}   # the PR head, not the merge commit
+          fetch-depth: 0                                     # the gate diffs base...head
+
+      - name: install mergeone
+        run: |
+          curl -fsSL https://mergeone.dev/install.sh | MERGEONE_BIN="$HOME/.local/bin" sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: decide
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+[[- range .SecretEnvs]]
+          [[.]]: ${{ secrets.[[.]] }}
+[[- end]]
+        run: |
+          set +e
+          mergeone pr --policy .mergeone.yaml --base "origin/${{ github.base_ref }}" --head HEAD > mergeone.json
+          code=$?
+          cat mergeone.json
+          case $code in
+            0) echo "mergeone: pass" ;;
+            1) echo "::warning title=mergeone::hold, $(jq -r '.route + ": " + .reason' mergeone.json)" ;;
+            *) echo "::error title=mergeone::$(jq -r '.verdict + ": " + .reason' mergeone.json 2>/dev/null || echo error)"; exit 1 ;;
+          esac

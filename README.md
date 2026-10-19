@@ -51,8 +51,8 @@ PR ──▶ decision model ──▶ calibrated probabilities ──▶ .mergeo
 
 ```bash
 curl -fsSL https://mergeone.dev/install.sh | sh          # one static binary; or: go install github.com/haalp/mergeone/gate/cmd/mergeone@latest
-export TYPESAFE_API_KEY=...                                # Jev. Any row of prompts/models.yaml works: pplx, pplx-flash, haiku, clef, local …
-cp ~/.mergeone/policy.yaml .mergeone.yaml
+mergeone init                                              # in your repo: detects it, writes .mergeone.yaml (--model, --ci, --mcp, --all)
+export TYPESAFE_API_KEY=...                                # Jev, the default. Any row of prompts/models.yaml works: mergeone init --model pplx-flash | haiku | local …
 mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```
 
