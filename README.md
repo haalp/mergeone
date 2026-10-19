@@ -136,4 +136,4 @@ results/run*/    raw predictions, labels, metrics, figures · results/leaderboar
 PROTOCOL.md      pre-registered protocol · CHANGELOG.md every deviation, with reason · ROADMAP.md
 ```
 
-Apache-2.0 · Hasan Alp Temiz · built with Claude as a pair programmer · [mergeone.dev](https://mergeone.dev)
+Apache-2.0 · Hasan Alp Temiz · [mergeone.dev](https://mergeone.dev)
