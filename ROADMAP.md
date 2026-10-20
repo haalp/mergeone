@@ -83,7 +83,12 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   rules floor before spending model budget on it.
 - **Prompt tuning on val, frozen before test.** Published results show +0.3 to +13 AP from a few rounds on a
   small labelled set, the smallest models gaining most. Run 5's val-chosen pruning dropped the best test
-  question, so the risk is real; pre-register the tuning set size and the freeze commit.
+  question, so the risk is real; pre-register the tuning set size and the freeze commit. Acceptance rule,
+  borrowed from how the Claude Code team scores their reviewer against an incident set: a prompt change is kept
+  only if its score on the frozen revert/iteration eval (run 1 reverts, run 5 ≥2-round PRs) does not drop.
+- **Convergence cap in the gateway (`max_rounds`, not a run).** Agent author + automated review can loop (one
+  reported PR went 50+ rounds before a three-round cap). After N non-pass verdicts on one PR the gateway routes
+  to a human instead of deciding again. Policy key, off by default; counts come from the gatelog.
 - **More registry rows:** a 4B model that runs on one L4, a 26B MoE with 4B active parameters (27B quality at
   4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
 
