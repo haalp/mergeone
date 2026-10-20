@@ -80,6 +80,9 @@ func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PR
 	} else {
 		meta.Repo, meta.Number = repo, pr
 		res = gw.Gate.DecideFor(state, meta)
+		if pr > 0 && gw.Gate.Policy.MaxRounds > 0 { // no PR number → no rounds to count
+			gw.Gate.ApplyMaxRounds(&res, gw.Store.NonPassRounds(repo, pr, sha))
+		}
 	}
 	if act {
 		res.Actions = ApplyActions(gw.GitHub, gw.Gate.Policy.Actions, repo, pr, sha, res, gw.verdictURL(repo, sha))

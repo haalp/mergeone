@@ -61,6 +61,10 @@ type Result struct {
 	Error             string         `json:"error,omitempty"`
 	TS                time.Time      `json:"ts"`
 	Extra             map[string]any `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
+	// Rounds is the number of non-pass verdicts on this PR including this one (max_rounds on and PR known).
+	Rounds int `json:"rounds,omitempty"`
+	// CappedRule is the rule that matched before max-rounds replaced it.
+	CappedRule string `json:"capped_rule,omitempty"`
 	// Actions is what the verdict-action layer wrote back to GitHub (webhook/CI mode only; nil elsewhere).
 	Actions *ActionsReport `json:"actions,omitempty"`
 }
@@ -140,6 +144,8 @@ type Policy struct {
 		TopK    int  `yaml:"top_k"`
 	} `yaml:"memory"`
 	Actions Actions `yaml:"actions"`
+	// MaxRounds caps review loops: after this many non-pass verdicts on one PR, route to a human (0 = off).
+	MaxRounds int `yaml:"max_rounds"`
 }
 
 // Actions is the policy's `actions:` block: deterministic GitHub write-back of a verdict (commit status,
@@ -229,6 +235,9 @@ func LoadPolicy(path string) (*Policy, error) {
 	}
 	if p.OnError.Verdict == "" {
 		p.OnError = Outcome{"hold", "human", "Decision model unavailable"}
+	}
+	if p.MaxRounds < 0 {
+		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
 	if err := p.compile(); err != nil {
 		return nil, err
@@ -497,6 +506,22 @@ func (g *Gate) rematch(res *Result, extra map[string]any) {
 	res.Rule, res.Verdict, res.Route, res.Reason = rule, out.Verdict, out.Route, out.Reason
 	if n, ok := extra["duplicate_candidate"].(int); ok && rule == "duplicate-of" {
 		res.Reason = fmt.Sprintf("%s (#%d)", out.Reason, n)
+	}
+}
+
+// ApplyMaxRounds is the convergence cap. prior is the PR's earlier non-pass verdicts (the caller counts them;
+// see store.NonPassRounds). A pass, an error result or max_rounds 0 is left alone; otherwise Rounds is set and,
+// once prior >= max_rounds, the route becomes human under rule max-rounds (verdict and probs unchanged).
+func (g *Gate) ApplyMaxRounds(res *Result, prior int) {
+	n := g.Policy.MaxRounds
+	if n <= 0 || res.Verdict == "pass" || res.Error != "" {
+		return
+	}
+	res.Rounds = prior + 1
+	if prior >= n {
+		res.CappedRule = res.Rule
+		res.Route, res.Rule = "human", "max-rounds"
+		res.Reason = fmt.Sprintf("%d verdicts without pass on this PR; routed to a human (max_rounds; last rule: %s)", res.Rounds, res.CappedRule)
 	}
 }
 

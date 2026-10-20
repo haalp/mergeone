@@ -2,6 +2,10 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Unreleased
+
+- Gateway, 2026-10-20: `max_rounds: N` in the policy (default 0 = off), a convergence cap for review loops on agent-authored PRs: after N non-pass verdicts on one PR (distinct head SHAs in the gatelog), a non-pass verdict is routed to a human under rule `max-rounds`; `pass` is never overridden; verdicts carry `rounds`. Needs a PR number. `mergeone pr` with a known PR now logs under `--gh-repo` and the real head SHA. See docs/POLICY.md.
+
 ## v0.2.0 — 2026-10-19 (gateway release; no protocol change)
 
 - `mergeone init` (one-command setup, purple banner, `--ci`/`--mcp`/`--all`), interactive session on a bare `mergeone`, verdict actions (`actions:` in the policy: commit status, exclusive labels, one comment per head SHA, reviewers — off by default, never merges), decision-model registry (`prompts/models.yaml`, `mergeone models`), retrieval v2 default in the Go store, parallel pair calls and HTTP transport reuse (gate/BENCH.md), `serve/systemone_server.py` for self-hosted open weights.

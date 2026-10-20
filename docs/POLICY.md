@@ -16,6 +16,22 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `rules` | evaluated top to bottom on calibrated probabilities; first match wins; each has `name`, `when`, `verdict`, `route`, `reason` |
 | `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
+| `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
+
+## max_rounds (convergence cap)
+
+With agent authors and automated review a PR can loop: every push is a new head SHA and a new verdict. `max_rounds: N` stops the loop.
+
+```yaml
+max_rounds: 3   # default 0 = off
+```
+
+- A round is a distinct head SHA of the PR whose latest verdict in the gatelog is `hold` or `block` (re-deciding the same SHA, re-acting and worker retries do not add rounds; model errors are not rounds).
+- When a new verdict is not `pass` and the PR already has ≥ N earlier rounds, the verdict is kept, `route` becomes `human`, `rule` becomes `max-rounds`, `capped_rule` keeps the rule that matched, and `reason` is `"<rounds> verdicts without pass on this PR; routed to a human (max_rounds; last rule: <capped_rule>)"`. Probabilities are unchanged.
+- A `block` keeps its verdict and only gains `route: human` and `rule: max-rounds`.
+- A `pass` is never overridden. Non-pass results carry `rounds` (this PR's non-pass verdicts, including this one) whenever the cap is on.
+- A later `pass` does not reset the count (the PR merges on pass, so the loop ends there anyway).
+- PR identity is (repository, PR number): the webhook, `POST /decide` with a `pr`, MCP `gate_decide` with a `pr`, and `mergeone pr` with `--gh-repo`/`--pr` (or the GitHub Actions event). No PR number, no counting. In CI the count needs the gatelog (`--log`) to persist between runs.
 
 ## Verdict actions
 

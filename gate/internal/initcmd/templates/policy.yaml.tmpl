@@ -114,6 +114,10 @@ on_error:
   route: human
   reason: "Decision model unavailable"
 
+# Convergence cap: with agent authors and automated review a PR can be re-decided on every push. Off (0) by
+# default; needs a PR number (webhook, POST /decide with a pr, `mergeone pr --pr N`).
+# max_rounds: 3   # after 3 non-pass verdicts on one PR, route to a human
+
 # Verdict actions: what the gateway writes back to the PR. Deterministic (no model call), webhook mode
 # (`mergeone serve`) and CI mode (`mergeone pr` with a PR number) only, never from the MCP tools, and it
 # never merges: the commit status is what branch protection or auto-merge reads. Needs a GITHUB_TOKEN with

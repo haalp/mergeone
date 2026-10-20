@@ -412,12 +412,22 @@ func cmdPR(args []string) int {
 			*headSHA = strings.TrimSpace(string(out))
 		}
 	}
+	// With a known PR the gatelog is keyed by (owner/name, PR, head sha) so max_rounds can count rounds.
+	logRepo, logSHA := *repo, *head
+	knownPR := *ghRepo != "" && *prNum > 0 && *headSHA != ""
+	if knownPR {
+		logRepo, logSHA = *ghRepo, *headSHA
+	}
+	st, stErr := store.Open(*logPath)
+	if stErr == nil && knownPR && g.Policy.MaxRounds > 0 {
+		g.ApplyMaxRounds(&res, st.NonPassRounds(logRepo, *prNum, logSHA))
+	}
 	res.Actions = server.ApplyActions(server.NewGitHub(os.Getenv("GITHUB_TOKEN")), g.Policy.Actions, *ghRepo, *prNum, *headSHA, res, "")
 	for _, e := range res.Actions.Errors {
 		fmt.Fprintln(stderr, "actions:", e)
 	}
-	if st, err := store.Open(*logPath); err == nil {
-		_ = st.Record(store.Record{Repo: *repo, PR: *prNum, HeadSHA: *head, Source: "cli", Result: res, State: state})
+	if stErr == nil {
+		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, State: state})
 	}
 	return verdictCode(res)
 }

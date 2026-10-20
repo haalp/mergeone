@@ -54,6 +54,7 @@ type Store struct {
 	queue   []string
 	cond    *sync.Cond
 	nextJob int64
+	shasPR  map[string]map[string]string // repo + "\x00" + pr → head_sha → latest non-error verdict (max_rounds)
 }
 
 // Job is an idempotent unit of work keyed by repo:pr:head_sha.
@@ -74,7 +75,7 @@ func Open(path string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, err
 	}
-	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{}}
+	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{}}
 	s.cond = sync.NewCond(&s.mu)
 	if f, err := os.Open(path); err == nil {
 		sc := bufio.NewScanner(f)
@@ -99,6 +100,13 @@ func (s *Store) index(r *Record) {
 	s.bySHA[r.Repo+"\x00"+r.HeadSHA] = r
 	if r.PR != 0 {
 		s.byPR[r.Repo+"\x00"+itoa(r.PR)] = r
+		if r.HeadSHA != "" && r.Result.Error == "" {
+			k := r.Repo + "\x00" + itoa(r.PR)
+			if s.shasPR[k] == nil {
+				s.shasPR[k] = map[string]string{}
+			}
+			s.shasPR[k][r.HeadSHA] = r.Result.Verdict
+		}
 	}
 	s.recent = append(s.recent, r)
 	if len(s.recent) > maxRecent {
@@ -140,6 +148,21 @@ func (s *Store) LatestForPR(repo string, pr int) *Record {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.byPR[repo+"\x00"+itoa(pr)]
+}
+
+// NonPassRounds counts a PR's earlier rounds for max_rounds: distinct head shas whose latest non-error
+// verdict is not pass, excluding exceptSHA (the head being decided). Counting shas, not records, keeps
+// re-decisions, re-acts and worker retries of one head from inflating the count; errors are not rounds.
+func (s *Store) NonPassRounds(repo string, pr int, exceptSHA string) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	n := 0
+	for sha, v := range s.shasPR[repo+"\x00"+itoa(pr)] {
+		if sha != exceptSHA && v != "pass" {
+			n++
+		}
+	}
+	return n
 }
 
 // Stats summarises decisions in the trailing window.
