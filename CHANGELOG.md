@@ -2,9 +2,10 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## Unreleased
+## v0.2.1 — 2026-10-21 (gateway release; no protocol change)
 
 - Gateway, 2026-10-20: `max_rounds: N` in the policy (default 0 = off), a convergence cap for review loops on agent-authored PRs: after N non-pass verdicts on one PR (distinct head SHAs in the gatelog), a non-pass verdict is routed to a human under rule `max-rounds`; `pass` is never overridden; verdicts carry `rounds`. Needs a PR number. `mergeone pr` with a known PR now logs under `--gh-repo` and the real head SHA. See docs/POLICY.md.
+- Run 6B labelling, dated (reporting only; no threshold, rule or default changed): (a) 2026-10-19 22:56Z, at item 35 of 100, the human labeller wrote the taxonomy down: `duplicate` = same change / B makes A unnecessary (incl. a revision superseded by B); `pointer` = A's author should have looked at B first — backport, promote edge→stable, competing fix (same problem, different method), follow-up, revert, same area; `unrelated` = file overlap only. (b) 2026-10-20: promote-edge→stable pairs are `pointer` (same change moving to a second branch, both PRs merge); items 1, 40, 47 re-labelled accordingly. (c) 2026-10-20 13:50Z: 11 first-pass items noted "need to check B first" were re-read under the written rule and found to be `duplicate` (same method, B covers A); the re-reads were appended as rows with note prefix `pass2`, the first-pass rows were kept, and `report --run6b` shows precision for both. (d) An interim look at n = 50 was taken on 2026-10-20 (`results/run6/b_interim_n50.md`); the pre-registered number is the one at n = 100. (e) A second labeller (fable-5.1, blind, all 100, `data/run6/hold_labels_fable.jsonl`, 2026-10-18) exists; agreement and Cohen κ are reported per R6B.2-B2, with its promote pairs mapped to `pointer` and the as-written reading beside it.
 
 ## v0.2.0 — 2026-10-19 (gateway release; no protocol change)
 

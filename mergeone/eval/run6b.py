@@ -610,6 +610,54 @@ def precision(labels: list[str]) -> dict:
             "duplicate_share": d / n if n else None, "duplicate_ci95": wilson(d, n)}
 
 
+SECOND_LABELS = DATA_DIR / "hold_labels_fable.jsonl"   # second labeller (not pre-registered; R6B.2-B2: agreement is reported)
+_SECOND_MAP = {1: "duplicate", 2: "pointer", 3: "unrelated"}
+
+
+def cohen_kappa(a: list[str], b: list[str]) -> tuple[float, float]:
+    """(observed agreement, Cohen's κ) over the three labels."""
+    n = len(a)
+    if n == 0:
+        return 0.0, 0.0
+    po = sum(x == y for x, y in zip(a, b)) / n
+    ca, cb = Counter(a), Counter(b)
+    pe = sum(ca[k] * cb[k] for k in set(a) | set(b)) / (n * n)
+    return po, (po - pe) / (1 - pe) if pe < 1 else 1.0
+
+
+def labeller_agreement(sample: list[dict], human_path: Path, second_path: Path = SECOND_LABELS) -> dict | None:
+    """Human (pre-registered) vs second labeller on the same sample. The human file may hold several rows per PR
+    (last wins; a later row whose note starts with 'pass2' is a re-read under the final taxonomy) — the first-pass
+    label is reported next to the final one. The second labeller's 'promote' pairs (edge→stable promotions, labelled
+    1 under the older reading) are mapped to pointer, the reading the taxonomy settled on; both readings are shown."""
+    if not Path(second_path).exists() or not Path(human_path).exists():
+        return None
+    key = lambda r: (r["pr_number"], r["a_number"], r["b_number"])
+    first, last = {}, {}
+    for r in _rows(human_path):
+        first.setdefault(key(r), r)
+        last[key(r)] = r
+    second = {key(r): r for r in _rows(second_path)}
+    rows = [r for r in sample if key(r) in last and key(r) in second]
+    if not rows:
+        return None
+    H = [last[key(r)]["label"] for r in rows]
+    H0 = [first[key(r)]["label"] for r in rows]
+    F_raw = [_SECOND_MAP[second[key(r)]["label"]] for r in rows]
+    F = ["pointer" if second[key(r)]["label"] == 1 and "promote" in (second[key(r)].get("note") or "").lower() else _SECOND_MAP[second[key(r)]["label"]] for r in rows]
+    po, k = cohen_kappa(H, F)
+    po_raw, k_raw = cohen_kappa(H, F_raw)
+    po0, k0 = cohen_kappa(H0, F)
+    out = {"n": len(rows), "labeller": second[key(rows[0])].get("labeller", "second"),
+           "human_final": precision(H), "human_first_pass": precision(H0), "second": precision(F), "second_raw": precision(F_raw),
+           "agreement": po, "kappa": k, "agreement_raw": po_raw, "kappa_raw": k_raw, "agreement_first_pass": po0, "kappa_first_pass": k0,
+           "pass2_rows": sum(1 for r in last.values() if (r.get("note") or "").startswith("pass2")),
+           "confusion": {f"{h}/{f}": n for (h, f), n in sorted(Counter(zip(H, F)).items())},
+           "disagreements": [{"item": sample.index(r) + 1, "repo": r.get("repo"), "a": r["a_number"], "b": r["b_number"], "human": h, "human_note": (last[key(r)].get("note") or "")[:80],
+                              "second": f, "second_note": (second[key(r)].get("note") or "")[:80]} for r, h, f in zip(rows, H, F) if h != f]}
+    return out
+
+
 def label_metrics(sample: list[dict], labels: dict[tuple, dict], dup: dict[str, dict[int, dict[int, dict]]], strata: dict[int, str] | None = None) -> dict:
     """R6B-H2, R6B-H4, threshold sweep, other models' precision on the PRs they also hold.
     dup[model][k][pr_number] = {dup, b}. Requires every sample row to be labelled."""
@@ -764,6 +812,7 @@ def run(run_dir: Path | None = None) -> dict:
             rep["labels_written"] = {"first": min(lab[(r["pr_number"], r["a_number"], r["b_number"])]["labelled_at"] for r in sample),
                                      "last": max(lab[(r["pr_number"], r["a_number"], r["b_number"])]["labelled_at"] for r in sample)}
             rep["hold_precision"] = label_metrics(sample, lab, dup, strata)
+            rep["labeller_agreement"] = labeller_agreement(sample, lp)
     hp = rep.get("hold_precision")
     if hp:
         h2 = hp["R6B-H2"]
@@ -837,6 +886,19 @@ def _tables(rep: dict) -> str:
         L += ["", "### Threshold sweep (reporting only)", ""] + hdr + [_prow(f"duplicate_of ≥ {t}", p) for t, p in hp["threshold_sweep"].items()]
         L += ["", hp["threshold_sweep_note"], "", "### Other models, on sample PRs they also hold at k=20", ""] + hdr
         L += [_prow(m, e["k20_held_in_sample"]) + f" same B: {e['same_b']}" for m, e in hp["other_models"].items()]
+        ag = rep.get("labeller_agreement")
+        if ag:
+            L += ["", f"### Second labeller ({ag['labeller']}; not pre-registered, agreement reported per R6B.2-B2)", ""] + hdr
+            L += [_prow("human, final labels (pre-registered number)", ag["human_final"]),
+                  _prow("human, first-pass labels (before the taxonomy was written down)", ag["human_first_pass"]),
+                  _prow("second labeller, promote pairs → pointer", ag["second"]),
+                  _prow("second labeller, as written (promote pairs = duplicate)", ag["second_raw"])]
+            L += ["", f"Agreement {_f(ag['agreement'])}, Cohen κ **{_f(ag['kappa'])}** (human final vs second, promote→pointer); "
+                      f"as written {_f(ag['agreement_raw'])} / κ {_f(ag['kappa_raw'])}; human first-pass vs second {_f(ag['agreement_first_pass'])} / κ {_f(ag['kappa_first_pass'])}. "
+                      f"{ag['pass2_rows']} human rows are pass-2 re-reads under the final rule (note prefix `pass2`; first-pass rows kept in the file).",
+                  "", "Confusion (human/second): " + ", ".join(f"{k} {v}" for k, v in ag["confusion"].items()) + ".", "",
+                  "Disagreements (for the adjudication round, post-hoc):", ""]
+            L += [f"- {d['item']} · {d['repo']} #{d['a']} / #{d['b']}: human **{d['human']}** ({d['human_note'] or '—'}) · second **{d['second']}** ({d['second_note'] or '—'})" for d in ag["disagreements"]]
     L += ["", "## Pre-registered criteria", "", "| hypothesis | result | bar | pass |", "|---|---|---|---|"]
     for h, r in rep["hypotheses"].items():
         shown = {k: (round(v, 4) if isinstance(v, float) else v) for k, v in r.items() if k not in ("pass", "bar")}
