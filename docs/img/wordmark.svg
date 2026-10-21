@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="560" height="120" viewBox="0 0 560 120" fill="none" role="img" aria-label="mergeone">
   <g transform="translate(0,4) scale(0.35)">
-    <path d="M44 58 L160 152" stroke="#A371F7" stroke-width="30"/>
-    <path d="M44 160 L150 160" stroke="#A371F7" stroke-width="30" opacity="0.72"/>
-    <path d="M44 262 L160 168" stroke="#A371F7" stroke-width="30" opacity="0.5"/>
-    <path d="M194 136 L262 136 L246 158 L300 158 L212 222 L234 178 L194 178 Z" fill="#ECECEA" stroke="#ECECEA" stroke-width="4" stroke-linejoin="miter"/>
+    <path d="M44 62 C 104 62, 110 126, 136 140" stroke="#A371F7" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M44 160 L130 160" stroke="#A371F7" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M44 258 C 104 258, 110 194, 136 180" stroke="#A371F7" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <circle cx="166" cy="160" r="48" fill="#A371F7"/>
     <circle cx="166" cy="160" r="34" fill="#0E0F12" stroke="#ECECEA" stroke-width="16"/>
+    <path d="M194 136 L262 136 L246 158 L300 158 L212 222 L234 178 L194 178 Z" fill="#ECECEA" stroke="#ECECEA" stroke-width="4" stroke-linejoin="miter"/>
   </g>
   <text x="124" y="80" font-family="Geist, Inter, system-ui, -apple-system, sans-serif" font-size="64" font-weight="600" letter-spacing="-1.5" fill="#ECECEA">merge<tspan fill="#A371F7">one</tspan></text>
 </svg>

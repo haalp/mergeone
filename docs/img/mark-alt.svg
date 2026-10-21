@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" fill="none" role="img" aria-label="mergeone (alternate mark)">
+  <rect width="320" height="320" rx="64" fill="#0E0F12"/>
+  <path d="M44 62 C 104 62, 110 126, 136 140" stroke="#6E40C9" stroke-width="24" fill="none" stroke-linecap="round"/>
+  <path d="M44 160 L130 160" stroke="#6E40C9" stroke-width="24" fill="none" stroke-linecap="round"/>
+  <path d="M44 258 C 104 258, 110 194, 136 180" stroke="#6E40C9" stroke-width="24" fill="none" stroke-linecap="round"/>
+  <path d="M44 62 C 104 62, 110 126, 136 140" stroke="#C9AAFF" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M44 160 L130 160" stroke="#C9AAFF" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M44 258 C 104 258, 110 194, 136 180" stroke="#C9AAFF" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <circle cx="166" cy="160" r="50" fill="#6E40C9"/>
+  <circle cx="166" cy="160" r="42" fill="none" stroke="#C9AAFF" stroke-width="9"/>
+  <circle cx="166" cy="160" r="30" fill="#0E0F12" stroke="#ECECEA" stroke-width="12"/>
+  <path d="M194 136 L262 136 L246 158 L300 158 L212 222 L234 178 L194 178 Z" fill="#ECECEA" stroke="#ECECEA" stroke-width="4" stroke-linejoin="miter"/>
+</svg>
