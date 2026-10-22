@@ -39,6 +39,17 @@ served with the run-6A harness unchanged, scored on the run-5 v3 test questions 
 at ×1, ×10, ×30 with the run-6A client. A hosted decision API row (one of the two in ROADMAP) is optional and
 only if its pricing is public on the day.
 
+**C5 — typed relation question and `related` annotations.** Run 6B's labels say a hold is almost never a false
+alarm but is often a *pointer* rather than a *duplicate* (follow-up, competing fix, backport/promote, same area).
+The pair question only answers `same_change`. C5 adds a typed relation question for a (PR, candidate) pair —
+`relation ∈ {same_change, follow_up, competing_fix, backport, same_area, unrelated}` (one multi-class answer, or
+four binary questions `same_change`, `same_goal`, `same_branch`, `builds_on`; the prompt decides, frozen before
+test) — asked of `pplx-flash` and `jev` on the 100 run-6B pairs (human final labels + notes as ground truth; the
+adjudicated file, when it exists, is the primary). Gateway side, behind `memory.enabled`: `gate_similar` and the
+verdict carry `relation`; the policy gets `on_duplicate` (hold → dedup, as today), `on_related` (pass + one
+idempotent cross-link comment on both PRs and a `mergeone:related` label, no hold) and `on_competing` (hold →
+human). Off by default until R7-H5 passes.
+
 ## R7.3 Pre-registered criteria (test split; bars written before any R7 call)
 
 - **R7-H1 (budget):** at 4k the mean AUC over the v3 questions drops by **≤ 0.02** for both `jev` and `pplx-flash`, and the
@@ -50,6 +61,12 @@ only if its pricing is public on the day.
 - **R7-H3 (evidence floor):** the structural feature model scores **≥ 0.76** AUC on the review-iteration target (the models'
   run-5 number) **or** adds ≥ +0.02 when stacked on `needs_human_review`. Pass → ships as a free `evidence:` block in the
   policy. Fail → reported.
+- **R7-H5 (relation):** on the 100 run-6B pairs, `related` (any non-unrelated class) vs `unrelated` ROC-AUC
+  **≥ 0.80** for at least one model, and `same_change` vs the rest (the dedup decision) ≥ **0.80**; sub-class
+  accuracy (follow_up / competing_fix / backport / same_area) reported with Wilson intervals, not a bar (n is
+  small). Pass → `on_related` annotations ship opt-in with the relation shown; `on_competing` routes to a human.
+  Fail → `relation` is reported only; the gateway keeps the two-way `duplicate_of` rule. Cost per PR at k = 20 is
+  reported next to R6B-H3's bar.
 - **R7-H4 (row):** the new self-hosted row is within **0.03** AUC of hosted `pplx-flash` on the v3 test questions and
   carries **×10 with 0 errors** on one L4. Pass → row in `models.yaml` marked `self-host: L4`. Fail → row stays with its
   numbers; no default changes.
@@ -62,9 +79,9 @@ from test appears in any prompt, example or note. C3's pattern lists are committ
 
 ## R7.5 Budget and order
 
-Budget: ≈ $25 (`jev` ≈ $4, `pplx-flash` ≈ $3, `haiku` continuity ≈ $6 if run, L4 ≈ $3, hosted row ≈ $5), cap $45.
+Budget: ≈ $26 (`jev` ≈ $4, `pplx-flash` ≈ $3, C5 ≈ $1, `haiku` continuity ≈ $6 if run, L4 ≈ $3, hosted row ≈ $5), cap $45.
 Order: 1. commit this as §R7. 2. C3 pattern lists + tuning set + C2 round log (val only). 3. `r7-tuned` tag.
-4. C1, C2 test calls, C3 scoring. 5. C4 on RunPod. 6. Report; CHANGELOG timestamps.
+4. C1, C2 test calls, C3 scoring, C5 on the 6B pairs (after the adjudication round). 5. C4 on RunPod. 6. Report; CHANGELOG timestamps.
 
 ## Open decisions (owner: Hasanalp)
 

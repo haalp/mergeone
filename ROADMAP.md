@@ -99,6 +99,10 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   question, so the risk is real; pre-register the tuning set size and the freeze commit. Acceptance rule,
   borrowed from how the Claude Code team scores their reviewer against an incident set: a prompt change is kept
   only if its score on the frozen revert/iteration eval (run 1 reverts, run 5 ≥2-round PRs) does not drop.
+- **Typed relation + `related` annotations (C5 in the draft).** 6B says a hold is rarely a false alarm but often a
+  pointer, not a duplicate. A relation question (`same_change / follow_up / competing_fix / backport / same_area /
+  unrelated`) scored on the 6B pairs; policy gains `on_related` (cross-link both PRs, no hold) and `on_competing`
+  (route to a human). Ships opt-in only if it clears its bar.
 - **More registry rows:** a 4B model that runs on one L4, a 26B MoE with 4B active parameters (27B quality at
   4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
 
