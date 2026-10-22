@@ -2,9 +2,15 @@
 
 Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md](PROTOCOL.md).
 
-## Now — run3: real agent PRs
-Discover → fetch → Jev / Haiku predictions → stack-level rule → report. Settles R3-H1..H5 and
-decides whether the numbers on the landing page can be claimed for agent-authored PRs.
+## Now — run 6B: is a `hold` for duplication right?
+100 PRs the gate holds as duplicates (pplx-flash, k = 20), labelled blind by one human (pre-registered
+number) and by a second labeller (agreement and Cohen κ reported). Interim at n = 50: dup ∪ pointer 1.00,
+duplicate share 0.54 under the final taxonomy, κ 0.80 after the taxonomy was written down. The result decides
+the product default for the dedup rule — `hold → route: dedup` stays, or it is demoted to `annotate` (link,
+no hold) — and which pointer classes (backport, promote, competing fix) get "link both, route to a human".
+Then run 7 is frozen from [`docs/run7-addendum-draft.md`](docs/run7-addendum-draft.md).
+
+Run 3 (real agent PRs) is done: negative, 67% of closures are coordination; see docs/EVIDENCE.md.
 
 ## v0.2 — PR memory and duplicate detection (run 4: question ✅, retrieval ❌)
 Run 3 showed 36% of agent-PR closures are *superseded or duplicate* and the gate could not see
@@ -60,15 +66,22 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   Go read the same file; `model: <row>` / `provider:` block in the policy; `mergeone models` lists it.
 - `mergeone leaderboard` ranks every model run under the protocol on quality / calibration / speed / cost
   with the 100× scale bar as a hard gate (`results/leaderboard.md`).
-- Next: run the open-weight rows (clef, JEV-9B/27B, H2O Lightning 4B, Laya) on a local llama.cpp
-  `/v1/systemone` server under the run-2 judge labels, so self-hosted candidates get a measured row.
+- Run 6A measured the first self-hosted row (pplx-flash on one L4 and one H100: `pplx-flash-local`). The other
+  open-weight rows (clef, JEV-9B/27B, H2O Lightning 4B, Laya) are still claims until they get a row; run 7's C4
+  takes one that fits a single L4.
 
 ## Verdict actions (done, gateway v0.2)
 - ✅ `actions:` in the policy writes the verdict back to the PR in webhook/CI mode: commit status for branch
   protection / auto-merge, exclusive `mergeone:*` labels, one comment per head sha, reviewers on hold/block
   routed to `human`. Off by default, deterministic, never merges, never changes a verdict.
 
-## Run 7 candidates (not pre-registered; each becomes a hypothesis only when written into PROTOCOL.md)
+## Convergence cap (done, gateway v0.2.1)
+- ✅ `max_rounds: N` in the policy (default 0 = off). Agent author + automated review can loop (one reported PR
+  went 50+ rounds before a three-round cap). After N non-pass verdicts on one PR — distinct head SHAs in the
+  gatelog — the next non-pass verdict is routed to a human under rule `max-rounds`, the matched rule kept in
+  `capped_rule`; `pass` is never overridden. Webhook, `/decide`, MCP (with a PR number) and `mergeone pr --pr`.
+
+## Run 7 candidates (draft addendum in docs/run7-addendum-draft.md; nothing is a hypothesis until it is in PROTOCOL.md)
 - **Base-branch-aware dedup.** Backports/cherry-picks of one change to release branches look like duplicates and
   are held; they are legitimate. Read the target branch; same change on a different branch → `annotate`, not
   `hold`. Run 6B's labels say how much of the hold set this is.
@@ -86,9 +99,6 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   question, so the risk is real; pre-register the tuning set size and the freeze commit. Acceptance rule,
   borrowed from how the Claude Code team scores their reviewer against an incident set: a prompt change is kept
   only if its score on the frozen revert/iteration eval (run 1 reverts, run 5 ≥2-round PRs) does not drop.
-- **Convergence cap in the gateway (`max_rounds`, not a run).** Agent author + automated review can loop (one
-  reported PR went 50+ rounds before a three-round cap). After N non-pass verdicts on one PR the gateway routes
-  to a human instead of deciding again. Policy key, off by default; counts come from the gatelog.
 - **More registry rows:** a 4B model that runs on one L4, a 26B MoE with 4B active parameters (27B quality at
   4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
 
