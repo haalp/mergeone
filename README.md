@@ -15,31 +15,58 @@
   <a href="https://mergeone.dev/updates/"><img src="https://img.shields.io/badge/updates-mergeone.dev-ECECEA?labelColor=0E0F12" alt="updates"></a>
 </p>
 
-When most commits are written by agents, the merge queue is the bottleneck. **mergeone** puts one fast, typed decision in front of trunk: a small decision model answers a fixed set of questions about each pull request with calibrated probabilities in one ~300 ms call, a policy file you own turns them into `pass` / `hold` / `block`, and every verdict is logged with its exact input. One Go binary; works as a CI step, a GitHub webhook, or an MCP server the agent calls before it merges.
+mergeone sits in front of your main branch. For every pull request it asks a small, fast decision model a fixed set of typed questions (*does this change logic? weaken tests? need a human? duplicate an open PR?*), gets calibrated probabilities back in one ~300 ms call, and turns them into `pass` / `hold` / `block` through a policy file you own. Every verdict is logged with its exact input. It never merges anything itself. One static Go binary; runs as a CI step, a GitHub webhook, or an MCP tool your agent calls before it merges.
 
-It is also a benchmark. Every claim here was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; three of six runs failed and are reported anyway.
+---
 
-## How a PR flows through it
-
-```
-                 ┌─────────────────────────────── mergeone ───────────────────────────────┐
-  PR opened      │  render once      decision model        calibrate        .mergeone.yaml │   verdict + route
-  (agent / CI) ─▶│  diff + message ─▶ ~10 typed questions ─▶ isotonic maps ─▶ rules, first  │─▶ pass   → auto-merge
-                 │  + PR memory       one call, ~300 ms      0.6 = 60%        match wins    │   hold   → human / dedup
-                 │                                                                          │   block  → stop
-                 └──────────────────────────────────┬───────────────────────────────────────┘
-                                                    └─▶ gatelog: every verdict, its input, its hash
-```
-
-The model never sees a rule and never writes prose. It returns probabilities for questions like `is_logic_change`, `weakens_tests`, `needs_human_review`, `hard_to_revert`, and — when PR memory is on — `duplicate_of` an existing PR. The policy is the only thing you edit.
-
-## Start
+## 1. Install
 
 ```bash
-curl -fsSL https://mergeone.dev/install.sh | sh     # one static binary (or: go install github.com/haalp/mergeone/gate/cmd/mergeone@latest)
+curl -fsSL https://mergeone.dev/install.sh | sh        # macOS / Linux, one static binary → /usr/local/bin/mergeone
+```
+
+Alternatives: download a release archive from [Releases](https://github.com/haalp/mergeone/releases), or `go install github.com/haalp/mergeone/gate/cmd/mergeone@latest`.
+
+```bash
+mergeone version
+```
+
+## 2. Set up a repository
+
+```bash
 cd your-repo
-mergeone init                                        # writes .mergeone.yaml, checks keys, prints next steps
-export TYPESAFE_API_KEY=...                          # the default model; `mergeone init --model pplx-flash|haiku|local` for others
+mergeone init
+```
+
+`init` prints what it detected (git repository, default branch, which API keys are present), writes `.mergeone.yaml` with safe defaults (PR memory off, verdict actions off, fail closed), and prints the next steps. It never overwrites an existing file unless you pass `--force`.
+
+| flag | what it adds |
+|---|---|
+| `--model jev` | which decision model the policy points at (`mergeone models` lists the rows; default `jev`) |
+| `--ci` | writes `.github/workflows/mergeone.yml` — the gate as a CI step |
+| `--mcp` / `--mcp --write` | prints (or appends to `CLAUDE.md`) the snippet that makes an agent ask the gate before merging |
+| `--all` | `--ci --mcp --write` |
+| `--dir`, `--force`, `--quiet` | target directory, overwrite, no banner |
+
+Running `mergeone` with no arguments on a terminal opens a session with the same commands inside (`init`, `pr`, `serve`, `models`, `help`, `quit`).
+
+### Keys
+
+The decision model is a config line; each one needs its own key. Set the one for the model you chose:
+
+| model (`.mergeone.yaml: model:`) | key | notes |
+|---|---|---|
+| `jev` (default) | `TYPESAFE_API_KEY` | hosted System One model; fastest at 100× load in every run |
+| `pplx-flash`, `pplx` | `PERPLEXITY_API_KEY` | hosted open-weight deciders (4B / 27B) |
+| `haiku` | `ANTHROPIC_API_KEY` | an LLM used as a decision model; slower, for comparison |
+| `local` rows | `MERGEONE_LOCAL_KEY` (optional) | your own `/v1/systemone` endpoint, e.g. the weights served by [`serve/`](serve/) |
+
+`GITHUB_TOKEN` is needed only for the webhook mode and for verdict actions (commit status, labels, comments). No key yet? `mergeone serve --mock` and `mergeone mcp --mock` run the whole pipeline with a stand-in model.
+
+## 3. First verdict
+
+```bash
+export TYPESAFE_API_KEY=...
 mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```
 
@@ -51,35 +78,45 @@ mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
   "model_version": "jev-1.13.0", "latency_ms": 318, "cost_usd": 0.00007 }
 ```
 
-Exit code 0 = pass, 1 = hold, 2 = block. No key yet? `mergeone serve --mock` runs the whole pipeline with a stand-in model, and `mergeone replay` dry-runs your policy over 1,200 real PRs shipped in the repo.
+Exit code `0` pass, `1` hold, `2` block, `3` error. To see what your policy would have done on real history before trusting it: `mergeone replay --policy .mergeone.yaml --predictions results/run2/predictions_jev_test_all.jsonl` dry-runs it over 1,200 real PRs shipped in this repository.
 
-`mergeone init --all` also writes a GitHub Actions workflow and the MCP snippet for `CLAUDE.md`.
+## 4. Pick how it runs
 
-Just `mergeone` opens a session with the same commands inside.
+**CI step** — `mergeone init --ci` writes the workflow. On every `pull_request` it runs `mergeone pr`; `hold` leaves the job green with a warning (a human decides), `block` and errors fail it (fail closed). With [verdict actions](#policy) on, it also sets a commit status `mergeone` you can require in branch protection, an exclusive `mergeone:*` label, and one comment per head SHA with the typed reasons.
 
-## Three ways to run it
+**Webhook** — one always-on process:
 
-| mode | command | what happens |
-|---|---|---|
-| **CI step** | `mergeone pr` in a workflow | one verdict per PR head; exit code gates the job. With [verdict actions](#policy) on: commit status, `mergeone:*` label, one comment, reviewers. |
-| **Webhook** | `mergeone serve --policy .mergeone.yaml` + GitHub `pull_request` webhook | the same decision, server-side, idempotent per head SHA; HTTP API for `/decide`, `/verdict`, `/plan`, `/stats`. |
-| **Agent (MCP)** | `claude mcp add mergeone -- mergeone mcp --policy .mergeone.yaml` | the agent calls `gate_decide` *before* merging and merges only on `pass`. The MCP tools never write to GitHub. |
+```bash
+export GITHUB_TOKEN=... MERGEONE_WEBHOOK_SECRET=...
+mergeone serve --policy .mergeone.yaml --addr :8787
+```
+
+Point a GitHub webhook (`pull_request` events) at `POST /webhook/github`. Decisions are idempotent per head SHA; the HTTP API also exposes `POST /decide`, `GET /verdict`, `GET /plan` (non-conflicting landing waves), `GET /stats`, `GET /healthz`. The gatelog is `.mergeone/gatelog.jsonl`.
+
+**Agent (MCP)** — the agent asks before it merges:
+
+```bash
+claude mcp add mergeone -- mergeone mcp --policy .mergeone.yaml
+```
 
 ```
-# CLAUDE.md
+# CLAUDE.md  (written by `mergeone init --mcp --write`)
 Before merging, call gate_decide with repo_path="." base="main" head="HEAD".
 Merge only on "pass". On "hold" or "block", open a PR and request the route named.
 ```
 
-## Policy
+The MCP tools (`gate_decide`, `gate_similar`) never write to GitHub.
 
-`.mergeone.yaml` is the whole product surface: which model (`model: jev` — any row of [`prompts/models.yaml`](prompts/models.yaml), hosted or self-hosted), which question set, paths that always need a human, whether PR memory is on, the rules, and what to write back to the PR.
+## 5. Policy
+
+`.mergeone.yaml` is the whole product surface: which model, which question set, paths that always need a human, whether PR memory is on, the rules, the convergence cap, and what to write back to the PR.
 
 ```yaml
 model: jev                     # or pplx-flash, haiku, local, … — one YAML row, no code
 question_set: v2
 always_human_paths: ["migrations/", "auth/"]
 memory: { enabled: false, top_k: 5 }   # opt-in: asks whether the PR duplicates a recent one
+max_rounds: 0                  # 3 = after three non-pass verdicts on one PR, route to a human
 rules:
   - { name: weakens-tests, when: { weakens_tests: ">= 0.6" }, verdict: block, route: human }
   - { name: needs-human,   when: { needs_human_review: ">= 0.5" }, verdict: hold,  route: human }
@@ -93,7 +130,23 @@ actions:                       # webhook / CI mode only; off by default; never m
   on_block: { status: failure, labels: ["mergeone:block"] }
 ```
 
-Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human. Verdict actions are deterministic GitHub calls — commit status for branch protection, exclusive labels, one comment per head SHA with the typed reasons, reviewers on `hold`/`block` routed to a human — and they never change a verdict. Least-privilege token: statuses, pull requests and issues write. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
+Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human. Verdict actions are deterministic GitHub calls and never change a verdict; the token needs statuses, pull requests and issues write. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
+
+---
+
+## How it works
+
+```
+                 ┌─────────────────────────────── mergeone ───────────────────────────────┐
+  PR opened      │  render once      decision model        calibrate        .mergeone.yaml │   verdict + route
+  (agent / CI) ─▶│  diff + message ─▶ ~5 typed questions ─▶ isotonic maps ─▶ rules, first  │─▶ pass   → auto-merge
+                 │  + PR memory       one call, ~300 ms      0.6 = 60%        match wins    │   hold   → human / dedup
+                 │                                                                          │   block  → stop
+                 └──────────────────────────────────┬───────────────────────────────────────┘
+                                                    └─▶ gatelog: every verdict, its input, its hash
+```
+
+The model never sees a rule and never writes prose. It returns probabilities for questions like `is_logic_change`, `weakens_tests`, `message_matches_diff`, `touches_concurrency`, `needs_human_review`, and — when PR memory is on — `duplicate_of` an existing PR. Calibration maps (isotonic, fit on validation data) make `0.6` mean 60%. The policy is the only thing you edit.
 
 ## What it costs, what it carries
 
@@ -103,9 +156,9 @@ The gateway itself adds single-digit milliseconds: 350 decisions/s on one 2-vCPU
 
 *One line per decision model behind one API key or one GPU; the line runs as far as every call was answered, ✕ is the first load with failures. Only the hosted System One model reaches 100× (3M decisions/day) clean; one H100 is the fastest row and stops at 30×. Rebuilt from the frozen load-test files by `scripts/fig_decision_models_under_load.py`.*
 
-## Evidence
+## Evidence, including what did not work
 
-Six pre-registered runs. Hypotheses and thresholds were committed before any model call; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`.
+mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Six runs; three failed and are reported the same way.
 
 | run | question | result |
 |---|---|---|
@@ -132,8 +185,11 @@ gate/            Go: the mergeone binary (init, pr, serve, decide, replay, loadt
 mergeone/        Python: gatebench (extraction, judge, calibration, reports) + reference gateway
 prompts/         frozen question sets, prompts and the decision-model registry (models.yaml)
 serve/           self-hosting an open-weight decision model behind /v1/systemone (run 6)
+scripts/         how each run's numbers were produced (scripts/README.md)
 results/run*/    raw predictions, labels, metrics, figures · results/leaderboard.md
 PROTOCOL.md      pre-registered protocol · CHANGELOG.md every deviation, with reason · ROADMAP.md
 ```
+
+Contributions: [`CONTRIBUTING.md`](CONTRIBUTING.md) · security: [`SECURITY.md`](SECURITY.md)
 
 Apache-2.0 · Hasan Alp Temiz · [mergeone.dev](https://mergeone.dev)
