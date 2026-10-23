@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .data.extract import read_jsonl, MergedPR
 from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
+from .data.features import compact_state, compact_pair_state
 from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
 from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, QUESTION_SETS, Decision, decide_single
 
@@ -155,6 +156,76 @@ def cmd_train_gbm(args):
     print(json.dumps(rep, indent=2))
 
 
+RUN3_DATASET = DATA / "run3" / "dataset.jsonl"
+RAW_SOURCES = {  # dataset file → the raw PR file render_state was run on (prepare / prepare-run3)
+    (DATA / "dataset.jsonl").resolve(): (DATA / "raw" / "k8s_merges.jsonl", "k8s"),
+    RUN3_DATASET.resolve(): (DATA / "run3" / "agent_prs.jsonl", "run3"),
+}
+
+
+def _raw_prs(dataset: Path, raw: str | None) -> dict | None:
+    """{pr_number: MergedPR} from the raw file behind `dataset`, or None when it is not on disk.
+    `raw` overrides the lookup (a k8s_merges-style file is read with read_jsonl, anything else as agent_prs rows)."""
+    if raw:
+        path, kind = Path(raw), ("k8s" if "k8s" in Path(raw).name else "run3")
+    else:
+        path, kind = RAW_SOURCES.get(Path(dataset).resolve(), (None, None))
+    if path is None or not Path(path).exists():
+        return None
+    if kind == "k8s":
+        return {p.pr_number: p for p in read_jsonl(Path(path))}
+    from .data.prepare_run3 import to_merged_pr
+    return {p.pr_number: p for p in (to_merged_pr(json.loads(l)) for l in Path(path).open() if l.strip())}
+
+
+def compact_rows(rows: list[dict], state_key: str, qset: str, dataset: Path, raw: str | None = None) -> tuple[list[dict], str]:
+    """Run 7 C1: replace each row's `state_key` text with the compact rendering. Returns (rows, render_source).
+
+    Which path is taken (recorded as `render_source` in every row and in the meta file):
+      * single-PR question sets (v1/v2/v3): "raw" — render_state(pr, compact=True) from the raw PR file behind the
+        dataset (data/raw/k8s_merges.jsonl for data/dataset.jsonl, data/run3/agent_prs.jsonl for
+        data/run3/dataset.jsonl, or --raw) when that file exists and holds every row; otherwise "state" —
+        compact_state() on the stored string. The two give identical text (checked on all 2,196 run-3 rows).
+      * pair question sets (pair, pair_assume, relation): compact_pair_state(). A is compacted from its full dataset
+        state (data/run3/dataset.jsonl, looked up by repo + number: "pair:dataset_state") because the pair state
+        keeps only A's first 6,000 characters; when that file is missing, from the stored A part ("pair:stored").
+    """
+    out = []
+    if qset in ("pair", "pair_assume", "relation"):
+        full = {}
+        if RUN3_DATASET.exists():
+            need = {(r.get("repo"), r.get("a")) for r in rows}
+            for l in RUN3_DATASET.open():
+                x = json.loads(l)
+                if (x["repo"], x["number"]) in need:
+                    full[(x["repo"], x["number"])] = x["state"]
+        src = "pair:dataset_state" if rows and all((r.get("repo"), r.get("a")) in full for r in rows) else "pair:stored"
+        for r in rows:
+            a_full = full.get((r.get("repo"), r.get("a"))) if src == "pair:dataset_state" else None
+            out.append({**r, state_key: compact_pair_state(r[state_key], a_full)})
+        return out, src
+    prs = _raw_prs(dataset, raw)
+    if prs is not None and all(r["pr_number"] in prs for r in rows):
+        words = state_key == "state_words"
+        return [{**r, state_key: render_state(prs[r["pr_number"]], numbers_as_words=words, compact=True)} for r in rows], "raw"
+    return [{**r, state_key: compact_state(r[state_key])} for r in rows], "state"
+
+
+def apply_prompt_file(model, path: str) -> str:
+    """Run 7 C2: replace the model's frozen prompt with `path` for this call only. System One / decide models take a
+    questions JSON (prompts/jev_<qset>.json shape); anthropic models take the system prompt text. Returns the
+    file's sha256, recorded in every prediction row and in the meta file."""
+    import hashlib
+    raw = Path(path).read_bytes()
+    if hasattr(model, "questions"):
+        model.questions = json.loads(raw)
+    elif hasattr(model, "prompt"):
+        model.prompt = raw.decode()
+    else:
+        raise SystemExit(f"--prompt-file: model {getattr(model, 'name', model)!r} has no prompt to replace")
+    return hashlib.sha256(raw).hexdigest()
+
+
 def cmd_predict(args):
     pmode = "single" if getattr(args, "single_question", False) else "joint"
     rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
@@ -169,19 +240,26 @@ def cmd_predict(args):
     if args.subset:
         keep = {json.loads(l)["pr_number"] for l in Path(args.subset).open()}
         rows = [r for r in rows if r["pr_number"] in keep]
+    compact = getattr(args, "compact", False)
+    state_key = "state_words" if args.words else "state"
+    render_source = None
+    if compact:
+        rows, render_source = compact_rows(rows, state_key, args.qset, Path(args.dataset) if args.dataset else DATA / "dataset.jsonl",
+                                           getattr(args, "raw", None))
+        print(f"compact state ({render_source}) for {len(rows)} rows", flush=True)
     model = build_model(args.model, args.qset)
-    if args.qset == "pair":
-        questions = QUESTION_SETS["pair"]
+    prompt_sha = apply_prompt_file(model, args.prompt_file) if getattr(args, "prompt_file", None) else None
+    if args.qset in ("pair", "relation"):
+        questions = QUESTION_SETS[args.qset]
     elif args.qset == "v2":
         questions = DECISIONS_V2 if args.questions == "all" else (PRIMARY_V2,)
     elif args.qset == "v3":
         questions = DECISIONS_V3 if args.questions == "all" else (PRIMARY_V3,)
     else:
         questions = DECISIONS if args.questions == "all" else (PRIMARY,)
-    state_key = "state_words" if args.words else "state"
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
-    variant = f"{args.questions}{'_words' if args.words else ''}"
+    variant = f"{args.questions}{'_words' if args.words else ''}{'_compact' if compact else ''}"  # C1 never overwrites full-state rows
     out_path = run_dir / f"predictions_{args.model}_{args.split}_{variant}.jsonl"
     mode = "a" if args.append else "w"
     t0 = time.time()
@@ -198,8 +276,13 @@ def cmd_predict(args):
             r, d = fut.result()
             if d.error:
                 n_err += 1
-            f.write(json.dumps({"pr_number": r["pr_number"], "split": r["split"], "labels": r["labels"], "decision": d.to_dict(),
-                                "qset": args.qset, "mode": pmode, "ts": datetime.now(timezone.utc).isoformat()}) + "\n")
+            row = {"pr_number": r["pr_number"], "split": r["split"], "labels": r["labels"], "decision": d.to_dict(),
+                   "qset": args.qset, "mode": pmode, "ts": datetime.now(timezone.utc).isoformat()}
+            if compact:  # rows without `render` are the full rendering (runs 1–6)
+                row.update(render="compact", render_source=render_source)
+            if prompt_sha:
+                row["prompt_sha256"] = prompt_sha
+            f.write(json.dumps(row) + "\n")
             if i % 50 == 0 or i == len(rows):
                 print(f"{args.model} {args.split} {variant}: {i}/{len(rows)} errors={n_err} elapsed={time.time()-t0:.0f}s", flush=True)
     meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
@@ -207,6 +290,10 @@ def cmd_predict(args):
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
     meta["qset"] = args.qset
     meta["mode"] = pmode
+    if compact:
+        meta.update(render="compact", render_source=render_source)
+    if prompt_sha:
+        meta.update(prompt_file=str(args.prompt_file), prompt_sha256=prompt_sha)
     qsfx = "" if args.qset in ("v1", "v2", "pair") else f"_{args.qset}"  # run 5: v3/pair_assume share the predictions file with pair
     qsfx += "_single" if pmode == "single" else ""
     (run_dir / f"meta_{args.model}_{args.split}_{variant}{qsfx}.json").write_text(json.dumps(meta, indent=2))
@@ -432,10 +519,13 @@ def main(argv=None):
     p.add_argument("--append", action="store_true")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2", "v3", "pair", "pair_assume"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), pair = run4 same_change, pair_assume = run5 assumption_conflict")
+    p.add_argument("--qset", choices=["v1", "v2", "v3", "pair", "pair_assume", "relation"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), pair = run4 same_change, pair_assume = run5 assumption_conflict, relation = run7 C5 (four binaries)")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.add_argument("--single-question", action="store_true", help="run 6 R6A-H4: one request per question, answers merged into one row (mode=single); default joint")
+    p.add_argument("--compact", action="store_true", help="run 7 C1: compact state (diff 2,000 chars, body 600, ≤ 20 files); rows get render=compact, file suffix _compact")
+    p.add_argument("--raw", help="run 7 C1: raw PR file to re-render from (default: the one behind --dataset, if on disk; else the stored state is compacted)")
+    p.add_argument("--prompt-file", help="run 7 C2: questions JSON (System One) / system prompt (anthropic) replacing the frozen one; sha256 recorded per row")
     p.set_defaults(fn=cmd_predict)
     j = sub.add_parser("judge")
     j.add_argument("--split", required=True, choices=["val", "test"])

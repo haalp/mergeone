@@ -23,7 +23,10 @@ PRIMARY_V3 = "needs_human_review"
 PAIR = ("same_change",)
 # run5 (PROTOCOL R5.1-B): assumption_conflict(A, B) → conflict_of = P(conflict) + 0.5·P(depends)
 PAIR_ASSUME = ("assumption_conflict",)
-QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "v3": DECISIONS_V3, "pair": PAIR, "pair_assume": PAIR_ASSUME}
+# run7 (C5, docs/run7-addendum-draft.md R7.2): typed relation of a (PR, candidate) pair as four noul questions,
+# prompts/jev_relation.json / haiku_relation.md; the class rule is in mergeone.eval.run7_relation
+RELATION = ("same_change", "same_goal", "same_branch", "builds_on")
+QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "v3": DECISIONS_V3, "pair": PAIR, "pair_assume": PAIR_ASSUME, "relation": RELATION}
 
 
 def questions_for(version: str, questions: tuple[str, ...]) -> tuple[str, ...]:

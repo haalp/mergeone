@@ -1,0 +1,18 @@
+{
+  "same_change": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. A and B make the same change: they fix the same problem or add the same thing in essentially the same way (one may be a slightly larger or later revision of the other), so merging both would be redundant."
+  },
+  "same_goal": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. A and B aim at the same goal: the same bug, issue, ticket or intended outcome, whether or not they take the same approach."
+  },
+  "same_branch": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. A and B target the same base branch or release line; answer low if one is a backport, cherry-pick or promotion of the work to another branch (for example main vs a release branch, or edge vs stable)."
+  },
+  "builds_on": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. One of them builds on the other: it continues, extends, follows up, fixes, or reverts the other's change, so it only makes sense with the other in mind."
+  }
+}

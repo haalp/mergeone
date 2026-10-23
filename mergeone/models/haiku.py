@@ -16,7 +16,8 @@ PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md"
            "v2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v2.md",
            "v3": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v3.md",
            "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
-           "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md"}
+           "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
+           "relation": Path(__file__).resolve().parents[2] / "prompts" / "haiku_relation.md"}  # run 7 C5
 SCHEMA_PAIR = {
     "type": "object",
     "properties": {"same_change": {"type": "object", "properties": {k: {"type": "number"} for k in ("same", "subset", "related", "unrelated")},
@@ -29,6 +30,17 @@ SCHEMA_PAIR_ASSUME = {  # run 5 (R5.1-B); haiku_pair.md carries the second-key i
     "properties": {"assumption_conflict": {"type": "object", "properties": {k: {"type": "number"} for k in ("conflict", "depends", "independent")},
                                            "required": ["conflict", "depends", "independent"], "additionalProperties": False}},
     "required": ["assumption_conflict"],
+    "additionalProperties": False,
+}
+SCHEMA_RELATION = {  # run 7 C5: four independent probabilities (not a distribution); mirrors prompts/jev_relation.json
+    "type": "object",
+    "properties": {
+        "same_change": {"type": "number", "description": "Probability 0-1 that A and B make the same change (merging both is redundant)."},
+        "same_goal": {"type": "number", "description": "Probability 0-1 that A and B aim at the same problem or outcome."},
+        "same_branch": {"type": "number", "description": "Probability 0-1 that A and B target the same base branch."},
+        "builds_on": {"type": "number", "description": "Probability 0-1 that one PR continues, extends, fixes or reverts the other."},
+    },
+    "required": ["same_change", "same_goal", "same_branch", "builds_on"],
     "additionalProperties": False,
 }
 
@@ -81,7 +93,8 @@ class HaikuModel:
         self.model_id = model or MODEL_ID  # any Claude model id via prompts/models.yaml (dialect: anthropic)
         self.version = version
         self.prompt = PROMPTS[version].read_text()
-        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "v3": SCHEMA_V3, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME}[version]
+        self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "v3": SCHEMA_V3, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME,
+                           "relation": SCHEMA_RELATION}[version]
         self.effort = effort
         p = (prices or {}).get(self.name) or ({"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok} if spec is not None else {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6
