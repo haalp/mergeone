@@ -2,6 +2,15 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 6B complete — 2026-10-23
+
+- 17:08Z the 100th human label written; `data/run6/hold_labels.jsonl` committed (`393cb21`, then `3c23f0a` for item 54, a
+  promote pair re-read under the labeller's own rule). `report --run6b` run after the file was complete (R6B.2-B2 (6)).
+  R6B-H2 ✅ 0.98 / 0.44; R6B-H1 ❌ (pool not the lever; k = 10 default); R6B-H3 ✅ $0.0004/PR; R6B-H4 reported.
+- 17:20Z post-hoc adjudication of the 12 human/second-labeller disagreements → `data/run6/hold_labels_adjudicated.jsonl`
+  (46 / 52 / 2); the pre-registered number remains the human final file. Consequence recorded: dedup rule stays `hold`,
+  no hold closes a PR, `top_k: 10` default; the relation question goes to run 7 (C5).
+
 ## v0.2.1 — 2026-10-21 (gateway release; no protocol change)
 
 - Gateway, 2026-10-20: `max_rounds: N` in the policy (default 0 = off), a convergence cap for review loops on agent-authored PRs: after N non-pass verdicts on one PR (distinct head SHAs in the gatelog), a non-pass verdict is routed to a human under rule `max-rounds`; `pass` is never overridden; verdicts carry `rounds`. Needs a PR number. `mergeone pr` with a known PR now logs under `--gh-repo` and the real head SHA. See docs/POLICY.md.

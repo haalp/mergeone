@@ -158,7 +158,7 @@ The gateway itself adds single-digit milliseconds: 350 decisions/s on one 2-vCPU
 
 ## Evidence, including what did not work
 
-mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Six runs; three failed and are reported the same way.
+mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Six runs, seven results; three failed and are reported the same way.
 
 | run | question | result |
 |---|---|---|
@@ -167,9 +167,10 @@ mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [
 | 3 | Does the gate predict rejection of real agent PRs? | ❌ 0.55 (bar 0.70): 67% of closures are coordination, not quality |
 | 4 | Can a PR memory catch the duplicates? | 🟡 `same_change` 0.83–0.87 (bar 0.80) ✅ · retrieval recall@5 0.55 (bar 0.60) ❌ |
 | 5 | Does a flag mean more review? | 🟡 flag ⇒ ≥ 2 review rounds AUC 0.76 (bar 0.70) ✅ · retrieval 0.66 (bar 0.70) ❌ · store p99 3.3 ms ✅ |
-| 6A | Do self-hosted open weights clear the scale bar? | ❌ one H100: 30× at 160 ms, 100× fails; batching changes nothing. Part B (hold precision, two blind labellers) in progress |
+| 6A | Do self-hosted open weights clear the scale bar? | ❌ one H100: 30× at 160 ms, 100× fails; batching changes nothing |
+| 6B | When the gate holds a PR as a duplicate, is it right? | ✅ 98 of 100 blind-labelled holds were right (bar 0.60); 44 the same change (bar 0.30); κ 0.77 with a second labeller · pool size not the lever ❌ · $0.0004/PR ✅ |
 
-What survives: typed triage of *what a change does* at System One speed and cost; a gateway that is never the bottleneck; a cheap model can tell two PRs are the same change. What does not: predicting what a project will *accept* from one diff, and — so far — finding the right PR to compare against. Full write-ups: [`docs/EVIDENCE.md`](docs/EVIDENCE.md), per run `results/run*/README.md`, model ranking [`results/leaderboard.md`](results/leaderboard.md), dated short versions at [mergeone.dev/updates](https://mergeone.dev/updates/).
+What survives: typed triage of *what a change does* at System One speed and cost; a gateway that is never the bottleneck; a cheap model can tell two PRs are the same change, and a hold for duplication is right 98 times in 100 — though more than half the time the right action is a link, not a close. What does not: predicting what a project will *accept* from one diff, and — so far — finding the right PR to compare against. Full write-ups: [`docs/EVIDENCE.md`](docs/EVIDENCE.md), per run `results/run*/README.md`, model ranking [`results/leaderboard.md`](results/leaderboard.md), dated short versions at [mergeone.dev/updates](https://mergeone.dev/updates/).
 
 ## Limits, plainly
 
