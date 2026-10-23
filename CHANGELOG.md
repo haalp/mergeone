@@ -2,6 +2,14 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 7 frozen — 2026-10-23
+
+- 19:45Z PROTOCOL.md §R7 committed (C1 compact state, C2 prompt tuning with the revert/iteration keep-rule, C3 structural
+  evidence floor, C5 typed relation question on the 6B pairs; C4 deferred to run 8; `haiku` not a candidate; R7-H2 primary
+  = mean v3 AUC vs judge labels). No run-7 model call has been made before this commit; the tooling commit `931fe9e`
+  precedes it and calls nothing. Order from here: C3 patterns and the tuning set (val only) → C2 rounds (val only) →
+  `r7-tuned` tag → test calls (C1, C2, C3 scoring) → C5 on the 6B pairs → report.
+
 ## Run 6B complete — 2026-10-23
 
 - 17:08Z the 100th human label written; `data/run6/hold_labels.jsonl` committed (`393cb21`, then `3c23f0a` for item 54, a
