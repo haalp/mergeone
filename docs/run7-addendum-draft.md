@@ -18,9 +18,12 @@ Runs 1–6 leave four levers untested that are cheap to measure and were raised 
 
 ## R7.2 Components
 
-**C1 — diff budget.** The run-5 v3 question set and the pair question re-asked on the **test** split only, with the rendered
-diff cut at 4k tokens instead of 16k (same cut rule, same prompt otherwise). Models: `jev`, `pplx-flash`. Everything else
-frozen. Cost per PR and tokens per PR recorded.
+**C1 — tokens per request.** Measured, not assumed: on the run-6A server the v3 request carries the rendered state
+once per question (10 questions → median 2.8k tokens per question, p90 19.6k per request, max 42k), so compute per PR
+is `questions × state tokens`. The stored diff is already capped at 4,000 characters; the state's other parts are not.
+C1 compares the current state against a **compact** rendering — diff 2,000 characters, body 600 characters, at most 20
+files listed — on the run-5 v3 questions and the pair question, **test** split only, `jev` and `pplx-flash`. Tokens per
+request and cost per PR are recorded for both; the compact state's throughput on one L4 is re-measured only if C4 runs.
 
 **C2 — prompt tuning, frozen before test.** Up to **5** rounds of prompt edits for `pplx-flash` on the **validation** split
 only (the run-5 v3 questions; a tuning set of at most 400 labelled val PRs, drawn once with seed 7 and committed before
@@ -52,9 +55,9 @@ human). Off by default until R7-H5 passes.
 
 ## R7.3 Pre-registered criteria (test split; bars written before any R7 call)
 
-- **R7-H1 (budget):** at 4k the mean AUC over the v3 questions drops by **≤ 0.02** for both `jev` and `pplx-flash`, and the
-  pair AUC by ≤ 0.02. Pass → 4k becomes the gateway default (`render.max_tokens`). Fail → 16k stays; the tokens-per-PR
-  saving is reported, not used.
+- **R7-H1 (compact state):** with the compact rendering the mean AUC over the v3 questions drops by **≤ 0.02** for both
+  `jev` and `pplx-flash`, and the pair AUC by ≤ 0.02. Pass → compact becomes the gateway's default rendering. Fail → the
+  current rendering stays; the tokens-per-request saving is reported, not used.
 - **R7-H2 (tuning):** `r7-tuned` beats the untuned prompt on test by **≥ +0.02** mean AUC on the v3 questions **and** does
   not lose more than 0.01 on the test revert/iteration eval. Pass → the tuned prompt ships as `v3-tuned`, untuned stays
   selectable. Fail → reported; untuned stays default. Any edit to the prompt after the `r7-tuned` tag is a protocol break.
