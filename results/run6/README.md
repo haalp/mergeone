@@ -1,8 +1,11 @@
 # Run 6 — self-hosted open weights (part A) · wider candidate pool and hold precision (part B)
 
-Part A is complete; part B's data stage is done and its 100-PR blind labels are being written (see the
-end of this file). Protocol: PROTOCOL.md R6A / R6B. Tables: [`tables.md`](tables.md); numbers:
-[`metrics.json`](metrics.json), [`serve_meta.json`](serve_meta.json), `loadtest_pplx-flash-local_x*.json`.
+Both parts are complete. Part A (2026-10-18/19): negative — one GPU moves the ceiling, it does not remove it.
+Part B (2026-10-23): **positive on the question that mattered** — of 100 PRs the gate holds as duplicates, 98 were
+right to hold (dup ∪ pointer 0.98, bar 0.60) and 44 are the same change (bar 0.30); the wider pool is not the
+lever for the verdict-level bar (R6B-H1 ❌), and k = 20 costs $0.0004 per PR. Protocol: PROTOCOL.md R6A / R6B.
+Tables: [`tables.md`](tables.md) (A), [`b_tables.md`](b_tables.md) (B); numbers: [`metrics.json`](metrics.json),
+[`b_metrics.json`](b_metrics.json), [`serve_meta.json`](serve_meta.json), `loadtest_pplx-flash-local_x*.json`.
 
 ## Part A — pplx-decider-flash on one rented L4
 
@@ -174,13 +177,103 @@ three H100s behind a balancer at ×100, or the 4k-token diff ablation (a quality
 - `serve_meta.json` has `region: null`; the data centre is in the `vm_type` string.
 - Logs are on the Mac (`results/run6/logs/`, gitignored); result files were checksum-matched pod → Mac → repo.
 
-## Part B — pool k ∈ {5, 10, 20} and hold precision (in progress)
+## Part B — pool k ∈ {5, 10, 20} and hold precision
 
-Data stage done 2026-10-18 (CHANGELOG): test recall@5/10/20 = 0.655 / 0.862 / 0.862 (R6B-H1 bar 0.80 ✅ at
-k=20 and at k=10); 42,984 retrieved pairs scored by Jev and pplx-flash (0 errors), Haiku continuity-only.
-Blind sample of 100 pplx-flash k=20 holds (strata superseded 20 / closed-unmarked 38 / merged 42) committed
-before any label (`38fc829`). Labels: the human labeller's `data/run6/hold_labels.jsonl` is the
-pre-registered number; a second, independent blind labelling by Fable 5.1 is in
-`data/run6/hold_labels_fable.jsonl` (68 duplicate / 30 pointer / 2 unrelated) and will be reported as
-agreement (Cohen κ), as R6B.2-B2 allows. Precision, H2–H4 and the threshold sweep follow once the human
-file is complete.
+Data stage 2026-10-18 (CHANGELOG): test recall@5/10/20 = 0.655 / 0.862 / 0.862; 42,984 retrieved pairs scored by Jev
+and pplx-flash (0 errors), Haiku continuity-only. Blind sample of 100 pplx-flash k = 20 holds (strata superseded 20 /
+closed-unmarked 38 / merged 42) committed before any label (`38fc829`). Labels written 2026-10-18 → 2026-10-23;
+the human labeller's `data/run6/hold_labels.jsonl` is the pre-registered number. Report: `python -m mergeone.cli
+report results/run6 --run6b` → [`b_tables.md`](b_tables.md).
+
+### R6B-H2 hold precision ✅ — 0.98 [0.93, 0.99] useful, 0.44 the same change
+
+| subset | n | duplicate | pointer | unrelated | dup ∪ pointer [95% CI] | duplicate share |
+|---|---|---|---|---|---|---|
+| all (pre-registered) | 100 | 44 | 54 | 2 | **0.980** [0.930, 0.994] | **0.440** |
+| stratum: superseded | 20 | 11 | 9 | 0 | 1.000 | 0.550 |
+| stratum: closed-unmarked | 38 | 28 | 9 | 1 | 0.974 | 0.737 |
+| stratum: merged | 42 | 6 | 35 | 1 | 0.976 | 0.143 |
+
+Bars: union ≥ 0.60 ✅, duplicate ≥ 0.30 ✅; the demotion trigger (union < 0.40) is nowhere near. Two false alarms in
+100: a release-branch cherry-pick of an unrelated PR that shares `ldap.go` (item 64), and two unrelated WIP agent
+PRs (item 99). What the strata say: when the held PR was later *closed without a maintainer label*, three quarters
+are the same change as the candidate; when it was *merged*, six in seven are pointers — backports, promotes
+(edge → stable), follow-ups, competing fixes — i.e. the hold was useful but closing would have been wrong.
+
+The labels carry a sub-class in the note. Over the 54 pointers, from the notes and the adjudication rationales
+(not a typed field): backport / promote / cherry-pick across branches ≈ 28, competing fix (same goal, different
+method, independent) ≈ 8, follow-up or repro ↔ fix ≈ 6, revert 2, same area ≈ 10. Run 7's C5 turns the sub-class
+into a question the model answers.
+
+**Taxonomy, dated.** The labeller wrote the rule down at item 35 (2026-10-19 22:56Z): `duplicate` = same change /
+B makes A unnecessary (a superset revision counts); `pointer` = A's author should have looked at B first — backport,
+promote, competing fix, follow-up, revert, same area; `unrelated` = file overlap only. Promote-edge→stable pairs are
+`pointer` (same change, second branch, both merge). Eleven first-pass items noted "need to check B first" were
+re-read under the written rule on 2026-10-20 and one promote pair on 2026-10-23; the re-reads are appended rows
+(note prefix `pass2`), the first-pass rows stay in the file, and the table below shows both. The interim look at
+n = 50 (`b_interim_n50.md`) changed nothing.
+
+### Second labeller — agreement 0.88, Cohen κ 0.77
+
+Not pre-registered; reported as R6B.2-B2 allows. A second, independent blind labelling of all 100 by Fable 5.1
+(`hold_labels_fable.jsonl`, 2026-10-18, before the taxonomy was written) under the older reading "same work =
+duplicate"; its promote pairs are mapped to `pointer` for comparison, the as-written numbers are beside it.
+
+| labeller | duplicate | pointer | unrelated | union | duplicate share |
+|---|---|---|---|---|---|
+| human, final (pre-registered) | 44 | 54 | 2 | 0.98 | 0.44 |
+| human, first pass (before the rule was written) | 35 | 63 | 2 | 0.98 | 0.35 |
+| second, promote → pointer | 56 | 42 | 2 | 0.98 | 0.56 |
+| second, as written | 68 | 30 | 2 | 0.98 | 0.68 |
+
+Agreement 0.88, κ **0.77** (human final vs second, promote → pointer); 0.77 / κ 0.57 as written; 0.77 / κ 0.57
+for the human's first pass. The two labellers agree on the number that carries the bar (union 0.98 either way)
+and disagree on where duplicate ends and pointer begins: 11 of the 12 disagreements are "human pointer, second
+duplicate" — competing fixes and same-issue-different-work pairs the older reading called duplicates.
+
+**Adjudication (post-hoc, separate file).** The 12 disagreements were re-read together against the written rule
+and recorded with a rationale each in `data/run6/hold_labels_adjudicated.jsonl` (`source: adjudicated`; the 88
+agreed rows carry `source: agreed`). Ten resolve to `pointer` (competing fixes 9/17/37/87, subsets or extra work
+29/36/52/84/100, different tasks 51) and two to `duplicate` (53: the same coming-soon page built twice from the
+same template; 97: a superset revision with a test). Adjudicated: **46 duplicate / 52 pointer / 2 unrelated**,
+union 0.98, duplicate share 0.46. The pre-registered number stays the human final (0.44); the adjudicated file is
+the ground truth for run 7's relation question (C5).
+
+### R6B-H4 k = 5 on the same labels (reported)
+
+93 of the 100 are also held at k = 5 (91 with the same B): union 0.989, duplicate share 0.441 — indistinguishable
+from k = 20. The seven held only at k = 20: 4 duplicate, 3 pointer, 0 unrelated.
+
+### Threshold sweep (reporting only; the threshold is not changed)
+
+| `duplicate_of` ≥ | n held | duplicate | pointer | unrelated | union | duplicate share |
+|---|---|---|---|---|---|---|
+| 0.7 (in force) | 100 | 44 | 54 | 2 | 0.980 | 0.44 |
+| 0.8 | 80 | 42 | 37 | 1 | 0.988 | 0.53 |
+| 0.9 | 50 | 30 | 20 | 0 | 1.000 | 0.60 |
+
+A stricter threshold buys purity, not safety: even at 0.9, two in five holds are pointers, so no threshold makes
+auto-closing a held PR right. Other models on the sample PRs they also hold: Jev 68 held (38 / 30 / 0, same B 57),
+Haiku 54 (27 / 26 / 1, same B 42).
+
+### R6B-H1 pool size ❌ and R6B-H3 cost ✅
+
+Recall@20 = 0.862 clears 0.80, but the verdict-level bar (R4-H3: pass-group bad-outcome rate ≤ 0.5 × base =
+0.234) fails at every k for every model: pplx-flash 0.383 → 0.379 → 0.375 at k = 5 / 10 / 20, Jev 0.352 → 0.346.
+Coverage of closed PRs moves 1–2 pp from k = 5 to 20. The pool is not the lever; **k = 10 is the product default**
+(the consequence written for H3, which passes: $0.0004 per PR at k = 20, bar $0.002; 21 calls per PR).
+
+### Product consequence
+
+- The dedup rule stays `duplicate_of ≥ 0.7 → hold, route: dedup`; it is not demoted. It is still opt-in
+  (`memory.enabled`) until the relation question exists, because 54% of correct holds want a *link*, not a close.
+- A hold never closes a PR, at any threshold: the sweep says 40% of holds at 0.9 are pointers. Closing is a
+  human's call, with both PRs linked; run 7's C5 (typed relation, `on_related` / `on_competing`) is the path to
+  letting the gateway close the clear cases later, measured first.
+- Default pool `top_k: 10`.
+
+### Housekeeping
+
+Labels: `hold_labels.jsonl` (human; multi-row per PR, last wins, `pass2` rows appended), `hold_labels_fable.jsonl`
+(second labeller), `hold_labels_adjudicated.jsonl` (post-hoc). Costs for part B: Jev + pplx-flash pair calls on
+42,984 pairs ≈ $2; Haiku continuity ≈ $4. Labelling time: about 7 hours of human reading over five days.
