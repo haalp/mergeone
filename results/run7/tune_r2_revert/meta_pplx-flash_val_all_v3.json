@@ -1,0 +1,16 @@
+{
+  "model": "pplx-flash",
+  "split": "val",
+  "variant": "all",
+  "n": 203,
+  "errors": 0,
+  "concurrency": 2,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-10-23T21:31:37.194245+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "v3",
+  "mode": "joint",
+  "prompt_file": "prompts/jev_v3_r2.json",
+  "prompt_sha256": "ada9b68ec85283d6a703906ccb594953a990221eb40d2426f58f542c68d99c39"
+}
