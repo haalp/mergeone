@@ -1,0 +1,894 @@
+{
+  "computed_at": "2026-10-23T17:08:03+00:00",
+  "base_rate_bad_outcome_test": 0.46808510638297873,
+  "hypotheses": {
+    "R4-H3[jev,k=5]": {
+      "pass_bad_rate": 0.35185185185185186,
+      "base": 0.46808510638297873,
+      "dedup_holds": 137,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[jev,k=5]": {
+      "delta_pp": 8.52459016393442,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[jev,k=10]": {
+      "pass_bad_rate": 0.3488372093023256,
+      "base": 0.46808510638297873,
+      "dedup_holds": 140,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[jev,k=10]": {
+      "delta_pp": 8.852459016393443,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[jev,k=20]": {
+      "pass_bad_rate": 0.34579439252336447,
+      "base": 0.46808510638297873,
+      "dedup_holds": 144,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[jev,k=20]": {
+      "delta_pp": 9.180327868852455,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[pplx-flash,k=5]": {
+      "pass_bad_rate": 0.38257575757575757,
+      "base": 0.46808510638297873,
+      "dedup_holds": 184,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[pplx-flash,k=5]": {
+      "delta_pp": 18.360655737704917,
+      "status": "ok",
+      "pass": true,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[pplx-flash,k=10]": {
+      "pass_bad_rate": 0.3793103448275862,
+      "base": 0.46808510638297873,
+      "dedup_holds": 192,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[pplx-flash,k=10]": {
+      "delta_pp": 19.016393442622952,
+      "status": "ok",
+      "pass": true,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[pplx-flash,k=20]": {
+      "pass_bad_rate": 0.3745173745173745,
+      "base": 0.46808510638297873,
+      "dedup_holds": 195,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[pplx-flash,k=20]": {
+      "delta_pp": 19.672131147540977,
+      "status": "ok",
+      "pass": true,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[haiku,k=5]": {
+      "pass_bad_rate": 0.4099722991689751,
+      "base": 0.46808510638297873,
+      "dedup_holds": 109,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[haiku,k=5]": {
+      "delta_pp": 10.491803278688522,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[haiku,k=10]": {
+      "pass_bad_rate": 0.4111111111111111,
+      "base": 0.46808510638297873,
+      "dedup_holds": 113,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[haiku,k=10]": {
+      "delta_pp": 10.491803278688522,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R4-H3[haiku,k=20]": {
+      "pass_bad_rate": 0.4111111111111111,
+      "base": 0.46808510638297873,
+      "dedup_holds": 113,
+      "status": "ok",
+      "pass": false,
+      "bar": "pass bad-rate <= 0.5 x base"
+    },
+    "R4-H4[haiku,k=20]": {
+      "delta_pp": 10.491803278688522,
+      "status": "ok",
+      "pass": false,
+      "bar": ">= +15 pp"
+    },
+    "R6B-H1": {
+      "recall_at_20_test": 0.8620689655172413,
+      "recall_pass": true,
+      "r4h3_k20_pass": {
+        "jev": false,
+        "pplx-flash": false
+      },
+      "pool_not_the_lever": true,
+      "pass": false,
+      "bar": "recall@20 >= 0.80 and R4-H3 at k=20 for >= 1 of jev, pplx-flash"
+    },
+    "R6B-H3": {
+      "pplx_flash_usd_per_pr_k20": 0.000425679228306786,
+      "calls_per_pr": {
+        "5": 6,
+        "10": 11,
+        "20": 21
+      },
+      "pass": true,
+      "consequence_if_fail": "k = 10 is the product default regardless of H1",
+      "bar": "pplx-flash k=20 <= $0.002 per PR at list price"
+    },
+    "R6B-H2": {
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate": 0.44,
+      "n": 100,
+      "demote_to_annotate": false,
+      "pass": true,
+      "bar": "union >= 0.60 and duplicate >= 0.30 (pplx-flash, k=20); union < 0.40 \u2192 demote dedup to annotate"
+    },
+    "R6B-H4": {
+      "n_held_both": 93,
+      "union": 0.989247311827957,
+      "duplicate": 0.43010752688172044,
+      "pass": null,
+      "bar": "reported, not a bar"
+    }
+  },
+  "notes": [
+    "Pair predictions: union by pair id, run 4 first, then run 5, then run 6 (error-free same_change rows).",
+    "Verdicts: jev/haiku replay their run-3 v2 predictions, pplx-flash its run-5 v3 answers (run-3 rule), as R5-H3.",
+    "Precision is the unweighted share on the sample (proportional stratified allocation \u21d2 self-weighting up to rounding).",
+    "A2: ran"
+  ],
+  "a2_status": "ran",
+  "recall": {
+    "val": {
+      "n_gold": 22,
+      "recall_at_5": 0.8181818181818182,
+      "a1_recall_at_5": 0.8636363636363636,
+      "recall_at_10": 0.8636363636363636,
+      "a1_recall_at_10": 0.8636363636363636,
+      "recall_at_20": 0.9090909090909091,
+      "a1_recall_at_20": 0.9090909090909091
+    },
+    "test": {
+      "n_gold": 29,
+      "recall_at_5": 0.6551724137931034,
+      "a1_recall_at_5": 0.6551724137931034,
+      "recall_at_10": 0.8620689655172413,
+      "a1_recall_at_10": 0.7931034482758621,
+      "recall_at_20": 0.8620689655172413,
+      "a1_recall_at_20": 0.8620689655172413
+    }
+  },
+  "verdict_level": {
+    "jev": {
+      "5": {
+        "pair_sources_test": {
+          "run4": 1317,
+          "run5": 2118
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.35319148936170214,
+          "pass_bad_rate": 0.40963855421686746,
+          "closed_nonpass_share": 0.6754098360655738,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.30638297872340425,
+          "pass_bad_rate": 0.35185185185185186,
+          "closed_nonpass_share": 0.760655737704918,
+          "dedup_holds": 137
+        }
+      },
+      "10": {
+        "pair_sources_test": {
+          "run4": 1739,
+          "run5": 2118,
+          "run6": 2978
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.35319148936170214,
+          "pass_bad_rate": 0.40963855421686746,
+          "closed_nonpass_share": 0.6754098360655738,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.3049645390070922,
+          "pass_bad_rate": 0.3488372093023256,
+          "closed_nonpass_share": 0.7639344262295082,
+          "dedup_holds": 140
+        }
+      },
+      "20": {
+        "pair_sources_test": {
+          "run4": 2027,
+          "run5": 2118,
+          "run6": 9422
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.35319148936170214,
+          "pass_bad_rate": 0.40963855421686746,
+          "closed_nonpass_share": 0.6754098360655738,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.30354609929078014,
+          "pass_bad_rate": 0.34579439252336447,
+          "closed_nonpass_share": 0.7672131147540984,
+          "dedup_holds": 144
+        }
+      }
+    },
+    "pplx-flash": {
+      "5": {
+        "pair_sources_test": {
+          "run4": 1317,
+          "run5": 2118
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.4879432624113475,
+          "pass_bad_rate": 0.45930232558139533,
+          "closed_nonpass_share": 0.49508196721311476,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.37446808510638296,
+          "pass_bad_rate": 0.38257575757575757,
+          "closed_nonpass_share": 0.6786885245901639,
+          "dedup_holds": 184
+        }
+      },
+      "10": {
+        "pair_sources_test": {
+          "run4": 1739,
+          "run5": 2118,
+          "run6": 2978
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.4879432624113475,
+          "pass_bad_rate": 0.45930232558139533,
+          "closed_nonpass_share": 0.49508196721311476,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.3702127659574468,
+          "pass_bad_rate": 0.3793103448275862,
+          "closed_nonpass_share": 0.6852459016393443,
+          "dedup_holds": 192
+        }
+      },
+      "20": {
+        "pair_sources_test": {
+          "run4": 2027,
+          "run5": 2118,
+          "run6": 9422
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.4879432624113475,
+          "pass_bad_rate": 0.45930232558139533,
+          "closed_nonpass_share": 0.49508196721311476,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.36737588652482267,
+          "pass_bad_rate": 0.3745173745173745,
+          "closed_nonpass_share": 0.6918032786885245,
+          "dedup_holds": 195
+        }
+      }
+    },
+    "haiku": {
+      "5": {
+        "pair_sources_test": {
+          "run4": 1317,
+          "run5": 2118
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.5900709219858156,
+          "pass_bad_rate": 0.44471153846153844,
+          "closed_nonpass_share": 0.4491803278688525,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.5120567375886524,
+          "pass_bad_rate": 0.4099722991689751,
+          "closed_nonpass_share": 0.5540983606557377,
+          "dedup_holds": 109
+        }
+      },
+      "10": {
+        "pair_sources_test": {
+          "run4": 1739,
+          "run5": 2118,
+          "run6": 2978
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.5900709219858156,
+          "pass_bad_rate": 0.44471153846153844,
+          "closed_nonpass_share": 0.4491803278688525,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.5106382978723404,
+          "pass_bad_rate": 0.4111111111111111,
+          "closed_nonpass_share": 0.5540983606557377,
+          "dedup_holds": 113
+        }
+      },
+      "20": {
+        "pair_sources_test": {
+          "run4": 2027,
+          "run5": 2118,
+          "run6": 9422
+        },
+        "status": "ok",
+        "without_dedup": {
+          "n": 705,
+          "pass_frac": 0.5900709219858156,
+          "pass_bad_rate": 0.44471153846153844,
+          "closed_nonpass_share": 0.4491803278688525,
+          "dedup_holds": 0
+        },
+        "with_dedup": {
+          "n": 705,
+          "pass_frac": 0.5106382978723404,
+          "pass_bad_rate": 0.4111111111111111,
+          "closed_nonpass_share": 0.5540983606557377,
+          "dedup_holds": 113
+        }
+      }
+    }
+  },
+  "cost": {
+    "jev": {
+      "gate_call_usd": 0.00010241885519125683,
+      "pair_call_usd_mean": 0.00010349198869164463,
+      "k": {
+        "5": {
+          "calls_per_pr": 6,
+          "usd_per_pr": 0.0006058863785955122,
+          "pair_usd_per_pr": 0.0005034675234042553
+        },
+        "10": {
+          "calls_per_pr": 11,
+          "usd_per_pr": 0.0011056551019997674,
+          "pair_usd_per_pr": 0.0010032362468085107
+        },
+        "20": {
+          "calls_per_pr": 21,
+          "usd_per_pr": 0.0020977852381699803,
+          "pair_usd_per_pr": 0.0019953663829787235
+        }
+      }
+    },
+    "pplx-flash": {
+      "gate_call_usd": 2.2861384335154827e-05,
+      "pair_call_usd_mean": 2.1067889178117265e-05,
+      "k": {
+        "5": {
+          "calls_per_pr": 6,
+          "usd_per_pr": 0.00012458176731387823,
+          "pair_usd_per_pr": 0.0001017203829787234
+        },
+        "10": {
+          "calls_per_pr": 11,
+          "usd_per_pr": 0.0002254812424911832,
+          "pair_usd_per_pr": 0.00020261985815602838
+        },
+        "20": {
+          "calls_per_pr": 21,
+          "usd_per_pr": 0.000425679228306786,
+          "pair_usd_per_pr": 0.00040281784397163116
+        }
+      }
+    },
+    "haiku": {
+      "gate_call_usd": 0.0004717975409836066,
+      "pair_call_usd_mean": 0.0003879373943842281,
+      "k": {
+        "5": {
+          "calls_per_pr": 6,
+          "usd_per_pr": 0.0023536434984304153,
+          "pair_usd_per_pr": 0.0018818459574468087
+        },
+        "10": {
+          "calls_per_pr": 11,
+          "usd_per_pr": 0.004245106335309848,
+          "pair_usd_per_pr": 0.003773308794326241
+        },
+        "20": {
+          "calls_per_pr": 21,
+          "usd_per_pr": 0.008010304491338218,
+          "pair_usd_per_pr": 0.0075385069503546105
+        }
+      }
+    }
+  },
+  "labels_status": "ok",
+  "labels_written": {
+    "first": "2026-10-18T18:14:19+00:00",
+    "last": "2026-10-23T17:08:00+00:00"
+  },
+  "hold_precision": {
+    "n_sample": 100,
+    "R6B-H2": {
+      "n": 100,
+      "duplicate": 44,
+      "pointer": 54,
+      "unrelated": 2,
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate_share": 0.44,
+      "duplicate_ci95": [
+        0.34671865400968327,
+        0.537720722887437
+      ],
+      "pass": true,
+      "demote_to_annotate": false,
+      "bar": "union >= 0.60 and duplicate >= 0.30 (pplx-flash, k=20); union < 0.40 \u2192 demote dedup to annotate",
+      "sample_b_still_top": 100,
+      "sample_still_held": 100,
+      "by_stratum": {
+        "superseded": {
+          "n": 20,
+          "duplicate": 11,
+          "pointer": 9,
+          "unrelated": 0,
+          "union": 1.0,
+          "union_ci95": [
+            0.8388698745050667,
+            1.0
+          ],
+          "duplicate_share": 0.55,
+          "duplicate_ci95": [
+            0.3420820083075997,
+            0.7418049791429071
+          ]
+        },
+        "closed_unmarked": {
+          "n": 38,
+          "duplicate": 28,
+          "pointer": 9,
+          "unrelated": 1,
+          "union": 0.9736842105263158,
+          "union_ci95": [
+            0.8650482156319974,
+            0.9953395324464698
+          ],
+          "duplicate_share": 0.7368421052631579,
+          "duplicate_ci95": [
+            0.5799084979362465,
+            0.8502853761029869
+          ]
+        },
+        "merged": {
+          "n": 42,
+          "duplicate": 5,
+          "pointer": 36,
+          "unrelated": 1,
+          "union": 0.9761904761904762,
+          "union_ci95": [
+            0.8767851883475174,
+            0.9957847045008997
+          ],
+          "duplicate_share": 0.11904761904761904,
+          "duplicate_ci95": [
+            0.05193726765019084,
+            0.2500068180710754
+          ]
+        }
+      }
+    },
+    "R6B-H4": {
+      "held_at_k5_and_k20": {
+        "n": 93,
+        "duplicate": 40,
+        "pointer": 52,
+        "unrelated": 1,
+        "union": 0.989247311827957,
+        "union_ci95": [
+          0.9415794088135158,
+          0.9980994069020442
+        ],
+        "duplicate_share": 0.43010752688172044,
+        "duplicate_ci95": [
+          0.33423358533237524,
+          0.5315265838511162
+        ]
+      },
+      "same_b_at_k5": {
+        "n": 91,
+        "duplicate": 39,
+        "pointer": 51,
+        "unrelated": 1,
+        "union": 0.989010989010989,
+        "union_ci95": [
+          0.9403491964093862,
+          0.9980575786766521
+        ],
+        "duplicate_share": 0.42857142857142855,
+        "duplicate_ci95": [
+          0.3318249800682115,
+          0.5311043673911313
+        ]
+      },
+      "note": "labels are for (A, B at k=20); for PRs whose k=5 top candidate differs the label judges the hold of A, not B5"
+    },
+    "threshold_sweep": {
+      "0.6": {
+        "n": 100,
+        "duplicate": 44,
+        "pointer": 54,
+        "unrelated": 2,
+        "union": 0.98,
+        "union_ci95": [
+          0.9299868370580063,
+          0.9944981477650318
+        ],
+        "duplicate_share": 0.44,
+        "duplicate_ci95": [
+          0.34671865400968327,
+          0.537720722887437
+        ]
+      },
+      "0.7": {
+        "n": 100,
+        "duplicate": 44,
+        "pointer": 54,
+        "unrelated": 2,
+        "union": 0.98,
+        "union_ci95": [
+          0.9299868370580063,
+          0.9944981477650318
+        ],
+        "duplicate_share": 0.44,
+        "duplicate_ci95": [
+          0.34671865400968327,
+          0.537720722887437
+        ]
+      },
+      "0.8": {
+        "n": 80,
+        "duplicate": 41,
+        "pointer": 38,
+        "unrelated": 1,
+        "union": 0.9875,
+        "union_ci95": [
+          0.9325356757603457,
+          0.9977900813816939
+        ],
+        "duplicate_share": 0.5125,
+        "duplicate_ci95": [
+          0.4049314460370689,
+          0.6189230605563166
+        ]
+      },
+      "0.9": {
+        "n": 50,
+        "duplicate": 29,
+        "pointer": 21,
+        "unrelated": 0,
+        "union": 1.0,
+        "union_ci95": [
+          0.9286499658256813,
+          1.0
+        ],
+        "duplicate_share": 0.58,
+        "duplicate_ci95": [
+          0.4423319668777783,
+          0.7062520276543307
+        ]
+      }
+    },
+    "threshold_sweep_note": "sample drawn from duplicate_of >= 0.7, so 0.6 equals 0.7 here (PRs in [0.6, 0.7) are not in the sample); reporting only, the threshold is not changed (R6B.2-B3)",
+    "other_models": {
+      "jev": {
+        "k20_held_in_sample": {
+          "n": 68,
+          "duplicate": 37,
+          "pointer": 31,
+          "unrelated": 0,
+          "union": 1.0,
+          "union_ci95": [
+            0.9465268034119508,
+            1.0
+          ],
+          "duplicate_share": 0.5441176470588235,
+          "duplicate_ci95": [
+            0.4265639778429344,
+            0.6569530930463552
+          ]
+        },
+        "same_b": 57,
+        "note": "on the sample PRs this model also holds at k=20 (R6B.4)"
+      },
+      "haiku": {
+        "k20_held_in_sample": {
+          "n": 54,
+          "duplicate": 26,
+          "pointer": 27,
+          "unrelated": 1,
+          "union": 0.9814814814814815,
+          "union_ci95": [
+            0.902283346415128,
+            0.996723596684648
+          ],
+          "duplicate_share": 0.48148148148148145,
+          "duplicate_ci95": [
+            0.3539375603654322,
+            0.6114852495153457
+          ]
+        },
+        "same_b": 42,
+        "note": "on the sample PRs this model also holds at k=20 (R6B.4)"
+      }
+    }
+  },
+  "labeller_agreement": {
+    "n": 100,
+    "labeller": "fable-5.1",
+    "human_final": {
+      "n": 100,
+      "duplicate": 44,
+      "pointer": 54,
+      "unrelated": 2,
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate_share": 0.44,
+      "duplicate_ci95": [
+        0.34671865400968327,
+        0.537720722887437
+      ]
+    },
+    "human_first_pass": {
+      "n": 100,
+      "duplicate": 35,
+      "pointer": 63,
+      "unrelated": 2,
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate_share": 0.35,
+      "duplicate_ci95": [
+        0.2636410465347802,
+        0.4474573957080203
+      ]
+    },
+    "second": {
+      "n": 100,
+      "duplicate": 56,
+      "pointer": 42,
+      "unrelated": 2,
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate_share": 0.56,
+      "duplicate_ci95": [
+        0.4622792771125631,
+        0.6532813459903167
+      ]
+    },
+    "second_raw": {
+      "n": 100,
+      "duplicate": 68,
+      "pointer": 30,
+      "unrelated": 2,
+      "union": 0.98,
+      "union_ci95": [
+        0.9299868370580063,
+        0.9944981477650318
+      ],
+      "duplicate_share": 0.68,
+      "duplicate_ci95": [
+        0.5833719774632081,
+        0.7633098918454312
+      ]
+    },
+    "agreement": 0.88,
+    "kappa": 0.7720364741641338,
+    "agreement_raw": 0.76,
+    "kappa_raw": 0.5542347696879644,
+    "agreement_first_pass": 0.77,
+    "kappa_first_pass": 0.5732838589981448,
+    "pass2_rows": 12,
+    "confusion": {
+      "duplicate/duplicate": 44,
+      "pointer/duplicate": 12,
+      "pointer/pointer": 42,
+      "unrelated/unrelated": 2
+    },
+    "disagreements": [
+      {
+        "item": 9,
+        "repo": "VocaHQ/vocalinux",
+        "a": 882,
+        "b": 907,
+        "human": "pointer",
+        "human_note": "related, maybe confl\u0131ct w\u0131th b. Check b first",
+        "second": "duplicate",
+        "second_note": "competing implementations of transcript persistence"
+      },
+      {
+        "item": 17,
+        "repo": "mattermost/mattermost",
+        "a": 37013,
+        "b": 37014,
+        "human": "pointer",
+        "human_note": "same ticket need to check b ",
+        "second": "duplicate",
+        "second_note": "same ticket"
+      },
+      {
+        "item": 29,
+        "repo": "Azure/azure-sdk-for-net",
+        "a": 63514,
+        "b": 63533,
+        "human": "pointer",
+        "human_note": "competing fix",
+        "second": "duplicate",
+        "second_note": "same pagination fix"
+      },
+      {
+        "item": 36,
+        "repo": "compdemocracy/polis",
+        "a": 2913,
+        "b": 2688,
+        "human": "pointer",
+        "human_note": "check b f\u0131rst b already \u0131ncludes decomm\u0131ss\u0131on of clojure math service",
+        "second": "duplicate",
+        "second_note": "both decommission Clojure math; A broader"
+      },
+      {
+        "item": 37,
+        "repo": "mattermost/mattermost",
+        "a": 36516,
+        "b": 36483,
+        "human": "pointer",
+        "human_note": "competing fix",
+        "second": "duplicate",
+        "second_note": ""
+      },
+      {
+        "item": 51,
+        "repo": "mattermost/mattermost",
+        "a": 37098,
+        "b": 37095,
+        "human": "pointer",
+        "human_note": "same issue different tasks same area not duplicate need 2 check B",
+        "second": "duplicate",
+        "second_note": ""
+      },
+      {
+        "item": 52,
+        "repo": "Azure/azure-sdk-for-net",
+        "a": 60520,
+        "b": 60904,
+        "human": "pointer",
+        "human_note": "same \u0131ssue d\u0131fferent solut\u0131on ? check b ",
+        "second": "duplicate",
+        "second_note": "same regen task"
+      },
+      {
+        "item": 53,
+        "repo": "Comfy-Org/ComfyUI_frontend",
+        "a": 17215,
+        "b": 17216,
+        "human": "pointer",
+        "human_note": "need to check B ? ",
+        "second": "duplicate",
+        "second_note": ""
+      },
+      {
+        "item": 84,
+        "repo": "Azure/azure-sdk-for-net",
+        "a": 62018,
+        "b": 61491,
+        "human": "pointer",
+        "human_note": "same-area (follow-up)",
+        "second": "duplicate",
+        "second_note": "same CODEOWNERS update"
+      },
+      {
+        "item": 87,
+        "repo": "mattermost/mattermost",
+        "a": 36483,
+        "b": 36516,
+        "human": "pointer",
+        "human_note": "competing (item 37'nin aynas\u0131: parallel\u2019i kapat vs Eventually)",
+        "second": "duplicate",
+        "second_note": ""
+      },
+      {
+        "item": 97,
+        "repo": "microsoft/vscode",
+        "a": 326188,
+        "b": 328586,
+        "human": "pointer",
+        "human_note": "same issue sam approach but b added test ",
+        "second": "duplicate",
+        "second_note": ""
+      },
+      {
+        "item": 100,
+        "repo": "Comfy-Org/ComfyUI_frontend",
+        "a": 14960,
+        "b": 14961,
+        "human": "pointer",
+        "human_note": "B = re-push of the core fix only; A also carries customWidgets combo-promotion c",
+        "second": "duplicate",
+        "second_note": ""
+      }
+    ]
+  }
+}

@@ -114,3 +114,4 @@
 {"pr_number": 111333579233289, "a_number": 59196, "b_number": 59259, "label": "duplicate", "note": "intended change fully in B; A carries 58 unrelated files, likely base drift \u2014 verify before closing", "labelled_at": "2026-10-23T17:03:17+00:00"}
 {"pr_number": 55243929670054, "a_number": 331664, "b_number": 322632, "label": "unrelated", "note": "", "labelled_at": "2026-10-23T17:03:22+00:00"}
 {"pr_number": 53874491154379, "a_number": 14960, "b_number": 14961, "label": "pointer", "note": "B = re-push of the core fix only; A also carries customWidgets combo-promotion change.", "labelled_at": "2026-10-23T17:04:40+00:00"}
+{"pr_number": 264486862475936, "a_number": 3031, "b_number": 3030, "label": "pointer", "note": "pass2 (human rule, 2026-10-23): promote (edge\u2192stable, mirror of item 47)", "labelled_at": "2026-10-23T17:08:00+00:00"}
