@@ -100,8 +100,9 @@ No new code: the run-6A harness (`serve/`, `docs/run6-gpu.md`) with the candidat
 
 ## 6. Report
 
-Not built yet: a run-7 report that collects C1 (AUC deltas vs run 5 / runs 4–6, tokens per request), C2, C3, C4 and C5
-into `results/run7/` tables and the R7-H1…H5 verdicts.
+`python -m mergeone.eval.run7_report` (no key) → `results/run7/tables.md`, `results/run7/metrics.json` (inputs' paths and
+sha256): C1 (AUC deltas vs run 5 / runs 4–6 with paired bootstrap CIs, tokens per request), C2, C3, C4 (deferred) and C5,
+with the R7-H1…H5 verdicts; a missing input shows as "not run yet", so it can be re-run after each step.
 
 ## What still needs a key or a GPU
 
