@@ -107,6 +107,10 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
   4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
 
 ## Later
+- Relation graph: once C5 lands, every `(A, B, relation, p)` goes to the gatelog, which gives a per-repository PR
+  graph (node = PR, edge = duplicate / follow-up / competing / backport / same-area). `GET /graph?repo=` serves it;
+  a small web view draws it as agent PRs pass the gate (competing edges red, follow-up chains, cross-branch
+  promotes); `mergeone plan` uses the edges for landing waves. UI work starts only after R7-H5 passes.
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.
 - GitLab / Gitea webhooks.
