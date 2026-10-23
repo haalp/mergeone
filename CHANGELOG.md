@@ -14,6 +14,13 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `jev-1.14.0`, runs 1–6 recorded `jev-1.13.0`: version drift to be reported with every run-7 Jev number).
 - 19:41:03Z first run-7 model call: C2 round 0 (untuned `prompts/jev_v3.json`, pplx-flash, val only — tuning set,
   iteration eval, k8s revert eval). Still no test-split call.
+- 20:00Z report builder `mergeone/eval/run7_report.py` (`74d54e0`); writing it exposed two wording errors in the frozen
+  §R7, both resolved before any test-split call and without moving a bar: (a) §R7.6 says "run-5 judge labels" — run 5
+  has no judge labels (those are run 2's); the R7-H2 primary is read as the mean v3 AUC against the label run 5 scored
+  v3 with, `iterated` on the run-3 test split, bar unchanged (+0.02). (b) R7-H2's "test revert/iteration eval" has no
+  untuned test number on the k8s revert slice and R7.4 forbids re-running the untuned prompt on test, so that clause is
+  checked on the iteration half only (`needs_human_review` vs `iterated`, drop ≤ 0.01); the revert half is reported as
+  unavailable, not passed.
 
 ## Run 6B complete — 2026-10-23
 
