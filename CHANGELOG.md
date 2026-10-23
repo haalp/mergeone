@@ -9,6 +9,11 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   = mean v3 AUC vs judge labels). No run-7 model call has been made before this commit; the tooling commit `931fe9e`
   precedes it and calls nothing. Order from here: C3 patterns and the tuning set (val only) → C2 rounds (val only) →
   `r7-tuned` tag → test calls (C1, C2, C3 scoring) → C5 on the 6B pairs → report.
+- `5af0a4f` `results/run7/evidence_features.jsonl` (2,196 rows, patterns sha per row, no labels) and
+  `data/run7/tuning_set.jsonl` (400 val PRs, seed 7) committed; `scripts/smoke_api.sh` passed (Jev answered as
+  `jev-1.14.0`, runs 1–6 recorded `jev-1.13.0`: version drift to be reported with every run-7 Jev number).
+- 19:41:03Z first run-7 model call: C2 round 0 (untuned `prompts/jev_v3.json`, pplx-flash, val only — tuning set,
+  iteration eval, k8s revert eval). Still no test-split call.
 
 ## Run 6B complete — 2026-10-23
 
