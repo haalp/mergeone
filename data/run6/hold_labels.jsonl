@@ -1,0 +1,116 @@
+{"pr_number": 50127052641626, "a_number": 3057, "b_number": 3058, "label": "pointer", "note": "promote (edge\u2192stable, carries B)", "labelled_at": "2026-10-18T18:14:19+00:00"}
+{"pr_number": 126198593529381, "a_number": 19699, "b_number": 19693, "label": "pointer", "note": "", "labelled_at": "2026-10-18T18:15:11+00:00"}
+{"pr_number": 205604172127334, "a_number": 338462, "b_number": 338479, "label": "pointer", "note": "", "labelled_at": "2026-10-18T18:22:06+00:00"}
+{"pr_number": 278874471152046, "a_number": 3033, "b_number": 3032, "label": "pointer", "note": "", "labelled_at": "2026-10-18T18:23:45+00:00"}
+{"pr_number": 278874471152046, "a_number": 3033, "b_number": 3032, "label": "pointer", "note": "REVERT OF B", "labelled_at": "2026-10-18T18:24:07+00:00"}
+{"pr_number": 1903404696086, "a_number": 18531, "b_number": 18113, "label": "pointer", "note": "BACKPORT OF B", "labelled_at": "2026-10-18T18:25:37+00:00"}
+{"pr_number": 17605816522083, "a_number": 3019, "b_number": 3013, "label": "pointer", "note": "same area, earlier promote train", "labelled_at": "2026-10-18T18:26:33+00:00"}
+{"pr_number": 113161793358738, "a_number": 17380, "b_number": 17754, "label": "pointer", "note": "related , same area", "labelled_at": "2026-10-18T18:27:39+00:00"}
+{"pr_number": 165407417642477, "a_number": 60014, "b_number": 60025, "label": "duplicate", "note": "same area, same comm\u0131t ", "labelled_at": "2026-10-18T18:30:15+00:00"}
+{"pr_number": 143972550026239, "a_number": 882, "b_number": 907, "label": "pointer", "note": "related, maybe confl\u0131ct w\u0131th b. Check b first", "labelled_at": "2026-10-18T18:32:25+00:00"}
+{"pr_number": 230137863969582, "a_number": 333984, "b_number": 333980, "label": "pointer", "note": "touches same files should labeled as pointer", "labelled_at": "2026-10-18T18:50:49+00:00"}
+{"pr_number": 207864655037388, "a_number": 36863, "b_number": 36862, "label": "pointer", "note": "same area", "labelled_at": "2026-10-18T19:29:10+00:00"}
+{"pr_number": 103028825907051, "a_number": 14820, "b_number": 14822, "label": "pointer", "note": "need to check b first", "labelled_at": "2026-10-19T17:26:59+00:00"}
+{"pr_number": 193775085672276, "a_number": 326187, "b_number": 326186, "label": "pointer", "note": "need to check B", "labelled_at": "2026-10-19T17:51:07+00:00"}
+{"pr_number": 236525083071047, "a_number": 18050, "b_number": 18053, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T17:51:47+00:00"}
+{"pr_number": 244100807785007, "a_number": 63593, "b_number": 63451, "label": "pointer", "note": "need to check B", "labelled_at": "2026-10-19T17:52:36+00:00"}
+{"pr_number": 206198605900776, "a_number": 18079, "b_number": 18081, "label": "pointer", "note": "hit the same class with b need to check", "labelled_at": "2026-10-19T17:54:26+00:00"}
+{"pr_number": 269410218368376, "a_number": 37013, "b_number": 37014, "label": "pointer", "note": "same ticket need to check b ", "labelled_at": "2026-10-19T17:58:26+00:00"}
+{"pr_number": 254851053358312, "a_number": 14217, "b_number": 14848, "label": "duplicate", "note": "nearly duplicate same fixes. Im not sure for excatly duplicate, but mark like that", "labelled_at": "2026-10-19T18:00:52+00:00"}
+{"pr_number": 16090265684393, "a_number": 18532, "b_number": 18531, "label": "pointer", "note": "same backport \u0131ssue but cloud core vers\u0131on d\u0131fferences. need to check b f\u0131rst", "labelled_at": "2026-10-19T18:01:50+00:00"}
+{"pr_number": 47304678370836, "a_number": 16720, "b_number": 17009, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T18:03:10+00:00"}
+{"pr_number": 159592960139189, "a_number": 2704, "b_number": 2742, "label": "pointer", "note": "same area but not totally duplicated. Thus check b first", "labelled_at": "2026-10-19T18:05:27+00:00"}
+{"pr_number": 124633798069722, "a_number": 38704, "b_number": 38033, "label": "pointer", "note": "check b first", "labelled_at": "2026-10-19T18:14:10+00:00"}
+{"pr_number": 124633798069722, "a_number": 38704, "b_number": 38033, "label": "pointer", "note": "check b first same area ", "labelled_at": "2026-10-19T18:17:05+00:00"}
+{"pr_number": 10046648003741, "a_number": 20445, "b_number": 20447, "label": "pointer", "note": "same backport check b ", "labelled_at": "2026-10-19T18:18:38+00:00"}
+{"pr_number": 127515652174103, "a_number": 36501, "b_number": 36494, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T18:20:21+00:00"}
+{"pr_number": 114295338548830, "a_number": 38599, "b_number": 38651, "label": "pointer", "note": "same class , check B", "labelled_at": "2026-10-19T18:20:56+00:00"}
+{"pr_number": 215541464152174, "a_number": 38863, "b_number": 38966, "label": "pointer", "note": "cherrypick, check B ", "labelled_at": "2026-10-19T18:22:31+00:00"}
+{"pr_number": 50129147604097, "a_number": 61067, "b_number": 61261, "label": "duplicate", "note": "check B seems to me same fix", "labelled_at": "2026-10-19T18:25:37+00:00"}
+{"pr_number": 180502377132426, "a_number": 60025, "b_number": 60014, "label": "pointer", "note": "need to check b", "labelled_at": "2026-10-19T18:27:37+00:00"}
+{"pr_number": 230404833992069, "a_number": 63514, "b_number": 63533, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T18:31:29+00:00"}
+{"pr_number": 220044136403423, "a_number": 60518, "b_number": 60049, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T18:32:26+00:00"}
+{"pr_number": 81512118740798, "a_number": 876, "b_number": 742, "label": "pointer", "note": "", "labelled_at": "2026-10-19T19:40:22+00:00"}
+{"pr_number": 24435596737641, "a_number": 334913, "b_number": 334664, "label": "pointer", "note": "related , check b ", "labelled_at": "2026-10-19T19:44:33+00:00"}
+{"pr_number": 270507036642916, "a_number": 38697, "b_number": 38736, "label": "pointer", "note": "cherry pick , check b", "labelled_at": "2026-10-19T19:44:51+00:00"}
+{"pr_number": 116520758153509, "a_number": 329018, "b_number": 329016, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T19:47:00+00:00"}
+{"pr_number": 271790968761198, "a_number": 3034, "b_number": 3037, "label": "pointer", "note": "need to check b wh\u0131ch comments changes \u0131n b", "labelled_at": "2026-10-19T19:48:22+00:00"}
+{"pr_number": 243426311964254, "a_number": 2913, "b_number": 2688, "label": "pointer", "note": "check b f\u0131rst b already \u0131ncludes decomm\u0131ss\u0131on of clojure math service", "labelled_at": "2026-10-19T19:50:42+00:00"}
+{"pr_number": 190342264149827, "a_number": 36516, "b_number": 36483, "label": "pointer", "note": "competing fix", "labelled_at": "2026-10-19T19:57:35+00:00"}
+{"pr_number": 230404833992069, "a_number": 63514, "b_number": 63533, "label": "pointer", "note": "", "labelled_at": "2026-10-19T20:02:07+00:00"}
+{"pr_number": 230404833992069, "a_number": 63514, "b_number": 63533, "label": "pointer", "note": "competing fix", "labelled_at": "2026-10-19T20:02:24+00:00"}
+{"pr_number": 89580849970127, "a_number": 14961, "b_number": 14960, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T20:06:41+00:00"}
+{"pr_number": 223096032149065, "a_number": 36676, "b_number": 36674, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T20:07:28+00:00"}
+{"pr_number": 141975139113802, "a_number": 3020, "b_number": 3018, "label": "pointer", "note": "promote (edge\u2192stable, ships #3018)", "labelled_at": "2026-10-19T20:07:52+00:00"}
+{"pr_number": 46530517375706, "a_number": 326851, "b_number": 335450, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T20:10:38+00:00"}
+{"pr_number": 237955138992335, "a_number": 59777, "b_number": 59776, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T20:15:40+00:00"}
+{"pr_number": 216266198363223, "a_number": 15184, "b_number": 19433, "label": "pointer", "note": "backport", "labelled_at": "2026-10-19T20:16:49+00:00"}
+{"pr_number": 45243574266497, "a_number": 38560, "b_number": 37168, "label": "duplicate", "note": "connect\u0131on between 2 pr ", "labelled_at": "2026-10-19T20:19:56+00:00"}
+{"pr_number": 81279258007351, "a_number": 3027, "b_number": 3023, "label": "pointer", "note": "promote to the b", "labelled_at": "2026-10-19T20:32:03+00:00"}
+{"pr_number": 195347801816525, "a_number": 38784, "b_number": 39097, "label": "duplicate", "note": "superseded by B (fix replaces skip)", "labelled_at": "2026-10-19T20:34:30+00:00"}
+{"pr_number": 244988795494265, "a_number": 3030, "b_number": 3031, "label": "pointer", "note": "promote (edge\u2192stable, carries A)", "labelled_at": "2026-10-19T20:34:58+00:00"}
+{"pr_number": 135844223828957, "a_number": 38575, "b_number": 38375, "label": "duplicate", "note": "superseded by B (fix replaces skip)", "labelled_at": "2026-10-19T20:35:45+00:00"}
+{"pr_number": 262898739108198, "a_number": 37097, "b_number": 37096, "label": "pointer", "note": "Competing same \u0131ssue d\u0131fferent fixes", "labelled_at": "2026-10-19T20:37:17+00:00"}
+{"pr_number": 262730250519498, "a_number": 18091, "b_number": 18096, "label": "duplicate", "note": "", "labelled_at": "2026-10-19T20:38:00+00:00"}
+{"pr_number": 230137863969582, "a_number": 333984, "b_number": 333980, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same fix (min-width:0), B covers A", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 207864655037388, "a_number": 36863, "b_number": 36862, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same root cause, same fix (HasPendingTasksForTesting)", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 103028825907051, "a_number": 14820, "b_number": 14822, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same page; B covers A + overlay hero", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 193775085672276, "a_number": 326187, "b_number": 326186, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): identical one-line retry regex", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 244100807785007, "a_number": 63593, "b_number": 63451, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): B bumps to 3.1.8 covers A's 3.1.7", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 159592960139189, "a_number": 2704, "b_number": 2742, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): B explicitly supersedes A (reopened on edge)", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 124633798069722, "a_number": 38704, "b_number": 38033, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same fix (N|-N), same files", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 180502377132426, "a_number": 60025, "b_number": 60014, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same codegen from same spec commit; A adds overload fix", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 24435596737641, "a_number": 334913, "b_number": 334664, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same fix (unbufferedEvents for IPtyService), B covers A", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 271790968761198, "a_number": 3034, "b_number": 3037, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): identical comment reword", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 262898739108198, "a_number": 37097, "b_number": 37096, "label": "duplicate", "note": "pass2 (rule applied by fable-5.1, 2026-10-20): same ticket, same method (GetUserByEmail/DeleteAt); B broader", "labelled_at": "2026-10-20T13:50:00+00:00"}
+{"pr_number": 184361903431503, "a_number": 37098, "b_number": 37095, "label": "pointer", "note": "same issue different tasks same area not duplicate need 2 check B", "labelled_at": "2026-10-21T16:01:27+00:00"}
+{"pr_number": 64175772550954, "a_number": 60520, "b_number": 60904, "label": "pointer", "note": "same \u0131ssue d\u0131fferent solut\u0131on ? check b ", "labelled_at": "2026-10-22T17:37:12+00:00"}
+{"pr_number": 130576890248838, "a_number": 17215, "b_number": 17216, "label": "pointer", "note": "need to check B ? ", "labelled_at": "2026-10-22T17:40:02+00:00"}
+{"pr_number": 264486862475936, "a_number": 3031, "b_number": 3030, "label": "duplicate", "note": "duplicate ", "labelled_at": "2026-10-22T17:41:27+00:00"}
+{"pr_number": 97816904735209, "a_number": 3023, "b_number": 3027, "label": "pointer", "note": "promote", "labelled_at": "2026-10-22T22:03:16+00:00"}
+{"pr_number": 46787293727524, "a_number": 333201, "b_number": 331794, "label": "pointer", "note": "same area, different tasks", "labelled_at": "2026-10-22T22:05:15+00:00"}
+{"pr_number": 149128433776089, "a_number": 3064, "b_number": 3065, "label": "pointer", "note": "promote", "labelled_at": "2026-10-22T22:06:27+00:00"}
+{"pr_number": 91916724939548, "a_number": 902, "b_number": 918, "label": "pointer", "note": "related issues , follow up", "labelled_at": "2026-10-22T22:10:37+00:00"}
+{"pr_number": 76936605426222, "a_number": 62821, "b_number": 62224, "label": "pointer", "note": "competing fix with b", "labelled_at": "2026-10-23T12:30:23+00:00"}
+{"pr_number": 40986796630441, "a_number": 19585, "b_number": 19606, "label": "pointer", "note": "backport", "labelled_at": "2026-10-23T12:30:57+00:00"}
+{"pr_number": 201412230061243, "a_number": 2719, "b_number": 2743, "label": "duplicate", "note": "superseded by B, same commits", "labelled_at": "2026-10-23T12:35:28+00:00"}
+{"pr_number": 58098897467930, "a_number": 18070, "b_number": 18103, "label": "pointer", "note": "follow up", "labelled_at": "2026-10-23T12:35:58+00:00"}
+{"pr_number": 27852974220974, "a_number": 18580, "b_number": 18582, "label": "duplicate", "note": "", "labelled_at": "2026-10-23T12:36:40+00:00"}
+{"pr_number": 130034381878223, "a_number": 39055, "b_number": 38369, "label": "unrelated", "note": "release-branch cherry-pick of a different PR; file overlap only", "labelled_at": "2026-10-23T16:17:56+00:00"}
+{"pr_number": 8180952208279, "a_number": 329225, "b_number": 329226, "label": "duplicate", "note": "", "labelled_at": "2026-10-23T16:20:26+00:00"}
+{"pr_number": 110302983829641, "a_number": 38739, "b_number": 38999, "label": "pointer", "note": "backport (release-11.11 cherry-pick) --> competing the explanation", "labelled_at": "2026-10-23T16:21:17+00:00"}
+{"pr_number": 184310982936008, "a_number": 3025, "b_number": 3021, "label": "pointer", "note": "promote (A, B\u2019yi stable\u2019a ta\u015f\u0131yor)", "labelled_at": "2026-10-23T16:21:43+00:00"}
+{"pr_number": 111646012022128, "a_number": 20321, "b_number": 19813, "label": "pointer", "note": "follow-up: A, B\u2019nin link karar\u0131n\u0131 geri \u00e7eviriyor", "labelled_at": "2026-10-23T16:22:31+00:00"}
+{"pr_number": 13161318008492, "a_number": 2710, "b_number": 2750, "label": "duplicate", "note": "B \u201csupersedes #2710\u201d, ayn\u0131 commit", "labelled_at": "2026-10-23T16:23:09+00:00"}
+{"pr_number": 72966877508407, "a_number": 332823, "b_number": 334612, "label": "pointer", "note": "competing: A animasyonu t\u00fcmden kald\u0131r\u0131yor, B chat pill durumunu d\u00fczeltiyor", "labelled_at": "2026-10-23T16:23:16+00:00"}
+{"pr_number": 224175163297713, "a_number": 19609, "b_number": 19608, "label": "pointer", "note": "backport: ayn\u0131 PR\u2019\u0131n 1.55 ve 1.54 karde\u015f backport\u2019lar\u0131", "labelled_at": "2026-10-23T16:23:53+00:00"}
+{"pr_number": 89646698775205, "a_number": 3011, "b_number": 3010, "label": "pointer", "note": "total promote ", "labelled_at": "2026-10-23T16:24:45+00:00"}
+{"pr_number": 131001354339271, "a_number": 3053, "b_number": 3054, "label": "pointer", "note": "promote (B, A + ekstra)", "labelled_at": "2026-10-23T16:26:02+00:00"}
+{"pr_number": 82803028556078, "a_number": 18660, "b_number": 18339, "label": "duplicate", "note": "same backports unnecessary", "labelled_at": "2026-10-23T16:27:07+00:00"}
+{"pr_number": 99961953083320, "a_number": 329444, "b_number": 329451, "label": "duplicate", "note": "duplicate", "labelled_at": "2026-10-23T16:30:42+00:00"}
+{"pr_number": 39162937971419, "a_number": 36799, "b_number": 36798, "label": "duplicate", "note": "", "labelled_at": "2026-10-23T16:31:42+00:00"}
+{"pr_number": 39162937971419, "a_number": 36799, "b_number": 36798, "label": "duplicate", "note": "same flake same solution", "labelled_at": "2026-10-23T16:32:59+00:00"}
+{"pr_number": 126556893453062, "a_number": 38684, "b_number": 38694, "label": "pointer", "note": "backport (release-12.0)", "labelled_at": "2026-10-23T16:33:05+00:00"}
+{"pr_number": 33848132023589, "a_number": 19621, "b_number": 19624, "label": "pointer", "note": "backport (cloud/1.54)", "labelled_at": "2026-10-23T16:33:12+00:00"}
+{"pr_number": 231329867012517, "a_number": 18088, "b_number": 18610, "label": "pointer", "note": "", "labelled_at": "2026-10-23T16:34:58+00:00"}
+{"pr_number": 83291425003634, "a_number": 327903, "b_number": 328492, "label": "duplicate", "note": "same PR because of the CI", "labelled_at": "2026-10-23T16:40:22+00:00"}
+{"pr_number": 37120530892817, "a_number": 20071, "b_number": 20077, "label": "pointer", "note": "backport", "labelled_at": "2026-10-23T16:40:57+00:00"}
+{"pr_number": 29045751448949, "a_number": 63592, "b_number": 63452, "label": "duplicate", "note": "", "labelled_at": "2026-10-23T16:44:16+00:00"}
+{"pr_number": 35881504316805, "a_number": 58671, "b_number": 59159, "label": "duplicate", "note": "same spec , same api version", "labelled_at": "2026-10-23T16:44:55+00:00"}
+{"pr_number": 115781362718339, "a_number": 62018, "b_number": 61491, "label": "pointer", "note": "same-area (follow-up)", "labelled_at": "2026-10-23T16:47:28+00:00"}
+{"pr_number": 154524567573227, "a_number": 3004, "b_number": 3007, "label": "duplicate", "note": "B \u201cReplaces #3004\u201d", "labelled_at": "2026-10-23T16:56:30+00:00"}
+{"pr_number": 182516816019936, "a_number": 18347, "b_number": 18361, "label": "duplicate", "note": "B \u201cSupersedes #18347\u201d", "labelled_at": "2026-10-23T16:56:50+00:00"}
+{"pr_number": 158994310674987, "a_number": 36483, "b_number": 36516, "label": "pointer", "note": "competing (item 37'nin aynas\u0131: parallel\u2019i kapat vs Eventually)", "labelled_at": "2026-10-23T16:56:58+00:00"}
+{"pr_number": 270072265771270, "a_number": 3032, "b_number": 3033, "label": "pointer", "note": "revert", "labelled_at": "2026-10-23T16:57:05+00:00"}
+{"pr_number": 213746740636159, "a_number": 330779, "b_number": 330780, "label": "duplicate", "note": "same issue, same approcah maybe pr explanation competing ", "labelled_at": "2026-10-23T16:57:36+00:00"}
+{"pr_number": 43294002992140, "a_number": 20467, "b_number": 20466, "label": "pointer", "note": "backport", "labelled_at": "2026-10-23T16:57:50+00:00"}
+{"pr_number": 174079722255992, "a_number": 36798, "b_number": 36799, "label": "duplicate", "note": "same with 76", "labelled_at": "2026-10-23T16:58:01+00:00"}
+{"pr_number": 208259968140182, "a_number": 36290, "b_number": 36299, "label": "duplicate", "note": "B is a superset revision of A (same ticket, adds the missed input container)", "labelled_at": "2026-10-23T16:59:06+00:00"}
+{"pr_number": 131651621187360, "a_number": 3021, "b_number": 3025, "label": "pointer", "note": "promote", "labelled_at": "2026-10-23T16:59:17+00:00"}
+{"pr_number": 99148124124034, "a_number": 874, "b_number": 877, "label": "duplicate", "note": "same pr same issue identical", "labelled_at": "2026-10-23T16:59:36+00:00"}
+{"pr_number": 157556388932273, "a_number": 20447, "b_number": 20445, "label": "pointer", "note": "backport cloud vs core", "labelled_at": "2026-10-23T16:59:57+00:00"}
+{"pr_number": 146662188190485, "a_number": 3066, "b_number": 3069, "label": "pointer", "note": "promote (B, A + CLI)", "labelled_at": "2026-10-23T17:00:09+00:00"}
+{"pr_number": 66998160940905, "a_number": 326188, "b_number": 328586, "label": "pointer", "note": "same issue sam approach but b added test ", "labelled_at": "2026-10-23T17:00:51+00:00"}
+{"pr_number": 111333579233289, "a_number": 59196, "b_number": 59259, "label": "duplicate", "note": "intended change fully in B; A carries 58 unrelated files, likely base drift \u2014 verify before closing", "labelled_at": "2026-10-23T17:03:17+00:00"}
+{"pr_number": 55243929670054, "a_number": 331664, "b_number": 322632, "label": "unrelated", "note": "", "labelled_at": "2026-10-23T17:03:22+00:00"}
+{"pr_number": 53874491154379, "a_number": 14960, "b_number": 14961, "label": "pointer", "note": "B = re-push of the core fix only; A also carries customWidgets combo-promotion change.", "labelled_at": "2026-10-23T17:04:40+00:00"}
