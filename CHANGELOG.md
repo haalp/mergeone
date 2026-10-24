@@ -14,6 +14,11 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   - the relation2 baseline `results/run8/relation_metrics.json` (0.722 pplx-flash / 0.740 jev).
 - C4 candidate: the 26B-MoE / ~4B-active open-weight decider named in ROADMAP; repository id and licence to be recorded
   here before the first C4 call, else C4 is deferred again (R8.6).
+- 2026-10-24 23:14Z policy consequence of v4 (R8 C3): the `message-mismatch` rule is removed from `mergeone/gate/policy.yaml` and
+  from the `mergeone init` template; `docs/POLICY.md` says why (run 7 drift on `message_matches_diff` and
+  `follows_conventions`; no shipped rule ever read `follows_conventions`; the mismatch rule never fired under the drifted
+  model). The default `question_set` stays `v2` until a v4 calibration map exists; v2/v3 scoring is unchanged, and the
+  run-3/4/5 report builders re-derive historical verdicts with the rule restored (`report_run3.historical_policy`).
 
 ## Run 7 complete — 2026-10-24
 

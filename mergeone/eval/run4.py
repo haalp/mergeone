@@ -249,10 +249,9 @@ def _a_pid(pair: dict, ds: dict) -> int:
 
 def _verdict_level(model: str, r3_path: Path, dup: dict, ds: dict, base_bad: float) -> dict:
     """Replay the run-3 default policy for this model, then add the dedup rule on top."""
-    import yaml
     from ..gate.engine import Gate, Calibrator
-    from .report_run3 import GATE_DIR, _calibrate_primary
-    policy = yaml.safe_load((GATE_DIR / "policy.yaml").read_text()); policy["always_human_paths"] = []
+    from .report_run3 import GATE_DIR, _calibrate_primary, historical_policy
+    policy = historical_policy(); policy["always_human_paths"] = []
     maps = json.loads((GATE_DIR / f"calibration_{model}_v2.json").read_text()) if (GATE_DIR / f"calibration_{model}_v2.json").exists() else {}
     val_p = {json.loads(l)["pr_number"]: json.loads(l)["decision"]["probs"] for l in (r3_path.parent / f"predictions_{model}_val_all.jsonl").open()} if (r3_path.parent / f"predictions_{model}_val_all.jsonl").exists() else {}
     cal = _calibrate_primary(val_p, ds)

@@ -225,7 +225,7 @@ func LoadPolicy(path string) (*Policy, error) {
 		return nil, fmt.Errorf("policy %s: %w", path, err)
 	}
 	if p.QuestionSet == "" {
-		p.QuestionSet = "v2"
+		p.QuestionSet = "v2" // v0.3: v4 (once calibration_<model>_v4.json exists)
 	}
 	if p.Model == "" {
 		p.Model = "jev"

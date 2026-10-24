@@ -21,6 +21,20 @@ from ..models.base import DECISIONS_V2, PRIMARY_V2
 from .metrics import roc_auc, pr_auc, bootstrap_ci, recall_at_fpr, ece, brier
 
 GATE_DIR = Path(__file__).resolve().parent.parent / "gate"
+
+# Runs 3–7 scored verdicts with the default policy as it then was: `message-mismatch` sat after `weakened-tests`
+# until it was removed for v4 (2026-10-25, PROTOCOL.md §R8 C3). Historical verdicts are re-derived with it.
+MESSAGE_MISMATCH = {"name": "message-mismatch", "when": {"message_matches_diff": "<= 0.4", "is_logic_change": ">= 0.5"},
+                    "verdict": "hold", "route": "human", "reason": "Message does not explain the behavioural change in the diff"}
+
+
+def historical_policy() -> dict:
+    """mergeone/gate/policy.yaml with the rules runs 3–7 were scored under."""
+    policy = yaml.safe_load((GATE_DIR / "policy.yaml").read_text())
+    names = [r["name"] for r in policy["rules"]]
+    if "message-mismatch" not in names:
+        policy["rules"].insert(names.index("weakened-tests") + 1, dict(MESSAGE_MISMATCH, when=dict(MESSAGE_MISMATCH["when"])))
+    return policy
 DATASET = Path("data/run3/dataset.jsonl")  # relative to cwd (repo root)
 REJECTED = "rejected"
 BAD = "bad_outcome"
@@ -55,7 +69,7 @@ def _calibrate_primary(val_preds: dict[int, dict], ds: dict[int, dict]) -> dict 
 
 
 def _gate_for(model: str, cal_primary: dict | None) -> Gate:
-    policy = yaml.safe_load((GATE_DIR / "policy.yaml").read_text())
+    policy = historical_policy()
     policy["always_human_paths"] = []  # k8s-specific; not applied to foreign repos
     maps = {}
     shipped = GATE_DIR / f"calibration_{model}_v2.json"

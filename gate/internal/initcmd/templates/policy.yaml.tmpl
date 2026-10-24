@@ -1,9 +1,9 @@
 # .mergeone.yaml: the mergeone policy for this repository, written by `mergeone init`.
 #
 # How one decision works:
-#   1. The decision model reads the PR (title, message, diff) and answers five typed questions, each
-#      with a probability: is_logic_change, weakens_tests, message_matches_diff, touches_concurrency,
-#      needs_human_review.
+#   1. The decision model reads the PR (title, message, diff) and answers typed questions, each with a
+#      probability; the rules below read is_logic_change, weakens_tests, touches_concurrency and
+#      needs_human_review (question set v4; docs/POLICY.md says which questions it dropped and why).
 #   2. The probabilities are calibrated with the maps shipped for the model (0.6 means sixty percent).
 #   3. The rules below run top to bottom. The first rule whose conditions ALL hold sets the verdict
 #      (pass | hold | block) and the route (who or what handles the PR next). No match: `default`.
@@ -74,14 +74,8 @@ rules:
     route: human
     reason: "PR appears to remove, skip, or loosen tests"
 
-  # Two conditions are AND: a behaviour change whose message does not explain it.
-  - name: message-mismatch
-    when: { message_matches_diff: "<= 0.4", is_logic_change: ">= 0.5" }
-    verdict: hold
-    route: human
-    reason: "Message does not explain the behavioural change in the diff"
-
-  # Behaviour change in locks, goroutines, threads, async code: route to whoever owns that domain.
+  # Two conditions are AND. Behaviour change in locks, goroutines, threads, async code: route to whoever
+  # owns that domain.
   - name: concurrency-risk
     when: { touches_concurrency: ">= 0.6", is_logic_change: ">= 0.5" }
     verdict: hold

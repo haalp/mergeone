@@ -76,7 +76,7 @@ func TestPolicyTemplateLoadsForEveryRegistryModel(t *testing.T) {
 		if len(p.Provider) != 0 {
 			t.Errorf("%s: provider must stay commented, got %v", name, p.Provider)
 		}
-		if len(p.Rules) != 7 || p.OnError.Verdict != "hold" {
+		if len(p.Rules) != 6 || p.OnError.Verdict != "hold" {
 			t.Errorf("%s: rules=%d on_error=%+v", name, len(p.Rules), p.OnError)
 		}
 		s := string(b)

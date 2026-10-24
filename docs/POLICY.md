@@ -9,7 +9,7 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | key | meaning |
 |---|---|
 | `model` | a row of [`prompts/models.yaml`](../prompts/models.yaml) (`jev`, `pplx`, `pplx-flash`, `haiku`, `local`, …); `model_id` pins a version; `provider:` defines a private endpoint inline |
-| `question_set` | `v2` (default, five questions) or `v3` (ten; `hard_to_revert`, `exceeds_scope` recommended, `follows_conventions` not — run 5) |
+| `question_set` | `v2` (default today, five questions), `v3` (ten; run 5) or `v4` (v3 minus `follows_conventions` and `message_matches_diff`; the set the gateway asks from v0.3) — below |
 | `calibration` | `auto` uses the shipped isotonic map for the model |
 | `always_human_paths` | path prefixes that always `hold → human`, before any model call |
 | `memory` | PR memory (run 4–6): `enabled`, `top_k`; adds `duplicate_of` and `silent_days` to the probabilities |
@@ -17,6 +17,22 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
 | `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
+
+## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
+
+From v0.3 the gateway asks question set **v4**: v3 without `follows_conventions` and `message_matches_diff` (eight
+questions, `prompts/jev_v4.json`). The shipped default stays `v2` until a v4 calibration map is fit and shipped; the
+v2 and v3 sets stay selectable, and runs 1–7 are scored with the sets they were run with.
+
+The two questions are gone because run 7 showed they drift: on identical input, under an unchanged version string,
+`pplx-decider-flash-v1.2` moved `follows_conventions` from a mean probability of 0.26 to 0.82 and `message_matches_diff`
+from 0.67 to 0.93, and both fell below chance against the outcome (PROTOCOL.md §R8 C3; `docs/run8-numbers.md`).
+Neither cost a shipped decision: no shipped rule ever read `follows_conventions` (run 5 already advised against it), and
+the one rule that read `message_matches_diff`, `message-mismatch` (`message_matches_diff <= 0.4` and
+`is_logic_change >= 0.5` → hold, human), never fired under the drifted model (mean 0.93). Under v4 the question is not
+asked, a missing probability is a non-match, and the rule would silently do nothing, so it is removed from the default
+`policy.yaml` and from the template `mergeone init` writes. A policy of your own that still has the rule keeps working
+under `v2` / `v3`; under `v4` it never matches.
 
 ## max_rounds (convergence cap)
 

@@ -48,12 +48,6 @@ rules:
     route: human
     reason: "PR appears to remove, skip, or loosen tests"
 
-  - name: message-mismatch
-    when: { message_matches_diff: "<= 0.4", is_logic_change: ">= 0.5" }
-    verdict: hold
-    route: human
-    reason: "Message does not explain the behavioural change in the diff"
-
   - name: concurrency-risk
     when: { touches_concurrency: ">= 0.6", is_logic_change: ">= 0.5" }
     verdict: hold
