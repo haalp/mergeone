@@ -2,6 +2,19 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 8 frozen — 2026-10-25
+
+- 2026-10-24 23:12Z (02:12 on 2026-10-25 at +03:00) PROTOCOL.md §R8 committed (C1 compact with same-day control, C2 relation v2 with bar 0.80 and its same-day
+  control, C3 v4 question set, C4 registry row, C5 drift replay; routing not run, a negative pre-result). No run-8 model
+  call has been made before this commit. Frozen with it:
+  - prompts `prompts/jev_v4.json`, `prompts/haiku_v4.md`, `prompts/jev_relation2.json`, `prompts/haiku_relation2.md`;
+  - the relation2 class rule constants HIGH 0.5, LOW 0.25 (LOW is the one constant not derived from a run) and the
+    rule order (`mergeone/eval/run8_relation.py`);
+  - the drift-monitor thresholds: raw-mean shift > 0.20, spread halved (n ≥ 200), slow AUC signal > 0.05;
+  - the relation2 baseline `results/run8/relation_metrics.json` (0.722 pplx-flash / 0.740 jev).
+- C4 candidate: the 26B-MoE / ~4B-active open-weight decider named in ROADMAP; repository id and licence to be recorded
+  here before the first C4 call, else C4 is deferred again (R8.6).
+
 ## Run 7 complete — 2026-10-24
 
 All four run-7 hypotheses fail their pre-registered bars (R7-H1 compact state, R7-H2 prompt tuning, R7-H3 evidence
