@@ -1,50 +1,50 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* shadcn dark-mode variant: the portal is dark-only (<html class="dark">). */
+/* shadcn dark-mode variant kept for the vendored components; the portal is light by default. */
 @custom-variant dark (&:is(.dark *));
 
 /*
- * mergeone portal tokens (canvas: neutral dark, 12 px cards, 8 px controls).
+ * mergeone portal tokens (light: white ground, zinc greys, 12 px cards, 8 px controls; semantic colours darkened for 4.5:1 on white).
  * Semantic colours only where they mean something: brand, pass, hold, block.
  */
 :root {
   --radius: 0.75rem;
 
-  --background: #050505;
-  --foreground: #fafafa;
-  --card: #111111;
-  --card-foreground: #fafafa;
-  --popover: #111111;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #050505;
-  --secondary: #171717;
-  --secondary-foreground: #fafafa;
-  --muted: #171717;
-  --muted-foreground: #71717a;
-  --accent: #171717;
-  --accent-foreground: #fafafa;
-  --destructive: #f85149;
-  --border: #262626;
-  --input: #2e2e2e;
-  --ring: #a371f7;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b7280;
+  --accent: #f4f4f5;
+  --accent-foreground: #0a0a0a;
+  --destructive: #cf222e;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #6e40c9;
 
-  --panel: #0a0a0a;
-  --subtle: #a1a1aa;
-  --border-strong: #2e2e2e;
+  --panel: #fafafa;
+  --subtle: #52525b;
+  --border-strong: #d4d4d8;
 
-  --brand: #a371f7;
-  --brand-foreground: #050505;
-  --pass: #3fb950;
-  --hold: #d29922;
-  --block: #f85149;
+  --brand: #6e40c9;
+  --brand-foreground: #ffffff;
+  --pass: #1a7f37;
+  --hold: #9a6700;
+  --block: #cf222e;
 
-  --chart-1: #a371f7;
-  --chart-2: #3fb950;
-  --chart-3: #d29922;
-  --chart-4: #f85149;
-  --chart-5: #71717a;
+  --chart-1: #6e40c9;
+  --chart-2: #1a7f37;
+  --chart-3: #9a6700;
+  --chart-4: #cf222e;
+  --chart-5: #6b7280;
 }
 
 @theme inline {
@@ -96,7 +96,7 @@
     @apply border-border outline-ring/50;
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;

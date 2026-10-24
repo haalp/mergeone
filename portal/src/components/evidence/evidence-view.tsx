@@ -145,7 +145,7 @@ export function EvidenceView() {
       </div>
 
       {degraded.length > 0 && (
-        <Alert className="border-hold bg-[#2A1F0E] text-foreground">
+        <Alert className="border-hold bg-[#FFF8E6] text-foreground">
           <TriangleAlert className="text-hold" />
           <AlertTitle>
             {degraded.length} {degraded.length === 1 ? "question" : "questions"} degraded ·{" "}

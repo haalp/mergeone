@@ -8,19 +8,19 @@ export const VERDICT_COLOR: Record<Verdict, string> = {
 
 /** Raw hex for canvas drawing (CSS variables don't resolve inside a 2D context). */
 export const HEX = {
-  bg: "#050505",
-  panel: "#0A0A0A",
-  card: "#111111",
-  raised: "#171717",
-  border: "#262626",
-  borderStrong: "#2E2E2E",
-  text: "#FAFAFA",
-  muted: "#A1A1AA",
-  subtle: "#71717A",
-  brand: "#A371F7",
-  pass: "#3FB950",
-  hold: "#D29922",
-  block: "#F85149",
+  bg: "#FFFFFF",
+  panel: "#FAFAFA",
+  card: "#FFFFFF",
+  raised: "#F4F4F5",
+  border: "#E4E4E7",
+  borderStrong: "#D4D4D8",
+  text: "#0A0A0A",
+  muted: "#52525B",
+  subtle: "#6B7280",
+  brand: "#6E40C9",
+  pass: "#1A7F37",
+  hold: "#9A6700",
+  block: "#CF222E",
 } as const;
 
 export function age(iso: string | undefined, now: number | null): string {

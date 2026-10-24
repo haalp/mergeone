@@ -99,7 +99,7 @@ function Body({ r, match, onResolve }: { r: GateRecord; match: GateRecord | null
           >
             <span>
               Link as duplicate of #{cand}{" "}
-              <span className="font-normal text-[#2B1A4D]">· comments on both, keeps #{r.pr} open</span>
+              <span className="font-normal text-white/75">· comments on both, keeps #{r.pr} open</span>
             </span>
           </MagneticButton>
         ) : (
@@ -111,7 +111,7 @@ function Body({ r, match, onResolve }: { r: GateRecord; match: GateRecord | null
           >
             <span>
               {r.result.verdict === "block" ? "Override the block on" : "Approve"} #{r.pr} as is{" "}
-              <span className="font-normal text-[#2B1A4D]">· clears the {r.result.verdict} on this head</span>
+              <span className="font-normal text-white/75">· clears the {r.result.verdict} on this head</span>
             </span>
           </MagneticButton>
         )}
