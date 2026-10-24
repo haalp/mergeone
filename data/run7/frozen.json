@@ -1,0 +1,12 @@
+{
+  "round": 2,
+  "prompt_path": "prompts/jev_v3_r2.json",
+  "prompt_sha256": "ada9b68ec85283d6a703906ccb594953a990221eb40d2426f58f542c68d99c39",
+  "primary_val_auc": 0.697594501718213,
+  "eval_score": 0.689384524290432,
+  "rounds_recorded": 3,
+  "stopped": "frozen early by the operator",
+  "tuning_log_sha256": "8f539ddb94e22cb9c52113882fb9f63c77fce410c92c933a259f28f1c994fbfe",
+  "tag": "r7-tuned",
+  "frozen_at": "2026-10-24T16:16:09+00:00"
+}
