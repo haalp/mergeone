@@ -97,9 +97,13 @@ Four binaries (`same_change`, `same_goal`, `same_branch`, `builds_on`) on the 10
 question is only +0.03 / +0.01 over the single pair question on same-change, and the class accuracy fails for a reason
 the confusion matrices make plain: the rule separates duplicate from backport by the model's `same_branch` answer, and
 neither model can tell branches (pplx-flash calls 26 of 27 backports duplicate; jev calls 42 of 46 duplicates backport).
-The base branch is metadata the gateway already has. A post-hoc reading with that fact substituted is in `tables.md`;
-the design lesson is that the relation question must ask only what the diff can answer — *is this the same change,
-does one build on the other* — and let the gateway supply branch, author and timing.
+The base branch is metadata the gateway already has. Substituting that fact for the model's `same_branch` answer
+(post-hoc, nothing re-asked, in `tables.md`) takes class accuracy from 0.08 to **0.72** for jev and from 0.32 to
+**0.72** for pplx-flash: backport 27/28 and 26/27, duplicate 40/46 and 42/45. What still fails is the rest — competing,
+same-area and the two unrelated pairs stay near zero, so the typed question does not yet separate "same goal, different
+method" from "same change". The design lesson is that the relation question must ask only what the diff can answer —
+*is this the same change, does one build on the other* — and let the gateway supply branch, author and timing. That is
+the run-8 version of C5, and its bar will be set on the 0.72, not on the 0.32.
 
 ## What run 7 changes
 
