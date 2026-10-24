@@ -2,15 +2,41 @@
 
 Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md](PROTOCOL.md).
 
-## Now — run 6B: is a `hold` for duplication right?
-100 PRs the gate holds as duplicates (pplx-flash, k = 20), labelled blind by one human (pre-registered
-number) and by a second labeller (agreement and Cohen κ reported). Interim at n = 50: dup ∪ pointer 1.00,
-duplicate share 0.54 under the final taxonomy, κ 0.80 after the taxonomy was written down. The result decides
-the product default for the dedup rule — `hold → route: dedup` stays, or it is demoted to `annotate` (link,
-no hold) — and which pointer classes (backport, promote, competing fix) get "link both, route to a human".
-Then run 7 is frozen from [`docs/run7-addendum-draft.md`](docs/run7-addendum-draft.md).
+## Now — run 8: same-day controls, relation v2, one self-hosted row
+Run 7 (2026-10-24) missed all four of its bars and found that the hosted decision model drifts under an unchanged
+version string (two of ten questions flipped between run 5 and run 7). Run 8 is therefore built on three rules that
+run 7 did not have: **every cross-run comparison gets a same-day full-state control, pre-registered**; the relation
+question asks only what the diff can answer (`same_change`, `builds_on`, `same_goal`) and the gateway supplies the
+base branch, author and timing as inputs — on the 6B pairs that substitution alone takes class accuracy from 0.08 /
+0.32 to 0.72 for both models (post-hoc, so the run-8 bar is set above 0.72, not above 0.32); and the registry gets the
+C4 row run 7 deferred (a 26B-MoE / 4B-active model on one L4). Compact state is re-asked with its control (run 7's
+post-hoc reading was +0.014 / +0.007 and −42 % tokens). Nothing from run 7 ships; `--compact` and `jev_v3_r2` stay
+selectable, not default.
 
-Run 3 (real agent PRs) is done: negative, 67% of closures are coordination; see docs/EVIDENCE.md.
+Run 6B (2026-10-23) is done: positive — 98 of 100 holds right, 44 the same change, κ 0.77; the dedup rule stays a
+`hold` that never closes a PR. Run 3 (real agent PRs) is done: negative, 67 % of closures are coordination. Both in
+docs/EVIDENCE.md.
+
+## v0.3 — the portal: a graph of related PRs, a queue, and the evidence page
+The gateway already produces what a UI needs — every verdict is a gatelog record keyed on the head SHA (probabilities,
+rule, route, matched candidate) and PR memory holds the candidate pairs — so the portal is a read-mostly front end
+over the gatelog, served by the same binary (`mergeone serve` *is* the portal; embedded static files, one deploy).
+Three views, in the order they get built:
+1. **Queue** — holds routed to `human` / `dedup`, oldest first, the matched PR beside the held one, three one-click
+   resolutions (approve as is · link as duplicate · request rebase). What the on-call reviewer opens. Does not depend
+   on run 8.
+2. **Graph** — node = open PR (colour by verdict, size by diff), edge = relation from the gate (`duplicate_of` today;
+   typed edges once run-8 C5 passes its bar, weight = calibrated probability). Click a node: the PR, its verdict
+   comment, the match side by side; click an edge: the pair state the model saw. Filter by repo, agent, route,
+   window. This is where "a hold never closes" becomes a product: a cluster of four PRs touching the same fix is
+   resolved in one place.
+3. **Evidence** — per-rule hit rates, calibration drift from the gatelog (run 7's lesson, live), the run tables.
+   The page for whoever has to approve buying it.
+Gateway side: `GET /api/graph?repo=&since=`, `GET /api/queue`, `GET /api/verdict/<sha>`, SSE for live updates; auth by
+GitHub OAuth with org membership as the access rule. Front end: one single-page app with a force layout on canvas,
+styled like mergeone.dev (the lanes mark is the graph). macOS and Windows apps later as thin wrappers around the same
+front end; nothing is thrown away. Open decisions before code: hosted vs self-hosted portal, the graph library, whether
+the queue writes resolutions back to GitHub (labels, comments) or only records them.
 
 ## v0.2 — PR memory and duplicate detection (run 4: question ✅, retrieval ❌)
 Run 3 showed 36% of agent-PR closures are *superseded or duplicate* and the gate could not see
@@ -110,7 +136,7 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
 - Relation graph: once C5 lands, every `(A, B, relation, p)` goes to the gatelog, which gives a per-repository PR
   graph (node = PR, edge = duplicate / follow-up / competing / backport / same-area). `GET /graph?repo=` serves it;
   a small web view draws it as agent PRs pass the gate (competing edges red, follow-up chains, cross-branch
-  promotes); `mergeone plan` uses the edges for landing waves. UI work starts only after R7-H5 passes.
+  promotes); `mergeone plan` uses the edges for landing waves. The queue view (v0.3, above) does not wait for it; typed edges do.
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.
 - GitLab / Gitea webhooks.
