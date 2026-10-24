@@ -2,6 +2,44 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 7 complete — 2026-10-24
+
+All four run-7 hypotheses fail their pre-registered bars (R7-H1 compact state, R7-H2 prompt tuning, R7-H3 evidence
+floor, R7-H5 typed relation; R7-H4 was deferred to run 8). The verdicts stand as computed from the pre-registered
+inputs; the items below are the dated deviations and the one finding that changes how the next run must be designed.
+
+- 2026-10-23 20:16Z–21:31Z C2 rounds 0–2 on val (`d23072a`, `0b31fc6`, `f9212cf`): round 1 rejected (primary
+  0.581 < 0.695), round 2 kept by the letter of the rule (0.698 > 0.695; the larger iteration eval fell 0.719 → 0.702,
+  inside the 0.01 tolerance only because the revert eval held). Rounds 3–5 **not run**: the only remaining lever for the
+  R7-H2 mean would have been rewording questions that are not about review iteration toward that label. Frozen at round 2
+  2026-10-24 16:16Z (`3c5ae88`, tag `r7-tuned`). No test-split call before the tag.
+- 16:16Z–16:52Z test-split calls (`8d4bd05`): C1 compact (jev, pplx-flash; v3 and pair), C2 tuned test call (once),
+  C3 scoring, C5 relation predict + report. Perplexity 429s (~4 % of calls) were back-filled with `--only-errors-from
+  --append`; the tuning log keeps the last row per PR.
+- **Tooling error, corrected (C1):** the v3 and pair compact calls wrote the same file
+  (`predictions_<model>_test_all_compact.jsonl`, mode `w`); the pair call overwrote the 705 v3 rows made at 16:16–16:18Z.
+  The v3 compact calls were re-run at 16:58Z with `--append`. Same prompt, same rows; the lost rows were never scored.
+- **Tooling error, corrected (C1 pair):** `docs/run7-tooling.md` pointed the compact pair call at `results/run6/pairs.jsonl`
+  (the run-6B candidate pool, 13,600 test rows), but the 187 pre-registered pair-eval ids are run 4's
+  (`results/run4/pairs.jsonl`); only 132 of them exist in the run-6 file. The compact pair call was re-run on the run-4
+  file (3,343 test rows) at 16:59Z and appended; the 13,600-row run is kept in the same file, unused by the report.
+- **Finding — provider-side drift under an unchanged version string.** The untuned `prompts/jev_v3.json` on the same 1,491
+  val rows gives different answers from pplx-flash than it did in run 5 (`pplx-decider-flash-v1.2` both times):
+  `follows_conventions` mean probability 0.26 → 0.82 (AUC vs iterated 0.660 → 0.430), `message_matches_diff` 0.67 → 0.93
+  (0.525 → 0.423); `needs_human_review` unchanged (0.694 → 0.713). Jev answers as `jev-1.14.0` (runs 1–6: 1.13.0). The
+  pre-registered C1 and C2 comparisons therefore mix weeks of drift with the change under test.
+- **Deviation (post-hoc, not pre-registered):** 17:19Z same-day full-state control calls — untuned v3 on the run-3 test
+  split and the pair question on the run-4 test pairs, jev and pplx-flash, `results/run7/control/`. R7.4 forbids
+  re-running the untuned prompt on test; this is that re-run, made after the verdicts were computed and reported beside
+  them as a drift-adjusted reading, never in their place. Cost ≈ $1.5. Drift-adjusted: compact − control mean v3 AUC
+  +0.014 (jev) / +0.007 (pplx-flash), pair −0.015 / −0.015, tokens per request −30 % / −42 % — inside the −0.02 bar;
+  tuned − untuned (same day) mean −0.008, `needs_human_review` −0.037. The verdict rows stay fail.
+- C5 reading: the frozen class rule derives duplicate vs backport from the model's `same_branch` answer, and the
+  confusion matrices show neither model can tell branches (pplx-flash calls 26 of 27 backports duplicate; jev calls 42 of
+  46 duplicates backport). `same_branch` is metadata; a post-hoc reading with the metadata fact is in the report tables,
+  labelled as such. The next relation question must not ask the model for facts the gateway already has.
+- Spend: ≈ $9 Perplexity (13,600 unneeded pair rows ≈ $5 of it), Jev on credit; no GPU.
+
 ## Run 7 frozen — 2026-10-23
 
 - 19:45Z PROTOCOL.md §R7 committed (C1 compact state, C2 prompt tuning with the revert/iteration keep-rule, C3 structural
