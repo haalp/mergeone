@@ -1,0 +1,461 @@
+{
+  "computed_at": "2026-10-24T22:12:45+00:00",
+  "n_pairs": 100,
+  "qset": "relation2",
+  "questions": [
+    "same_change",
+    "builds_on",
+    "same_goal"
+  ],
+  "high": 0.5,
+  "low": 0.25,
+  "rule": "same_change & !same_base \u2192 backport; same_change & same_base \u2192 duplicate; builds_on \u2192 follow_up; same_goal \u2192 competing; any P \u2265 low \u2192 same_area; else unrelated (same_base unknown \u2192 True)",
+  "gold_classes": {
+    "backport": 28,
+    "same_area": 10,
+    "follow_up": 7,
+    "duplicate": 46,
+    "competing": 7,
+    "unrelated": 2
+  },
+  "gold_sources": {
+    "notes rule": 100
+  },
+  "metadata_source": {
+    "base": {
+      "dataset": 119,
+      "memory": 62,
+      "missing": 0
+    },
+    "author": {
+      "dataset": 119,
+      "memory": 62,
+      "missing": 0
+    },
+    "created_at": {
+      "dataset": 119,
+      "memory": 62,
+      "missing": 0
+    }
+  },
+  "metadata_by_gold_class": {
+    "duplicate": {
+      "n": 46,
+      "same_base": {
+        "true": 43,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 16,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 19,
+        "unknown": 0
+      }
+    },
+    "competing": {
+      "n": 7,
+      "same_base": {
+        "true": 6,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 5,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 2,
+        "unknown": 0
+      }
+    },
+    "backport": {
+      "n": 28,
+      "same_base": {
+        "true": 1,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 17,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 10,
+        "unknown": 0
+      }
+    },
+    "follow_up": {
+      "n": 7,
+      "same_base": {
+        "true": 7,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 4,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 3,
+        "unknown": 0
+      }
+    },
+    "same_area": {
+      "n": 10,
+      "same_base": {
+        "true": 7,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 3,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 6,
+        "unknown": 0
+      }
+    },
+    "unrelated": {
+      "n": 2,
+      "same_base": {
+        "true": 1,
+        "unknown": 0
+      },
+      "same_author": {
+        "true": 0,
+        "unknown": 0
+      },
+      "a_newer": {
+        "true": 2,
+        "unknown": 0
+      }
+    }
+  },
+  "models": {
+    "pplx-flash": {
+      "status": "no relation2 predictions in results/run8/relation/predictions_pplx-flash_test_all.jsonl"
+    },
+    "jev": {
+      "status": "no relation2 predictions in results/run8/relation/predictions_jev_test_all.jsonl"
+    }
+  },
+  "baseline_run7": {
+    "pplx-flash": {
+      "n": 97,
+      "missing": 3,
+      "n_base_unknown": 0,
+      "accuracy": 0.7216494845360825,
+      "accuracy_ci95": [
+        0.6253217812082499,
+        0.8010895411031771
+      ],
+      "same_change_vs_rest_auc": 0.7277777777777779,
+      "n_duplicate": 45,
+      "same_change_or_backport_vs_rest_auc": 0.8683333333333334,
+      "related_vs_unrelated_auc": 0.9895833333333334,
+      "n_unrelated": 1,
+      "per_class": {
+        "duplicate": {
+          "n": 45,
+          "correct": 42,
+          "accuracy": 0.9333333333333333,
+          "ci95": [
+            0.8214312561135918,
+            0.977068383537853
+          ]
+        },
+        "competing": {
+          "n": 7,
+          "correct": 0,
+          "accuracy": 0.0,
+          "ci95": [
+            0.0,
+            0.35433884297520657
+          ]
+        },
+        "backport": {
+          "n": 27,
+          "correct": 26,
+          "accuracy": 0.9629629629629629,
+          "ci95": [
+            0.8171614606584348,
+            0.9934320234669025
+          ]
+        },
+        "follow_up": {
+          "n": 7,
+          "correct": 2,
+          "accuracy": 0.2857142857142857,
+          "ci95": [
+            0.0822171657090155,
+            0.6410709098517873
+          ]
+        },
+        "same_area": {
+          "n": 10,
+          "correct": 0,
+          "accuracy": 0.0,
+          "ci95": [
+            0.0,
+            0.2775401687666166
+          ]
+        },
+        "unrelated": {
+          "n": 1,
+          "correct": 0,
+          "accuracy": 0.0,
+          "ci95": [
+            0.0,
+            0.7934567085261071
+          ]
+        }
+      },
+      "confusion": {
+        "duplicate": {
+          "duplicate": 42,
+          "competing": 0,
+          "backport": 3,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "competing": {
+          "duplicate": 6,
+          "competing": 0,
+          "backport": 1,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "backport": {
+          "duplicate": 1,
+          "competing": 0,
+          "backport": 26,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "follow_up": {
+          "duplicate": 5,
+          "competing": 0,
+          "backport": 0,
+          "follow_up": 2,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "same_area": {
+          "duplicate": 7,
+          "competing": 0,
+          "backport": 3,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "unrelated": {
+          "duplicate": 1,
+          "competing": 0,
+          "backport": 0,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        }
+      },
+      "predicted": {
+        "backport": 33,
+        "duplicate": 62,
+        "follow_up": 2
+      }
+    },
+    "jev": {
+      "n": 100,
+      "missing": 0,
+      "n_base_unknown": 0,
+      "accuracy": 0.74,
+      "accuracy_ci95": [
+        0.6462882736813838,
+        0.8159542187301354
+      ],
+      "same_change_vs_rest_auc": 0.6853864734299517,
+      "n_duplicate": 46,
+      "same_change_or_backport_vs_rest_auc": 0.8825363825363826,
+      "related_vs_unrelated_auc": 0.9948979591836735,
+      "n_unrelated": 2,
+      "per_class": {
+        "duplicate": {
+          "n": 46,
+          "correct": 40,
+          "accuracy": 0.8695652173913043,
+          "ci95": [
+            0.7433386576963865,
+            0.9388224286250797
+          ]
+        },
+        "competing": {
+          "n": 7,
+          "correct": 2,
+          "accuracy": 0.2857142857142857,
+          "ci95": [
+            0.0822171657090155,
+            0.6410709098517873
+          ]
+        },
+        "backport": {
+          "n": 28,
+          "correct": 27,
+          "accuracy": 0.9642857142857143,
+          "ci95": [
+            0.8228742388150135,
+            0.9936676435024582
+          ]
+        },
+        "follow_up": {
+          "n": 7,
+          "correct": 5,
+          "accuracy": 0.7142857142857143,
+          "ci95": [
+            0.35892909014821267,
+            0.9177828342909844
+          ]
+        },
+        "same_area": {
+          "n": 10,
+          "correct": 0,
+          "accuracy": 0.0,
+          "ci95": [
+            0.0,
+            0.2775401687666166
+          ]
+        },
+        "unrelated": {
+          "n": 2,
+          "correct": 0,
+          "accuracy": 0.0,
+          "ci95": [
+            0.0,
+            0.6576280471103807
+          ]
+        }
+      },
+      "confusion": {
+        "duplicate": {
+          "duplicate": 40,
+          "competing": 1,
+          "backport": 3,
+          "follow_up": 2,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "competing": {
+          "duplicate": 4,
+          "competing": 2,
+          "backport": 1,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "backport": {
+          "duplicate": 1,
+          "competing": 0,
+          "backport": 27,
+          "follow_up": 0,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "follow_up": {
+          "duplicate": 2,
+          "competing": 0,
+          "backport": 0,
+          "follow_up": 5,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "same_area": {
+          "duplicate": 6,
+          "competing": 0,
+          "backport": 3,
+          "follow_up": 1,
+          "same_area": 0,
+          "unrelated": 0
+        },
+        "unrelated": {
+          "duplicate": 0,
+          "competing": 0,
+          "backport": 1,
+          "follow_up": 1,
+          "same_area": 0,
+          "unrelated": 0
+        }
+      },
+      "predicted": {
+        "backport": 35,
+        "duplicate": 53,
+        "follow_up": 9,
+        "competing": 3
+      }
+    }
+  },
+  "control_same_day": {},
+  "run7_post_hoc_reference": {
+    "jev": {
+      "accuracy": 0.72,
+      "n": 100
+    },
+    "pplx-flash": {
+      "accuracy": 0.7216494845360825,
+      "n": 97
+    }
+  },
+  "inputs": [
+    {
+      "path": "data/run3/dataset.jsonl",
+      "sha256": "d1a6c6325666cdab576549132b97dbdad8da53b8b71114f3184e436a31504952"
+    },
+    {
+      "path": "data/run4/memory/Azure__azure-sdk-for-net.jsonl",
+      "sha256": "ab0a7072fffde828683b7d93b4918c18433ca080d681cd7d84e01f53a3cb7b53"
+    },
+    {
+      "path": "data/run4/memory/Comfy-Org__ComfyUI_frontend.jsonl",
+      "sha256": "b88bf2e4e74f5d485858ae831b865038172b1ec94dd54587a48bd6ddfd6c4844"
+    },
+    {
+      "path": "data/run4/memory/VocaHQ__vocalinux.jsonl",
+      "sha256": "5f0ab486c4ba6a5a37f3f6ecf78110c00bf335c81525dc10f9ed56afa1af746d"
+    },
+    {
+      "path": "data/run4/memory/compdemocracy__polis.jsonl",
+      "sha256": "f1c56bdf7e25c487119e8cf87fe7cc730247f82e192dbee9de8cbed8f9d7c33f"
+    },
+    {
+      "path": "data/run4/memory/mattermost__mattermost.jsonl",
+      "sha256": "e211c9b1230834ffbe46a036a1ae7e51dd6213e5ace5c1f8d4baa10597044aef"
+    },
+    {
+      "path": "data/run4/memory/microsoft__vscode.jsonl",
+      "sha256": "ccf72293752e5e1abbc2a6592ca87dacb37ababc22f007288d83eb8ccf4643a1"
+    },
+    {
+      "path": "data/run6/hold_labels.jsonl",
+      "sha256": "bad6d0d3c916acdf98bf69d998884f1542ed45e2cfed840a56becd08b449c12c"
+    },
+    {
+      "path": "data/run6/hold_labels_adjudicated.jsonl",
+      "sha256": "df4e0dbe38a2f921bc7fdb7a941f172c7a36624b8f28017b8379d393d4a9f4d1"
+    },
+    {
+      "path": "data/run6/hold_labels_fable.jsonl",
+      "sha256": "d45f8664232420f505f64fbf4df30fd64e11a224a6931e7b08b60c994fc0aad4"
+    },
+    {
+      "path": "results/run7/metrics.json",
+      "sha256": "6b0b55d19524c23536925f7a14a6da9080792733b369fc04b1d210c619b26d69"
+    },
+    {
+      "path": "results/run7/relation/predictions_jev_test_all.jsonl",
+      "sha256": "3d8fc33839fa285c0f3d1e93b04fed5cca4e98bc7ed42f8c0c1ababe3282f260"
+    },
+    {
+      "path": "results/run7/relation/predictions_pplx-flash_test_all.jsonl",
+      "sha256": "60956be9925eca971826ea0c86628071f69395d5a40e6a70117fcc38ef89c39f"
+    }
+  ]
+}

@@ -26,7 +26,9 @@ QUESTIONS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "jev_v1.jso
              "v3": Path(__file__).resolve().parents[2] / "prompts" / "jev_v3.json",
              "pair": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json",
              "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "jev_pair.json",
-             "relation": Path(__file__).resolve().parents[2] / "prompts" / "jev_relation.json"}  # run 7 C5: four noul questions
+             "relation": Path(__file__).resolve().parents[2] / "prompts" / "jev_relation.json",  # run 7 C5: four noul questions
+             "relation2": Path(__file__).resolve().parents[2] / "prompts" / "jev_relation2.json",  # run 8: three noul questions
+             "v4": Path(__file__).resolve().parents[2] / "prompts" / "jev_v4.json"}  # run 8: v3 minus two questions
 
 
 class SystemOneModel:

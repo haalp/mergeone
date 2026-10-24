@@ -17,7 +17,7 @@ from .data.extract import read_jsonl, MergedPR
 from .data.features import structural_features, secondary_labels, render_state, split_chronological, SENSITIVE_PREFIXES, BLAST_FILES, BLAST_TOPDIRS
 from .data.features import compact_state, compact_pair_state
 from .data.extract import REVERT_HORIZON_DAYS, DIFF_CHAR_LIMIT
-from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, QUESTION_SETS, Decision, decide_single
+from .models.base import DECISIONS, PRIMARY, DECISIONS_V2, PRIMARY_V2, DECISIONS_V3, PRIMARY_V3, DECISIONS_V4, PRIMARY_V4, QUESTION_SETS, Decision, decide_single
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -186,12 +186,12 @@ def compact_rows(rows: list[dict], state_key: str, qset: str, dataset: Path, raw
         dataset (data/raw/k8s_merges.jsonl for data/dataset.jsonl, data/run3/agent_prs.jsonl for
         data/run3/dataset.jsonl, or --raw) when that file exists and holds every row; otherwise "state" —
         compact_state() on the stored string. The two give identical text (checked on all 2,196 run-3 rows).
-      * pair question sets (pair, pair_assume, relation): compact_pair_state(). A is compacted from its full dataset
+      * pair question sets (pair, pair_assume, relation, relation2): compact_pair_state(). A is compacted from its full dataset
         state (data/run3/dataset.jsonl, looked up by repo + number: "pair:dataset_state") because the pair state
         keeps only A's first 6,000 characters; when that file is missing, from the stored A part ("pair:stored").
     """
     out = []
-    if qset in ("pair", "pair_assume", "relation"):
+    if qset in PAIR_QSETS:
         full = {}
         if RUN3_DATASET.exists():
             need = {(r.get("repo"), r.get("a")) for r in rows}
@@ -209,6 +209,57 @@ def compact_rows(rows: list[dict], state_key: str, qset: str, dataset: Path, raw
         words = state_key == "state_words"
         return [{**r, state_key: render_state(prs[r["pr_number"]], numbers_as_words=words, compact=True)} for r in rows], "raw"
     return [{**r, state_key: compact_state(r[state_key])} for r in rows], "state"
+
+
+PAIR_QSETS = ("pair", "pair_assume", "relation", "relation2")
+
+
+def _row_qset_mode(line: str, qset: str) -> tuple | None:
+    """(qset, mode) of a predictions line; rows without `qset` count as `qset` (runs 1–4), without `mode` as joint.
+    None for a line that is not a JSON row (kept as is)."""
+    try:
+        r = json.loads(line)
+    except ValueError:
+        return None
+    return (r.get("qset", qset), r.get("mode", "joint"))
+
+
+def open_predictions(out_path: Path, qset: str, pmode: str, append: bool):
+    """Open a predictions file so that no other question set's rows are ever lost (run 8; run 7 lost v3 compact rows when a
+    pair --compact run wrote the same predictions_<model>_<split>_all_compact.jsonl).
+
+    The filename is unchanged (every reader keeps working; they all filter on `qset`/`mode`). Without --append, only the
+    rows of THIS (qset, mode) are dropped — what "w" used to mean for a file holding one question set — and every other
+    row is kept; with --append nothing is dropped. The file is opened for appending and locked (flock) while it is
+    rewritten and for every row written, so two runs of different question sets into one file at once cannot clobber
+    each other. Returns (file, number of other rows kept)."""
+    import fcntl
+    f = out_path.open("a+")
+    fcntl.flock(f, fcntl.LOCK_EX)
+    try:
+        f.seek(0)
+        raw = f.read()
+        lines = [l + "\n" for l in raw.split("\n") if l.strip()]
+        keep = lines if append else [l for l in lines if _row_qset_mode(l, qset) != (qset, pmode)]
+        if "".join(keep) != raw:  # rows dropped, or a last line without its newline
+            f.seek(0)
+            f.truncate()
+            f.write("".join(keep))
+            f.flush()
+        other = sum(1 for l in keep if _row_qset_mode(l, qset) != (qset, pmode))
+    finally:
+        fcntl.flock(f, fcntl.LOCK_UN)
+    return f, other
+
+
+def _write_locked(f, text: str) -> None:
+    import fcntl
+    fcntl.flock(f, fcntl.LOCK_EX)
+    try:
+        f.write(text)
+        f.flush()
+    finally:
+        fcntl.flock(f, fcntl.LOCK_UN)
 
 
 def apply_prompt_file(model, path: str) -> str:
@@ -249,19 +300,22 @@ def cmd_predict(args):
         print(f"compact state ({render_source}) for {len(rows)} rows", flush=True)
     model = build_model(args.model, args.qset)
     prompt_sha = apply_prompt_file(model, args.prompt_file) if getattr(args, "prompt_file", None) else None
-    if args.qset in ("pair", "relation"):
+    if args.qset in ("pair", "relation", "relation2"):
         questions = QUESTION_SETS[args.qset]
     elif args.qset == "v2":
         questions = DECISIONS_V2 if args.questions == "all" else (PRIMARY_V2,)
     elif args.qset == "v3":
         questions = DECISIONS_V3 if args.questions == "all" else (PRIMARY_V3,)
+    elif args.qset == "v4":
+        questions = DECISIONS_V4 if args.questions == "all" else (PRIMARY_V4,)
     else:
         questions = DECISIONS if args.questions == "all" else (PRIMARY,)
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
     variant = f"{args.questions}{'_words' if args.words else ''}{'_compact' if compact else ''}"  # C1 never overwrites full-state rows
+    # one file per (model, split, variant) holds every question set (run 5 design); open_predictions never drops another
+    # question set's or mode's rows, so a v3/v4 run and a pair/relation run into one --run dir keep both
     out_path = run_dir / f"predictions_{args.model}_{args.split}_{variant}.jsonl"
-    mode = "a" if args.append else "w"
     t0 = time.time()
     n_err = 0
 
@@ -270,7 +324,10 @@ def cmd_predict(args):
             return r, decide_single(model, r[state_key], r["features"], tuple(questions))
         return r, model.decide(r[state_key], r["features"], questions)
 
-    with out_path.open(mode) as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+    fh, kept_other = open_predictions(out_path, args.qset, pmode, args.append)
+    if kept_other:
+        print(f"{out_path}: keeping {kept_other} rows of other question sets / modes", flush=True)
+    with fh as f, ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         futs = [ex.submit(work, r) for r in rows]
         for i, fut in enumerate(as_completed(futs), 1):
             r, d = fut.result()
@@ -282,7 +339,7 @@ def cmd_predict(args):
                 row.update(render="compact", render_source=render_source)
             if prompt_sha:
                 row["prompt_sha256"] = prompt_sha
-            f.write(json.dumps(row) + "\n")
+            _write_locked(f, json.dumps(row) + "\n")
             if i % 50 == 0 or i == len(rows):
                 print(f"{args.model} {args.split} {variant}: {i}/{len(rows)} errors={n_err} elapsed={time.time()-t0:.0f}s", flush=True)
     meta = {"model": args.model, "split": args.split, "variant": variant, "n": len(rows), "errors": n_err,
@@ -290,6 +347,8 @@ def cmd_predict(args):
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
     meta["qset"] = args.qset
     meta["mode"] = pmode
+    meta["predictions_file"] = out_path.name
+    meta["other_rows_kept"] = kept_other
     if compact:
         meta.update(render="compact", render_source=render_source)
     if prompt_sha:
@@ -410,7 +469,7 @@ def cmd_loadtest(args):
     model = build_model(args.model, args.qset)
     if args.no_retry and hasattr(model, "max_retries_429"):
         model.max_retries_429 = 0  # R5-H6: 429s count as errors
-    questions = {"v2": DECISIONS_V2, "v3": DECISIONS_V3}.get(args.qset, (PRIMARY,))
+    questions = {"v2": DECISIONS_V2, "v3": DECISIONS_V3, "v4": DECISIONS_V4}.get(args.qset, (PRIMARY,))
     rate = args.base_rate * args.multiplier
     offsets = [i / rate for i in range(len(rows))]
     print(f"replaying {len(rows)} decisions at {rate:.2f}/s (base {args.base_rate:.3f}/s x {args.multiplier:g}), ~{offsets[-1]:.0f}s", flush=True)
@@ -516,10 +575,10 @@ def main(argv=None):
     p.add_argument("--concurrency", type=int, default=8)
     p.add_argument("--questions", choices=["primary", "all"], default="all")
     p.add_argument("--words", action="store_true", help="numbers-as-words ablation state")
-    p.add_argument("--append", action="store_true")
+    p.add_argument("--append", action="store_true", help="keep this question set's earlier rows too (rows of other question sets / modes are always kept)")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2", "v3", "pair", "pair_assume", "relation"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), pair = run4 same_change, pair_assume = run5 assumption_conflict, relation = run7 C5 (four binaries)")
+    p.add_argument("--qset", choices=["v1", "v2", "v3", "v4", "pair", "pair_assume", "relation", "relation2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), v4 = run8 (v3 minus follows_conventions, message_matches_diff), pair = run4 same_change, pair_assume = run5 assumption_conflict, relation = run7 C5 (four binaries), relation2 = run8 (three binaries; branch from metadata)")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.add_argument("--single-question", action="store_true", help="run 6 R6A-H4: one request per question, answers merged into one row (mode=single); default joint")
@@ -552,7 +611,7 @@ def main(argv=None):
     l.add_argument("--concurrency", type=int, default=64, help="worker threads (= max in-flight requests incl. those sleeping until their slot); run 6 uses 512 so 300× (104/s) is not throttled")
     l.add_argument("--run", default="run1")
     l.add_argument("--dataset")
-    l.add_argument("--qset", choices=["v1", "v2", "v3"], default="v1")
+    l.add_argument("--qset", choices=["v1", "v2", "v3", "v4"], default="v1")
     l.add_argument("--no-retry", action="store_true", help="disable the System One adapter's 429 retry (also MERGEONE_NO_RETRY=1); run 5 R5-H6")
     l.set_defaults(fn=cmd_loadtest)
     r = sub.add_parser("report")

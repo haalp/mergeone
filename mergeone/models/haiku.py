@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 
-from .base import Decision, DECISIONS, DECISIONS_V2, DECISIONS_V3, Timer, questions_for
+from .base import Decision, DECISIONS, DECISIONS_V2, DECISIONS_V3, DECISIONS_V4, Timer, questions_for
 
 MODEL_ID = "claude-haiku-5-5"
 PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md",
@@ -17,7 +17,9 @@ PROMPTS = {"v1": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v1.md"
            "v3": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v3.md",
            "pair": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
            "pair_assume": Path(__file__).resolve().parents[2] / "prompts" / "haiku_pair.md",
-           "relation": Path(__file__).resolve().parents[2] / "prompts" / "haiku_relation.md"}  # run 7 C5
+           "relation": Path(__file__).resolve().parents[2] / "prompts" / "haiku_relation.md",  # run 7 C5
+           "relation2": Path(__file__).resolve().parents[2] / "prompts" / "haiku_relation2.md",  # run 8
+           "v4": Path(__file__).resolve().parents[2] / "prompts" / "haiku_v4.md"}  # run 8: v3 minus two questions
 SCHEMA_PAIR = {
     "type": "object",
     "properties": {"same_change": {"type": "object", "properties": {k: {"type": "number"} for k in ("same", "subset", "related", "unrelated")},
@@ -41,6 +43,16 @@ SCHEMA_RELATION = {  # run 7 C5: four independent probabilities (not a distribut
         "builds_on": {"type": "number", "description": "Probability 0-1 that one PR continues, extends, fixes or reverts the other."},
     },
     "required": ["same_change", "same_goal", "same_branch", "builds_on"],
+    "additionalProperties": False,
+}
+SCHEMA_RELATION2 = {  # run 8: three independent probabilities; mirrors prompts/jev_relation2.json
+    "type": "object",
+    "properties": {
+        "same_change": {"type": "number", "description": "Probability 0-1 that B makes A unnecessary (B already makes A's change)."},
+        "builds_on": {"type": "number", "description": "Probability 0-1 that A depends on or follows B (continues, extends, fixes or reverts it)."},
+        "same_goal": {"type": "number", "description": "Probability 0-1 that A and B address the same bug or feature by a different method."},
+    },
+    "required": ["same_change", "builds_on", "same_goal"],
     "additionalProperties": False,
 }
 
@@ -81,6 +93,13 @@ SCHEMA_V3 = {
     "additionalProperties": False,
 }
 
+SCHEMA_V4 = {  # run 8: v3 minus message_matches_diff and follows_conventions
+    "type": "object",
+    "properties": {k: v for k, v in SCHEMA_V3["properties"].items() if k in DECISIONS_V4},
+    "required": list(DECISIONS_V4),
+    "additionalProperties": False,
+}
+
 
 class HaikuModel:
     name = "haiku"
@@ -94,7 +113,7 @@ class HaikuModel:
         self.version = version
         self.prompt = PROMPTS[version].read_text()
         self.schema_all = {"v1": SCHEMA, "v2": SCHEMA_V2, "v3": SCHEMA_V3, "pair": SCHEMA_PAIR, "pair_assume": SCHEMA_PAIR_ASSUME,
-                           "relation": SCHEMA_RELATION}[version]
+                           "relation": SCHEMA_RELATION, "relation2": SCHEMA_RELATION2, "v4": SCHEMA_V4}[version]
         self.effort = effort
         p = (prices or {}).get(self.name) or ({"input_per_mtok": spec.input_per_mtok, "output_per_mtok": spec.output_per_mtok} if spec is not None else {"input_per_mtok": 0.10, "output_per_mtok": 0.50})
         self.in_price = p["input_per_mtok"] / 1e6

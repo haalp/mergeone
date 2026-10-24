@@ -1,0 +1,14 @@
+{
+  "same_change": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. B makes A unnecessary: B already makes the change A makes (the same fix or the same addition, in essentially the same way, possibly as a slightly larger or smaller version of it), so once B is in, A adds nothing. Judge only from the titles, messages, file lists and diffs; ignore which branch either one targets."
+  },
+  "builds_on": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. A depends on or follows B: A continues, extends, completes, fixes, or reverts B's change, so A only makes sense with B's change in mind. Answer low if the two are independent changes that merely touch the same code."
+  },
+  "same_goal": {
+    "type": "noul",
+    "instructions": "You are shown two pull requests from the same repository, A and B. A and B address the same bug, issue or feature, but by a different method: a different fix, a different design or a different part of the code, so they are alternatives rather than one change made twice. Answer low if they make essentially the same change, or if they address different problems."
+  }
+}

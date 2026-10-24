@@ -62,7 +62,7 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import rankdata
 
-from ..models.base import DECISIONS_V3, PRIMARY_V3
+from ..models.base import DECISIONS_V3, DECISIONS_V4, PRIMARY_V3
 from . import run5
 from . import run7_relation as RL
 from .metrics import bootstrap_ci
@@ -216,19 +216,27 @@ def paired_ci(new: dict[int, dict], old: dict[int, dict], y: dict[int, int], qs:
     return {"n_paired": len(keys), "ci95": None if lo != lo else [lo, hi], "delta_same_keys": fn(yy, P)}
 
 
-def compare_v3(new: dict[int, dict], old: dict[int, dict], y: dict[int, int], baseline: dict | None) -> dict:
-    """Per v3 question and mean: new AUC, baseline AUC (from run 5's metrics JSON), Δ and paired-bootstrap CI."""
+def compare_v4(new: dict[int, dict], old: dict[int, dict], y: dict[int, int], baseline: dict | None) -> dict:
+    """compare_v3 over the eight v4 questions (mean over 8)."""
+    return compare_v3(new, old, y, baseline, DECISIONS_V4)
+
+
+def compare_v3(new: dict[int, dict], old: dict[int, dict], y: dict[int, int], baseline: dict | None,
+               qs: tuple[str, ...] = DECISIONS_V3) -> dict:
+    """Per question and mean: new AUC, baseline AUC (from run 5's metrics JSON), Δ and paired-bootstrap CI.
+    qs = DECISIONS_V3 (ten) by default; run 8 passes DECISIONS_V4 so v4 rows score as the mean over its eight questions
+    (v3 rows answer those eight too, so a v4 run pairs with a v3 control on the same eight)."""
     per = {}
-    for q in DECISIONS_V3:
+    for q in qs:
         a, n = auc_of(new, y, q)
         b = ((baseline or {}).get("questions") or {}).get(q, {}).get("test_raw_vs_iterated")
         per[q] = {"auc": a, "n": n, "baseline": b, "delta": None if a is None or b is None else a - b,
                   **paired_ci(new, old, y, (q,))}
-    both = [q for q in DECISIONS_V3 if per[q]["auc"] is not None and per[q]["baseline"] is not None]
+    both = [q for q in qs if per[q]["auc"] is not None and per[q]["baseline"] is not None]
     mean = {"auc": float(np.mean([per[q]["auc"] for q in both])) if both else None,
             "baseline": float(np.mean([per[q]["baseline"] for q in both])) if both else None, "n_questions": len(both)}
-    mean["delta"] = None if len(both) != len(DECISIONS_V3) else mean["auc"] - mean["baseline"]
-    mean.update(paired_ci(new, old, y, DECISIONS_V3))
+    mean["delta"] = None if len(both) != len(qs) else mean["auc"] - mean["baseline"]
+    mean.update(paired_ci(new, old, y, qs))
     return {"questions": per, "mean": mean}
 
 
@@ -482,26 +490,40 @@ def controls(inp: Inputs) -> dict:
     return out
 
 
-def base_branches(inp: Inputs, pairs: list[dict]) -> tuple[dict[tuple, str | None], dict]:
-    """{(repo, number): base} for every A and B of `pairs` ({repo, a_number, b_number}): dataset `base` first, then the
-    raw PR memory row's `base`. Returns the map and a count of where each base came from."""
+def pr_fields(inp: Inputs, pairs: list[dict], fields: tuple[str, ...]) -> tuple[dict[str, dict[tuple, object]], dict[str, dict]]:
+    """Per field, {(repo, number): value} for every A and B of `pairs` ({repo, a_number, b_number}): the dataset row's
+    field first, then the raw PR memory row's (data/run4/memory/<repo>.jsonl). Empty values count as missing. Each file is
+    read once for all fields. Returns the maps and, per field, a count of where each value came from."""
     need = {(r["repo"], int(n)) for r in pairs for n in (r["a_number"], r["b_number"])}
-    got, src = {}, {"dataset": 0, "memory": 0, "missing": 0}
+    got = {f: {} for f in fields}
+    src = {f: {"dataset": 0, "memory": 0, "missing": 0} for f in fields}
     ds = inp.jsonl(DATASET) or []
     for r in ds:
         k = (r["repo"], int(r["number"]))
-        if k in need and r.get("base"):
-            got[k] = r["base"]
-            src["dataset"] += 1
-    for repo in sorted({k[0] for k in need - set(got)}):
+        if k in need:
+            for f in fields:
+                if r.get(f):
+                    got[f][k] = r[f]
+                    src[f]["dataset"] += 1
+    for repo in sorted({k[0] for f in fields for k in need - set(got[f])}):
         rows = inp.jsonl(MEM_DIR / (repo.replace("/", "__") + ".jsonl")) or []
         for r in rows:
             k = (r.get("repo") or repo, int(r["number"]))
-            if k in need and k not in got and r.get("base"):
-                got[k] = r["base"]
-                src["memory"] += 1
-    src["missing"] = len(need - set(got))
+            if k in need:
+                for f in fields:
+                    if k not in got[f] and r.get(f):
+                        got[f][k] = r[f]
+                        src[f]["memory"] += 1
+    for f in fields:
+        src[f]["missing"] = len(need - set(got[f]))
     return got, src
+
+
+def base_branches(inp: Inputs, pairs: list[dict]) -> tuple[dict[tuple, str | None], dict]:
+    """{(repo, number): base} for every A and B of `pairs` ({repo, a_number, b_number}): dataset `base` first, then the
+    raw PR memory row's `base`. Returns the map and a count of where each base came from."""
+    got, src = pr_fields(inp, pairs, ("base",))
+    return got["base"], src["base"]
 
 
 def c5_metadata(inp: Inputs, root: Path) -> dict:

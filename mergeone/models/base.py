@@ -26,7 +26,15 @@ PAIR_ASSUME = ("assumption_conflict",)
 # run7 (C5, docs/run7-addendum-draft.md R7.2): typed relation of a (PR, candidate) pair as four noul questions,
 # prompts/jev_relation.json / haiku_relation.md; the class rule is in mergeone.eval.run7_relation
 RELATION = ("same_change", "same_goal", "same_branch", "builds_on")
-QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "v3": DECISIONS_V3, "pair": PAIR, "pair_assume": PAIR_ASSUME, "relation": RELATION}
+# run8: relation2 = three binaries the diff can answer (no branch question: the base branch is metadata), class rule with
+# metadata inputs in mergeone.eval.run8_relation; prompts/jev_relation2.json / haiku_relation2.md
+RELATION2 = ("same_change", "builds_on", "same_goal")
+# run8: v4 = v3 minus follows_conventions and message_matches_diff (prompts/jev_v4.json / haiku_v4.md)
+V4_DROPPED = ("message_matches_diff", "follows_conventions")
+DECISIONS_V4 = tuple(q for q in DECISIONS_V3 if q not in V4_DROPPED)
+PRIMARY_V4 = "needs_human_review"
+QUESTION_SETS = {"v1": DECISIONS, "v2": DECISIONS_V2, "v3": DECISIONS_V3, "v4": DECISIONS_V4, "pair": PAIR, "pair_assume": PAIR_ASSUME,
+                 "relation": RELATION, "relation2": RELATION2}
 
 
 def questions_for(version: str, questions: tuple[str, ...]) -> tuple[str, ...]:
