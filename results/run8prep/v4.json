@@ -1,0 +1,174 @@
+{
+ "questions_v4": [
+  "is_logic_change",
+  "weakens_tests",
+  "touches_concurrency",
+  "needs_human_review",
+  "exceeds_scope",
+  "breaking_change",
+  "tests_cover_change",
+  "hard_to_revert"
+ ],
+ "dropped": [
+  "follows_conventions",
+  "message_matches_diff"
+ ],
+ "models": {
+  "run7 control test": {
+   "jev": {
+    "n": 705,
+    "v3_mean": 0.6173652933965783,
+    "v4_mean": 0.7156188376059265,
+    "dropped_auc": {
+     "follows_conventions": 0.22409795874860097,
+     "message_matches_diff": 0.2246042743697703
+    },
+    "delta": 0.09825354420934818,
+    "ci95": [
+     0.08445157476414325,
+     0.11005653793740708
+    ],
+    "n_ci": 705
+   },
+   "pplx-flash": {
+    "n": 682,
+    "v3_mean": 0.6284058740268932,
+    "v4_mean": 0.7136927931115828,
+    "dropped_auc": {
+     "follows_conventions": 0.2519167256428403,
+     "message_matches_diff": 0.32259966973342774
+    },
+    "delta": 0.08528691908468966,
+    "ci95": [
+     0.07118909184856881,
+     0.09911260581344282
+    ],
+    "n_ci": 682
+   }
+  },
+  "run5 test": {
+   "jev": {
+    "n": 705,
+    "v3_mean": 0.6334647977402335,
+    "v4_mean": 0.7334214944305282,
+    "dropped_auc": {
+     "follows_conventions": 0.23457069764962957,
+     "message_matches_diff": 0.23270532430847946
+    },
+    "delta": 0.09995669669029472,
+    "ci95": [
+     0.08579554523316787,
+     0.11260347629889199
+    ],
+    "n_ci": 705
+   },
+   "pplx-flash": {
+    "n": 705,
+    "v3_mean": 0.6801764110216916,
+    "v4_mean": 0.7070964131535469,
+    "dropped_auc": {
+     "follows_conventions": 0.6413952992591803,
+     "message_matches_diff": 0.5035975057293609
+    },
+    "delta": 0.026920002131855303,
+    "ci95": [
+     0.01602900564763089,
+     0.037885324029998654
+    ],
+    "n_ci": 705
+   },
+   "haiku": {
+    "n": 705,
+    "v3_mean": 0.64800271811544,
+    "v4_mean": 0.7271341869637051,
+    "dropped_auc": {
+     "follows_conventions": 0.30734690614507276,
+     "message_matches_diff": 0.35560677929968554
+    },
+    "delta": 0.07913146884826516,
+    "ci95": [
+     0.06315138564907637,
+     0.09395569545402752
+    ],
+    "n_ci": 705
+   },
+   "pplx": {
+    "n": 705,
+    "v3_mean": 0.6368704364973617,
+    "v4_mean": 0.7132688002984597,
+    "dropped_auc": {
+     "follows_conventions": 0.37358098385119654,
+     "message_matches_diff": 0.2889729787347439
+    },
+    "delta": 0.07639836380109799,
+    "ci95": [
+     0.06318522311921171,
+     0.08933152369781037
+    ],
+    "n_ci": 705
+   },
+   "rules": {
+    "n": 705,
+    "v3_mean": 0.5161701220487129,
+    "v4_mean": 0.5459914459308213,
+    "dropped_auc": {
+     "follows_conventions": 0.5,
+     "message_matches_diff": 0.2937696530405585
+    },
+    "delta": 0.02982132388210834,
+    "ci95": [
+     0.022728156664716608,
+     0.03748688998535426
+    ],
+    "n_ci": 705
+   }
+  }
+ },
+ "policy_hits": [
+  {
+   "path": "docs/POLICY.md",
+   "line": 12,
+   "question": "follows_conventions",
+   "kind": "comment/doc",
+   "text": "| `question_set` | `v2` (default, five questions) or `v3` (ten; `hard_to_revert`, `exceeds_scope` recommended, `follows_conventions` not \u2014 run 5) |"
+  },
+  {
+   "path": "mergeone/gate/policy.yaml",
+   "line": 52,
+   "question": "message_matches_diff",
+   "kind": "rule condition",
+   "text": "when: { message_matches_diff: \"<= 0.4\", is_logic_change: \">= 0.5\" }"
+  },
+  {
+   "path": "gate/internal/initcmd/templates/policy.yaml.tmpl",
+   "line": 5,
+   "question": "message_matches_diff",
+   "kind": "comment/doc",
+   "text": "#      with a probability: is_logic_change, weakens_tests, message_matches_diff, touches_concurrency,"
+  },
+  {
+   "path": "gate/internal/initcmd/templates/policy.yaml.tmpl",
+   "line": 79,
+   "question": "message_matches_diff",
+   "kind": "rule condition",
+   "text": "when: { message_matches_diff: \"<= 0.4\", is_logic_change: \">= 0.5\" }"
+  }
+ ],
+ "inputs_sha256": {
+  "data/run3/dataset.jsonl": "d1a6c6325666cdab576549132b97dbdad8da53b8b71114f3184e436a31504952",
+  "results/run5/predictions_haiku_test_all.jsonl": "20745997ebc72fd9b6eee0a434b698915879e3ab20780009e019a2ca57bfe7d7",
+  "results/run5/predictions_haiku_val_all.jsonl": "50c5cd4cfbc5863a619d5e6fbacdcd8fa6cc09d75ad6f037c33010e5c55bfc15",
+  "results/run5/predictions_jev_test_all.jsonl": "2e0d2a0b09488bcdda378dea604b908dc848db7138cab0f6db73638fc4b128dc",
+  "results/run5/predictions_jev_val_all.jsonl": "b08df32147fce92dcbc078eb4933cc98caef5896aa37edcdbd1bd972e8ddd9a2",
+  "results/run5/predictions_pplx-flash_test_all.jsonl": "4e74373448f48cdcb16e1384f6f6afb2acf3e0a40137ead1c4e7eebd830d4619",
+  "results/run5/predictions_pplx-flash_val_all.jsonl": "760e1d85113a0b9c2acfeea87cbc1f73086647e7ecf3cfa5f861cc4ab88b724e",
+  "results/run5/predictions_pplx_test_all.jsonl": "75b80ee2fb1834c495182896bb7d97261b0c7a249cad9dc60e3e791152b013c3",
+  "results/run5/predictions_pplx_val_all.jsonl": "9efcd437f323f5e3646161c961fedec31381c3a4381d9f35f2f1f155d763d8bf",
+  "results/run5/predictions_rules_test_all.jsonl": "b74e7c0b7d1a36fc2e4f43ab2e7b352cd9bb2d76c154ffd2f7ef2916b01a0f27",
+  "results/run6/predictions_pplx-flash-local_test_all.jsonl": "44b2319ebe1930586f36b8ea1614b30e5ebd1f430326e338e10a773c0bd8d037",
+  "results/run7/control/predictions_jev_test_all.jsonl": "51f53057f0b4b5e4f67f9ec3c66eccb2d922fd4473a3bbd1abf2c91b3656745c",
+  "results/run7/control/predictions_pplx-flash_test_all.jsonl": "f301f7927b8bfd6bdd40f31389b389741c3b6ecbc54b5673cd23175c9b9611fb",
+  "results/run7/tune_r0/predictions_pplx-flash_val_all.jsonl": "59dd6a0a0bfc9c20e887d825418d25cd59a4864a93c06448072b45929bd7551e",
+  "results/run7/tune_r0_iter/predictions_pplx-flash_val_all.jsonl": "b0194f74d62f7ea4ed6c418bbd72bfdd8b32a22bb50fc661986b4c5df35905ae"
+ }
+}

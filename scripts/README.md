@@ -14,6 +14,7 @@ inputs; model calls need the keys named in each script's header.
 | 5 | `run5_mac.sh`, `run5_v3_predict.sh`, `run5_assumptions_predict.sh` | retrieval v2, v3 question set, assumptions |
 | 6A | `run6_gpu.sh` (+ `docs/run6-gpu.md`) | self-hosted serving, probe, load tests on L4 / H100 |
 | 6B | `run6b_mac.sh` | candidate pool k, pairs, blind sample, labels |
+| 8 prep | `run8_prep.py` | routing, v4 and drift numbers from existing predictions, no model call → `docs/run8-numbers.md`, `results/run8prep/` |
 | — | `extract.sh` | dataset extraction (run 1 base data) |
 | — | `fig_decision_models_under_load.py` | the load figure in `results/figures/` |
 
