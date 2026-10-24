@@ -8,6 +8,7 @@
 //	mergeone loadtest --url http://localhost:8787 --rate 35 --n 1200
 //	mergeone loadtest --mock --k 5 --rate 34.7 --n 600 [--pair-concurrency 8]   (in-process, synthetic memory)
 //	mergeone mcp     --policy .mergeone.yaml [--mock]
+//	mergeone drift-replay --predictions then.jsonl[,more] --predictions now.jsonl[,more] [--qset v3] [--json]
 //
 //	mergeone         (on a terminal) the banner, then an interactive session with the same commands
 //
@@ -64,15 +65,16 @@ func main() {
 // commands are the subcommands shared by the one-shot CLI and the session. Each returns the process
 // exit code instead of exiting, so a session survives a verdict, a bad flag or an error.
 var commands = map[string]func([]string) int{
-	"init":     cmdInit,
-	"serve":    cmdServe,
-	"pr":       cmdPR,
-	"decide":   cmdDecide,
-	"replay":   cmdReplay,
-	"loadtest": cmdLoadtest,
-	"index":    cmdIndex,
-	"mcp":      cmdMCP,
-	"models":   cmdModels,
+	"init":         cmdInit,
+	"serve":        cmdServe,
+	"pr":           cmdPR,
+	"decide":       cmdDecide,
+	"replay":       cmdReplay,
+	"loadtest":     cmdLoadtest,
+	"index":        cmdIndex,
+	"mcp":          cmdMCP,
+	"models":       cmdModels,
+	"drift-replay": cmdDriftReplay,
 }
 
 // run is the whole CLI for args (os.Args[1:]); it returns the exit code.
@@ -102,7 +104,7 @@ func run(args []string) int {
 	return cmd(args[1:])
 }
 
-const usageLine = "usage: mergeone <init|serve|pr|decide|replay|loadtest|index|models|mcp|version> [flags]"
+const usageLine = "usage: mergeone <init|serve|pr|decide|replay|drift-replay|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
 	fmt.Fprintln(stderr, usageLine)

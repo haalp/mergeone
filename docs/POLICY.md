@@ -17,6 +17,7 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
 | `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
+| `drift` / `on_drift` | drift monitor (`drift: {enabled: false}` default) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
 
@@ -33,6 +34,33 @@ the one rule that read `message_matches_diff`, `message-mismatch` (`message_matc
 asked, a missing probability is a non-match, and the rule would silently do nothing, so it is removed from the default
 `policy.yaml` and from the template `mergeone init` writes. A policy of your own that still has the rule keeps working
 under `v2` / `v3`; under `v4` it never matches.
+
+## Drift monitor (`drift`, `on_drift`)
+
+The gateway keeps, per model version and question, daily sums of the **raw** (pre-calibration) probabilities it
+records (sum, sum of squares, yes = raw ≥ 0.5, n). A question is **degraded** when, with n ≥ 200 in the current
+window (trailing 7 days), its mean moved more than **0.20** from the reference or its spread (standard deviation)
+fell to half or less. The reference is the 28 days before the current window, or the calibration file's optional
+`fit_stats` block while the gatelog is younger than 35 days (no reference: nothing is flagged). The thresholds are
+the ones pre-registered in PROTOCOL.md §R8 and are moved only by a run. Spec: [drift-monitor.md](drift-monitor.md).
+
+```yaml
+drift:
+  enabled: false                          # default
+on_drift: { verdict: hold, route: human } # default; `on_drift: ignore` keeps the rules as they are
+```
+
+- `GET /stats` always carries a `drift` block (per model: `reference` = `gatelog` | `fit_stats` | `none`, per question
+  `mean_raw`, `shift`, `yes_rate`, `spread`, `n`, the reference values, `degraded`). It is measurement only; nothing
+  acts on it while `drift.enabled` is false.
+- With `drift.enabled: true`: rules run top to bottom as usual; the first rule whose `when` reads a degraded question
+  is not evaluated and the PR gets `on_drift` (rule `on_drift`, reason `drift:<question>`). Rules above it decide as
+  before; a degraded question that no rule reads changes no verdict. The result lists the degraded questions
+  (`drift`), the commit status description ends in `drift: <question>` while they last, and the server logs each
+  degraded question once an hour.
+- Not yet implemented: the slow signal (AUC against outcomes fell > 0.05) and `mergeone calibrate --from-gatelog`.
+- `mergeone drift-replay --predictions then.jsonl --predictions now.jsonl` runs the same computation over two
+  prediction files (both sides restricted to the PRs both answered); a comma joins several files into one side.
 
 ## max_rounds (convergence cap)
 

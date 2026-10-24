@@ -61,6 +61,8 @@ type Result struct {
 	Error             string         `json:"error,omitempty"`
 	TS                time.Time      `json:"ts"`
 	Extra             map[string]any `json:"extra,omitempty"` // run 4: duplicate candidates, stale days
+	// Drift lists the questions the drift monitor had degraded at decision time (drift.enabled only).
+	Drift []string `json:"drift,omitempty"`
 	// Rounds is the number of non-pass verdicts on this PR including this one (max_rounds on and PR known).
 	Rounds int `json:"rounds,omitempty"`
 	// CappedRule is the rule that matched before max-rounds replaced it.
@@ -146,6 +148,12 @@ type Policy struct {
 	Actions Actions `yaml:"actions"`
 	// MaxRounds caps review loops: after this many non-pass verdicts on one PR, route to a human (0 = off).
 	MaxRounds int `yaml:"max_rounds"`
+	// Drift monitor (docs/drift-monitor.md): off by default. When on, rules reading a degraded question
+	// are not evaluated and the PR gets OnDrift (default hold → human; `ignore` keeps the rules).
+	Drift struct {
+		Enabled bool `yaml:"enabled"`
+	} `yaml:"drift"`
+	OnDrift DriftOutcome `yaml:"on_drift"`
 }
 
 // Actions is the policy's `actions:` block: deterministic GitHub write-back of a verdict (commit status,
@@ -236,6 +244,9 @@ func LoadPolicy(path string) (*Policy, error) {
 	if p.OnError.Verdict == "" {
 		p.OnError = Outcome{"hold", "human", "Decision model unavailable"}
 	}
+	if !p.OnDrift.Ignore && p.OnDrift.Verdict == "" {
+		p.OnDrift.Outcome = Outcome{Verdict: "hold", Route: "human"}
+	}
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
@@ -272,10 +283,15 @@ func (p *Policy) compile() error {
 
 // Calibrator is a per-question piecewise-linear map (isotonic fit from gatebench).
 type Calibrator struct {
-	maps map[string]struct {
-		X []float64 `json:"x"`
-		Y []float64 `json:"y"`
-	}
+	maps map[string]calMap
+	// FitStats is the optional `fit_stats` block of the calibration file: the raw answers the map was fit
+	// on, per question. The drift monitor's reference while the gatelog is younger than 35 days.
+	FitStats map[string]QStats
+}
+
+type calMap struct {
+	X []float64 `json:"x"`
+	Y []float64 `json:"y"`
 }
 
 // LoadCalibration reads calibration_<model>_<qset>.json; a missing file is the identity map.
@@ -291,8 +307,23 @@ func LoadCalibration(path string) (*Calibrator, error) {
 		}
 		return nil, err
 	}
-	if err := json.Unmarshal(b, &c.maps); err != nil {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return nil, fmt.Errorf("calibration %s: %w", path, err)
+	}
+	if fs, ok := raw["fit_stats"]; ok {
+		if err := json.Unmarshal(fs, &c.FitStats); err != nil {
+			return nil, fmt.Errorf("calibration %s: fit_stats: %w", path, err)
+		}
+		delete(raw, "fit_stats")
+	}
+	c.maps = make(map[string]calMap, len(raw))
+	for q, m := range raw {
+		var cm calMap
+		if err := json.Unmarshal(m, &cm); err != nil {
+			return nil, fmt.Errorf("calibration %s: %s: %w", path, q, err)
+		}
+		c.maps[q] = cm
 	}
 	return c, nil
 }
@@ -336,6 +367,9 @@ type Gate struct {
 	// PairConcurrency bounds the same_change calls in flight for one decision (default 8; 1 = sequential).
 	// It changes latency only: aggregation is in candidate order whatever the completion order.
 	PairConcurrency int
+	// Degraded returns the questions the drift monitor currently flags (nil = none). Read only when
+	// policy drift.enabled is true.
+	Degraded func() map[string]bool
 }
 
 // precheck returns the result for a change that never reaches the model (protected path, no model).
@@ -364,8 +398,12 @@ func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 	}
 	cal := g.Cal.Apply(d.Probs)
 	rule, out := g.Match(cal)
-	return Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
+	res := Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
 		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now}
+	if deg := sortedKeys(g.degradedSet()); len(deg) > 0 {
+		res.Drift = deg
+	}
+	return res
 }
 
 func inputSHA(state string) string {
@@ -528,8 +566,22 @@ func (g *Gate) ApplyMaxRounds(res *Result, prior int) {
 func wallMS(t0 time.Time) float64 { return float64(time.Since(t0).Microseconds()) / 1000 }
 
 // Match applies the rules to (calibrated) probabilities. Exported for `gate replay`.
+// With the drift monitor on, the first rule (in order) that reads a degraded question is not evaluated:
+// the PR gets on_drift with reason drift:<question>. Rules above it ran as usual; with on_drift: ignore
+// every rule runs.
 func (g *Gate) Match(probs map[string]float64) (string, Outcome) {
-	for _, r := range g.Policy.Rules {
+	degraded := g.degradedSet()
+	for i := range g.Policy.Rules {
+		r := &g.Policy.Rules[i]
+		if od := g.Policy.OnDrift; len(degraded) > 0 && !od.Ignore {
+			if q := r.readsDegraded(degraded); q != "" {
+				reason := "drift:" + q
+				if od.Reason != "" {
+					reason += ": " + od.Reason
+				}
+				return "on_drift", Outcome{od.Verdict, od.Route, reason}
+			}
+		}
 		ok := true
 		for _, c := range r.conds {
 			p, has := probs[c.q]

@@ -19,6 +19,12 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `follows_conventions`; no shipped rule ever read `follows_conventions`; the mismatch rule never fired under the drifted
   model). The default `question_set` stays `v2` until a v4 calibration map exists; v2/v3 scoring is unchanged, and the
   run-3/4/5 report builders re-derive historical verdicts with the rule restored (`report_run3.historical_policy`).
+- 2026-10-24 23:22Z drift monitor in the gateway behind `drift.enabled` (default false): fast signal only (raw-mean shift > 0.20 or
+  spread halved, n ≥ 200), `on_drift` outcome, `/stats` drift block, optional `fit_stats` in the calibration file
+  (written by `gate fit-calibration` from now on; the shipped v2 maps have none). `mergeone drift-replay` over the
+  committed predictions (no model call) flags `follows_conventions` and `message_matches_diff` for pplx-flash run 5 →
+  run 7 (val and test) and nothing for jev or for the run-6A self-hosted row — the fast-signal half of R8-H5. The slow
+  AUC signal is not implemented yet.
 
 ## Run 7 complete — 2026-10-24
 

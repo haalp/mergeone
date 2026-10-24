@@ -122,13 +122,21 @@ func (a actor) status(context, state, sha string, res engine.Result, targetURL s
 	}
 }
 
-// StatusDescription is "<verdict> · <rule> · <reason>" trimmed to GitHub's 140 characters.
+// StatusDescription is "<verdict> · <rule> · <reason>" trimmed to GitHub's 140 characters. While the
+// drift monitor flags questions it ends in " · drift: <q>[,<q>]", which the trim never cuts.
 func StatusDescription(res engine.Result) string {
 	d := strings.Join([]string{res.Verdict, res.Rule, res.Reason}, " · ")
-	if r := []rune(d); len(r) > 140 {
-		d = string(r[:139]) + "…"
+	suffix := ""
+	if len(res.Drift) > 0 {
+		suffix = " · drift: " + strings.Join(res.Drift, ",")
+		if r := []rune(suffix); len(r) > 100 {
+			suffix = string(r[:99]) + "…"
+		}
 	}
-	return d
+	if r, max := []rune(d), 140-len([]rune(suffix)); len(r) > max {
+		d = string(r[:max-1]) + "…"
+	}
+	return d + suffix
 }
 
 // allLabels is the exclusive set: every label any verdict applies.

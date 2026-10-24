@@ -108,6 +108,13 @@ on_error:
   route: human
   reason: "Decision model unavailable"
 
+# Drift monitor (docs/drift-monitor.md): watches each question's raw-probability mean and spread in the
+# gatelog. Off until run 8 reports the replay (PROTOCOL.md R8-H5). When on, a rule that reads a degraded
+# question is not evaluated and the PR gets on_drift with reason drift:<question>.
+drift:
+  enabled: false
+# on_drift: { verdict: hold, route: human }   # default; `ignore` keeps the rules as they are
+
 # Convergence cap: with agent authors and automated review a PR can be re-decided on every push. Off (0) by
 # default; needs a PR number (webhook, POST /decide with a pr, `mergeone pr --pr N`).
 # max_rounds: 3   # after 3 non-pass verdicts on one PR, route to a human

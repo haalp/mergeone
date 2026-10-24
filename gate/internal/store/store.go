@@ -55,6 +55,7 @@ type Store struct {
 	cond    *sync.Cond
 	nextJob int64
 	shasPR  map[string]map[string]string // repo + "\x00" + pr → head_sha → latest non-error verdict (max_rounds)
+	drift   driftLog
 }
 
 // Job is an idempotent unit of work keyed by repo:pr:head_sha.
@@ -75,7 +76,8 @@ func Open(path string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, err
 	}
-	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{}}
+	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{},
+		drift: newDriftLog()}
 	s.cond = sync.NewCond(&s.mu)
 	if f, err := os.Open(path); err == nil {
 		sc := bufio.NewScanner(f)
@@ -97,6 +99,10 @@ func Open(path string) (*Store, error) {
 }
 
 func (s *Store) index(r *Record) {
+	// A cached verdict recorded again (re-act) carries the same decision time: count its answers once.
+	if prev := s.bySHA[r.Repo+"\x00"+r.HeadSHA]; prev == nil || prev.Result.InputSHA256 != r.Result.InputSHA256 || !prev.Result.TS.Equal(r.Result.TS) {
+		s.drift.add(r)
+	}
 	s.bySHA[r.Repo+"\x00"+r.HeadSHA] = r
 	if r.PR != 0 {
 		s.byPR[r.Repo+"\x00"+itoa(r.PR)] = r
@@ -199,6 +205,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		out["p50_ms"] = lat[len(lat)/2]
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
 	}
+	out["drift"] = s.drift.report(time.Now())
 	return out
 }
 

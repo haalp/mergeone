@@ -92,9 +92,17 @@ def cmd_fit_calibration(a):
         iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(p, y)
         xs = np.linspace(0, 1, 101)
         maps[q] = {"x": xs.tolist(), "y": iso.predict(xs).tolist(), "n": int(len(y)), "positives": int(y.sum())}
+    # fit_stats: the raw answers the maps were fit on — the Go drift monitor's reference while the gatelog is
+    # younger than 35 days (docs/drift-monitor.md). Population std, yes = raw >= 0.5.
+    fit = {}
+    for q in sorted({q for k in keys for q in preds[k]}):
+        p = np.array([preds[k][q] for k in keys if preds[k].get(q) is not None and preds[k][q] == preds[k][q]], dtype=float)
+        if len(p):
+            fit[q] = {"mean": float(p.mean()), "yes_rate": float((p >= 0.5).mean()), "spread": float(p.std()), "n": int(len(p))}
+    maps["fit_stats"] = fit
     out = Path(__file__).with_name(f"calibration_{a.model}_{a.qset}.json")
     out.write_text(json.dumps(maps, indent=1))
-    print("wrote", out, "questions:", list(maps))
+    print("wrote", out, "questions:", [q for q in maps if q != "fit_stats"])
 
 
 def main(argv=None):

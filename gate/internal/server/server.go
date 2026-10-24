@@ -37,11 +37,42 @@ type Gateway struct {
 // New starts the worker pool.
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{})}
+	if g.Cal != nil {
+		st.SetFitStats(g.Cal.FitStats)
+	}
+	if g.Policy.Drift.Enabled {
+		g.Degraded = func() map[string]bool { return st.DegradedQuestions(time.Now()) }
+		go gw.driftLogger(time.Hour)
+	}
 	for i := 0; i < workers; i++ {
 		gw.wg.Add(1)
 		go gw.worker()
 	}
 	return gw
+}
+
+// driftLogger logs every degraded question once per interval until the gateway stops.
+func (gw *Gateway) driftLogger(every time.Duration) {
+	t := time.NewTicker(every)
+	defer t.Stop()
+	for {
+		select {
+		case <-gw.stop:
+			return
+		case now := <-t.C:
+			gw.logDrift(now)
+		}
+	}
+}
+
+func (gw *Gateway) logDrift(now time.Time) {
+	for model, md := range gw.Store.Drift(now) {
+		for _, q := range md.Degraded {
+			d := md.Questions[q]
+			log.Printf("drift: model=%s question=%s mean_raw=%.3f ref=%.3f shift=%.3f spread=%.3f ref_spread=%.3f n=%d reference=%s",
+				model, q, d.MeanRaw, d.RefMeanRaw, d.Shift, d.Spread, d.RefSpread, d.N, md.Reference)
+		}
+	}
 }
 
 // Stop drains workers.
