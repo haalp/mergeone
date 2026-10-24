@@ -32,6 +32,24 @@ Scoring (fixed here, before any run-7 test call)
   * R7-H2 (§R7.6): mean v3 AUC vs run 5's labels (`iterated`) — tuned − untuned ≥ +0.02 — and the test iteration eval
     (needs_human_review vs `iterated`) drops ≤ 0.01. The revert half of the eval has no untuned test number (run 5 did
     not run the k8s slice and R7.4 forbids re-running the untuned prompt), so it is reported as unavailable.
+
+Post-hoc sections (NOT pre-registered; added after the verdicts were computed; they never change a verdict)
+  The pre-registered C1/C2 comparisons are against run-4/run-5 numbers taken weeks earlier. Run 7 found provider-side
+  drift: pplx-flash answers differ under the same version string `pplx-decider-flash-v1.2`, and jev moved 1.13.0 →
+  1.14.0. Same-day full-state, untuned control calls were made AFTER the pre-registered verdicts:
+      results/run7/control/predictions_<model>_test_all.jsonl   v3 rows (qset v3, run-3 test split, untuned
+          prompts/jev_v3.json) and pair rows (qset pair, results/run4/pairs.jsonl test split; scored on the 187 R4-H2 ids)
+  A. "same-day controls (drift)": per model (1) drift = control − run 5 (v3, per question and mean, with the mean
+     probability per question on the same PRs so the drift shows as a shift) and control − run 4 (pair AUC);
+     (2) drift-adjusted C1 = compact − control (per question, mean, pair; tokens on the same PRs) with a one-line
+     "post-hoc reading" of the R7-H1 bar; (3) drift-adjusted C2 (pplx-flash) = tuned (results/run7/c2) − control, with a
+     post-hoc reading of the R7-H2 bar. Same AUC computation and paired bootstrap (seed 7, 1,000) as C1.
+  B. "C5 class rule with metadata branch": run7_relation.relation_class / score_model with P(same_branch) replaced by
+     the metadata fact (base branch of A == base branch of B → 1.0, else 0.0); thresholds and precedence unchanged.
+     Base branches: A from data/run3/dataset.jsonl `base` (keyed by repo + number); B from the same file when B is in
+     it, else from the raw PR memory data/run4/memory/<repo>.jsonl `base` (results/run7/relation_pairs.jsonl rows do
+     not carry a base). A pair with no known base keeps the model's answer (counted).
+  Written under metrics.json["post_hoc"] with their own inputs (path + sha256); the Verdicts table is unchanged.
 """
 from __future__ import annotations
 
@@ -46,6 +64,7 @@ from scipy.stats import rankdata
 
 from ..models.base import DECISIONS_V3, PRIMARY_V3
 from . import run5
+from . import run7_relation as RL
 from .metrics import bootstrap_ci
 
 RUN_DIR = Path("results/run7")
@@ -59,6 +78,12 @@ TUNING_LOG = Path("data/run7/tuning_log.jsonl")
 FROZEN = Path("data/run7/frozen.json")
 EVIDENCE = {t: RUN_DIR / f"evidence_metrics_{t}.json" for t in ("iteration", "rejection")}
 RELATION = RUN_DIR / "relation_metrics.json"
+CONTROL_DIR = RUN_DIR / "control"          # post-hoc only (same-day full-state untuned controls)
+MEM_DIR = Path("data/run4/memory")         # post-hoc C5: B's base branch when B is not in the dataset
+POST_HOC_NOTE = ("NOT pre-registered. The pre-registered C1/C2 comparisons are against run-4/run-5 numbers taken weeks earlier; "
+                 "run 7 found provider-side drift (pplx-flash answers differ under the same version string pplx-decider-flash-v1.2; "
+                 "jev moved 1.13.0 → 1.14.0). Same-day full-state, untuned control calls (results/run7/control/) were made AFTER the "
+                 "pre-registered verdicts. Nothing here changes a verdict row.")
 
 MODELS = ("jev", "pplx-flash")   # §R7.6: no haiku in run 7
 C2_MODEL = "pplx-flash"
@@ -358,6 +383,173 @@ def c5(inp: Inputs) -> dict:
             "pair_question_baseline": m.get("pair_question_baseline"), "R7-H5": {**h, "bar": h.get("bar") or BARS["R7-H5"]}}
 
 
+# ----------------------------------------------------------------- post-hoc (not pre-registered)
+def _as_baseline(rows: dict[int, dict], y: dict[int, int]) -> dict:
+    """A run-5-metrics-shaped baseline from rows: {"questions": {q: {"test_raw_vs_iterated": AUC}}}."""
+    return {"questions": {q: {"test_raw_vs_iterated": auc_of(rows, y, q)[0]} for q in DECISIONS_V3}}
+
+
+def mean_probs(new: dict[int, dict], old: dict[int, dict]) -> dict:
+    """Mean P(q) per v3 question on the PRs answered in both (the drift as a shift, not only as AUC)."""
+    out = {}
+    for q in DECISIONS_V3:
+        ks = [k for k in new if k in old and _p(new[k], q) is not None and _p(old[k], q) is not None]
+        out[q] = {"n": len(ks), "new": float(np.mean([_p(new[k], q) for k in ks])) if ks else None,
+                  "old": float(np.mean([_p(old[k], q) for k in ks])) if ks else None}
+    return out
+
+
+def pair_cmp(new: dict[int, dict], old: dict[int, dict], keys: set, baseline: float | None) -> dict:
+    """same_change AUC of `new` on the eval pair ids vs a baseline number, paired CI vs `old`, tokens on the same pairs."""
+    new = {k: r for k, r in new.items() if k in keys}
+    old = {k: r for k, r in old.items() if k in keys}
+    y = {k: int(bool(r["labels"]["positive"])) for k, r in {**old, **new}.items() if "positive" in (r.get("labels") or {})}
+    a, n = auc_of(new, y, "same_change")
+    common = [k for k in new if k in old]
+    return {"n_eval_pairs": len(keys), "auc": a, "n": n, "baseline": baseline, "delta": None if a is None or baseline is None else a - baseline,
+            **paired_ci(new, old, y, ("same_change",)),
+            "tokens": {"new": tokens(new, common or None), "old": tokens(old, common or None), "same_prs": bool(common)}}
+
+
+def _reading(ok: bool | None, ok_same: bool | None, what: str) -> str:
+    w = lambda o: "would be met" if o else ("would not be met" if o is False else "cannot be read (missing numbers)")
+    tail = ("; the same on the PRs answered in both" if ok_same is ok else f"; on the PRs answered in both it {w(ok_same)}")
+    return f"post-hoc reading: {what} {w(ok)} on this comparison (Δ as in the verdict computation: each side on all its answered PRs{tail}; verdict row unchanged)"
+
+
+def control_model(inp: Inputs, m: str, y: dict[int, int], ysrc: str, m4: dict | None, pair_keys: set | None) -> dict:
+    rows = inp.jsonl(CONTROL_DIR / f"predictions_{m}_test_all.jsonl")
+    if rows is None:
+        return {"status": f"not run ({CONTROL_DIR / f'predictions_{m}_test_all.jsonl'} not present)"}
+    cv3, cpair = latest(rows, "v3"), latest(rows, "pair")
+    fv3 = latest(inp.jsonl(RUN5_DIR / f"predictions_{m}_test_all.jsonl"), "v3")
+    fpair = latest(inp.jsonl(RUN4_DIR / f"predictions_{m}_test_all.jsonl"), "pair")
+    m5 = (inp.json(RUN5_DIR / "metrics.json") or {}).get("models", {}).get(m)
+    metas = [inp.json(CONTROL_DIR / f"meta_{m}_test_all{s}.json") for s in ("_v3", "")]
+    out = {"status": "ok", "label_source": ysrc, "n_v3": len(cv3), "n_pair_rows": len(cpair),
+           "version_control": versions({**cv3, **cpair}, metas), "version_run5": versions(fv3), "version_run4_pair": versions(fpair)}
+    # 1. drift: control (today) − run 5 / run 4
+    ctrl_base = _as_baseline(cv3, y) if cv3 else None
+    out["drift"] = {"v3": {**compare_v3(cv3, fv3, y, m5), "mean_prob": mean_probs(cv3, fv3)} if cv3 and m5 else {"status": "no control v3 rows or no run-5 baseline"}}
+    b4 = ((m4 or {}).get("models", {}).get(m, {}).get("pair_test") or {}).get("roc_auc")
+    out["drift"]["pair"] = pair_cmp(cpair, fpair, pair_keys, b4) if cpair and pair_keys else {"status": "no control pair rows or no eval pair ids"}
+    # 2. drift-adjusted C1: compact − control
+    crow = inp.jsonl(C1_DIR / f"predictions_{m}_test_all_compact.jsonl")
+    if crow is None or not cv3:
+        out["c1"] = {"status": NOT_RUN if crow is None else "no control v3 rows"}
+    else:
+        kv3, kpair = latest(crow, "v3"), latest(crow, "pair")
+        v3 = compare_v3(kv3, cv3, y, ctrl_base)
+        common = [k for k in kv3 if k in cv3]
+        v3["tokens"] = {"compact": tokens(kv3, common or None), "control": tokens(cv3, common or None), "same_prs": bool(common)}
+        ctrl_pair_auc = pair_cmp(cpair, {}, pair_keys, None)["auc"] if cpair and pair_keys else None
+        pr = pair_cmp(kpair, cpair, pair_keys, ctrl_pair_auc) if kpair and pair_keys else {"status": "no compact or control pair rows"}
+        h1ok = lambda dv, dp: _all([None if dv is None else dv >= -H1_TOL - EPS, None if dp is None else dp >= -H1_TOL - EPS])
+        ok = h1ok(v3["mean"]["delta"], pr.get("delta"))
+        ok_same = h1ok(v3["mean"]["delta_same_keys"], pr.get("delta_same_keys"))
+        out["c1"] = {"status": "ok", "v3": v3, "pair": pr, "h1_bar_met": ok, "h1_bar_met_same_prs": ok_same,
+                     "reading": _reading(ok, ok_same, f"the R7-H1 bar (−{H1_TOL})")}
+    # 3. drift-adjusted C2 (pplx-flash only): tuned − control untuned
+    if m == C2_MODEL:
+        tuned = latest(inp.jsonl(C2_DIR / f"predictions_{C2_MODEL}_test_all.jsonl"), "v3")
+        if not tuned or not cv3:
+            out["c2"] = {"status": NOT_RUN if not tuned else "no control v3 rows"}
+        else:
+            t = compare_v3(tuned, cv3, y, ctrl_base)
+            q = t["questions"][PRIMARY_V3]
+            t["iteration_eval"] = {"auc": q["auc"], "baseline": q["baseline"], "delta": q["delta"], "ci95": q["ci95"], "delta_same_keys": q["delta_same_keys"]}
+            h2ok = lambda d, e: _all([None if d is None else d >= H2_GAIN - EPS, None if e is None else e >= -H2_EVAL_TOL - EPS])
+            ok, ok_same = h2ok(t["mean"]["delta"], q["delta"]), h2ok(t["mean"]["delta_same_keys"], q["delta_same_keys"])
+            out["c2"] = {"status": "ok", "versions_tuned": versions(tuned), **t, "h2_bar_met": ok, "h2_bar_met_same_prs": ok_same,
+                         "reading": _reading(ok, ok_same, f"the R7-H2 bar (+{H2_GAIN} mean, iteration eval drop ≤ {H2_EVAL_TOL})")}
+    return out
+
+
+def controls(inp: Inputs) -> dict:
+    m4 = inp.json(RUN4_DIR / "metrics.json")
+    ids = inp.jsonl(PAIR_KEYS)
+    pair_keys = {r["pr_number"] for r in ids} if ids is not None else None
+    y, ysrc = None, None
+    out = {"models": {}}
+    for m in MODELS:
+        if not (inp.root / CONTROL_DIR / f"predictions_{m}_test_all.jsonl").exists():
+            out["models"][m] = {"status": f"not run ({CONTROL_DIR / f'predictions_{m}_test_all.jsonl'} not present)"}
+            continue
+        if y is None:
+            y, ysrc = iter_labels(inp, *[latest(inp.jsonl(CONTROL_DIR / f"predictions_{mm}_test_all.jsonl"), "v3") for mm in MODELS
+                                         if (inp.root / CONTROL_DIR / f"predictions_{mm}_test_all.jsonl").exists()])
+        out["models"][m] = control_model(inp, m, y, ysrc, m4, pair_keys)
+    return out
+
+
+def base_branches(inp: Inputs, pairs: list[dict]) -> tuple[dict[tuple, str | None], dict]:
+    """{(repo, number): base} for every A and B of `pairs` ({repo, a_number, b_number}): dataset `base` first, then the
+    raw PR memory row's `base`. Returns the map and a count of where each base came from."""
+    need = {(r["repo"], int(n)) for r in pairs for n in (r["a_number"], r["b_number"])}
+    got, src = {}, {"dataset": 0, "memory": 0, "missing": 0}
+    ds = inp.jsonl(DATASET) or []
+    for r in ds:
+        k = (r["repo"], int(r["number"]))
+        if k in need and r.get("base"):
+            got[k] = r["base"]
+            src["dataset"] += 1
+    for repo in sorted({k[0] for k in need - set(got)}):
+        rows = inp.jsonl(MEM_DIR / (repo.replace("/", "__") + ".jsonl")) or []
+        for r in rows:
+            k = (r.get("repo") or repo, int(r["number"]))
+            if k in need and k not in got and r.get("base"):
+                got[k] = r["base"]
+                src["memory"] += 1
+    src["missing"] = len(need - set(got))
+    return got, src
+
+
+def c5_metadata(inp: Inputs, root: Path) -> dict:
+    adj_rel = RL.DATA6 / "hold_labels_adjudicated.jsonl"
+    adj = inp.jsonl(adj_rel)
+    if adj is None:
+        return {"status": f"not run ({adj_rel} not present)"}
+    paths = {"adj_path": adj_rel, "human_path": RL.DATA6 / "hold_labels.jsonl", "second_path": RL.DATA6 / "hold_labels_fable.jsonl",
+             "override_path": RL.DATA7 / "relation_gold.jsonl"}
+    for p in paths.values():
+        inp._path(p)  # record sha256 of what load_gold reads
+    gold = RL.load_gold(**{k: root / p for k, p in paths.items()})
+    base, bsrc = base_branches(inp, adj)
+    same = {}
+    for r in adj:
+        ba, bb = base.get((r["repo"], int(r["a_number"]))), base.get((r["repo"], int(r["b_number"])))
+        same[RL._hpid(r["repo"], r["a_number"], r["b_number"])] = None if ba is None or bb is None else ba == bb
+    known = [v for v in same.values() if v is not None]
+    by_class = {c: {"n": sum(1 for k, g in gold.items() if g["relation"] == c),
+                    "equal_base": sum(1 for k, g in gold.items() if g["relation"] == c and same.get(k))} for c in RL.CLASSES}
+    out = {"status": "ok", "n_pairs": len(gold), "base_source": bsrc,
+           "base_source_note": f"A: {DATASET} `base` (repo + number); B: {DATASET} when present, else {MEM_DIR}/<repo>.jsonl raw `base`",
+           "equal_base": {"n_known": len(known), "n_equal": sum(known), "fraction": sum(known) / len(known) if known else None,
+                          "by_gold_class": by_class}, "models": {}}
+    for m in MODELS:
+        rel = RUN_DIR / "relation" / f"predictions_{m}_test_all.jsonl"
+        if inp._path(rel) is None:
+            out["models"][m] = {"status": f"not run ({rel} not present)"}
+            continue
+        preds = RL.load_relation_preds(m, root / RUN_DIR / "relation")
+        over = {k: {**d, "probs": {**d["probs"], "same_branch": 1.0 if same.get(k) else 0.0}} if same.get(k) is not None else d
+                for k, d in preds.items()}
+        keep = ("n", "accuracy", "accuracy_ci95", "same_change_vs_rest_auc", "related_vs_unrelated_auc", "per_class", "confusion", "predicted")
+        before, after = RL.score_model(gold, preds), RL.score_model(gold, over)
+        out["models"][m] = {"status": "ok", "n_base_unknown_kept_model_answer": sum(1 for k in preds if k in gold and same.get(k) is None),
+                            "model_same_branch_agrees_with_metadata": sum(1 for k, d in preds.items() if k in gold and same.get(k) is not None
+                                                                          and (float(d["probs"]["same_branch"]) >= RL.RELATION_THRESHOLD) == same[k]),
+                            "before": {f: before[f] for f in keep}, "after": {f: after[f] for f in keep}}
+    return out
+
+
+def post_hoc(root: Path) -> dict:
+    inp = Inputs(root)
+    out = {"note": POST_HOC_NOTE, "pre_registered": False, "controls": controls(inp), "c5_metadata_branch": c5_metadata(inp, Path(root))}
+    out["inputs"] = [{"path": p, "sha256": s} for p, s in sorted(inp.seen.items())]
+    return out
+
+
 # ----------------------------------------------------------------- report
 def build(root: Path = Path(".")) -> dict:
     inp = Inputs(root)
@@ -366,6 +558,7 @@ def build(root: Path = Path(".")) -> dict:
     rep["hypotheses"] = {"R7-H1": rep["c1"]["R7-H1"], "R7-H2": rep["c2"]["R7-H2"], "R7-H3": rep["c3"]["R7-H3"],
                          "R7-H4": {"pass": None, "status": "deferred to run 8", "bar": BARS["R7-H4"]}, "R7-H5": rep["c5"]["R7-H5"]}
     rep["inputs"] = [{"path": p, "sha256": s} for p, s in sorted(inp.seen.items())]
+    rep["post_hoc"] = post_hoc(Path(root))   # separate inputs; computed after, never feeds rep["hypotheses"]
     return rep
 
 
@@ -468,16 +661,115 @@ def _c5_tables(c: dict) -> list[str]:
     return L + ["", f"**R7-H5: {_mark(h.get('pass'))}** — bar: {h['bar']}", "", "Per-class accuracy and confusion: results/run7/relation_tables.md.", ""]
 
 
+def _v3_rows(v: dict, new: str, old: str, probs: dict | None = None) -> list[str]:
+    head = (f"| question | n | {new} AUC | {old} AUC | Δ | Δ same PRs | 95% CI (paired, same PRs) | n paired |"
+            + (f" mean P {new} | mean P {old} |" if probs else ""))
+    L = [head, "|---|---|---|---|---|---|---|---|" + ("---|---|" if probs else "")]
+    for q, r in v["questions"].items():
+        mp = probs[q] if probs else None
+        L.append(f"| {q} | {r['n']} | {_f(r['auc'])} | {_f(r['baseline'])} | {_d(r['delta'])} | {_d(r['delta_same_keys'])} | {_ci(r['ci95'])} | {r['n_paired']} |"
+                 + (f" {_f(mp['new'])} | {_f(mp['old'])} |" if mp else ""))
+    mn = v["mean"]
+    L.append(f"| **mean** | | {_f(mn['auc'])} | {_f(mn['baseline'])} | **{_d(mn['delta'])}** | {_d(mn['delta_same_keys'])} | {_ci(mn['ci95'])} | {mn['n_paired']} |"
+             + (" | |" if probs else ""))
+    return L + ["", "Δ = each side's AUC on all its answered PRs (as in the verdict computation); Δ same PRs and the CI use the PRs answered in both.", ""]
+
+
+def _pair_line(p: dict, new: str, old: str) -> str:
+    if "auc" not in p:
+        return f"pair: **{p.get('status')}**"
+    return (f"pair (same_change, {p['n']} of {p['n_eval_pairs']} eval pairs): {new} {_f(p['auc'])} vs {old} {_f(p['baseline'])} → "
+            f"Δ {_d(p['delta'])} (same pairs {_d(p['delta_same_keys'])} {_ci(p['ci95'])}, n paired {p['n_paired']}); tokens median / p90 on the same pairs: "
+            f"{new} {_tok(p['tokens']['new'])} · {old} {_tok(p['tokens']['old'])}")
+
+
+def _post_hoc_tables(ph: dict) -> list[str]:
+    L = ["## Post-hoc (not pre-registered): same-day controls (drift)", "", f"> {ph['note']}", "",
+         "Control = full state, untuned prompts/jev_v3.json, called today (results/run7/control/; v3 rows on the run-3 test split, "
+         f"pair rows on results/run4/pairs.jsonl test, scored on the R4-H2 eval pair ids). AUC and paired bootstrap as in C1 (seed {BOOT_SEED}, {BOOT_N} resamples).", ""]
+    for m, e in ph["controls"]["models"].items():
+        if e["status"] != "ok":
+            L += [f"### {m}", "", f"**{e['status']}**", ""]
+            continue
+        L += [f"### {m} — version: control {', '.join(e['version_control']) or '—'} · run 5 {', '.join(e['version_run5']) or '—'} · "
+              f"run 4 pair {', '.join(e['version_run4_pair']) or '—'}", ""]
+        d = e["drift"]
+        L += [f"**1. Drift — control (today) vs run 5 (v3) / run 4 (pair)** (labels: {e['label_source']}; mean P on the PRs answered in both)", ""]
+        L += _v3_rows(d["v3"], "control", "run 5", d["v3"]["mean_prob"]) if "questions" in d["v3"] else [f"v3: **{d['v3']['status']}**", ""]
+        L += [_pair_line(d["pair"], "control", "run 4"), ""]
+        c = e["c1"]
+        L += ["**2. Drift-adjusted C1 — compact vs control (same day)**", ""]
+        if c["status"] != "ok":
+            L += [f"**{c['status']}**", ""]
+        else:
+            t = c["v3"]["tokens"]
+            L += _v3_rows(c["v3"], "compact", "control")
+            L += [f"v3 input tokens per request, median / p90: compact {_tok(t['compact'])} · control {_tok(t['control'])}" + (" (same PRs)" if t["same_prs"] else ""), "",
+                  _pair_line(c["pair"], "compact", "control"), "",
+                  f"*{c['reading']}* (mean Δ {_d(c['v3']['mean']['delta'])} / same PRs {_d(c['v3']['mean']['delta_same_keys'])}; "
+                  f"pair Δ {_d(c['pair'].get('delta'))} / same pairs {_d(c['pair'].get('delta_same_keys'))}).", ""]
+        if "c2" in e:
+            c = e["c2"]
+            L += ["**3. Drift-adjusted C2 — tuned (results/run7/c2) vs control untuned (same day)**", ""]
+            if c["status"] != "ok":
+                L += [f"**{c['status']}**", ""]
+            else:
+                ie = c["iteration_eval"]
+                L += _v3_rows(c, "tuned", "control")
+                L += [f"iteration eval (needs_human_review → iterated): tuned {_f(ie['auc'])} vs control {_f(ie['baseline'])} (Δ {_d(ie['delta'])}; "
+                      f"same PRs {_d(ie['delta_same_keys'])} {_ci(ie['ci95'])})", "",
+                      f"*{c['reading']}* (mean Δ {_d(c['mean']['delta'])} / same PRs {_d(c['mean']['delta_same_keys'])}; iteration eval Δ {_d(ie['delta'])} / same PRs {_d(ie['delta_same_keys'])}).", ""]
+    b = ph["c5_metadata_branch"]
+    L += ["## Post-hoc (not pre-registered): C5 class rule with metadata branch", "",
+          "> NOT pre-registered; the R7-H5 verdict row is unchanged. The frozen rule (run7_relation.relation_class) splits same_change into "
+          "backport vs duplicate on the model's same_branch answer; here P(same_branch) is replaced by the metadata fact "
+          "(base branch of A == base branch of B → 1, else 0), thresholds and precedence unchanged, scored with run7_relation.score_model.", ""]
+    if b["status"] != "ok":
+        return L + [f"**{b['status']}**", ""]
+    eb = b["equal_base"]
+    L += [f"base branches: {b['base_source_note']} (A+B lookups: dataset {b['base_source']['dataset']}, memory {b['base_source']['memory']}, "
+          f"missing {b['base_source']['missing']}); equal base on {eb['n_equal']} of {eb['n_known']} pairs ({_f(eb['fraction'])}); by gold class (equal / n): "
+          + ", ".join(f"{c} {v['equal_base']}/{v['n']}" for c, v in eb["by_gold_class"].items() if v["n"]), "",
+          "| model | n | accuracy frozen rule [95% CI] | accuracy metadata branch [95% CI] | same_change vs rest AUC (unchanged) | model same_branch agrees with metadata |",
+          "|---|---|---|---|---|---|"]
+    for m, e in b["models"].items():
+        if e["status"] != "ok":
+            L.append(f"| {m} | — | {e['status']} | | | |")
+            continue
+        bf, af = e["before"], e["after"]
+        L.append(f"| {m} | {bf['n']} | {_f(bf['accuracy'])} {_ci(bf['accuracy_ci95'])} | {_f(af['accuracy'])} {_ci(af['accuracy_ci95'])} | "
+                 f"{_f(bf['same_change_vs_rest_auc'])} / {_f(af['same_change_vs_rest_auc'])} | {e['model_same_branch_agrees_with_metadata']} of {bf['n']} |")
+    L.append("")
+    for m, e in b["models"].items():
+        if e["status"] != "ok":
+            continue
+        L += [f"### {m}: per gold class, frozen rule → metadata branch", "", "| gold class | n | correct (frozen) | correct (metadata) | accuracy frozen → metadata |", "|---|---|---|---|---|"]
+        for c in RL.CLASSES:
+            p0, p1 = e["before"]["per_class"][c], e["after"]["per_class"][c]
+            L.append(f"| {c} | {p0['n']} | {p0['correct']} | {p1['correct']} | {_f(p0['accuracy'])} → {_f(p1['accuracy'])} |")
+        L += ["", f"{m}: confusion with metadata branch (rows gold, columns predicted)", "", "| gold \\ pred | " + " | ".join(RL.CLASSES) + " |",
+              "|---|" + "---|" * len(RL.CLASSES)]
+        L += [f"| {gc} | " + " | ".join(str(e["after"]["confusion"][gc][p]) for p in RL.CLASSES) + " |" for gc in RL.CLASSES]
+        L.append("")
+    return L
+
+
 def tables(rep: dict) -> str:
     L = ["# Run 7 — report tables", "", f"computed {rep['computed_at']} · `python -m mergeone.eval.run7_report`", "",
          "## Verdicts", "", "| hypothesis | result | bar |", "|---|---|---|"]
     for h, v in rep["hypotheses"].items():
         L.append(f"| {h} | {v.get('status') if h == 'R7-H4' else _mark(v.get('pass'))} | {v['bar']} |")
-    L.append("")
+    L += ["", "Verdicts are computed from the pre-registered inputs only. The pre-registered C1/C2 baselines (run 4 / run 5) were taken weeks "
+          "earlier and run 7 found provider-side drift (pplx-flash answers differ under the same version string pplx-decider-flash-v1.2; "
+          "jev 1.13.0 → 1.14.0); same-day controls made after these verdicts are read in the post-hoc sections at the end, which do not change this table.", ""]
     L += _c1_tables(rep["c1"]) + _c2_tables(rep["c2"]) + _c3_tables(rep["c3"])
     L += ["## C4 — registry row", "", "deferred to run 8 (§R7.6); R7-H4 is not a run-7 hypothesis.", ""]
     L += _c5_tables(rep["c5"])
+    if "post_hoc" in rep:
+        L += _post_hoc_tables(rep["post_hoc"])
     L += ["## Inputs", "", "| path | sha256 |", "|---|---|"] + [f"| {i['path']} | `{i['sha256'][:16]}` |" for i in rep["inputs"]]
+    if "post_hoc" in rep:
+        L += ["", "### Post-hoc inputs", "", "| path | sha256 |", "|---|---|"] + [f"| {i['path']} | `{i['sha256'][:16]}` |" for i in rep["post_hoc"]["inputs"]]
     return "\n".join(L) + "\n"
 
 
@@ -486,6 +778,15 @@ def summary(rep: dict) -> str:
     for m, e in rep["c1"]["models"].items():
         if e["status"] == "ok":
             L.append(f"C1 {m}: version full {', '.join(e['version_full']) or '—'} → compact {', '.join(e['version_compact']) or '—'}")
+    ph = rep.get("post_hoc") or {}
+    for m, e in ((ph.get("controls") or {}).get("models") or {}).items():
+        if e["status"] != "ok":
+            L.append(f"post-hoc control {m}: {e['status']}")
+        elif e["c1"]["status"] == "ok":
+            L.append(f"post-hoc {m}: compact − control mean v3 Δ {_d(e['c1']['v3']['mean']['delta'])}, pair Δ {_d(e['c1']['pair'].get('delta'))}")
+    for m, e in (((ph.get("c5_metadata_branch") or {}).get("models")) or {}).items():
+        if e["status"] == "ok":
+            L.append(f"post-hoc C5 {m}: accuracy frozen rule {_f(e['before']['accuracy'])} → metadata branch {_f(e['after']['accuracy'])}")
     return "\n".join(L)
 
 
