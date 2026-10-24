@@ -1,0 +1,79 @@
+{
+  "computed_at": "2026-10-24T16:51:59+00:00",
+  "target": "iteration",
+  "label": "iterated",
+  "patterns_sha256": "7591231bfa323d3a591988843ecd8668bfa69af7ab3a9524db29cfd2c0ab40ac",
+  "n_val": 1491,
+  "n_test": 705,
+  "base_rate_test": 0.08226950354609928,
+  "evidence_only": {
+    "val_auc": 0.6782909583270649,
+    "test_auc": 0.4837579278366999,
+    "n_test": 705,
+    "positives_test": 58
+  },
+  "weights_newly_frozen": true,
+  "per_feature_test_auc": {
+    "touches_tests": 0.6005169748974044,
+    "adds_e2e_or_property_tests": 0.531578105846613,
+    "body_has_test_log": 0.7069631722006076,
+    "body_lists_ci_checks": 0.4918056813942333,
+    "evidence_attached": 0.6182380216383307,
+    "n_test_files": 0.7311863774449716,
+    "test_line_share": 0.4992138783776582
+  },
+  "stacked": {
+    "jev": {
+      "val_auc": 0.7384534376410412,
+      "test_auc": 0.6347598998028035,
+      "n_test": 705,
+      "positives_test": 58,
+      "nhr_alone_test_auc": 0.7561024356446197,
+      "n_val": 1491,
+      "gain": -0.1213425358418162,
+      "weights_newly_frozen": true
+    },
+    "pplx": {
+      "val_auc": 0.7422596660147435,
+      "test_auc": 0.5287667217395938,
+      "n_test": 705,
+      "positives_test": 58,
+      "nhr_alone_test_auc": 0.6859377498267867,
+      "n_val": 1491,
+      "gain": -0.15717102808719285,
+      "weights_newly_frozen": true
+    },
+    "pplx-flash": {
+      "val_auc": 0.736490145930495,
+      "test_auc": 0.5876725470340564,
+      "n_test": 705,
+      "positives_test": 58,
+      "nhr_alone_test_auc": 0.7580877258434153,
+      "n_val": 1491,
+      "gain": -0.17041517880935897,
+      "weights_newly_frozen": true
+    },
+    "haiku": {
+      "val_auc": 0.743327817060328,
+      "test_auc": 0.6424079305015189,
+      "n_test": 705,
+      "positives_test": 58,
+      "nhr_alone_test_auc": 0.739593881575441,
+      "n_val": 1491,
+      "gain": -0.09718595107392214,
+      "weights_newly_frozen": true
+    }
+  },
+  "R7-H3": {
+    "bar": "evidence-only test AUC on iteration >= 0.76 or stacked gain >= +0.02",
+    "evidence_only_auc": 0.4837579278366999,
+    "stack_gain": {
+      "jev": -0.1213425358418162,
+      "pplx": -0.15717102808719285,
+      "pplx-flash": -0.17041517880935897,
+      "haiku": -0.09718595107392214
+    },
+    "pass": false,
+    "note": "the bar is defined on the iteration target; rejection is reported only"
+  }
+}

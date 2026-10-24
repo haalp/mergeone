@@ -1,0 +1,14 @@
+{
+  "model": "jev",
+  "split": "test",
+  "variant": "all",
+  "n": 3343,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "jev-1.14.0",
+  "finished_at": "2026-10-24T17:13:12.195024+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair",
+  "mode": "joint"
+}

@@ -1,0 +1,16 @@
+{
+  "model": "jev",
+  "split": "test",
+  "variant": "all_compact",
+  "n": 705,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "jev-1.14.0",
+  "finished_at": "2026-10-24T16:59:02.147343+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "v3",
+  "mode": "joint",
+  "render": "compact",
+  "render_source": "raw"
+}
