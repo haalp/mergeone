@@ -27,9 +27,17 @@ spread, n per question, written by gatebench when the map is fit).
 ## When it fires
 
 A question is **degraded** for a model when, with `n ≥ 200` in the current window,
-`shift ≥ 0.15` **or** `spread` fell by half. The threshold is the run-7 number: the two questions that broke moved
-0.56 and 0.25; the eight that held moved ≤ 0.16 (`docs/run8-numbers.md` has the full table and what 0.10 / 0.15 /
-0.20 would each have flagged). 0.15 is pre-registered for run 8 and may be moved only by a run.
+`shift > 0.20` **or** `spread` fell by half. The threshold is the run-7 number (`docs/run8-numbers.md`, drift table):
+the two questions that broke moved 0.56 and 0.26 and lost 0.10–0.23 AUC; `exceeds_scope` moved 0.16–0.18 with its
+AUC intact, so 0.15 would have flagged a healthy question; the other seven moved ≤ 0.10; and the same weights served
+on our own GPU (run 6A) moved at most 0.077, which is the noise floor for "different serving, same model". 0.20 is
+pre-registered for run 8 and may be moved only by a run.
+
+The mean-shift monitor has a known blind spot: a question can lose ranking with its mean unmoved (jev
+`tests_cover_change` lost 0.111 AUC at a shift of 0.015). Where the gatelog has outcomes for the window (merged,
+reverted, iterated — the run-5 labels, available for closed PRs only), a second signal flags a question whose AUC
+against that outcome fell by more than 0.05 from the reference window. It needs labels and lags by the time PRs take
+to close, so it is the slow check beside the fast one, never a replacement.
 
 A model is **degraded** when any question a policy rule reads is degraded.
 
@@ -63,9 +71,11 @@ A model is **degraded** when any question a policy rule reads is degraded.
 
 ## Pre-registered for run 8 (R8-H-drift)
 
-Replaying the gatelog of the run-5 and run-7 calls through the monitor (no model call), the monitor flags
-`follows_conventions` and `message_matches_diff` for pplx-flash and nothing else; on jev it flags nothing or
-`tests_cover_change` only. False-positive bar: no question with `|AUC delta| < 0.03` on identical rows is flagged.
+Replaying the run-5 and run-7 predictions through the monitor (no model call) flags exactly `follows_conventions`
+and `message_matches_diff` for pplx-flash on the fast signal and nothing on jev; the slow signal flags jev
+`tests_cover_change`. False-positive bar: no question with `|AUC delta| < 0.03` on identical rows is flagged by the
+fast signal; the run-6A self-hosted row flags nothing. (`scripts/run8_prep.py` already reproduces the table this is
+set on; the run-8 version replays through the Go code path.)
 
 ## Implementation notes (Go, `gate/internal/`)
 
