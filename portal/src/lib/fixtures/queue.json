@@ -1,0 +1,476 @@
+{
+  "holds": [
+    {
+      "ts": "2026-10-25T08:40:00Z",
+      "repo": "acme/platform",
+      "pr": 4123,
+      "head_sha": "e9a07a75c69d726e44726245b77db337f80ab14f",
+      "source": "webhook",
+      "result": {
+        "verdict": "hold",
+        "route": "dedup",
+        "reason": "Looks like the same change as an existing PR (#4098)",
+        "rule": "duplicate-of",
+        "probs": {
+          "is_logic_change": 0.69,
+          "weakens_tests": 0.04,
+          "message_matches_diff": 0.84,
+          "touches_concurrency": 0.18,
+          "needs_human_review": 0.62,
+          "duplicate_of": 0.91
+        },
+        "raw_probs": {
+          "is_logic_change": 0.72,
+          "weakens_tests": 0.06,
+          "message_matches_diff": 0.93,
+          "touches_concurrency": 0.21,
+          "needs_human_review": 0.58
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 412.0,
+        "cost_usd": 0.0011,
+        "input_sha256": "186c0dc43b26e814190cb75c8f0f5e910920556aac50b30a2652628c97cc4357",
+        "ts": "2026-10-25T08:40:00Z",
+        "extra": {
+          "candidates": [
+            {
+              "number": 4098,
+              "state": "open",
+              "title": "scheduler: guard preempt on nil pod",
+              "retrieval": 0.82,
+              "duplicate_of": 0.91
+            },
+            {
+              "number": 4140,
+              "state": "open",
+              "title": "Preempt: retry victims list on conflict",
+              "retrieval": 0.64,
+              "duplicate_of": 0.08
+            },
+            {
+              "number": 3977,
+              "state": "merged",
+              "title": "scheduler: log preempt victims",
+              "retrieval": 0.31,
+              "duplicate_of": 0.02
+            }
+          ],
+          "duplicate_candidate": 4098
+        }
+      },
+      "context": {
+        "author": "swarm-07",
+        "base": "main",
+        "created_at": "2026-10-25T00:00:00Z"
+      },
+      "state": "PULL REQUEST TITLE: Fix nil deref in scheduler preempt path\nMERGE MESSAGE BODY:\nFixes a panic when preempt runs with a nil pod.\n\nCloses #4090.\n\nSUMMARY: 2 files changed, +18 / -4 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  pkg/scheduler/preempt.go +14 -4\n  pkg/scheduler/metrics.go +4 -0\n\nDIFF (first 246 chars):\n--- a/pkg/scheduler/preempt.go\n+++ b/pkg/scheduler/preempt.go\n@@ -86,8 +86,10 @@ func (p *Preemptor) Run(pod *v1.Pod) ([]*v1.Pod, error) {\n+\tif pod == nil { return nil }\n+\t// guard: preempt on nil\n \tvictims := p.candidates(pod)\n-\tp.log(pod.Name)\n"
+    },
+    {
+      "ts": "2026-10-25T09:55:00Z",
+      "repo": "acme/edge",
+      "pr": 4131,
+      "head_sha": "6e9082b3d382f9fc82ad21f9c3af58ea7cf20479",
+      "source": "webhook",
+      "result": {
+        "verdict": "hold",
+        "route": "dedup",
+        "reason": "Looks like the same change as an existing PR (#4102)",
+        "rule": "duplicate-of",
+        "probs": {
+          "is_logic_change": 0.64,
+          "weakens_tests": 0.02,
+          "message_matches_diff": 0.89,
+          "touches_concurrency": 0.4,
+          "needs_human_review": 0.22,
+          "duplicate_of": 0.88
+        },
+        "raw_probs": {
+          "is_logic_change": 0.67,
+          "weakens_tests": 0.03,
+          "message_matches_diff": 0.94,
+          "touches_concurrency": 0.43,
+          "needs_human_review": 0.25
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 355.0,
+        "cost_usd": 0.0009,
+        "input_sha256": "703b906938301f2460aa89aabe0d72aa5a215aa02c8dd6ecf706b7620b9ca831",
+        "ts": "2026-10-25T09:55:00Z",
+        "extra": {
+          "candidates": [
+            {
+              "number": 4102,
+              "state": "merged",
+              "title": "edge proxy: cap retry budget",
+              "retrieval": 0.91,
+              "duplicate_of": 0.88
+            }
+          ],
+          "duplicate_candidate": 4102
+        }
+      },
+      "context": {
+        "author": "swarm-11",
+        "base": "release-1.9",
+        "created_at": "2026-10-25T00:00:00Z"
+      },
+      "state": "PULL REQUEST TITLE: Backport: cap retry budget in edge proxy (release-1.9)\nMERGE MESSAGE BODY:\nBackport of #4102 to release-1.9.\n\nSUMMARY: 1 files changed, +9 / -2 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  proxy/retry.go +9 -2\n\nDIFF (first 236 chars):\n--- a/proxy/retry.go\n+++ b/proxy/retry.go\n@@ -38,7 +38,9 @@ func (r *Retrier) Do(req *Request) error {\n-\tfor attempt := 0; ; attempt++ {\n+\tfor attempt := 0; attempt < r.budget; attempt++ {\n+\t\t// cap: never exceed the per-request budget\n"
+    },
+    {
+      "ts": "2026-10-25T10:12:00Z",
+      "repo": "acme/platform",
+      "pr": 4140,
+      "head_sha": "3350916241143ce20c5283554d39034d17176caa",
+      "source": "webhook",
+      "result": {
+        "verdict": "hold",
+        "route": "human",
+        "reason": "Decision model thinks a maintainer should look",
+        "rule": "maintainer-judgement",
+        "probs": {
+          "is_logic_change": 0.93,
+          "weakens_tests": 0.05,
+          "message_matches_diff": 0.81,
+          "touches_concurrency": 0.52,
+          "needs_human_review": 0.74,
+          "duplicate_of": 0.21
+        },
+        "raw_probs": {
+          "is_logic_change": 0.95,
+          "weakens_tests": 0.07,
+          "message_matches_diff": 0.9,
+          "touches_concurrency": 0.55,
+          "needs_human_review": 0.71
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 298.0,
+        "cost_usd": 0.0007,
+        "input_sha256": "d948401d019b045df2d997387621c4b844d96e0133ee15b419d633bfb4baf2ba",
+        "ts": "2026-10-25T10:12:00Z",
+        "extra": {
+          "candidates": [
+            {
+              "number": 4123,
+              "state": "open",
+              "title": "Fix nil deref in scheduler preempt path",
+              "retrieval": 0.58,
+              "duplicate_of": 0.21
+            },
+            {
+              "number": 4098,
+              "state": "open",
+              "title": "scheduler: guard preempt on nil pod",
+              "retrieval": 0.55,
+              "duplicate_of": 0.11
+            }
+          ]
+        }
+      },
+      "context": {
+        "author": "swarm-02",
+        "base": "main",
+        "created_at": "2026-10-24T12:00:00Z"
+      },
+      "state": "PULL REQUEST TITLE: Preempt: retry victims list on conflict\nMERGE MESSAGE BODY:\nRetry the victims list once on a 409 instead of failing the cycle.\n\nSUMMARY: 3 files changed, +189 / -30 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  pkg/scheduler/preempt.go +61 -18\n  pkg/scheduler/cache.go +40 -12\n  pkg/scheduler/preempt_test.go +88 -0\n\nDIFF (first 279 chars):\n--- a/pkg/scheduler/preempt.go\n+++ b/pkg/scheduler/preempt.go\n@@ -101,6 +101,14 @@ func (p *Preemptor) evict(victims []*v1.Pod) error {\n+\tfor try := 0; try < 2; try++ {\n+\t\terr = p.client.Evict(ctx, v)\n+\t\tif !apierrors.IsConflict(err) { break }\n+\t\tvictims = p.candidates(pod)\n+\t}\n"
+    },
+    {
+      "ts": "2026-10-25T10:48:00Z",
+      "repo": "acme/platform",
+      "pr": 4144,
+      "head_sha": "36da8b8115c1aba035adb5dc1142cc994267ea55",
+      "source": "webhook",
+      "result": {
+        "verdict": "hold",
+        "route": "human",
+        "reason": "Decision model thinks a maintainer should look",
+        "rule": "maintainer-judgement",
+        "probs": {
+          "is_logic_change": 0.58,
+          "weakens_tests": 0.01,
+          "message_matches_diff": 0.92,
+          "touches_concurrency": 0.12,
+          "needs_human_review": 0.57,
+          "duplicate_of": 0.04
+        },
+        "raw_probs": {
+          "is_logic_change": 0.61,
+          "weakens_tests": 0.02,
+          "message_matches_diff": 0.95,
+          "touches_concurrency": 0.14,
+          "needs_human_review": 0.55
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 241.0,
+        "cost_usd": 0.0004,
+        "input_sha256": "4d579d8dcaf6f2086758135fd853b7bd238a0c7a13cf407d071b20224b7ec525",
+        "ts": "2026-10-25T10:48:00Z"
+      },
+      "context": {
+        "author": "swarm-09",
+        "base": "main",
+        "created_at": "2026-10-25T07:12:00Z"
+      },
+      "state": "PULL REQUEST TITLE: Raise default etcd compaction interval to 10m\nMERGE MESSAGE BODY:\nReduces compaction churn on large clusters.\n\nSUMMARY: 2 files changed, +9 / -5 lines, 2 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  cmd/apiserver/options.go +3 -3\n  docs/etcd.md +6 -2\n\nDIFF (first 159 chars):\n--- a/cmd/apiserver/options.go\n+++ b/cmd/apiserver/options.go\n@@ -55,7 +55,7 @@\n-\tCompactionInterval: 5 * time.Minute,\n+\tCompactionInterval: 10 * time.Minute,\n"
+    },
+    {
+      "ts": "2026-10-25T11:19:00Z",
+      "repo": "acme/platform",
+      "pr": 4152,
+      "head_sha": "ab1856eb3459c603889700de8a07b3e37b6b91b1",
+      "source": "webhook",
+      "result": {
+        "verdict": "block",
+        "route": "human",
+        "reason": "PR appears to remove, skip, or loosen tests",
+        "rule": "weakened-tests",
+        "probs": {
+          "is_logic_change": 0.12,
+          "weakens_tests": 0.97,
+          "message_matches_diff": 0.95,
+          "touches_concurrency": 0.03,
+          "needs_human_review": 0.44,
+          "duplicate_of": 0.72
+        },
+        "raw_probs": {
+          "is_logic_change": 0.15,
+          "weakens_tests": 0.96,
+          "message_matches_diff": 0.97,
+          "touches_concurrency": 0.04,
+          "needs_human_review": 0.41
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 198.0,
+        "cost_usd": 0.0006,
+        "input_sha256": "0e8da3e305445d00054ab21436227f94f9789cc5d8a7ff388ebd71faf8438dbd",
+        "ts": "2026-10-25T11:19:00Z",
+        "extra": {
+          "candidates": [
+            {
+              "number": 4149,
+              "state": "open",
+              "title": "e2e: quarantine flaky ingress rollout test",
+              "retrieval": 0.77,
+              "duplicate_of": 0.72
+            }
+          ],
+          "duplicate_candidate": 4149
+        }
+      },
+      "context": {
+        "author": "swarm-07",
+        "base": "main",
+        "created_at": "2026-10-25T10:48:00Z"
+      },
+      "state": "PULL REQUEST TITLE: Skip flaky e2e in ingress suite\nMERGE MESSAGE BODY:\nThe ingress e2e is flaky on CI; skip it for now.\n\nSUMMARY: 1 files changed, +2 / -0 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  test/e2e/ingress_test.go +2 -0\n\nDIFF (first 177 chars):\n--- a/test/e2e/ingress_test.go\n+++ b/test/e2e/ingress_test.go\n@@ -31,6 +31,8 @@ func TestIngressRollout(t *testing.T) {\n+\tt.Skip(\"flaky on CI\")\n+\n \tcluster := e2e.NewCluster(t)\n"
+    },
+    {
+      "ts": "2026-10-25T11:42:00Z",
+      "repo": "acme/edge",
+      "pr": 4157,
+      "head_sha": "c1bd9a01971689880213402e9a10499b4ce7e854",
+      "source": "webhook",
+      "result": {
+        "verdict": "hold",
+        "route": "dedup",
+        "reason": "Looks like the same change as an existing PR (#4155)",
+        "rule": "duplicate-of",
+        "probs": {
+          "is_logic_change": 0.08,
+          "weakens_tests": 0.01,
+          "message_matches_diff": 0.97,
+          "touches_concurrency": 0.02,
+          "needs_human_review": 0.06,
+          "duplicate_of": 0.79
+        },
+        "raw_probs": {
+          "is_logic_change": 0.1,
+          "weakens_tests": 0.02,
+          "message_matches_diff": 0.98,
+          "touches_concurrency": 0.02,
+          "needs_human_review": 0.07
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 176.0,
+        "cost_usd": 0.0005,
+        "input_sha256": "603b07a1a000579abf815f834335b099b3cdd9e33abac9717fd844b0b1066a09",
+        "ts": "2026-10-25T11:42:00Z",
+        "extra": {
+          "candidates": [
+            {
+              "number": 4155,
+              "state": "open",
+              "title": "chore(deps): envoy 1.31.2",
+              "retrieval": 0.95,
+              "duplicate_of": 0.79
+            }
+          ],
+          "duplicate_candidate": 4155
+        }
+      },
+      "context": {
+        "author": "renovate-agent",
+        "base": "main",
+        "created_at": "2026-10-25T11:31:12Z"
+      },
+      "state": "PULL REQUEST TITLE: Bump envoy to 1.31.2\nMERGE MESSAGE BODY:\nRoutine dependency bump.\n\nSUMMARY: 2 files changed, +3 / -3 lines, 2 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  go.mod +1 -1\n  go.sum +2 -2\n\nDIFF (first 142 chars):\n--- a/go.mod\n+++ b/go.mod\n@@ -12,7 +12,7 @@\n-\tgithub.com/envoyproxy/go-control-plane v1.31.1\n+\tgithub.com/envoyproxy/go-control-plane v1.31.2\n"
+    }
+  ],
+  "matches": {
+    "acme/platform#4098": {
+      "ts": "2026-10-23T12:00:00Z",
+      "repo": "acme/platform",
+      "pr": 4098,
+      "head_sha": "dc20c2f5109972517372c9668a77b1ba0e7fe8f9",
+      "source": "webhook",
+      "result": {
+        "verdict": "pass",
+        "route": "auto-merge-after-ci",
+        "reason": "No rule matched",
+        "rule": "default",
+        "probs": {
+          "is_logic_change": 0.71,
+          "weakens_tests": 0.03,
+          "message_matches_diff": 0.88,
+          "touches_concurrency": 0.22,
+          "needs_human_review": 0.31,
+          "duplicate_of": 0.12
+        },
+        "raw_probs": {
+          "is_logic_change": 0.74,
+          "weakens_tests": 0.05,
+          "message_matches_diff": 0.91,
+          "touches_concurrency": 0.25,
+          "needs_human_review": 0.35
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 287.0,
+        "cost_usd": 0.0004,
+        "input_sha256": "33a5995effae62cb88e8e7ebcc2898538c18b7a9c995e3d323eecdb96bc9fc55",
+        "ts": "2026-10-23T12:00:00Z"
+      },
+      "context": {
+        "author": "swarm-03",
+        "base": "main",
+        "created_at": "2026-10-23T12:00:00Z"
+      },
+      "state": "PULL REQUEST TITLE: scheduler: guard preempt on nil pod\nMERGE MESSAGE BODY:\nReturn early when the preemptor pod is nil instead of panicking.\n\nSUMMARY: 2 files changed, +31 / -1 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  pkg/scheduler/preempt.go +9 -1\n  pkg/scheduler/preempt_test.go +22 -0\n\nDIFF (first 216 chars):\n--- a/pkg/scheduler/preempt.go\n+++ b/pkg/scheduler/preempt.go\n@@ -88,6 +88,9 @@ func (p *Preemptor) Run(pod *v1.Pod) ([]*v1.Pod, error) {\n+\tif pod == nil {\n+\t\treturn nil, errNilPod\n+\t}\n \tvictims := p.candidates(pod)\n"
+    },
+    "acme/edge#4102": {
+      "ts": "2026-10-24T12:00:00Z",
+      "repo": "acme/edge",
+      "pr": 4102,
+      "head_sha": "4cf9855c822d65fddd9558491ce6437374043f9a",
+      "source": "webhook",
+      "result": {
+        "verdict": "pass",
+        "route": "auto-merge-after-ci",
+        "reason": "No rule matched",
+        "rule": "default",
+        "probs": {
+          "is_logic_change": 0.66,
+          "weakens_tests": 0.02,
+          "message_matches_diff": 0.9,
+          "touches_concurrency": 0.41,
+          "needs_human_review": 0.28,
+          "duplicate_of": 0.05
+        },
+        "raw_probs": {
+          "is_logic_change": 0.69,
+          "weakens_tests": 0.03,
+          "message_matches_diff": 0.92,
+          "touches_concurrency": 0.44,
+          "needs_human_review": 0.3
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 287.0,
+        "cost_usd": 0.0004,
+        "input_sha256": "cf45cb2e34c98237d13a9c3ca7c8fe7590df801cd2f719b0f24d541bd8c67229",
+        "ts": "2026-10-24T12:00:00Z"
+      },
+      "context": {
+        "author": "swarm-05",
+        "base": "main",
+        "created_at": "2026-10-22T12:00:00Z"
+      },
+      "state": "PULL REQUEST TITLE: edge proxy: cap retry budget\nMERGE MESSAGE BODY:\nCap the per-request retry budget at 3 to stop retry storms.\n\nSUMMARY: 1 files changed, +9 / -2 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  proxy/retry.go +9 -2\n\nDIFF (first 236 chars):\n--- a/proxy/retry.go\n+++ b/proxy/retry.go\n@@ -40,7 +40,9 @@ func (r *Retrier) Do(req *Request) error {\n-\tfor attempt := 0; ; attempt++ {\n+\tfor attempt := 0; attempt < r.budget; attempt++ {\n+\t\t// cap: never exceed the per-request budget\n"
+    },
+    "acme/platform#4149": {
+      "ts": "2026-10-25T07:00:00Z",
+      "repo": "acme/platform",
+      "pr": 4149,
+      "head_sha": "b4878d8d0f10280fc8fe27468e419a884e4fae31",
+      "source": "webhook",
+      "result": {
+        "verdict": "pass",
+        "route": "auto-merge-after-ci",
+        "reason": "No rule matched",
+        "rule": "default",
+        "probs": {
+          "is_logic_change": 0.1,
+          "weakens_tests": 0.41,
+          "message_matches_diff": 0.9,
+          "touches_concurrency": 0.02,
+          "needs_human_review": 0.33,
+          "duplicate_of": 0.2
+        },
+        "raw_probs": {
+          "is_logic_change": 0.12,
+          "weakens_tests": 0.44,
+          "message_matches_diff": 0.93,
+          "touches_concurrency": 0.03,
+          "needs_human_review": 0.3
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 287.0,
+        "cost_usd": 0.0004,
+        "input_sha256": "058e819d7d0b60ff1a9a8d751159648877ad517e87ab0152a9adceae13ec23ee",
+        "ts": "2026-10-25T07:00:00Z"
+      },
+      "context": {
+        "author": "swarm-04",
+        "base": "main",
+        "created_at": "2026-10-25T04:48:00Z"
+      },
+      "state": "PULL REQUEST TITLE: e2e: quarantine flaky ingress rollout test\nMERGE MESSAGE BODY:\nMoves the flaky rollout test behind the quarantine tag.\n\nSUMMARY: 2 files changed, +15 / -0 lines, 1 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  test/e2e/ingress_test.go +3 -0\n  test/e2e/quarantine.go +12 -0\n\nDIFF (first 105 chars):\n--- a/test/e2e/ingress_test.go\n+++ b/test/e2e/ingress_test.go\n@@ -29,6 +29,9 @@\n+//go:build quarantine\n+\n"
+    },
+    "acme/edge#4155": {
+      "ts": "2026-10-25T10:00:00Z",
+      "repo": "acme/edge",
+      "pr": 4155,
+      "head_sha": "40cdbb44ab9b4b6af4a031d61a899ab5b2cf9884",
+      "source": "webhook",
+      "result": {
+        "verdict": "pass",
+        "route": "auto-merge",
+        "reason": "No behaviour change detected",
+        "rule": "trivial",
+        "probs": {
+          "is_logic_change": 0.07,
+          "weakens_tests": 0.01,
+          "message_matches_diff": 0.96,
+          "touches_concurrency": 0.02,
+          "needs_human_review": 0.05,
+          "duplicate_of": 0.0
+        },
+        "raw_probs": {
+          "is_logic_change": 0.09,
+          "weakens_tests": 0.01,
+          "message_matches_diff": 0.97,
+          "touches_concurrency": 0.02,
+          "needs_human_review": 0.06
+        },
+        "model_version": "pplx-decider-flash-v1.2",
+        "latency_ms": 287.0,
+        "cost_usd": 0.0004,
+        "input_sha256": "3e9b99da87b07ba09c6aa92605d8c2c3f4afd4ff068d9a18fd75353ffcaa08fe",
+        "ts": "2026-10-25T10:00:00Z"
+      },
+      "context": {
+        "author": "dependabot",
+        "base": "main",
+        "created_at": "2026-10-25T09:36:00Z"
+      },
+      "state": "PULL REQUEST TITLE: chore(deps): envoy 1.31.2\nMERGE MESSAGE BODY:\n\n\nSUMMARY: 2 files changed, +3 / -3 lines, 2 top-level areas touched.\n\nFILES CHANGED (path +ins -del):\n  go.mod +1 -1\n  go.sum +2 -2\n\nDIFF (first 142 chars):\n--- a/go.mod\n+++ b/go.mod\n@@ -12,7 +12,7 @@\n-\tgithub.com/envoyproxy/go-control-plane v1.31.1\n+\tgithub.com/envoyproxy/go-control-plane v1.31.2\n"
+    }
+  }
+}

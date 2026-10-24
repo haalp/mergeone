@@ -40,3 +40,7 @@ results/run6/pairs.jsonl
 results/run6/*/probe/**/predictions_*.jsonl
 data/run6/mac.log
 results/run6/pairs_todo_*.jsonl
+
+# portal (Next.js)
+portal/node_modules/
+portal/.next/
