@@ -1,0 +1,1679 @@
+{
+  "computed_at": "2026-10-25T00:57:51+00:00",
+  "bootstrap": {
+    "n": 1000,
+    "seed": 7
+  },
+  "h1": {
+    "models": {
+      "jev": {
+        "v4": {
+          "status": "ok",
+          "label_source": "data/run3/dataset.jsonl",
+          "versions_compact": [
+            "jev-1.14.0"
+          ],
+          "versions_control": [
+            "jev-1.14.0"
+          ],
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.6173586313489314,
+              "n": 705,
+              "baseline": 0.6252065234770561,
+              "delta": -0.007847892128124645,
+              "n_paired": 705,
+              "ci95": [
+                -0.03774769844458474,
+                0.020324228497082413
+              ],
+              "delta_same_keys": -0.007847892128124423
+            },
+            "weakens_tests": {
+              "auc": 0.7578478921281245,
+              "n": 705,
+              "baseline": 0.7421254596812875,
+              "delta": 0.01572243244683702,
+              "n_paired": 705,
+              "ci95": [
+                -0.012427638134948755,
+                0.04131448853496859
+              ],
+              "delta_same_keys": 0.01572243244683691
+            },
+            "touches_concurrency": {
+              "auc": 0.6245536428076535,
+              "n": 705,
+              "baseline": 0.5951473644939509,
+              "delta": 0.029406278313702572,
+              "n_paired": 705,
+              "ci95": [
+                0.004648586725852398,
+                0.05504943292574869
+              ],
+              "delta_same_keys": 0.02940627831370246
+            },
+            "needs_human_review": {
+              "auc": 0.8151681500826095,
+              "n": 705,
+              "baseline": 0.7770345893513831,
+              "delta": 0.03813356073122631,
+              "n_paired": 705,
+              "ci95": [
+                0.018830419580419668,
+                0.05703172653518383
+              ],
+              "delta_same_keys": 0.03813356073122631
+            },
+            "exceeds_scope": {
+              "auc": 0.8026834727921974,
+              "n": 705,
+              "baseline": 0.7978068539146193,
+              "delta": 0.004876618877578176,
+              "n_paired": 705,
+              "ci95": [
+                -0.020968374090024822,
+                0.03519947806430858
+              ],
+              "delta_same_keys": 0.004876618877578176
+            },
+            "breaking_change": {
+              "auc": 0.7303736076320417,
+              "n": 705,
+              "baseline": 0.7120529766028887,
+              "delta": 0.018320631029153045,
+              "n_paired": 705,
+              "ci95": [
+                -0.001722079214003444,
+                0.03898360970838826
+              ],
+              "delta_same_keys": 0.018320631029153045
+            },
+            "tests_cover_change": {
+              "auc": 0.6260859137664552,
+              "n": 705,
+              "baseline": 0.6605819964824389,
+              "delta": -0.0344960827159837,
+              "n_paired": 705,
+              "ci95": [
+                -0.07612409871215019,
+                0.005463341346153783
+              ],
+              "delta_same_keys": -0.03449608271598359
+            },
+            "hard_to_revert": {
+              "auc": 0.8607765282737302,
+              "n": 705,
+              "baseline": 0.8482652027927304,
+              "delta": 0.012511325480999758,
+              "n_paired": 705,
+              "ci95": [
+                0.0005391917591956538,
+                0.025702632319447322
+              ],
+              "delta_same_keys": 0.012511325480999869
+            }
+          },
+          "mean": {
+            "auc": 0.7293559798539679,
+            "baseline": 0.7197776208495443,
+            "n_questions": 8,
+            "delta": 0.009578359004423609,
+            "n_paired": 705,
+            "ci95": [
+              -0.001594204276777225,
+              0.020922158502409388
+            ],
+            "delta_same_keys": 0.009578359004423609
+          },
+          "tokens": {
+            "compact": {
+              "n": 705,
+              "median": 1655.0,
+              "p90": 1961.0
+            },
+            "control": {
+              "n": 705,
+              "median": 2424.0,
+              "p90": 2870.6000000000004
+            },
+            "same_prs": true
+          }
+        },
+        "pair": {
+          "status": "ok",
+          "versions_compact": [
+            "jev-1.14.0"
+          ],
+          "versions_control": [
+            "jev-1.14.0"
+          ],
+          "n_eval_pairs": 187,
+          "auc": 0.8204932343954605,
+          "n": 187,
+          "baseline": 0.8384984722828458,
+          "delta": -0.018005237887385284,
+          "n_paired": 187,
+          "ci95": [
+            -0.03493890478585003,
+            -0.004019334160463201
+          ],
+          "delta_same_keys": -0.018005237887385395,
+          "tokens": {
+            "compact": {
+              "n": 187,
+              "median": 1845.0,
+              "p90": 2096.6000000000004
+            },
+            "control": {
+              "n": 187,
+              "median": 2792.0,
+              "p90": 3096.8
+            },
+            "same_prs": true
+          },
+          "run4_reference": 0.8345700567437798
+        }
+      },
+      "pplx-flash": {
+        "v4": {
+          "status": "ok",
+          "label_source": "data/run3/dataset.jsonl",
+          "versions_compact": [
+            "pplx-decider-flash-v1.2"
+          ],
+          "versions_control": [
+            "pplx-decider-flash-v1.2"
+          ],
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.5947076693492512,
+              "n": 705,
+              "baseline": 0.6107232318925545,
+              "delta": -0.016015562543303274,
+              "n_paired": 705,
+              "ci95": [
+                -0.050181095036804756,
+                0.01830125775298463
+              ],
+              "delta_same_keys": -0.016015562543303274
+            },
+            "weakens_tests": {
+              "auc": 0.7339444651708149,
+              "n": 705,
+              "baseline": 0.7241112828438949,
+              "delta": 0.009833182326919987,
+              "n_paired": 705,
+              "ci95": [
+                -0.022804955865437838,
+                0.045500990145384224
+              ],
+              "delta_same_keys": 0.009833182326919987
+            },
+            "touches_concurrency": {
+              "auc": 0.6898150615573203,
+              "n": 705,
+              "baseline": 0.6765975590257421,
+              "delta": 0.013217502531578162,
+              "n_paired": 705,
+              "ci95": [
+                -0.01320741694636154,
+                0.03959461442080117
+              ],
+              "delta_same_keys": 0.013217502531578162
+            },
+            "needs_human_review": {
+              "auc": 0.7587805787986995,
+              "n": 705,
+              "baseline": 0.7676544262644567,
+              "delta": -0.008873847465757145,
+              "n_paired": 705,
+              "ci95": [
+                -0.04711541548259298,
+                0.024771287475527905
+              ],
+              "delta_same_keys": -0.008873847465757145
+            },
+            "exceeds_scope": {
+              "auc": 0.7702659489420669,
+              "n": 705,
+              "baseline": 0.7528380322976069,
+              "delta": 0.017427916644459973,
+              "n_paired": 705,
+              "ci95": [
+                -0.01256846864319126,
+                0.049667287020558656
+              ],
+              "delta_same_keys": 0.01742791664445975
+            },
+            "breaking_change": {
+              "auc": 0.713851729467569,
+              "n": 705,
+              "baseline": 0.7168629750039972,
+              "delta": -0.0030112455364281754,
+              "n_paired": 705,
+              "ci95": [
+                -0.02424348632552472,
+                0.01922821351546971
+              ],
+              "delta_same_keys": -0.0030112455364280644
+            },
+            "tests_cover_change": {
+              "auc": 0.5952672813515963,
+              "n": 705,
+              "baseline": 0.6259926450993977,
+              "delta": -0.030725363747801326,
+              "n_paired": 705,
+              "ci95": [
+                -0.08817823594169033,
+                0.017973965915094665
+              ],
+              "delta_same_keys": -0.03072536374780155
+            },
+            "hard_to_revert": {
+              "auc": 0.7600063955657411,
+              "n": 705,
+              "baseline": 0.7469487821776901,
+              "delta": 0.013057613388051004,
+              "n_paired": 705,
+              "ci95": [
+                -0.023001553089581274,
+                0.0498106377858555
+              ],
+              "delta_same_keys": 0.013057613388051004
+            }
+          },
+          "mean": {
+            "auc": 0.7020798912753824,
+            "baseline": 0.7027161168256675,
+            "n_questions": 8,
+            "delta": -0.0006362255502850855,
+            "n_paired": 705,
+            "ci95": [
+              -0.019109007922590612,
+              0.018260298726371704
+            ],
+            "delta_same_keys": -0.0006362255502850855
+          },
+          "tokens": {
+            "compact": {
+              "n": 705,
+              "median": 7911.0,
+              "p90": 10365.400000000001
+            },
+            "control": {
+              "n": 705,
+              "median": 13647.0,
+              "p90": 17427.8
+            },
+            "same_prs": true
+          }
+        },
+        "pair": {
+          "status": "ok",
+          "versions_compact": [
+            "pplx-decider-flash-v1.2"
+          ],
+          "versions_control": [
+            "pplx-decider-flash-v1.2"
+          ],
+          "n_eval_pairs": 187,
+          "auc": 0.8245307725883894,
+          "n": 187,
+          "baseline": 0.8400261894369271,
+          "delta": -0.015495416848537724,
+          "n_paired": 187,
+          "ci95": [
+            -0.03569850222480351,
+            0.0023984397264612545
+          ],
+          "delta_same_keys": -0.015495416848537724,
+          "tokens": {
+            "compact": {
+              "n": 187,
+              "median": 1564.0,
+              "p90": 1774.2
+            },
+            "control": {
+              "n": 187,
+              "median": 2468.0,
+              "p90": 2806.4
+            },
+            "same_prs": true
+          },
+          "run4_reference": 0.8422086425141859
+        }
+      }
+    },
+    "R8-H1": {
+      "per_model": {
+        "jev": {
+          "v4_mean_delta": 0.009578359004423609,
+          "pair_delta": -0.018005237887385284,
+          "pass": true
+        },
+        "pplx-flash": {
+          "v4_mean_delta": -0.0006362255502850855,
+          "pair_delta": -0.015495416848537724,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "bar": "compact \u2212 same-day control \u2265 \u22120.02 mean v4 AUC and pair AUC, for jev and pplx-flash"
+    }
+  },
+  "h2": {
+    "status": "ok",
+    "computed_at": "2026-10-25T00:40:04+00:00",
+    "n_pairs": 100,
+    "gold_classes": {
+      "backport": 28,
+      "same_area": 10,
+      "follow_up": 7,
+      "duplicate": 46,
+      "competing": 7,
+      "unrelated": 2
+    },
+    "rule": "same_change & !same_base \u2192 backport; same_change & same_base \u2192 duplicate; builds_on \u2192 follow_up; same_goal \u2192 competing; any P \u2265 low \u2192 same_area; else unrelated (same_base unknown \u2192 True)",
+    "models": {
+      "pplx-flash": {
+        "n": 100,
+        "missing": 0,
+        "accuracy": 0.57,
+        "accuracy_ci95": [
+          0.4721521169586435,
+          0.6626686099947162
+        ],
+        "same_change_vs_rest_auc": 0.6888083735909823,
+        "n_duplicate": 46,
+        "same_change_or_backport_vs_rest_auc": 0.8378378378378378,
+        "related_vs_unrelated_auc": 0.8979591836734694,
+        "n_unrelated": 2,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 46,
+            "correct": 30,
+            "accuracy": 0.6521739130434783,
+            "ci95": [
+              0.5076979217727255,
+              0.7731919373008194
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.35433884297520657
+            ]
+          },
+          "backport": {
+            "n": 28,
+            "correct": 19,
+            "accuracy": 0.6785714285714286,
+            "ci95": [
+              0.4933850455563118,
+              0.8206695245657927
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 6,
+            "accuracy": 0.8571428571428571,
+            "ci95": [
+              0.48686549668097007,
+              0.9743210440510253
+            ]
+          },
+          "same_area": {
+            "n": 10,
+            "correct": 1,
+            "accuracy": 0.1,
+            "ci95": [
+              0.01787574951572113,
+              0.4041563854975721
+            ]
+          },
+          "unrelated": {
+            "n": 2,
+            "correct": 1,
+            "accuracy": 0.5,
+            "ci95": [
+              0.09452865480086614,
+              0.9054713451991339
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 23,
+          "follow_up": 32,
+          "duplicate": 34,
+          "same_area": 10,
+          "unrelated": 1
+        },
+        "competing_same_area": {
+          "n": 17,
+          "correct": 1,
+          "accuracy": 0.058823529411764705
+        }
+      },
+      "jev": {
+        "n": 100,
+        "missing": 0,
+        "accuracy": 0.74,
+        "accuracy_ci95": [
+          0.6462882736813838,
+          0.8159542187301354
+        ],
+        "same_change_vs_rest_auc": 0.7284621578099839,
+        "n_duplicate": 46,
+        "same_change_or_backport_vs_rest_auc": 0.8926715176715176,
+        "related_vs_unrelated_auc": 0.8163265306122449,
+        "n_unrelated": 2,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 46,
+            "correct": 39,
+            "accuracy": 0.8478260869565217,
+            "ci95": [
+              0.7177558259368491,
+              0.9242781376598252
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 2,
+            "accuracy": 0.2857142857142857,
+            "ci95": [
+              0.0822171657090155,
+              0.6410709098517873
+            ]
+          },
+          "backport": {
+            "n": 28,
+            "correct": 26,
+            "accuracy": 0.9285714285714286,
+            "ci95": [
+              0.7735426157408214,
+              0.9801883525522292
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 5,
+            "accuracy": 0.7142857142857143,
+            "ci95": [
+              0.35892909014821267,
+              0.9177828342909844
+            ]
+          },
+          "same_area": {
+            "n": 10,
+            "correct": 1,
+            "accuracy": 0.1,
+            "ci95": [
+              0.01787574951572113,
+              0.4041563854975721
+            ]
+          },
+          "unrelated": {
+            "n": 2,
+            "correct": 1,
+            "accuracy": 0.5,
+            "ci95": [
+              0.09452865480086614,
+              0.9054713451991339
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 33,
+          "follow_up": 7,
+          "duplicate": 50,
+          "same_area": 5,
+          "competing": 4,
+          "unrelated": 1
+        },
+        "competing_same_area": {
+          "n": 17,
+          "correct": 3,
+          "accuracy": 0.17647058823529413
+        }
+      }
+    },
+    "baseline_run7": {
+      "pplx-flash": {
+        "n": 97,
+        "missing": 3,
+        "accuracy": 0.7216494845360825,
+        "accuracy_ci95": [
+          0.6253217812082499,
+          0.8010895411031771
+        ],
+        "same_change_vs_rest_auc": 0.7277777777777779,
+        "n_duplicate": 45,
+        "same_change_or_backport_vs_rest_auc": 0.8683333333333334,
+        "related_vs_unrelated_auc": 0.9895833333333334,
+        "n_unrelated": 1,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 45,
+            "correct": 42,
+            "accuracy": 0.9333333333333333,
+            "ci95": [
+              0.8214312561135918,
+              0.977068383537853
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.35433884297520657
+            ]
+          },
+          "backport": {
+            "n": 27,
+            "correct": 26,
+            "accuracy": 0.9629629629629629,
+            "ci95": [
+              0.8171614606584348,
+              0.9934320234669025
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 2,
+            "accuracy": 0.2857142857142857,
+            "ci95": [
+              0.0822171657090155,
+              0.6410709098517873
+            ]
+          },
+          "same_area": {
+            "n": 10,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.2775401687666166
+            ]
+          },
+          "unrelated": {
+            "n": 1,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.7934567085261071
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 33,
+          "duplicate": 62,
+          "follow_up": 2
+        },
+        "competing_same_area": {
+          "n": 17,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "jev": {
+        "n": 100,
+        "missing": 0,
+        "accuracy": 0.74,
+        "accuracy_ci95": [
+          0.6462882736813838,
+          0.8159542187301354
+        ],
+        "same_change_vs_rest_auc": 0.6853864734299517,
+        "n_duplicate": 46,
+        "same_change_or_backport_vs_rest_auc": 0.8825363825363826,
+        "related_vs_unrelated_auc": 0.9948979591836735,
+        "n_unrelated": 2,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 46,
+            "correct": 40,
+            "accuracy": 0.8695652173913043,
+            "ci95": [
+              0.7433386576963865,
+              0.9388224286250797
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 2,
+            "accuracy": 0.2857142857142857,
+            "ci95": [
+              0.0822171657090155,
+              0.6410709098517873
+            ]
+          },
+          "backport": {
+            "n": 28,
+            "correct": 27,
+            "accuracy": 0.9642857142857143,
+            "ci95": [
+              0.8228742388150135,
+              0.9936676435024582
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 5,
+            "accuracy": 0.7142857142857143,
+            "ci95": [
+              0.35892909014821267,
+              0.9177828342909844
+            ]
+          },
+          "same_area": {
+            "n": 10,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.2775401687666166
+            ]
+          },
+          "unrelated": {
+            "n": 2,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.6576280471103807
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 35,
+          "duplicate": 53,
+          "follow_up": 9,
+          "competing": 3
+        },
+        "competing_same_area": {
+          "n": 17,
+          "correct": 2,
+          "accuracy": 0.11764705882352941
+        }
+      }
+    },
+    "control_same_day": {
+      "pplx-flash": {
+        "n": 100,
+        "missing": 0,
+        "accuracy": 0.72,
+        "accuracy_ci95": [
+          0.6251178763865427,
+          0.7986044083240164
+        ],
+        "same_change_vs_rest_auc": 0.7238325281803543,
+        "n_duplicate": 46,
+        "same_change_or_backport_vs_rest_auc": 0.8565488565488566,
+        "related_vs_unrelated_auc": 0.6071428571428571,
+        "n_unrelated": 2,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 46,
+            "correct": 43,
+            "accuracy": 0.9347826086956522,
+            "ci95": [
+              0.8249699089621865,
+              0.9775725455336564
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.35433884297520657
+            ]
+          },
+          "backport": {
+            "n": 28,
+            "correct": 27,
+            "accuracy": 0.9642857142857143,
+            "ci95": [
+              0.8228742388150135,
+              0.9936676435024582
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 2,
+            "accuracy": 0.2857142857142857,
+            "ci95": [
+              0.0822171657090155,
+              0.6410709098517873
+            ]
+          },
+          "same_area": {
+            "n": 10,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.2775401687666166
+            ]
+          },
+          "unrelated": {
+            "n": 2,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.6576280471103807
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 35,
+          "duplicate": 63,
+          "follow_up": 2
+        },
+        "competing_same_area": {
+          "n": 17,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "jev": {
+        "n": 99,
+        "missing": 1,
+        "accuracy": 0.7474747474747475,
+        "accuracy_ci95": [
+          0.6537534716648654,
+          0.8227074157581231
+        ],
+        "same_change_vs_rest_auc": 0.6788351107465134,
+        "n_duplicate": 46,
+        "same_change_or_backport_vs_rest_auc": 0.8678378378378379,
+        "related_vs_unrelated_auc": 0.9922680412371134,
+        "n_unrelated": 2,
+        "n_base_unknown": 0,
+        "per_class": {
+          "duplicate": {
+            "n": 46,
+            "correct": 40,
+            "accuracy": 0.8695652173913043,
+            "ci95": [
+              0.7433386576963865,
+              0.9388224286250797
+            ]
+          },
+          "competing": {
+            "n": 7,
+            "correct": 2,
+            "accuracy": 0.2857142857142857,
+            "ci95": [
+              0.0822171657090155,
+              0.6410709098517873
+            ]
+          },
+          "backport": {
+            "n": 28,
+            "correct": 27,
+            "accuracy": 0.9642857142857143,
+            "ci95": [
+              0.8228742388150135,
+              0.9936676435024582
+            ]
+          },
+          "follow_up": {
+            "n": 7,
+            "correct": 5,
+            "accuracy": 0.7142857142857143,
+            "ci95": [
+              0.35892909014821267,
+              0.9177828342909844
+            ]
+          },
+          "same_area": {
+            "n": 9,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.2991527535509594
+            ]
+          },
+          "unrelated": {
+            "n": 2,
+            "correct": 0,
+            "accuracy": 0.0,
+            "ci95": [
+              0.0,
+              0.6576280471103807
+            ]
+          }
+        },
+        "predicted": {
+          "backport": 35,
+          "follow_up": 9,
+          "duplicate": 52,
+          "competing": 3
+        },
+        "competing_same_area": {
+          "n": 16,
+          "correct": 2,
+          "accuracy": 0.125
+        }
+      }
+    },
+    "run7_post_hoc_reference": {
+      "jev": {
+        "accuracy": 0.72,
+        "n": 100
+      },
+      "pplx-flash": {
+        "accuracy": 0.7216494845360825,
+        "n": 97
+      }
+    },
+    "R8-H2": {
+      "per_model": {
+        "jev": {
+          "accuracy": 0.74,
+          "competing_same_area": 0.17647058823529413,
+          "same_change_auc": 0.7284621578099839,
+          "run7_same_change_auc": 0.685,
+          "run7_same_change_auc_file": 0.6853864734299517,
+          "clauses": {
+            "accuracy": false,
+            "competing_same_area": false,
+            "same_change_auc": true
+          },
+          "pass": false
+        },
+        "pplx-flash": {
+          "accuracy": 0.57,
+          "competing_same_area": 0.058823529411764705,
+          "same_change_auc": 0.6888083735909823,
+          "run7_same_change_auc": 0.728,
+          "run7_same_change_auc_file": 0.7277777777777779,
+          "clauses": {
+            "accuracy": false,
+            "competing_same_area": false,
+            "same_change_auc": false
+          },
+          "pass": false
+        }
+      },
+      "pass": false,
+      "bar": "accuracy \u2265 0.80 for \u2265 1 model and (that model) competing + same_area \u2265 0.40 and same_change AUC \u2265 run 7 \u2212 0.02 (0.728 / 0.685)"
+    }
+  },
+  "h3": {
+    "models": {
+      "jev": {
+        "status": "ok",
+        "label_source": "data/run3/dataset.jsonl",
+        "n_v4": 705,
+        "n_control": 705,
+        "versions_v4": [
+          "jev-1.14.0"
+        ],
+        "versions_control": [
+          "jev-1.14.0"
+        ],
+        "versions_run5": [
+          "jev-1.13.0"
+        ],
+        "control_vs_run5": {
+          "status": "ok",
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.6198235889783084,
+              "n": 705,
+              "baseline": 0.6043276661514684,
+              "delta": 0.01549592282683998,
+              "n_paired": 705,
+              "ci95": [
+                -0.011035175917539292,
+                0.042576392453624025
+              ],
+              "delta_same_keys": 0.015495922826840092
+            },
+            "weakens_tests": {
+              "auc": 0.7328918616425945,
+              "n": 705,
+              "baseline": 0.7714118211373449,
+              "delta": -0.0385199594947504,
+              "n_paired": 705,
+              "ci95": [
+                -0.06313546445256514,
+                -0.01677810864604414
+              ],
+              "delta_same_keys": -0.03851995949475029
+            },
+            "touches_concurrency": {
+              "auc": 0.6012364760432767,
+              "n": 705,
+              "baseline": 0.6053136492032192,
+              "delta": -0.004077173159942493,
+              "n_paired": 705,
+              "ci95": [
+                -0.023471821126633,
+                0.014887034322150421
+              ],
+              "delta_same_keys": -0.004077173159942382
+            },
+            "needs_human_review": {
+              "auc": 0.7788066940254756,
+              "n": 705,
+              "baseline": 0.7768214038266802,
+              "delta": 0.001985290198795453,
+              "n_paired": 705,
+              "ci95": [
+                -0.010113026324720586,
+                0.014756054355212335
+              ],
+              "delta_same_keys": 0.001985290198795453
+            },
+            "exceeds_scope": {
+              "auc": 0.7987528646804882,
+              "n": 705,
+              "baseline": 0.7949954698076,
+              "delta": 0.0037573948728881756,
+              "n_paired": 705,
+              "ci95": [
+                -0.007887918850777623,
+                0.016045119720193627
+              ],
+              "delta_same_keys": 0.0037573948728881756
+            },
+            "breaking_change": {
+              "auc": 0.7120929488887703,
+              "n": 705,
+              "baseline": 0.7077626179182434,
+              "delta": 0.00433033097052693,
+              "n_paired": 705,
+              "ci95": [
+                -0.005026480296658431,
+                0.013063003713382015
+              ],
+              "delta_same_keys": 0.004330330970527152
+            },
+            "tests_cover_change": {
+              "auc": 0.6586100303789373,
+              "n": 705,
+              "baseline": 0.7563822416457923,
+              "delta": -0.09777221126685498,
+              "n_paired": 705,
+              "ci95": [
+                -0.1329470635054942,
+                -0.06711931345491107
+              ],
+              "delta_same_keys": -0.09777221126685498
+            },
+            "hard_to_revert": {
+              "auc": 0.8481053136492032,
+              "n": 705,
+              "baseline": 0.8503570857538774,
+              "delta": -0.002251772104674199,
+              "n_paired": 705,
+              "ci95": [
+                -0.01177845288288021,
+                0.008133212902699695
+              ],
+              "delta_same_keys": -0.002251772104674088
+            }
+          },
+          "mean": {
+            "auc": 0.7187899722858817,
+            "baseline": 0.7334214944305282,
+            "n_questions": 8,
+            "delta": -0.01463152214464647,
+            "n_paired": 705,
+            "ci95": [
+              -0.02147797044778428,
+              -0.007805963664697975
+            ],
+            "delta_same_keys": -0.01463152214464647
+          }
+        },
+        "v4_vs_control": {
+          "status": "ok",
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.6252065234770561,
+              "n": 705,
+              "baseline": 0.6198235889783084,
+              "delta": 0.005382934498747716,
+              "n_paired": 705,
+              "ci95": [
+                -0.012626103709266659,
+                0.024638796274708566
+              ],
+              "delta_same_keys": 0.005382934498747494
+            },
+            "weakens_tests": {
+              "auc": 0.7421254596812875,
+              "n": 705,
+              "baseline": 0.7328918616425945,
+              "delta": 0.009233598038693058,
+              "n_paired": 705,
+              "ci95": [
+                -0.0038108498943932867,
+                0.02461052688630092
+              ],
+              "delta_same_keys": 0.00923359803869317
+            },
+            "touches_concurrency": {
+              "auc": 0.5951473644939509,
+              "n": 705,
+              "baseline": 0.6012364760432767,
+              "delta": -0.0060891115493257875,
+              "n_paired": 705,
+              "ci95": [
+                -0.020990813657796262,
+                0.008423409635235876
+              ],
+              "delta_same_keys": -0.0060891115493257875
+            },
+            "needs_human_review": {
+              "auc": 0.7770345893513831,
+              "n": 705,
+              "baseline": 0.7788066940254756,
+              "delta": -0.0017721046740925006,
+              "n_paired": 705,
+              "ci95": [
+                -0.008322447648954628,
+                0.004461040452277001
+              ],
+              "delta_same_keys": -0.0017721046740926116
+            },
+            "exceeds_scope": {
+              "auc": 0.7978068539146193,
+              "n": 705,
+              "baseline": 0.7987528646804882,
+              "delta": -0.0009460107658689765,
+              "n_paired": 705,
+              "ci95": [
+                -0.006276001667835004,
+                0.005153906124503371
+              ],
+              "delta_same_keys": -0.0009460107658689765
+            },
+            "breaking_change": {
+              "auc": 0.7120529766028887,
+              "n": 705,
+              "baseline": 0.7120929488887703,
+              "delta": -3.9972285881595404e-05,
+              "n_paired": 705,
+              "ci95": [
+                -0.004326406170953379,
+                0.00428992047161596
+              ],
+              "delta_same_keys": -3.997228588181745e-05
+            },
+            "tests_cover_change": {
+              "auc": 0.6605819964824389,
+              "n": 705,
+              "baseline": 0.6586100303789373,
+              "delta": 0.001971966103501588,
+              "n_paired": 705,
+              "ci95": [
+                -0.020794953876908998,
+                0.022786192541368145
+              ],
+              "delta_same_keys": 0.001971966103501588
+            },
+            "hard_to_revert": {
+              "auc": 0.8482652027927304,
+              "n": 705,
+              "baseline": 0.8481053136492032,
+              "delta": 0.0001598891435272698,
+              "n_paired": 705,
+              "ci95": [
+                -0.004918894154408338,
+                0.005655575980508014
+              ],
+              "delta_same_keys": 0.00015988914352704775
+            }
+          },
+          "mean": {
+            "auc": 0.7197776208495443,
+            "baseline": 0.7187899722858817,
+            "n_questions": 8,
+            "delta": 0.0009876485636626242,
+            "n_paired": 705,
+            "ci95": [
+              -0.0039487112299494784,
+              0.006249508028903075
+            ],
+            "delta_same_keys": 0.0009876485636626242
+          },
+          "tokens": {
+            "v4": {
+              "n": 705,
+              "median": 2424.0,
+              "p90": 2870.6000000000004
+            },
+            "control": {
+              "n": 705,
+              "median": 2529.0,
+              "p90": 2975.6000000000004
+            },
+            "same_prs": true
+          }
+        }
+      },
+      "pplx-flash": {
+        "status": "ok",
+        "label_source": "data/run3/dataset.jsonl",
+        "n_v4": 705,
+        "n_control": 705,
+        "versions_v4": [
+          "pplx-decider-flash-v1.2"
+        ],
+        "versions_control": [
+          "pplx-decider-flash-v1.2"
+        ],
+        "versions_run5": [
+          "pplx-decider-flash-v1.2"
+        ],
+        "control_vs_run5": {
+          "status": "ok",
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.6107232318925545,
+              "n": 705,
+              "baseline": 0.6550125246495764,
+              "delta": -0.04428929275702187,
+              "n_paired": 705,
+              "ci95": [
+                -0.0660480907503543,
+                -0.02324727732165853
+              ],
+              "delta_same_keys": -0.04428929275702176
+            },
+            "weakens_tests": {
+              "auc": 0.7241112828438949,
+              "n": 705,
+              "baseline": 0.6959974417737035,
+              "delta": 0.028113841070191437,
+              "n_paired": 705,
+              "ci95": [
+                -0.014375610855769726,
+                0.07183754265684643
+              ],
+              "delta_same_keys": 0.028113841070191325
+            },
+            "touches_concurrency": {
+              "auc": 0.6765975590257421,
+              "n": 705,
+              "baseline": 0.6436070990779726,
+              "delta": 0.0329904599477695,
+              "n_paired": 705,
+              "ci95": [
+                -0.008383287627261139,
+                0.07472138255796636
+              ],
+              "delta_same_keys": 0.0329904599477695
+            },
+            "needs_human_review": {
+              "auc": 0.7676544262644567,
+              "n": 705,
+              "baseline": 0.7671214624526995,
+              "delta": 0.0005329638117571589,
+              "n_paired": 705,
+              "ci95": [
+                -0.02570903925998271,
+                0.025399415662264675
+              ],
+              "delta_same_keys": 0.0005329638117572699
+            },
+            "exceeds_scope": {
+              "auc": 0.7528380322976069,
+              "n": 705,
+              "baseline": 0.7346906145072749,
+              "delta": 0.01814741779033202,
+              "n_paired": 705,
+              "ci95": [
+                -0.020626584677493752,
+                0.057617595843711865
+              ],
+              "delta_same_keys": 0.018147417790332132
+            },
+            "breaking_change": {
+              "auc": 0.7168629750039972,
+              "n": 705,
+              "baseline": 0.6821936790491926,
+              "delta": 0.03466929595480461,
+              "n_paired": 705,
+              "ci95": [
+                0.0007224201073596229,
+                0.06635089534619114
+              ],
+              "delta_same_keys": 0.03466929595480461
+            },
+            "tests_cover_change": {
+              "auc": 0.6259926450993977,
+              "n": 705,
+              "baseline": 0.7084954431594095,
+              "delta": -0.08250279806001182,
+              "n_paired": 705,
+              "ci95": [
+                -0.12196015632832324,
+                -0.044317097036201146
+              ],
+              "delta_same_keys": -0.0825027980600117
+            },
+            "hard_to_revert": {
+              "auc": 0.7469487821776901,
+              "n": 705,
+              "baseline": 0.769653040558546,
+              "delta": -0.02270425838085588,
+              "n_paired": 705,
+              "ci95": [
+                -0.07296594991109197,
+                0.023104746234117818
+              ],
+              "delta_same_keys": -0.02270425838085599
+            }
+          },
+          "mean": {
+            "auc": 0.7027161168256675,
+            "baseline": 0.7070964131535469,
+            "n_questions": 8,
+            "delta": -0.004380296327879396,
+            "n_paired": 705,
+            "ci95": [
+              -0.019714545800327974,
+              0.011667934619373448
+            ],
+            "delta_same_keys": -0.004380296327879396
+          }
+        },
+        "v4_vs_control": {
+          "status": "ok",
+          "questions": {
+            "is_logic_change": {
+              "auc": 0.6107232318925545,
+              "n": 705,
+              "baseline": 0.6107232318925545,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "weakens_tests": {
+              "auc": 0.7241112828438949,
+              "n": 705,
+              "baseline": 0.7241112828438949,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "touches_concurrency": {
+              "auc": 0.6765975590257421,
+              "n": 705,
+              "baseline": 0.6765975590257421,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "needs_human_review": {
+              "auc": 0.7676544262644567,
+              "n": 705,
+              "baseline": 0.7676544262644567,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "exceeds_scope": {
+              "auc": 0.7528380322976069,
+              "n": 705,
+              "baseline": 0.7528380322976069,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "breaking_change": {
+              "auc": 0.7168629750039972,
+              "n": 705,
+              "baseline": 0.7168629750039972,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "tests_cover_change": {
+              "auc": 0.6259926450993977,
+              "n": 705,
+              "baseline": 0.6259926450993977,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            },
+            "hard_to_revert": {
+              "auc": 0.7469487821776901,
+              "n": 705,
+              "baseline": 0.7469487821776901,
+              "delta": 0.0,
+              "n_paired": 705,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "delta_same_keys": 0.0
+            }
+          },
+          "mean": {
+            "auc": 0.7027161168256675,
+            "baseline": 0.7027161168256675,
+            "n_questions": 8,
+            "delta": 0.0,
+            "n_paired": 705,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "delta_same_keys": 0.0
+          },
+          "tokens": {
+            "v4": {
+              "n": 705,
+              "median": 13647.0,
+              "p90": 17427.8
+            },
+            "control": {
+              "n": 705,
+              "median": 17050.0,
+              "p90": 21776.0
+            },
+            "same_prs": true
+          }
+        }
+      }
+    },
+    "R8-H3": {
+      "pass": null,
+      "status": "no bar; reported",
+      "bar": "no bar; reported",
+      "mean_v4": {
+        "jev": 0.7197776208495443,
+        "pplx-flash": 0.7027161168256675
+      }
+    }
+  },
+  "h4": {
+    "status": "deferred (results/run8/c4/ not present)",
+    "R8-H4": {
+      "pass": null,
+      "status": "deferred",
+      "bar": "R6A-H3 and R6A-H4 vs the hosted pplx-flash same-day control (only if C4's candidate is recorded)"
+    }
+  },
+  "h5": {
+    "source": "go",
+    "comparisons": {
+      "pplx-flash_val_run5_to_run7r0": {
+        "kind": "pplx-flash",
+        "flagged": [
+          "follows_conventions",
+          "message_matches_diff"
+        ]
+      },
+      "pplx-flash_test_run5_to_run7control": {
+        "kind": "pplx-flash",
+        "flagged": [
+          "follows_conventions",
+          "message_matches_diff"
+        ]
+      },
+      "jev_test_run5_to_run7control": {
+        "kind": "jev",
+        "flagged": []
+      },
+      "pplx-flash_test_run5hosted_to_run6Alocal": {
+        "kind": "run6a",
+        "flagged": []
+      }
+    },
+    "false_positives": [],
+    "slow_reference_python": {
+      "note": "drift.json AUC delta < \u22120.05 (reference only; not the slow signal of the verdict)",
+      "flagged": {
+        "pplx-flash val: run 5 (2026-10-18) \u2192 run 7 r0 (2026-10-23)": [
+          "follows_conventions",
+          "message_matches_diff"
+        ],
+        "jev test: run 5 (jev-1.13.0) \u2192 run 7 control (jev-1.14.0)": [
+          "tests_cover_change"
+        ],
+        "pplx-flash test: run 5 \u2192 run 7 control": [
+          "follows_conventions",
+          "message_matches_diff",
+          "tests_cover_change"
+        ],
+        "reference \u2014 pplx-flash test: run 5 hosted \u2192 run 6A self-hosted (same weights)": [
+          "hard_to_revert"
+        ]
+      }
+    },
+    "slow": {
+      "status": "ok",
+      "flagged": {
+        "pplx-flash_val_run5_to_run7r0": [
+          "follows_conventions",
+          "message_matches_diff"
+        ],
+        "pplx-flash_test_run5_to_run7control": [
+          "follows_conventions",
+          "message_matches_diff",
+          "tests_cover_change"
+        ],
+        "jev_test_run5_to_run7control": [
+          "tests_cover_change"
+        ],
+        "pplx-flash_test_run5hosted_to_run6Alocal": [
+          "follows_conventions",
+          "message_matches_diff",
+          "tests_cover_change"
+        ]
+      }
+    },
+    "R8-H5": {
+      "pass": true,
+      "clauses": {
+        "pplx_exact": true,
+        "jev_nothing": true,
+        "run6a_nothing": true,
+        "no_false_positive": true,
+        "slow_jev_tests_cover_change": true
+      },
+      "bar": "fast signal flags exactly follows_conventions + message_matches_diff for pplx-flash run 5 \u2192 7, nothing on jev / run 6A; no flag with |AUC \u0394| < 0.03; slow signal flags jev tests_cover_change"
+    }
+  },
+  "hypotheses": {
+    "R8-H1": {
+      "per_model": {
+        "jev": {
+          "v4_mean_delta": 0.009578359004423609,
+          "pair_delta": -0.018005237887385284,
+          "pass": true
+        },
+        "pplx-flash": {
+          "v4_mean_delta": -0.0006362255502850855,
+          "pair_delta": -0.015495416848537724,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "bar": "compact \u2212 same-day control \u2265 \u22120.02 mean v4 AUC and pair AUC, for jev and pplx-flash"
+    },
+    "R8-H2": {
+      "per_model": {
+        "jev": {
+          "accuracy": 0.74,
+          "competing_same_area": 0.17647058823529413,
+          "same_change_auc": 0.7284621578099839,
+          "run7_same_change_auc": 0.685,
+          "run7_same_change_auc_file": 0.6853864734299517,
+          "clauses": {
+            "accuracy": false,
+            "competing_same_area": false,
+            "same_change_auc": true
+          },
+          "pass": false
+        },
+        "pplx-flash": {
+          "accuracy": 0.57,
+          "competing_same_area": 0.058823529411764705,
+          "same_change_auc": 0.6888083735909823,
+          "run7_same_change_auc": 0.728,
+          "run7_same_change_auc_file": 0.7277777777777779,
+          "clauses": {
+            "accuracy": false,
+            "competing_same_area": false,
+            "same_change_auc": false
+          },
+          "pass": false
+        }
+      },
+      "pass": false,
+      "bar": "accuracy \u2265 0.80 for \u2265 1 model and (that model) competing + same_area \u2265 0.40 and same_change AUC \u2265 run 7 \u2212 0.02 (0.728 / 0.685)"
+    },
+    "R8-H3": {
+      "pass": null,
+      "status": "no bar; reported",
+      "bar": "no bar; reported",
+      "mean_v4": {
+        "jev": 0.7197776208495443,
+        "pplx-flash": 0.7027161168256675
+      }
+    },
+    "R8-H4": {
+      "pass": null,
+      "status": "deferred",
+      "bar": "R6A-H3 and R6A-H4 vs the hosted pplx-flash same-day control (only if C4's candidate is recorded)"
+    },
+    "R8-H5": {
+      "pass": true,
+      "clauses": {
+        "pplx_exact": true,
+        "jev_nothing": true,
+        "run6a_nothing": true,
+        "no_false_positive": true,
+        "slow_jev_tests_cover_change": true
+      },
+      "bar": "fast signal flags exactly follows_conventions + message_matches_diff for pplx-flash run 5 \u2192 7, nothing on jev / run 6A; no flag with |AUC \u0394| < 0.03; slow signal flags jev tests_cover_change"
+    }
+  },
+  "inputs": [
+    {
+      "path": "data/run3/dataset.jsonl",
+      "sha256": "d1a6c6325666cdab576549132b97dbdad8da53b8b71114f3184e436a31504952"
+    },
+    {
+      "path": "results/run4/metrics.json",
+      "sha256": "7704b439eea0e4f356d4f7784fc43dca9125063f102ef2496a476bdde2ccd255"
+    },
+    {
+      "path": "results/run5/metrics.json",
+      "sha256": "85ffe045fcffeea3ee2ad55d364e47b09a1c80fb75c728edd01183e4ef9a1028"
+    },
+    {
+      "path": "results/run5/predictions_jev_test_all.jsonl",
+      "sha256": "2e0d2a0b09488bcdda378dea604b908dc848db7138cab0f6db73638fc4b128dc"
+    },
+    {
+      "path": "results/run5/predictions_pplx-flash_test_all.jsonl",
+      "sha256": "4e74373448f48cdcb16e1384f6f6afb2acf3e0a40137ead1c4e7eebd830d4619"
+    },
+    {
+      "path": "results/run6/pairs_eval_test.jsonl",
+      "sha256": "b5fcb0bf44f8fd1ab3a7542a4da79c9c2c72822862a43a47e97b8408065d7971"
+    },
+    {
+      "path": "results/run8/drift_replay.json",
+      "sha256": "d040570406dd91d07503dfe2b1d5813826fc170f4d1227c601ea0ca08b3b0338"
+    },
+    {
+      "path": "results/run8/drift_slow.json",
+      "sha256": "c1b5d0690a078c6d746a3f5827bcc875182ccfa6e3b4dd74dab65066113d7bdc"
+    },
+    {
+      "path": "results/run8/pair/predictions_jev_test_all.jsonl",
+      "sha256": "d92d0ac7c1178ed1bc9bf1ef9ad3877ba77b9a9c6d9f12e0e1803a15f24f4260"
+    },
+    {
+      "path": "results/run8/pair/predictions_jev_test_all_compact.jsonl",
+      "sha256": "2de18f18a66ce27d233d10644c890f7d37246e987f795fed41188f18243bbeb9"
+    },
+    {
+      "path": "results/run8/pair/predictions_pplx-flash_test_all.jsonl",
+      "sha256": "d78616914536c22c8db053e1202f87ee0e5b78cf7dabfb72574c8cca1fea9ab7"
+    },
+    {
+      "path": "results/run8/pair/predictions_pplx-flash_test_all_compact.jsonl",
+      "sha256": "38d9fe882c10fb93b99204d8644ae12e2abf185967148ba0e520ff2010cefdbf"
+    },
+    {
+      "path": "results/run8/relation_metrics.json",
+      "sha256": "c52cb5c289eb27909f1be9c34de50035caa32264a9aa477aa2ff41487cb87f99"
+    },
+    {
+      "path": "results/run8/v4/predictions_jev_test_all.jsonl",
+      "sha256": "92775fc83bd8c2a8834a9fb62ec9b71debf7e28d4c67efd625969f1fa9cf3a71"
+    },
+    {
+      "path": "results/run8/v4/predictions_jev_test_all_compact.jsonl",
+      "sha256": "f57c2bc97c7aa3606b46c6adafb1e3ad2b7ad936ac9518353ee70c14135a1694"
+    },
+    {
+      "path": "results/run8/v4/predictions_pplx-flash_test_all.jsonl",
+      "sha256": "5db226500127139d05587756713e21cef848d54be3b88d2dfd301f06311303d3"
+    },
+    {
+      "path": "results/run8/v4/predictions_pplx-flash_test_all_compact.jsonl",
+      "sha256": "8529413360e67b3a6c463d855d68f31235144d602956600097b1255cfa0a9d20"
+    },
+    {
+      "path": "results/run8prep/drift.json",
+      "sha256": "144a1e3c9b1d0ed257b00581e78f453b3c1b13850e05832978eeefa20f16a154"
+    }
+  ]
+}

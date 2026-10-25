@@ -12,6 +12,18 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `portal: {url, token}` (batched, async, retried, dropped and counted in `/stats`); `mergeone init --portal <token>`.
   No protocol change, no model call.
 
+## Run 8 complete — 2026-10-25
+
+- Model calls 00:19:08Z–00:41:54Z (`961b86d`, v4-compact at 00:40–00:42Z). **R8-H1 ✅** (compact vs same-day control:
+  v4 +0.010 / −0.001, pair −0.018 / −0.015, tokens −32 % / −42 %) → `--compact` becomes the pair-call default (v0.3).
+  **R8-H2 ❌** (relation v2 0.740 / 0.570 vs baseline 0.740 / 0.722; competing 0/7, 2/7) → `duplicate_of` stays the only
+  edge. **R8-H3** reported (v4 = control on the eight questions, +0.001 / +0.000). **R8-H4** deferred (no candidate
+  named). **R8-H5 ✅** (`mergeone drift-replay` flags exactly the two run-7 questions, nothing on jev / 6A; slow signal
+  flags jev `tests_cover_change`) → `drift.enabled` defaults to true in v0.3. Perplexity spend ≈ $0.40.
+- 00:56Z `mergeone.eval.run8_report` (`12146cd`) run after all calls; the Go replay written to
+  `results/run8/drift_replay.json`; the slow signal computed by `scripts/drift_slow.py` (Python reference — the Go
+  path is not built; declared as such in the report). Write-up: `results/run8/README.md`.
+
 ## Run 8 frozen — 2026-10-25
 
 - 2026-10-25 01:0xZ research note `docs/research/inference.md` (`ce1f397`): the hosted pplx-flash run-7 answers match our run-6A one-question-per-request rows (agreement 0.990, mean |Δp| 0.014) and their token count — the run-7 "drift" is more likely a request-handling change at the provider than a weight change; recorded as a post-hoc reading in `results/run7/README.md`, verdicts untouched, pre-registered as R9-H5. Two text corrections noted in the same doc: run 6A pass 2's FLOP estimate assumed 16k tokens per request (the self-hosted joint request is ≈2.3k), and R7.2's 16.9k figure is the hosted endpoint's count, not the local one.

@@ -19,3 +19,4 @@ inputs; model calls need the keys named in each script's header.
 | — | `fig_decision_models_under_load.py` | the load figure in `results/figures/` |
 
 A CI workflow is no longer kept as an example here: `mergeone init --ci` writes it (`gate/internal/initcmd/templates/workflow.yml.tmpl`).
+| `drift_slow.py` | slow drift signal, Python reference (AUC vs outcome on identical rows, −0.05) → `results/run8/drift_slow.json` for R8-H5 |
