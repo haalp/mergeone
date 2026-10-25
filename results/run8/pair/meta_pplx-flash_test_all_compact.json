@@ -1,0 +1,18 @@
+{
+  "model": "pplx-flash",
+  "split": "test",
+  "variant": "all_compact",
+  "n": 15,
+  "errors": 0,
+  "concurrency": 2,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-10-25T00:40:00.023619+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair",
+  "mode": "joint",
+  "predictions_file": "predictions_pplx-flash_test_all_compact.jsonl",
+  "other_rows_kept": 0,
+  "render": "compact",
+  "render_source": "pair:dataset_state"
+}

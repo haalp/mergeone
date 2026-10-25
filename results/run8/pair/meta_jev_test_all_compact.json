@@ -1,0 +1,18 @@
+{
+  "model": "jev",
+  "split": "test",
+  "variant": "all_compact",
+  "n": 3343,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "jev-1.14.0",
+  "finished_at": "2026-10-25T00:25:54.576650+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "pair",
+  "mode": "joint",
+  "predictions_file": "predictions_jev_test_all_compact.jsonl",
+  "other_rows_kept": 0,
+  "render": "compact",
+  "render_source": "pair:dataset_state"
+}

@@ -1,0 +1,16 @@
+{
+  "model": "jev",
+  "split": "test",
+  "variant": "all",
+  "n": 705,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "jev-1.14.0",
+  "finished_at": "2026-10-25T00:19:43.872428+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "v3",
+  "mode": "joint",
+  "predictions_file": "predictions_jev_test_all.jsonl",
+  "other_rows_kept": 705
+}

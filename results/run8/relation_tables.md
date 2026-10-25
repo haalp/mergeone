@@ -6,12 +6,58 @@ Rule: same_change & !same_base → backport; same_change & same_base → duplica
 
 | model | n | accuracy [95% CI] | same_change vs rest AUC (n duplicate) | same_change+backport vs rest AUC | related vs unrelated AUC (n unrelated) | base unknown |
 |---|---|---|---|---|---|---|
-| pplx-flash | — | no relation2 predictions in results/run8/relation/predictions_pplx-flash_test_all.jsonl | | | | |
-| jev | — | no relation2 predictions in results/run8/relation/predictions_jev_test_all.jsonl | | | | |
+| pplx-flash | 100 | 0.570 [0.472, 0.663] | 0.689 (46) | 0.838 | 0.898 (2) | 0 |
+| jev | 100 | 0.740 [0.646, 0.816] | 0.728 (46) | 0.893 | 0.816 (2) | 0 |
 | pplx-flash — baseline: run-7 relation answers, this rule | 97 | 0.722 [0.625, 0.801] | 0.728 (45) | 0.868 | 0.990 (1) | 0 |
 | pplx-flash — run-7 post-hoc (run-7 rule, metadata branch; reference) | 97 | 0.722 | | | | |
 | jev — baseline: run-7 relation answers, this rule | 100 | 0.740 [0.646, 0.816] | 0.685 (46) | 0.883 | 0.995 (2) | 0 |
 | jev — run-7 post-hoc (run-7 rule, metadata branch; reference) | 100 | 0.720 | | | | |
+| pplx-flash — same-day control: run-7 relation question asked today, this rule | 100 | 0.720 [0.625, 0.799] | 0.724 (46) | 0.857 | 0.607 (2) | 0 |
+| jev — same-day control: run-7 relation question asked today, this rule | 99 | 0.747 [0.654, 0.823] | 0.679 (46) | 0.868 | 0.992 (2) | 0 |
+
+## pplx-flash: accuracy per gold class (Wilson 95%)
+
+| gold class | n | correct | accuracy [95% CI] |
+|---|---|---|---|
+| duplicate | 46 | 30 | 0.652 [0.508, 0.773] |
+| competing | 7 | 0 | 0.000 [0.000, 0.354] |
+| backport | 28 | 19 | 0.679 [0.493, 0.821] |
+| follow_up | 7 | 6 | 0.857 [0.487, 0.974] |
+| same_area | 10 | 1 | 0.100 [0.018, 0.404] |
+| unrelated | 2 | 1 | 0.500 [0.095, 0.905] |
+
+### pplx-flash: confusion (rows gold, columns predicted)
+
+| gold \ pred | duplicate | competing | backport | follow_up | same_area | unrelated |
+|---|---|---|---|---|---|---|
+| duplicate | 30 | 0 | 3 | 9 | 4 | 0 |
+| competing | 1 | 0 | 0 | 6 | 0 | 0 |
+| backport | 0 | 0 | 19 | 4 | 5 | 0 |
+| follow_up | 1 | 0 | 0 | 6 | 0 | 0 |
+| same_area | 2 | 0 | 0 | 7 | 1 | 0 |
+| unrelated | 0 | 0 | 1 | 0 | 0 | 1 |
+
+## jev: accuracy per gold class (Wilson 95%)
+
+| gold class | n | correct | accuracy [95% CI] |
+|---|---|---|---|
+| duplicate | 46 | 39 | 0.848 [0.718, 0.924] |
+| competing | 7 | 2 | 0.286 [0.082, 0.641] |
+| backport | 28 | 26 | 0.929 [0.774, 0.980] |
+| follow_up | 7 | 5 | 0.714 [0.359, 0.918] |
+| same_area | 10 | 1 | 0.100 [0.018, 0.404] |
+| unrelated | 2 | 1 | 0.500 [0.095, 0.905] |
+
+### jev: confusion (rows gold, columns predicted)
+
+| gold \ pred | duplicate | competing | backport | follow_up | same_area | unrelated |
+|---|---|---|---|---|---|---|
+| duplicate | 39 | 1 | 3 | 0 | 3 | 0 |
+| competing | 4 | 2 | 0 | 0 | 1 | 0 |
+| backport | 1 | 0 | 26 | 1 | 0 | 0 |
+| follow_up | 1 | 1 | 0 | 5 | 0 | 0 |
+| same_area | 5 | 0 | 3 | 1 | 1 | 0 |
+| unrelated | 0 | 0 | 1 | 0 | 0 | 1 |
 
 ## pplx-flash — baseline (run-7 answers): accuracy per gold class (Wilson 95%)
 
