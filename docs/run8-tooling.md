@@ -98,6 +98,18 @@ rule); the same-day control and run 7's stored relation answers, both re-scored 
 intervals, confusion, same_change-vs-rest AUC (gold duplicate; secondary: duplicate or backport), related-vs-unrelated
 AUC, and metadata per gold class.
 
+## 5. Report — no key
+
+```
+python -m mergeone.eval.run8_report    # → results/run8/tables.md, results/run8/metrics.json (inputs with sha256)
+```
+
+R8-H1…H5 per §R8.3, each against its same-day control; any input not on disk reads "not run yet". R8-H1's v4 half reads
+`results/run8/v4/predictions_<m>_test_all_compact.jsonl` (qset v4, `--compact`) against the qset-v4 rows of
+`predictions_<m>_test_all.jsonl`; §2 above has no such call, so that half reports "not run" until it is made. R8-H5 reads
+`mergeone drift-replay --json` outputs saved as `results/run8/drift_replay.json` (`{label: report}`), falling back to
+`results/run8prep/drift.json`; the slow signal reads `results/run8/drift_slow.json` and is "not implemented" without it.
+
 ## What needs a key
 
 | step | needs |
