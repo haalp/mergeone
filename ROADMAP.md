@@ -140,3 +140,6 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.
 - GitLab / Gitea webhooks.
+- Serving row (run 9 draft): the decision calls are prefill-bound and the vendor path already batches; the levers are
+  fewer tokens (a grouped pair call, ≈ 2.7–3.3× at k = 10) and FP8 on Ada, not prefix caching (the checkpoint's
+  attention is noncausal). Diagnosis, technique table and draft §R9: [`docs/research/inference.md`](docs/research/inference.md).
