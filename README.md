@@ -158,7 +158,7 @@ The gateway itself adds single-digit milliseconds: 350 decisions/s on one 2-vCPU
 
 ## Evidence, including what did not work
 
-mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Seven runs, eleven results; seven failed and are reported the same way.
+mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Eight runs, fourteen results; eight failed and are reported the same way.
 
 | run | question | result |
 |---|---|---|
@@ -170,6 +170,7 @@ mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [
 | 6A | Do self-hosted open weights clear the scale bar? | ❌ one H100: 30× at 160 ms, 100× fails; batching changes nothing |
 | 6B | When the gate holds a PR as a duplicate, is it right? | ✅ 98 of 100 blind-labelled holds were right (bar 0.60); 44 the same change (bar 0.30); κ 0.77 with a second labeller · pool size not the lever ❌ · $0.0004/PR ✅ |
 | 7 | Compact state, tuned prompt, structure instead of the model, a typed relation question? | ❌ ❌ ❌ ❌ all four bars missed — and the hosted model changed under an unchanged version string, so cross-run comparisons now get same-day controls |
+| 8 | Compact state against a same-day control, relation v2, a drift monitor? | ✅ compact state loses ≤ 0.02 (bar −0.02): v4 +0.010 / −0.001, pair −0.018 / −0.015, tokens −32–42 % · ❌ relation v2 class accuracy 0.74 / 0.57 (bar 0.80) · ✅ the drift monitor flags exactly run 7's two questions, nothing else |
 
 What survives: typed triage of *what a change does* at System One speed and cost; a gateway that is never the bottleneck; a cheap model can tell two PRs are the same change, and a hold for duplication is right 98 times in 100 — though more than half the time the right action is a link, not a close. What does not: predicting what a project will *accept* from one diff, and — so far — finding the right PR to compare against. Full write-ups: [`docs/EVIDENCE.md`](docs/EVIDENCE.md), per run `results/run*/README.md`, model ranking [`results/leaderboard.md`](results/leaderboard.md), dated short versions at [mergeone.dev/updates](https://mergeone.dev/updates/).
 

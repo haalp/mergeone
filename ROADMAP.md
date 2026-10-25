@@ -2,16 +2,25 @@
 
 Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md](PROTOCOL.md).
 
-## Now — run 8: same-day controls, relation v2, one self-hosted row
-Run 7 (2026-10-24) missed all four of its bars and found that the hosted decision model drifts under an unchanged
-version string (two of ten questions flipped between run 5 and run 7). Run 8 is therefore built on three rules that
-run 7 did not have: **every cross-run comparison gets a same-day full-state control, pre-registered**; the relation
-question asks only what the diff can answer (`same_change`, `builds_on`, `same_goal`) and the gateway supplies the
-base branch, author and timing as inputs — on the 6B pairs that substitution alone takes class accuracy from 0.08 /
-0.32 to 0.72 for both models (post-hoc, so the run-8 bar is set above 0.72, not above 0.32); and the registry gets the
-C4 row run 7 deferred (a 26B-MoE / 4B-active model on one L4). Compact state is re-asked with its control (run 7's
-post-hoc reading was +0.014 / +0.007 and −42 % tokens). Nothing from run 7 ships; `--compact` and `jev_v3_r2` stay
-selectable, not default.
+## Now — run 9: the serving row, and the v0.3 gateway items run 8 decided
+Run 9 measures the levers that touch tokens and arithmetic on the self-hosted 4B decider, against a **same-day
+vendor-BF16 control on the same pod** (draft: `docs/research/inference.md` §8; nothing is a hypothesis until it is in
+PROTOCOL.md): the same weights under a non-vendor engine (equivalence ≥ 0.95 argmax, |Δp| ≤ 0.02; deferred if no port
+exists at freeze); one L4 at ×10 with the best passing configuration; the vendor FP8 row (same equivalence bars,
+≥ 1.3× throughput); the shared-A pair call — A once, the k candidates after it — at ≥ 2.5× candidates/s with AUC within
+0.02 of one request per candidate; and R9-H5, a ≈ $0.2 hosted check that settles whether run 7's "drift" was the
+endpoint switching to one question per request (research note §3, post-hoc). One L4 for 3–4 h, ≈ $2.4.
+
+Gateway v0.3, decided by run 8: the pair call renders the compact state by default (R8-H1); `drift.enabled: true` by
+default (R8-H5); the slow drift signal (AUC vs outcome on identical rows falls by > 0.05) ported from
+`scripts/drift_slow.py` to Go; `calibrate --from-gatelog`. The v4/v3 call keeps the full state; `duplicate_of` stays
+the only edge.
+
+Run 8 (2026-10-25) is done: two passes, one fail — compact state vs a same-day control +0.010 / −0.001 (v4) and
+−0.018 / −0.015 (pair), bar −0.02, tokens −32 % / −42 % ✅; relation v2 class accuracy 0.740 / 0.570, bar 0.80 ❌; the
+drift monitor replays run 7 exactly ✅; v4 reported (= control on the eight questions); the self-hosted C4 row deferred
+again. Run 7 (2026-10-24) missed all four of its bars and found that the hosted model's answers move under an unchanged
+version string; since then every cross-run comparison gets a same-day control.
 
 Run 6B (2026-10-23) is done: positive — 98 of 100 holds right, 44 the same change, κ 0.77; the dedup rule stays a
 `hold` that never closes a PR. Run 3 (real agent PRs) is done: negative, 67 % of closures are coordination. Both in
@@ -26,7 +35,7 @@ Three views, in the order they get built:
    resolutions (approve as is · link as duplicate · request rebase). What the on-call reviewer opens. Does not depend
    on run 8.
 2. **Graph** — node = open PR (colour by verdict, size by diff), edge = relation from the gate (`duplicate_of` today;
-   typed edges once run-8 C5 passes its bar, weight = calibrated probability). Click a node: the PR, its verdict
+   typed edges once a relation question clears 0.80 — run 8 reached 0.74, weight = calibrated probability). Click a node: the PR, its verdict
    comment, the match side by side; click an edge: the pair state the model saw. Filter by repo, agent, route,
    window. This is where "a hold never closes" becomes a product: a cluster of four PRs touching the same fix is
    resolved in one place.
