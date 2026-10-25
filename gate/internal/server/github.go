@@ -83,6 +83,9 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 			SHA   string `json:"sha"`
 			Label string `json:"label"`
 		} `json:"head"`
+		Base struct {
+			Ref string `json:"ref"`
+		} `json:"base"`
 		User struct {
 			Login string `json:"login"`
 		} `json:"user"`
@@ -123,7 +126,7 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 	for _, f := range files {
 		paths = append(paths, f.Path)
 	}
-	pm = engine.PRMeta{Repo: repo, Number: pr, Title: m.Title, Body: m.Body, Author: m.User.Login, Paths: paths, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
+	pm = engine.PRMeta{Repo: repo, Number: pr, Title: m.Title, Body: m.Body, Author: m.User.Login, Base: m.Base.Ref, Paths: paths, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
 	return RenderState(m.Title, m.Body, files, diff), paths, m.Head.SHA, pm, files, nil
 }
 

@@ -56,6 +56,12 @@ type Store struct {
 	nextJob int64
 	shasPR  map[string]map[string]string // repo + "\x00" + pr → head_sha → latest non-error verdict (max_rounds)
 	drift   driftLog
+	// portal (portal.go): sidecar log of resolutions and closures, and the outbound hook
+	ef          *os.File
+	resolutions []Resolution
+	resolved    map[string]int       // repo + "\x00" + head_sha → index of its latest resolution
+	closed      map[string]time.Time // repo + "\x00" + pr → when it was closed
+	onRecord    func(Record)
 }
 
 // Job is an idempotent unit of work keyed by repo:pr:head_sha.
@@ -77,7 +83,7 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{},
-		drift: newDriftLog()}
+		drift: newDriftLog(), resolved: map[string]int{}, closed: map[string]time.Time{}}
 	s.cond = sync.NewCond(&s.mu)
 	if f, err := os.Open(path); err == nil {
 		sc := bufio.NewScanner(f)
@@ -95,6 +101,10 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 	s.f = f
+	if err := s.openEvents(); err != nil {
+		f.Close()
+		return nil, err
+	}
 	return s, nil
 }
 
@@ -122,7 +132,16 @@ func (s *Store) index(r *Record) {
 
 // Record appends a decision to the gatelog (fsync'd per write: a verdict must
 // not be lost on crash) and indexes it.
+// A hook set with SetOnRecord sees it afterwards, outside the lock.
 func (s *Store) Record(r Record) error {
+	hook, err := s.record(&r)
+	if err == nil && hook != nil {
+		hook(r)
+	}
+	return err
+}
+
+func (s *Store) record(r *Record) (func(Record), error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if r.TS.IsZero() {
@@ -130,16 +149,17 @@ func (s *Store) Record(r Record) error {
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := s.f.Write(append(b, '\n')); err != nil {
-		return err
+		return nil, err
 	}
 	if err := s.f.Sync(); err != nil {
-		return err
+		return nil, err
 	}
-	s.index(&r)
-	return nil
+	cp := *r
+	s.index(&cp)
+	return s.onRecord, nil
 }
 
 // Latest returns the newest decision for a head sha, or nil.
@@ -180,11 +200,13 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	var lat []float64
 	var cost float64
 	n, errs := 0, 0
+	daily := dailyAcc{}
 	for _, r := range s.recent {
 		if r.TS.Before(t0) {
 			continue
 		}
 		n++
+		daily.add(r)
 		verdicts[r.Result.Verdict]++
 		routes[r.Result.Route]++
 		rules[r.Result.Rule]++
@@ -206,6 +228,10 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
 	}
 	out["drift"] = s.drift.report(time.Now())
+	out["history"] = map[string]any{"daily": daily.rows()}
+	if rs := s.resolutionStats(t0); rs != nil {
+		out["resolutions"] = rs
+	}
 	return out
 }
 
@@ -288,10 +314,12 @@ func (s *Store) UpsertOpenPR(repo string, pr int, sha string, paths []string) {
 	s.open[repo][pr] = OpenPR{PR: pr, HeadSHA: sha, Paths: paths, Updated: time.Now().UTC()}
 }
 
+// ClosePR forgets an open PR and records the closure, so it leaves the portal queue and graph.
 func (s *Store) ClosePR(repo string, pr int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.open[repo], pr)
+	_ = s.appendEvent(event{Kind: "closed", Repo: repo, PR: pr, TS: time.Now().UTC()})
 }
 
 // OpenPRs lists a repo's open PRs oldest first.

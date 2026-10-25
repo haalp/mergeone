@@ -85,6 +85,7 @@ type PRMeta struct {
 	Title     string
 	Body      string
 	Author    string
+	Base      string // base branch the PR targets
 	Paths     []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -154,6 +155,32 @@ type Policy struct {
 		Enabled bool `yaml:"enabled"`
 	} `yaml:"drift"`
 	OnDrift DriftOutcome `yaml:"on_drift"`
+	// Portal (docs/portal.md): outbound ingest to the hosted portal (URL + Token) and the gateway's own
+	// /api/* read API (APIToken, Origin for CORS). Values may name environment variables (${VAR}).
+	Portal Portal `yaml:"portal"`
+}
+
+// Portal is the policy's `portal:` block. All fields are optional; an empty block changes nothing.
+type Portal struct {
+	URL      string `yaml:"url"`       // outbound: every gatelog record is POSTed to <url>/ingest
+	Token    string `yaml:"token"`     // outbound bearer token, issued by the portal per repository
+	APIToken string `yaml:"api_token"` // inbound: bearer token required on /api/* ("" = only on a localhost bind)
+	Origin   string `yaml:"origin"`    // CORS origin allowed on /api/* (default: the origin of url)
+}
+
+// CORSOrigin is the origin /api/* answers CORS requests for: Origin, else scheme://host of URL.
+func (p Portal) CORSOrigin() string {
+	if p.Origin != "" {
+		return strings.TrimRight(p.Origin, "/")
+	}
+	if i := strings.Index(p.URL, "://"); i > 0 {
+		rest := p.URL[i+3:]
+		if j := strings.Index(rest, "/"); j >= 0 {
+			rest = rest[:j]
+		}
+		return p.URL[:i+3] + rest
+	}
+	return ""
 }
 
 // Actions is the policy's `actions:` block: deterministic GitHub write-back of a verdict (commit status,
@@ -247,6 +274,10 @@ func LoadPolicy(path string) (*Policy, error) {
 	if !p.OnDrift.Ignore && p.OnDrift.Verdict == "" {
 		p.OnDrift.Outcome = Outcome{Verdict: "hold", Route: "human"}
 	}
+	p.Portal.URL = strings.TrimRight(os.ExpandEnv(p.Portal.URL), "/")
+	p.Portal.Token = os.ExpandEnv(p.Portal.Token)
+	p.Portal.APIToken = os.ExpandEnv(p.Portal.APIToken)
+	p.Portal.Origin = os.ExpandEnv(p.Portal.Origin)
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
@@ -287,6 +318,9 @@ type Calibrator struct {
 	// FitStats is the optional `fit_stats` block of the calibration file: the raw answers the map was fit
 	// on, per question. The drift monitor's reference while the gatelog is younger than 35 days.
 	FitStats map[string]QStats
+	// Path is the file the map came from ("" = identity map); FitAt is its modification time.
+	Path  string
+	FitAt time.Time
 }
 
 type calMap struct {
@@ -310,6 +344,10 @@ func LoadCalibration(path string) (*Calibrator, error) {
 	var raw map[string]json.RawMessage
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return nil, fmt.Errorf("calibration %s: %w", path, err)
+	}
+	c.Path = path
+	if fi, err := os.Stat(path); err == nil {
+		c.FitAt = fi.ModTime().UTC()
 	}
 	if fs, ok := raw["fit_stats"]; ok {
 		if err := json.Unmarshal(fs, &c.FitStats); err != nil {

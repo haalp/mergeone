@@ -40,6 +40,7 @@ import (
 	"github.com/haalp/mergeone/gate/internal/mcp"
 	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/models"
+	"github.com/haalp/mergeone/gate/internal/portal"
 	"github.com/haalp/mergeone/gate/internal/server"
 	"github.com/haalp/mergeone/gate/internal/store"
 )
@@ -429,6 +430,11 @@ func cmdPR(args []string) int {
 		fmt.Fprintln(stderr, "actions:", e)
 	}
 	if stErr == nil {
+		// policy portal: {url, token} → the record is also posted to the portal (bounded wait before exit).
+		if sink := portal.New(g.Policy.Portal.URL, g.Policy.Portal.Token); sink != nil {
+			st.SetOnRecord(func(r store.Record) { sink.Enqueue(r) })
+			defer sink.Close(10 * time.Second)
+		}
 		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, State: state})
 	}
 	return verdictCode(res)

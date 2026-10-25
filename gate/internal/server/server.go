@@ -19,6 +19,7 @@ import (
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/memory"
 	"github.com/haalp/mergeone/gate/internal/plan"
+	"github.com/haalp/mergeone/gate/internal/portal"
 	"github.com/haalp/mergeone/gate/internal/store"
 )
 
@@ -30,8 +31,13 @@ type Gateway struct {
 	GitHub    *GitHub
 	PublicURL string
 	Workers   int
-	stop      chan struct{}
-	wg        sync.WaitGroup
+	// Portal is the outbound ingest sink (policy portal: {url, token}); nil when the block is off.
+	Portal *portal.Sink
+	// BoundLocal is set by Serve when the listen address is loopback: /api/* then works without
+	// portal.api_token. Set it yourself when calling Handler directly.
+	BoundLocal bool
+	stop       chan struct{}
+	wg         sync.WaitGroup
 }
 
 // New starts the worker pool.
@@ -43,6 +49,10 @@ func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL str
 	if g.Policy.Drift.Enabled {
 		g.Degraded = func() map[string]bool { return st.DegradedQuestions(time.Now()) }
 		go gw.driftLogger(time.Hour)
+	}
+	if pc := g.Policy.Portal; pc.URL != "" && pc.Token != "" {
+		gw.Portal = portal.New(pc.URL, pc.Token)
+		st.SetOnRecord(func(r store.Record) { gw.Portal.Enqueue(r) })
 	}
 	for i := 0; i < workers; i++ {
 		gw.wg.Add(1)
@@ -76,7 +86,12 @@ func (gw *Gateway) logDrift(now time.Time) {
 }
 
 // Stop drains workers.
-func (gw *Gateway) Stop() { close(gw.stop); gw.Store.Wake(); gw.wg.Wait() }
+func (gw *Gateway) Stop() {
+	close(gw.stop)
+	gw.Store.Wake()
+	gw.wg.Wait()
+	gw.Portal.Close(10 * time.Second)
+}
 
 // Decide is the synchronous path (idempotent on repo+sha+input hash).
 func (gw *Gateway) Decide(repo string, pr int, sha, state string, paths []string, source string) engine.Result {
@@ -86,17 +101,36 @@ func (gw *Gateway) Decide(repo string, pr int, sha, state string, paths []string
 // DecideMeta is Decide with PR metadata, which enables duplicate_of / silent_days when a memory is configured.
 // It never writes to GitHub (the MCP tools use this path).
 func (gw *Gateway) DecideMeta(repo string, pr int, sha, state string, meta engine.PRMeta, source string) engine.Result {
-	return gw.decide(repo, pr, sha, state, meta, source, false)
+	return gw.decide(repo, pr, sha, state, meta, nil, source, false)
 }
 
 // DecideAndAct is DecideMeta plus the policy's verdict actions (webhook/CI mode only). The actions report
 // is attached to the result and logged in the same gatelog entry; action errors never change the verdict.
 // A cached decision is not acted on again unless it was never acted on (or was skipped for another reason).
 func (gw *Gateway) DecideAndAct(repo string, pr int, sha, state string, meta engine.PRMeta, source string) engine.Result {
-	return gw.decide(repo, pr, sha, state, meta, source, true)
+	return gw.decide(repo, pr, sha, state, meta, nil, source, true)
 }
 
-func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PRMeta, source string, act bool) engine.Result {
+// PRContext is Record.Context for a PR fetched from GitHub: what the portal shows beside the verdict
+// (agent name, "same base") without parsing the state.
+func PRContext(meta engine.PRMeta, files []FileStat) map[string]any {
+	if meta.Author == "" && meta.Base == "" && meta.Title == "" && meta.CreatedAt.IsZero() && files == nil {
+		return nil
+	}
+	add, del := 0, 0
+	for _, f := range files {
+		add += f.Insertions
+		del += f.Deletions
+	}
+	c := map[string]any{"author": meta.Author, "base": meta.Base, "title": meta.Title,
+		"additions": add, "deletions": del, "files": len(files)}
+	if !meta.CreatedAt.IsZero() {
+		c["created_at"] = meta.CreatedAt.UTC().Format(time.RFC3339)
+	}
+	return c
+}
+
+func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PRMeta, rctx map[string]any, source string, act bool) engine.Result {
 	h := sha256.Sum256([]byte(state))
 	inputSHA := hex.EncodeToString(h[:])
 	var res engine.Result
@@ -121,7 +155,12 @@ func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PR
 			log.Printf("actions %s#%d@%s: %s", repo, pr, sha, e)
 		}
 	}
-	if err := gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: source, Result: res, State: state}); err != nil {
+	if rctx == nil { // a cached decision re-acted on keeps the context it was recorded with
+		if prev := gw.Store.Latest(repo, sha); prev != nil {
+			rctx = prev.Context
+		}
+	}
+	if err := gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: source, Result: res, Context: rctx, State: state}); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
 	return res
@@ -186,6 +225,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	var paths []string
 	meta := engine.PRMeta{Repo: repo, Number: pr}
 	var files []FileStat
+	var rctx map[string]any
 	if s, ok := j.Payload["state"].(string); ok && s != "" {
 		state = s
 		if ps, ok := j.Payload["paths"].([]any); ok {
@@ -202,8 +242,9 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 		if err != nil {
 			return err
 		}
+		rctx = PRContext(meta, files)
 	}
-	res := gw.decide(repo, pr, sha, state, meta, source, act)
+	res := gw.decide(repo, pr, sha, state, meta, rctx, source, act)
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
 	if gw.Memory != nil && meta.Title != "" {
 		mf := make([]memory.FileStat, 0, len(files))
@@ -232,7 +273,7 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		if v := r.URL.Query().Get("window"); v != "" {
 			win, _ = strconv.Atoi(v)
 		}
-		writeJSON(w, 200, gw.Store.Stats(time.Duration(win)*time.Second))
+		writeJSON(w, 200, gw.stats(time.Duration(win)*time.Second))
 	})
 	mux.HandleFunc("GET /verdict/pr/{owner}/{repo}/{pr}", func(w http.ResponseWriter, r *http.Request) {
 		pr, _ := strconv.Atoi(r.PathValue("pr"))
@@ -276,7 +317,7 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		act := body.Actions == nil || *body.Actions
 		if body.Wait == nil || *body.Wait {
 			meta := engine.PRMeta{Repo: body.Repo, Number: body.PR, Paths: body.Paths}
-			writeJSON(w, 200, gw.decide(body.Repo, body.PR, body.HeadSHA, body.State, meta, "api", act))
+			writeJSON(w, 200, gw.decide(body.Repo, body.PR, body.HeadSHA, body.State, meta, nil, "api", act))
 			return
 		}
 		ps := make([]any, len(body.Paths))
@@ -343,11 +384,13 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			writeJSON(w, 200, map[string]string{"ignored": ev.Action})
 		}
 	})
+	gw.apiRoutes(mux)
 	return mux
 }
 
 // Serve runs the HTTP server until ctx is done.
 func (gw *Gateway) Serve(ctx context.Context, addr, webhookSecret string) error {
+	gw.BoundLocal = isLoopback(addr)
 	srv := &http.Server{Addr: addr, Handler: gw.Handler(webhookSecret), ReadHeaderTimeout: 10 * time.Second}
 	go func() { <-ctx.Done(); _ = srv.Shutdown(context.Background()) }()
 	log.Printf("mergeone gateway listening on %s (model=%s, workers=%d)", addr, gw.Gate.Model.Name(), gw.Workers)

@@ -131,3 +131,12 @@ actions:
   # reviewers / team_reviewers are requested only on hold or block routed to `human`
   on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [], team_reviewers: [] }
   on_block: { status: failure, labels: ["mergeone:block"] }
+[[- if .PortalURL]]
+
+# Hosted portal (docs/portal.md): every verdict record is also posted to <url>/ingest (async, batched,
+# never in a verdict's way). The token was issued when the repository was connected; if this file is
+# committed, replace it with ${MERGEONE_PORTAL_TOKEN} and set that variable where the gateway runs.
+portal:
+  url: [[.PortalURL]]
+  token: "[[.PortalToken]]"
+[[- end]]

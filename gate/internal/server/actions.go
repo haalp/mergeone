@@ -193,7 +193,11 @@ func (a actor) labels(pr int, want []string, exclusive map[string]bool) {
 }
 
 func (a actor) comment(pr int, sha string, res engine.Result) {
-	marker := CommentMarker(sha)
+	a.commentOnce(pr, CommentMarker(sha), CommentBody(sha, res))
+}
+
+// commentOnce posts body unless a comment already carries marker.
+func (a actor) commentOnce(pr int, marker, body string) {
 	for page := 1; page <= maxCommentPages; page++ {
 		b, ok := a.call("comment", "GET", a.url("issues/%d/comments?per_page=100&page=%d", pr, page), nil, 200)
 		if !ok {
@@ -212,7 +216,7 @@ func (a actor) comment(pr int, sha string, res engine.Result) {
 			break
 		}
 	}
-	if _, ok := a.call("comment", "POST", a.url("issues/%d/comments", pr), map[string]any{"body": CommentBody(sha, res)}, 201, 200); ok {
+	if _, ok := a.call("comment", "POST", a.url("issues/%d/comments", pr), map[string]any{"body": body}, 201, 200); ok {
 		a.rep.Applied = append(a.rep.Applied, "comment")
 	}
 }

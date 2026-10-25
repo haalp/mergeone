@@ -18,6 +18,7 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
 | `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
 | `drift` / `on_drift` | drift monitor (`drift: {enabled: false}` default) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
+| `portal` | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
 
@@ -61,6 +62,49 @@ on_drift: { verdict: hold, route: human } # default; `on_drift: ignore` keeps th
 - Not yet implemented: the slow signal (AUC against outcomes fell > 0.05) and `mergeone calibrate --from-gatelog`.
 - `mergeone drift-replay --predictions then.jsonl --predictions now.jsonl` runs the same computation over two
   prediction files (both sides restricted to the PRs both answered); a comma joins several files into one side.
+
+## Portal (`portal:`) and the `/api/*` read API
+
+```yaml
+portal:
+  url: https://app.mergeone.dev           # outbound: every gatelog record is also POSTed to <url>/ingest
+  token: ${MERGEONE_PORTAL_TOKEN}         # issued per repository by the portal; ${VAR} is read from the environment
+  api_token: ${MERGEONE_API_TOKEN}        # inbound: bearer token on /api/*; unset = /api/* only on a loopback bind
+  origin: https://app.mergeone.dev        # CORS origin for /api/* (default: the origin of url)
+```
+
+All four keys are optional; without the block the gateway behaves as before. `mergeone init --portal <token>
+[--portal-url URL]` writes `url` (default `https://app.mergeone.dev`) and `token`; if `.mergeone.yaml` is committed,
+replace the token with `${MERGEONE_PORTAL_TOKEN}`.
+
+**Outbound.** With `url` and `token` set, each `store.Record` written by `serve`, `mcp` or `pr` is also queued for
+`POST <url>/ingest` with `Authorization: Bearer <token>` and body `{"records": [Record, ...]}`: batches of up to 100 or
+every second, asynchronous, never in a verdict's path. A failed POST (network, 5xx, 408, 429) is retried with backoff
+(0.5 s doubling, 5 attempts) and then dropped; a full buffer (10,000 records) also drops. `/stats` carries a `portal`
+block: `url`, `sent`, `dropped`, `failed_attempts`, `pending`, `last_error`. The gatelog stays the source of truth.
+
+**Inbound: `/api/*`.** Bearer `api_token` on every route (preflight `OPTIONS` excepted). With no `api_token` the routes
+answer only when the server is bound to loopback (`--addr 127.0.0.1:8787`), else 403. The acting login is the
+`X-Mergeone-Login` header the portal sends (the portal holds the token and vouches for its viewer), else `api` /
+`local`. CORS: exact `origin`, credentials allowed, headers `Authorization, Content-Type, X-Mergeone-Login`.
+
+| route | response |
+|---|---|
+| `GET /api/queue[?repo=]` | `{holds: Record[], matches: {"owner/repo#N": Record}}`. `holds`: the latest record of every open PR whose verdict is `hold` with route `dedup` or `human`, or `block`, and whose head SHA has no resolution yet; oldest first. `matches`: the latest record of each hold's `result.extra.duplicate_candidate`. |
+| `GET /api/graph?repo=&since=` | `{nodes, edges}`. Node per open PR decided since `since` (RFC 3339 or an age: `7d`, `36h`, seconds): `{id: "owner/repo#N", repo, pr, title, head_sha, verdict, route, rule, additions, deletions, files, author?, updated}`. Edge per `duplicate_candidate` whose PR is also a node: `{source, target, relation: "duplicate_of", p}` (`p` = calibrated `duplicate_of`); `type` appears only from a typed relation record, and none exist yet. |
+| `GET /api/verdict/{sha}[?repo=]` | the whole `store.Record`, `state` included (without `repo`: the newest record for that SHA in any repository); 404 if none |
+| `GET /api/stats[?window=]` | `/stats` (window in seconds or `7d`/`36h`; default 24 h): `window_s, decisions, per_hour, verdicts, routes, rules, cost_usd, error_rate, p50_ms, p99_ms, drift`, `history.daily[] {day, decisions, pass, hold, block, cost_usd}`, and when present `resolutions {total, agreed, approved_as_is, linked, rebase_requested, by_rule{rule: {agreed, overridden}}}`, `calibration {model, fit_at, n, file}` (`fit_at` is the calibration file's modification time; `n` the largest `fit_stats` n, 0 without one), `portal` |
+| `POST /api/resolve` | body `{repo, pr, head_sha, action: approve \| link_duplicate \| request_rebase, target_pr?}` → `{ok, logged_at, resolution}`. Records a `store.Resolution` keyed on the head SHA with the acting login (in `<gatelog>.events.jsonl`, fsync'd; the head leaves the queue). `link_duplicate` without `target_pr` takes the record's duplicate candidate. 400 on a bad body, 404 when no decision exists for that PR head. |
+| `POST /api/calibrate` | 501: refitting from the gatelog is not built; calibration maps change only with a run |
+
+A resolution never merges, closes, or changes the commit status. With `actions.enabled` it is mirrored on the PR through
+the verdict-action path: one exclusive label (`mergeone:approved`, `mergeone:duplicate`, `mergeone:rebase`) and, when
+`comment` is on, one comment per (head SHA, action) with a hidden `<!-- mergeone:resolve:<sha>:<action> -->` marker.
+`resolutions.agreed` counts `link_duplicate` and `request_rebase` (the PR stays held); `approve` is an override.
+
+**`Record.context`.** Decisions on a PR the gateway fetched from GitHub (the webhook path) carry
+`context: {author, base, created_at, title, additions, deletions, files}` from the PR metadata. Decisions whose state
+was supplied by the caller (MCP, `POST /decide`, `mergeone pr`) have none.
 
 ## max_rounds (convergence cap)
 

@@ -393,3 +393,41 @@ func TestDetectGitRemoteAndBranch(t *testing.T) {
 		t.Fatalf("non-repo: %+v", nd)
 	}
 }
+
+func TestPortalFlagWritesBlock(t *testing.T) {
+	dir := t.TempDir()
+	code, out, stderr := run(t, dir, noEnv, "--quiet", "--portal", "mp_abc123")
+	if code != ExitOK {
+		t.Fatalf("code %d: %s", code, stderr)
+	}
+	if strings.Contains(out, "mp_abc123") {
+		t.Errorf("the token must not be printed: %q", out)
+	}
+	p, err := engine.LoadPolicy(filepath.Join(dir, PolicyFile))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Portal.URL != DefaultPortalURL || p.Portal.Token != "mp_abc123" || p.Portal.CORSOrigin() != DefaultPortalURL {
+		t.Fatalf("portal block %+v", p.Portal)
+	}
+
+	dir2 := t.TempDir()
+	if code, _, _ := run(t, dir2, noEnv, "--quiet"); code != ExitOK {
+		t.Fatal(code)
+	}
+	if b, _ := os.ReadFile(filepath.Join(dir2, PolicyFile)); strings.Contains(string(b), "portal:") || !strings.HasSuffix(string(b), "}\n") {
+		t.Errorf("no --portal: no block, file ends as before: %q", string(b[len(b)-40:]))
+	}
+	t.Setenv("MERGEONE_PORTAL_TOKEN", "from-env")
+	dir3 := t.TempDir()
+	if code, _, _ := run(t, dir3, noEnv, "--quiet", "--portal", "${MERGEONE_PORTAL_TOKEN}", "--portal-url", "http://localhost:3000/"); code != ExitOK {
+		t.Fatal(code)
+	}
+	p3, err := engine.LoadPolicy(filepath.Join(dir3, PolicyFile))
+	if err != nil || p3.Portal.Token != "from-env" || p3.Portal.URL != "http://localhost:3000" {
+		t.Fatalf("env token / custom url: %v %+v", err, p3.Portal)
+	}
+	if code, _, _ := run(t, t.TempDir(), noEnv, "--portal", "x", "--portal-url", "ftp://x"); code != ExitUsage {
+		t.Fatalf("bad portal url: code %d", code)
+	}
+}

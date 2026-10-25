@@ -2,6 +2,16 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.3 (unreleased)
+
+- 2026-10-25 gateway: portal read API under `/api/` (`queue`, `graph`, `verdict/{sha}`, `stats` with `history.daily`,
+  `resolutions`, `calibration`; `POST /api/resolve` records a `store.Resolution` per head SHA and, with actions on,
+  mirrors it as a `mergeone:*` label and one comment — never a merge, close or status change; `POST /api/calibrate` is
+  501), bearer `portal.api_token` (or loopback only) and CORS for `portal.origin`; `Record.context` filled from the
+  fetched PR (`author, base, created_at, title, additions, deletions, files`); outbound ingest behind
+  `portal: {url, token}` (batched, async, retried, dropped and counted in `/stats`); `mergeone init --portal <token>`.
+  No protocol change, no model call.
+
 ## Run 8 frozen — 2026-10-25
 
 - 2026-10-25 00:19:08Z first run-8 model call (`/tmp/r8.sh` on the operator's Mac): v4 + v3 control, pair compact + control, relation2 + relation control, in that order, each treatment with its same-day control in the same directory. Expected Perplexity spend ≈ $0.40 (pair calls cost ≈ $0.00002 each).

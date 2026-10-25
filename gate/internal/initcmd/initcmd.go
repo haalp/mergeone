@@ -80,7 +80,11 @@ type Options struct {
 	Model                             string
 	CI, MCP, Write, All, Force, Quiet bool
 	Dir                               string
+	Portal, PortalURL                 string // --portal <token> writes the portal: block
 }
+
+// DefaultPortalURL is the hosted portal (docs/portal.md).
+const DefaultPortalURL = "https://app.mergeone.dev"
 
 // Run is `mergeone init` for the real process: stdout/stderr, the process environment, TTY detection.
 func Run(args []string, stdout, stderr io.Writer) int {
@@ -100,8 +104,10 @@ func ParseFlags(args []string, stderr io.Writer) (Options, error) {
 	fs.BoolVar(&o.Force, "force", false, "overwrite existing files")
 	fs.StringVar(&o.Dir, "dir", ".", "repository directory to initialise")
 	fs.BoolVar(&o.Quiet, "quiet", false, "no banner")
+	fs.StringVar(&o.Portal, "portal", "", "portal token: write the portal: block (every verdict is also posted to the portal)")
+	fs.StringVar(&o.PortalURL, "portal-url", DefaultPortalURL, "with --portal: the portal's base URL")
 	fs.Usage = func() {
-		fmt.Fprintln(stderr, "usage: mergeone init [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet]")
+		fmt.Fprintln(stderr, "usage: mergeone init [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet] [--portal TOKEN [--portal-url URL]]")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -116,6 +122,13 @@ func ParseFlags(args []string, stderr io.Writer) (Options, error) {
 	}
 	if o.Write {
 		o.MCP = true
+	}
+	if o.Portal == "" {
+		o.PortalURL = ""
+	} else if strings.ContainsAny(o.Portal, "\"\\\n\r\t ") {
+		return o, fmt.Errorf("--portal: the token has a character a YAML string cannot hold as written")
+	} else if !strings.HasPrefix(o.PortalURL, "https://") && !strings.HasPrefix(o.PortalURL, "http://") {
+		return o, fmt.Errorf("--portal-url %q: want an http(s) URL", o.PortalURL)
 	}
 	return o, nil
 }
@@ -232,6 +245,8 @@ type PolicyData struct {
 	Model             string
 	Local             bool
 	RepoOrPlaceholder string
+	PortalURL         string // "" = no portal: block
+	PortalToken       string
 }
 
 // RenderPolicy renders the .mergeone.yaml template.
@@ -389,7 +404,8 @@ func RunEnv(args []string, env Env) int {
 	}
 
 	fmt.Fprintln(out, "Wrote")
-	policy, err := RenderPolicy(PolicyData{Model: o.Model, Local: o.Model == "local", RepoOrPlaceholder: d.Remote})
+	policy, err := RenderPolicy(PolicyData{Model: o.Model, Local: o.Model == "local", RepoOrPlaceholder: d.Remote,
+		PortalURL: strings.TrimRight(o.PortalURL, "/"), PortalToken: o.Portal})
 	if err != nil {
 		fmt.Fprintln(env.Stderr, "error:", err)
 		return ExitError
@@ -399,6 +415,9 @@ func RunEnv(args []string, env Env) int {
 		return ExitError
 	}
 	pr.line("✓", PolicyFile, "model: "+o.Model+overwrote(d.HasPolicy))
+	if o.Portal != "" {
+		pr.line("✓", "portal", o.PortalURL+" (token written to "+PolicyFile+"; use ${MERGEONE_PORTAL_TOKEN} there if the file is committed)")
+	}
 	return writeRest(o, env, pr, d, spec, workflowPath)
 }
 
