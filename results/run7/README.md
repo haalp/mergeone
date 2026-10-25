@@ -35,6 +35,16 @@ carry that caveat. The practical consequence for the gateway is the one run 5 al
 the gatelog, do not trust week-old calibration maps — and for the benchmark it is a rule for run 8: **any comparison
 against an earlier run's numbers gets a same-day full-state control, pre-registered.**
 
+> **Post-hoc, 2026-10-25 — what probably moved.** Reading the vendor's serving code while preparing run 9
+> (`docs/research/inference.md`) gives a more specific mechanism than "the weights changed": the hosted endpoint's
+> run-7 answers match our own *one-question-per-request* rows from run 6A at argmax agreement **0.990** and mean |Δp|
+> **0.014** (inside both §R6A equivalence bars), and its token count (16.9k per request) matches the single-question
+> format (17.0k) rather than the joint one (2.3k). The simplest explanation is that the endpoint began answering the
+> ten questions separately instead of jointly — a request-handling change, not a weight change — and the two
+> questions that "drifted" are the ones whose answers depend most on seeing the other nine. This is a reading, not a
+> verdict: nothing here is re-scored, and run 9 pre-registers the check (R9-H5). The lesson stands either way: the
+> version string did not change, the answers did, and only a same-day control shows it.
+
 ## C1 — compact state
 
 The v3 request carries the PR state once per question (ten times per call); the compact rendering cuts the diff to
