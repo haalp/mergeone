@@ -4,6 +4,7 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 
 ## Run 8 frozen — 2026-10-25
 
+- 2026-10-25 00:19:08Z first run-8 model call (`/tmp/r8.sh` on the operator's Mac): v4 + v3 control, pair compact + control, relation2 + relation control, in that order, each treatment with its same-day control in the same directory. Expected Perplexity spend ≈ $0.40 (pair calls cost ≈ $0.00002 each).
 - 2026-10-24 23:12Z (02:12 on 2026-10-25 at +03:00) PROTOCOL.md §R8 committed (C1 compact with same-day control, C2 relation v2 with bar 0.80 and its same-day
   control, C3 v4 question set, C4 registry row, C5 drift replay; routing not run, a negative pre-result). No run-8 model
   call has been made before this commit. Frozen with it:
@@ -62,7 +63,7 @@ inputs; the items below are the dated deviations and the one finding that change
   confusion matrices show neither model can tell branches (pplx-flash calls 26 of 27 backports duplicate; jev calls 42 of
   46 duplicates backport). `same_branch` is metadata; a post-hoc reading with the metadata fact is in the report tables,
   labelled as such. The next relation question must not ask the model for facts the gateway already has.
-- Spend: ≈ $9 Perplexity (13,600 unneeded pair rows ≈ $5 of it), Jev on credit; no GPU.
+- Spend: **$4.56** Perplexity summed from `decision.cost_usd` over every run-7 pplx-flash row (the three tuning rounds ≈ $4.0 of it; the 13,600-row pair call only $0.31 — the earlier "≈ $9" estimate in this file was wrong by 2×), Jev on credit; no GPU.
 
 ## Run 7 frozen — 2026-10-23
 
