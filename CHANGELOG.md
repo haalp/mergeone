@@ -14,6 +14,7 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 
 ## Run 8 frozen — 2026-10-25
 
+- 2026-10-25 00:40Z two corrections to the frozen text, bars unchanged: (a) §R8.2/§R8.3 give the competing + same-area baseline as 0/17 for both models; `results/run8/relation_metrics.json` (the pre-registered baseline file) has jev at 2/17 (2 of 7 competing), pplx-flash at 0/17 — the file is authoritative. (b) §R8.2 C1 names a v4 compact treatment but `docs/run8-tooling.md` §2 listed only the full-state v4 call; the two `--qset v4 --compact` calls (jev, pplx-flash) were added to the run order and made after the pair and relation calls, their control being the full-state v4 rows already in `results/run8/v4/`.
 - 2026-10-25 00:19:08Z first run-8 model call (`/tmp/r8.sh` on the operator's Mac): v4 + v3 control, pair compact + control, relation2 + relation control, in that order, each treatment with its same-day control in the same directory. Expected Perplexity spend ≈ $0.40 (pair calls cost ≈ $0.00002 each).
 - 2026-10-24 23:12Z (02:12 on 2026-10-25 at +03:00) PROTOCOL.md §R8 committed (C1 compact with same-day control, C2 relation v2 with bar 0.80 and its same-day
   control, C3 v4 question set, C4 registry row, C5 drift replay; routing not run, a negative pre-result). No run-8 model
