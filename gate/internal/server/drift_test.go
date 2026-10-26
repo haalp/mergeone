@@ -67,3 +67,45 @@ func TestStatusDescriptionKeepsDriftSuffix(t *testing.T) {
 		t.Fatalf("len %d: %q", n, d)
 	}
 }
+
+func webhookClosed(t *testing.T, gw *Gateway, pr int, merged bool) {
+	t.Helper()
+	body := fmt.Sprintf(`{"action": "closed", "repository": {"full_name": "o/r"}, "pull_request": {"number": %d, "merged": %v, "head": {"sha": "x"}}}`, pr, merged)
+	req := httptest.NewRequest("POST", "/webhook/github", strings.NewReader(body))
+	req.Header.Set("X-GitHub-Event", "pull_request")
+	rr := httptest.NewRecorder()
+	gw.Handler("").ServeHTTP(rr, req)
+	if rr.Code != 200 {
+		t.Fatalf("webhook: %d %s", rr.Code, rr.Body)
+	}
+}
+
+// Outcomes: the webhook's closed event records merged and the iterated proxy (>= 3 decided heads); CI adds
+// reverted through POST /api/outcome, merged field by field.
+func TestOutcomeRecorder(t *testing.T) {
+	gw, _ := newTestGateway(t, testRules+testPortal, nil)
+	for i, sha := range []string{"a", "b", "c"} {
+		gw.Decide("o/r", 1, sha, fmt.Sprintf("hold %d", i), nil, "api")
+	}
+	gw.Decide("o/r", 2, "d", "pass", nil, "api")
+	webhookClosed(t, gw, 1, true)
+	webhookClosed(t, gw, 2, false)
+	o1, o2 := gw.Store.OutcomeFor("o/r", 1), gw.Store.OutcomeFor("o/r", 2)
+	if o1 == nil || !*o1.Merged || !*o1.Iterated || o1.Reverted != nil || o2 == nil || *o2.Merged || *o2.Iterated {
+		t.Fatalf("webhook outcomes %+v %+v", o1, o2)
+	}
+	if rr := apiCall(t, gw, "POST", "/api/outcome", "s3cret", map[string]any{"repo": "o/r", "pr": 1}); rr.Code != 400 {
+		t.Fatalf("no label: %d", rr.Code)
+	}
+	rr := apiCall(t, gw, "POST", "/api/outcome", "s3cret", map[string]any{"repo": "o/r", "pr": 1, "reverted": true})
+	var got struct {
+		OK      bool            `json:"ok"`
+		Outcome store.PROutcome `json:"outcome"`
+	}
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil || rr.Code != 200 || !got.OK || !*got.Outcome.Reverted || !*got.Outcome.Merged || !*got.Outcome.Iterated {
+		t.Fatalf("api outcome %d %s", rr.Code, rr.Body)
+	}
+	if rr := apiCall(t, gw, "POST", "/api/outcome", "", map[string]any{"repo": "o/r", "pr": 1, "reverted": true}); rr.Code != 401 {
+		t.Fatalf("outcome without token: %d", rr.Code)
+	}
+}

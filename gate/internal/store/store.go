@@ -62,6 +62,9 @@ type Store struct {
 	resolved    map[string]int       // repo + "\x00" + head_sha → index of its latest resolution
 	closed      map[string]time.Time // repo + "\x00" + pr → when it was closed
 	onRecord    func(Record)
+	// outcomes (outcome.go): repo + "\x00" + pr → merged outcome; lastGood: its last error-free decision
+	outcomes map[string]*PROutcome
+	lastGood map[string]*Record
 }
 
 // Job is an idempotent unit of work keyed by repo:pr:head_sha.
@@ -83,7 +86,8 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{},
-		drift: newDriftLog(), resolved: map[string]int{}, closed: map[string]time.Time{}}
+		drift: newDriftLog(), resolved: map[string]int{}, closed: map[string]time.Time{},
+		outcomes: map[string]*PROutcome{}, lastGood: map[string]*Record{}}
 	s.cond = sync.NewCond(&s.mu)
 	if f, err := os.Open(path); err == nil {
 		sc := bufio.NewScanner(f)
@@ -116,6 +120,9 @@ func (s *Store) index(r *Record) {
 	s.bySHA[r.Repo+"\x00"+r.HeadSHA] = r
 	if r.PR != 0 {
 		s.byPR[r.Repo+"\x00"+itoa(r.PR)] = r
+		if r.Result.Error == "" && len(r.Result.RawProbs) > 0 {
+			s.lastGood[r.Repo+"\x00"+itoa(r.PR)] = r
+		}
 		if r.HeadSHA != "" && r.Result.Error == "" {
 			k := r.Repo + "\x00" + itoa(r.PR)
 			if s.shasPR[k] == nil {
@@ -227,7 +234,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		out["p50_ms"] = lat[len(lat)/2]
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
 	}
-	out["drift"] = s.drift.report(time.Now())
+	out["drift"] = s.driftReport(time.Now())
 	out["history"] = map[string]any{"daily": daily.rows()}
 	if rs := s.resolutionStats(t0); rs != nil {
 		out["resolutions"] = rs

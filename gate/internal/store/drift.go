@@ -105,14 +105,6 @@ func (d *driftLog) model(model string, now time.Time) engine.ModelDrift {
 	return engine.DriftReport(cur, nil, "none")
 }
 
-func (d *driftLog) report(now time.Time) map[string]engine.ModelDrift {
-	out := map[string]engine.ModelDrift{}
-	for m := range d.days {
-		out[m] = d.model(m, now)
-	}
-	return out
-}
-
 // SetFitStats gives the drift monitor the shipped calibration's fit_stats (the reference while the
 // gatelog is younger than 35 days).
 func (s *Store) SetFitStats(fs map[string]engine.QStats) {
@@ -125,10 +117,11 @@ func (s *Store) SetFitStats(fs map[string]engine.QStats) {
 func (s *Store) Drift(now time.Time) map[string]engine.ModelDrift {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.drift.report(now)
+	return s.driftReport(now)
 }
 
-// DegradedQuestions is the degraded set for the model of the newest decision (the one being served).
+// DegradedQuestions is the degraded set (fast or slow signal) for the model of the newest decision (the one
+// being served).
 func (s *Store) DegradedQuestions(now time.Time) map[string]bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -136,7 +129,7 @@ func (s *Store) DegradedQuestions(now time.Time) map[string]bool {
 		return nil
 	}
 	var out map[string]bool
-	for _, q := range s.drift.model(s.drift.last, now).Degraded {
+	for _, q := range s.modelDrift(s.drift.last, now).AllDegraded() {
 		if out == nil {
 			out = map[string]bool{}
 		}

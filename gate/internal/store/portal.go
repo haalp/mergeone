@@ -37,11 +37,12 @@ var ResolveActions = map[string]bool{"approve": true, "link_duplicate": true, "r
 // rebase keeps the PR held; approving it as is overrides the hold.
 func (r Resolution) Agreed() bool { return r.Action != "approve" }
 
-// event is one line of the sidecar log (<gatelog>.events.jsonl): resolutions and PR closures, which
-// are not decisions and so stay out of the gatelog.
+// event is one line of the sidecar log (<gatelog>.events.jsonl): resolutions, PR closures and outcomes,
+// which are not decisions and so stay out of the gatelog.
 type event struct {
-	Kind       string      `json:"kind"` // resolution | closed
+	Kind       string      `json:"kind"` // resolution | closed | outcome
 	Resolution *Resolution `json:"resolution,omitempty"`
+	Outcome    *PROutcome  `json:"outcome,omitempty"`
 	Repo       string      `json:"repo,omitempty"`
 	PR         int         `json:"pr,omitempty"`
 	TS         time.Time   `json:"ts"`
@@ -81,6 +82,12 @@ func (s *Store) indexEvent(e event) {
 		}
 	case "closed":
 		s.closed[e.Repo+"\x00"+itoa(e.PR)] = e.TS
+	case "outcome":
+		if o := e.Outcome; o != nil {
+			k := o.Repo + "\x00" + itoa(o.PR)
+			m := mergeOutcome(s.outcomes[k], *o)
+			s.outcomes[k] = &m
+		}
 	}
 }
 
