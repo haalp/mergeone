@@ -61,14 +61,14 @@ func mergeOutcome(prev *PROutcome, o PROutcome) PROutcome {
 
 // RecordOutcome writes an outcome to the sidecar log (fsync'd) and returns the PR's merged outcome.
 func (s *Store) RecordOutcome(o PROutcome) (PROutcome, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	if o.TS.IsZero() {
 		o.TS = time.Now().UTC()
 	}
-	if err := s.appendEvent(event{Kind: "outcome", Outcome: &o, TS: o.TS}); err != nil {
+	if err := s.emit(Event{Kind: "outcome", Outcome: &o, TS: o.TS}); err != nil {
 		return PROutcome{}, err
 	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return *s.outcomes[o.Repo+"\x00"+itoa(o.PR)], nil
 }
 

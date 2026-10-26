@@ -62,6 +62,7 @@ type Store struct {
 	resolved    map[string]int       // repo + "\x00" + head_sha → index of its latest resolution
 	closed      map[string]time.Time // repo + "\x00" + pr → when it was closed
 	onRecord    func(Record)
+	onEvent     func(Event)
 	// outcomes (outcome.go): repo + "\x00" + pr → merged outcome; lastGood: its last error-free decision
 	outcomes map[string]*PROutcome
 	lastGood map[string]*Record
@@ -324,12 +325,13 @@ func (s *Store) UpsertOpenPR(repo string, pr int, sha string, paths []string) {
 	s.open[repo][pr] = OpenPR{PR: pr, HeadSHA: sha, Paths: paths, Updated: time.Now().UTC()}
 }
 
-// ClosePR forgets an open PR and records the closure, so it leaves the portal queue and graph.
-func (s *Store) ClosePR(repo string, pr int) {
+// ClosePR forgets an open PR and records the closure (merged or not), so it leaves the portal queue and graph,
+// here and, through the event hook, in the hosted portal.
+func (s *Store) ClosePR(repo string, pr int, merged bool) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	delete(s.open[repo], pr)
-	_ = s.appendEvent(event{Kind: "closed", Repo: repo, PR: pr, TS: time.Now().UTC()})
+	s.mu.Unlock()
+	_ = s.emit(Event{Kind: "closed", Repo: repo, PR: pr, Merged: &merged, TS: time.Now().UTC()})
 }
 
 // OpenPRs lists a repo's open PRs oldest first.

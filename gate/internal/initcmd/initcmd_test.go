@@ -395,20 +395,37 @@ func TestDetectGitRemoteAndBranch(t *testing.T) {
 }
 
 func TestPortalFlagWritesBlock(t *testing.T) {
+	// Default: the policy reads ${MERGEONE_PORTAL_TOKEN}; the token is printed once, as the export line, and
+	// is written nowhere.
 	dir := t.TempDir()
 	code, out, stderr := run(t, dir, noEnv, "--quiet", "--portal", "mp_abc123")
 	if code != ExitOK {
 		t.Fatalf("code %d: %s", code, stderr)
 	}
-	if strings.Contains(out, "mp_abc123") {
-		t.Errorf("the token must not be printed: %q", out)
+	if strings.Count(out, "mp_abc123") != 1 || !strings.Contains(out, "\n  export MERGEONE_PORTAL_TOKEN=mp_abc123\n") {
+		t.Errorf("want the token only in the export line: %q", out)
 	}
+	b, _ := os.ReadFile(filepath.Join(dir, PolicyFile))
+	if strings.Contains(string(b), "mp_abc123") || !strings.Contains(string(b), `token: "${MERGEONE_PORTAL_TOKEN}"`) {
+		t.Fatalf("policy must reference the variable, not hold the token: %q", string(b))
+	}
+	t.Setenv("MERGEONE_PORTAL_TOKEN", "mp_abc123")
 	p, err := engine.LoadPolicy(filepath.Join(dir, PolicyFile))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if p.Portal.URL != DefaultPortalURL || p.Portal.Token != "mp_abc123" || p.Portal.CORSOrigin() != DefaultPortalURL {
 		t.Fatalf("portal block %+v", p.Portal)
+	}
+
+	// --inline-token: the old behaviour, the token in the file and not printed.
+	dirI := t.TempDir()
+	code, out, _ = run(t, dirI, noEnv, "--quiet", "--portal", "mp_inline9", "--inline-token")
+	if code != ExitOK || strings.Contains(out, "mp_inline9") || strings.Contains(out, "export MERGEONE_PORTAL_TOKEN") {
+		t.Fatalf("inline: code %d out %q", code, out)
+	}
+	if pi, err := engine.LoadPolicy(filepath.Join(dirI, PolicyFile)); err != nil || pi.Portal.Token != "mp_inline9" {
+		t.Fatalf("inline token: %v %+v", err, pi)
 	}
 
 	dir2 := t.TempDir()

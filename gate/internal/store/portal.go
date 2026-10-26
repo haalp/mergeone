@@ -37,14 +37,16 @@ var ResolveActions = map[string]bool{"approve": true, "link_duplicate": true, "r
 // rebase keeps the PR held; approving it as is overrides the hold.
 func (r Resolution) Agreed() bool { return r.Action != "approve" }
 
-// event is one line of the sidecar log (<gatelog>.events.jsonl): resolutions, PR closures and outcomes,
-// which are not decisions and so stay out of the gatelog.
-type event struct {
+// Event is one line of the sidecar log (<gatelog>.events.jsonl): resolutions, PR closures and outcomes,
+// which are not decisions and so stay out of the gatelog. The same shape is posted to the portal
+// (`events` of POST /ingest), so the portal's queue drops a closed PR.
+type Event struct {
 	Kind       string      `json:"kind"` // resolution | closed | outcome
 	Resolution *Resolution `json:"resolution,omitempty"`
 	Outcome    *PROutcome  `json:"outcome,omitempty"`
 	Repo       string      `json:"repo,omitempty"`
 	PR         int         `json:"pr,omitempty"`
+	Merged     *bool       `json:"merged,omitempty"` // closed: whether the PR was merged (absent: unknown)
 	TS         time.Time   `json:"ts"`
 }
 
@@ -58,7 +60,7 @@ func (s *Store) openEvents() error {
 		sc := bufio.NewScanner(f)
 		sc.Buffer(make([]byte, 1<<20), 16<<20)
 		for sc.Scan() {
-			var e event
+			var e Event
 			if json.Unmarshal(sc.Bytes(), &e) == nil {
 				s.indexEvent(e)
 			}
@@ -73,7 +75,7 @@ func (s *Store) openEvents() error {
 	return nil
 }
 
-func (s *Store) indexEvent(e event) {
+func (s *Store) indexEvent(e Event) {
 	switch e.Kind {
 	case "resolution":
 		if r := e.Resolution; r != nil {
@@ -92,7 +94,7 @@ func (s *Store) indexEvent(e event) {
 }
 
 // appendEvent writes and indexes one sidecar line. Caller holds s.mu.
-func (s *Store) appendEvent(e event) error {
+func (s *Store) appendEvent(e Event) error {
 	b, err := json.Marshal(e)
 	if err != nil {
 		return err
@@ -109,12 +111,30 @@ func (s *Store) appendEvent(e event) error {
 
 // Resolve records a resolution (fsync'd, like a verdict).
 func (s *Store) Resolve(r Resolution) (Resolution, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	if r.TS.IsZero() {
 		r.TS = time.Now().UTC()
 	}
-	return r, s.appendEvent(event{Kind: "resolution", Resolution: &r, TS: r.TS})
+	return r, s.emit(Event{Kind: "resolution", Resolution: &r, TS: r.TS})
+}
+
+// emit appends and indexes an event, then hands it to the SetOnEvent hook (outside the lock).
+func (s *Store) emit(e Event) error {
+	s.mu.Lock()
+	err := s.appendEvent(e)
+	hook := s.onEvent
+	s.mu.Unlock()
+	if err == nil && hook != nil {
+		hook(e)
+	}
+	return err
+}
+
+// SetOnEvent installs a hook called (outside the lock) with every event after it is written: the outbound
+// portal sink. It must not block.
+func (s *Store) SetOnEvent(f func(Event)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.onEvent = f
 }
 
 // ResolutionFor returns the latest resolution of a head SHA, or nil.

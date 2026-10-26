@@ -1,6 +1,6 @@
-// Package portal posts gatelog records to the hosted portal (docs/portal.md): batched, async, retried
-// with backoff, and never in a verdict's way. A full buffer or a batch that keeps failing is dropped and
-// counted; the gatelog stays the source of truth.
+// Package portal posts gatelog records and events (PR closed/merged, resolutions, outcomes) to the hosted
+// portal (docs/portal.md): batched, async, retried with backoff, and never in a verdict's way. A full
+// buffer or a batch that keeps failing is dropped and counted; the gatelog stays the source of truth.
 package portal
 
 import (
@@ -15,7 +15,8 @@ import (
 	"time"
 )
 
-// Sink batches records and POSTs them as {"records": [...]} to <URL>/ingest.
+// Sink batches records and events and POSTs them as {"records": [...], "events": [...]} to <URL>/ingest
+// (`events` only when the batch has any).
 type Sink struct {
 	URL, Token string
 	Client     *http.Client
@@ -24,14 +25,15 @@ type Sink struct {
 	Attempts   int           // tries per batch before it is dropped (default 5)
 	Backoff    time.Duration // first retry delay, doubled per retry (default 500ms)
 
-	in      chan any
-	stop    chan struct{}
-	done    chan struct{}
-	once    sync.Once
-	sent    atomic.Int64
-	dropped atomic.Int64
-	failed  atomic.Int64 // failed POST attempts
-	lastErr atomic.Value // string
+	in         chan item
+	stop       chan struct{}
+	done       chan struct{}
+	once       sync.Once
+	sent       atomic.Int64 // records
+	eventsSent atomic.Int64
+	dropped    atomic.Int64
+	failed     atomic.Int64 // failed POST attempts
+	lastErr    atomic.Value // string
 }
 
 // New returns a started sink, or nil when url or token is empty (the portal block is off).
@@ -62,19 +64,29 @@ func (s *Sink) Start() {
 	if s.Backoff <= 0 {
 		s.Backoff = 500 * time.Millisecond
 	}
-	s.in = make(chan any, 10_000)
+	s.in = make(chan item, 10_000)
 	s.stop = make(chan struct{})
 	s.done = make(chan struct{})
 	go s.loop()
 }
 
+type item struct {
+	event bool
+	v     any
+}
+
 // Enqueue hands a record to the sender without blocking; a full buffer drops it (counted).
-func (s *Sink) Enqueue(rec any) {
+func (s *Sink) Enqueue(rec any) { s.put(item{v: rec}) }
+
+// EnqueueEvent hands an event (store.Event) to the sender, like Enqueue.
+func (s *Sink) EnqueueEvent(ev any) { s.put(item{event: true, v: ev}) }
+
+func (s *Sink) put(it item) {
 	if s == nil {
 		return
 	}
 	select {
-	case s.in <- rec:
+	case s.in <- it:
 	default:
 		s.dropped.Add(1)
 	}
@@ -97,7 +109,7 @@ func (s *Sink) Stats() map[string]any {
 	if s == nil {
 		return nil
 	}
-	out := map[string]any{"url": s.URL, "sent": s.sent.Load(), "dropped": s.dropped.Load(),
+	out := map[string]any{"url": s.URL, "sent": s.sent.Load(), "events_sent": s.eventsSent.Load(), "dropped": s.dropped.Load(),
 		"failed_attempts": s.failed.Load(), "pending": len(s.in)}
 	if e, _ := s.lastErr.Load().(string); e != "" {
 		out["last_error"] = e
@@ -107,7 +119,7 @@ func (s *Sink) Stats() map[string]any {
 
 func (s *Sink) loop() {
 	defer close(s.done)
-	var batch []any
+	var batch []item
 	timer := time.NewTimer(s.Linger)
 	defer timer.Stop()
 	flush := func() {
@@ -145,8 +157,20 @@ func (s *Sink) loop() {
 
 // send POSTs one batch, retrying with exponential backoff; after Attempts failures it is dropped.
 // A 4xx other than 408/429 is not retried (the portal refused the batch).
-func (s *Sink) send(batch []any) {
-	body, err := json.Marshal(map[string]any{"records": batch})
+func (s *Sink) send(batch []item) {
+	records, events := []any{}, []any{}
+	for _, it := range batch {
+		if it.event {
+			events = append(events, it.v)
+		} else {
+			records = append(records, it.v)
+		}
+	}
+	payload := map[string]any{"records": records}
+	if len(events) > 0 {
+		payload["events"] = events
+	}
+	body, err := json.Marshal(payload)
 	if err != nil {
 		s.dropped.Add(int64(len(batch)))
 		return
@@ -155,7 +179,8 @@ func (s *Sink) send(batch []any) {
 	for attempt := 1; ; attempt++ {
 		retry, err := s.post(body)
 		if err == nil {
-			s.sent.Add(int64(len(batch)))
+			s.sent.Add(int64(len(records)))
+			s.eventsSent.Add(int64(len(events)))
 			return
 		}
 		s.failed.Add(1)

@@ -57,6 +57,7 @@ func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL str
 	if pc := g.Policy.Portal; pc.URL != "" && pc.Token != "" {
 		gw.Portal = portal.New(pc.URL, pc.Token)
 		st.SetOnRecord(func(r store.Record) { gw.Portal.Enqueue(r) })
+		st.SetOnEvent(func(e store.Event) { gw.Portal.EnqueueEvent(e) })
 	}
 	for i := 0; i < workers; i++ {
 		gw.wg.Add(1)
@@ -378,7 +379,7 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			}
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", nil)})
 		case "closed":
-			gw.Store.ClosePR(repo, pr)
+			gw.Store.ClosePR(repo, pr, ev.PullRequest.Merged)
 			// Outcome for the slow drift signal and calibrate: merged from the event; iterated is the gateway's
 			// proxy for the run-5 label (force_pushes >= 2): decided on >= 3 distinct heads. reverted comes
 			// later, from CI (POST /api/outcome).
