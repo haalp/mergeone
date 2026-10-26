@@ -79,12 +79,14 @@ set on; the run-8 version replays through the Go code path.)
 
 ## Implementation notes (Go, `gate/internal/`)
 
-Status 2026-10-25: the fast signal, `fit_stats`, `on_drift`, the `/stats` block, the status suffix, the hourly log
-line and `mergeone drift-replay` are implemented behind `drift.enabled` (default false; docs/POLICY.md). Aggregates
-are keyed by the result's `model_version`. Not yet: the slow AUC signal and `mergeone calibrate --from-gatelog`.
+Status 2026-10-26 (v0.3): the fast signal, `fit_stats`, `on_drift`, the `/stats` block, the status suffix, the hourly
+log line and `mergeone drift-replay` (2026-10-25); the slow AUC signal with an outcome recorder (webhook `closed`,
+`POST /api/outcome`), `drift-replay --labels`, and `mergeone calibrate --from-gatelog` / `POST /api/calibrate`
+(2026-10-26). `drift.enabled` is true by default. Aggregates are keyed by the result's `model_version`. The reference
+is the refit map's `fit_stats` while that refit is inside the last 35 days. Reference: docs/POLICY.md.
 
 - `store`: a ring of per-(model, question) daily sums (`sum`, `sumsq`, `yes`, `n`) is enough — no raw row scan per
   stats call. Persist with the store.
 - `engine`: `Calibrator` gains `FitStats`; `Evaluate` takes the set of degraded questions and the `on_drift` outcome.
 - `server`: `/stats` block; status description suffix; hourly log line.
-- Flag: `drift.enabled: false` by default in v0.3.0; `true` by default once run 8 reports the replay.
+- Flag: `drift.enabled` was false by default until run 8 reported the replay (R8-H5 pass); true by default in v0.3.0.
