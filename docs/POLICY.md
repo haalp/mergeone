@@ -17,7 +17,7 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
 | `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
-| `drift` / `on_drift` | drift monitor (`drift: {enabled: false}` default) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
+| `drift` / `on_drift` | drift monitor (`drift: {enabled: true}` default since v0.3; `false` turns it off) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
 | `portal` | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
@@ -47,14 +47,18 @@ the ones pre-registered in PROTOCOL.md §R8 and are moved only by a run. Spec: [
 
 ```yaml
 drift:
-  enabled: false                          # default
+  enabled: true                           # default since v0.3 (run 8 R8-H5 passed); false turns it off
 on_drift: { verdict: hold, route: human } # default; `on_drift: ignore` keeps the rules as they are
 ```
 
+A policy without a `drift:` key gets the monitor on. Run 8 replayed the run-5 → run-7 predictions through this code
+path (`results/run8/drift_replay.json`): it flags exactly `follows_conventions` and `message_matches_diff` for
+pplx-flash and nothing for jev or the run-6A self-hosted row (R8-H5 pass).
+
 - `GET /stats` always carries a `drift` block (per model: `reference` = `gatelog` | `fit_stats` | `none`, per question
-  `mean_raw`, `shift`, `yes_rate`, `spread`, `n`, the reference values, `degraded`). It is measurement only; nothing
-  acts on it while `drift.enabled` is false.
-- With `drift.enabled: true`: rules run top to bottom as usual; the first rule whose `when` reads a degraded question
+  `mean_raw`, `shift`, `yes_rate`, `spread`, `n`, the reference values, `degraded`). With `drift.enabled: false` it
+  is measurement only and nothing acts on it.
+- With `drift.enabled: true` (the default): rules run top to bottom as usual; the first rule whose `when` reads a degraded question
   is not evaluated and the PR gets `on_drift` (rule `on_drift`, reason `drift:<question>`). Rules above it decide as
   before; a degraded question that no rule reads changes no verdict. The result lists the degraded questions
   (`drift`), the commit status description ends in `drift: <question>` while they last, and the server logs each

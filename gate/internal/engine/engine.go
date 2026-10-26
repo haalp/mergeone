@@ -154,8 +154,9 @@ type Policy struct {
 	Actions Actions `yaml:"actions"`
 	// MaxRounds caps review loops: after this many non-pass verdicts on one PR, route to a human (0 = off).
 	MaxRounds int `yaml:"max_rounds"`
-	// Drift monitor (docs/drift-monitor.md): off by default. When on, rules reading a degraded question
-	// are not evaluated and the PR gets OnDrift (default hold → human; `ignore` keeps the rules).
+	// Drift monitor (docs/drift-monitor.md): on by default since v0.3 (run 8 R8-H5; LoadPolicy sets it when the
+	// key is absent). When on, rules reading a degraded question are not evaluated and the PR gets OnDrift
+	// (default hold → human; `ignore` keeps the rules).
 	Drift struct {
 		Enabled bool `yaml:"enabled"`
 	} `yaml:"drift"`
@@ -263,6 +264,14 @@ func LoadPolicy(path string) (*Policy, error) {
 	var p Policy
 	if err := yaml.Unmarshal(b, &p); err != nil {
 		return nil, fmt.Errorf("policy %s: %w", path, err)
+	}
+	var keys struct {
+		Drift struct {
+			Enabled *bool `yaml:"enabled"`
+		} `yaml:"drift"`
+	}
+	if err := yaml.Unmarshal(b, &keys); err == nil && keys.Drift.Enabled == nil {
+		p.Drift.Enabled = true // v0.3 default (R8-H5 passed); `drift: {enabled: false}` turns it off
 	}
 	if p.QuestionSet == "" {
 		p.QuestionSet = "v2" // v0.3: v4 (once calibration_<model>_v4.json exists)
