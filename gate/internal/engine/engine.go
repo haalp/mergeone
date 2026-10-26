@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/goccy/go-yaml"
+
+	"github.com/haalp/mergeone/gate/internal/render"
 )
 
 // QuestionsV2 is the run-2 typed-triage question set (PROTOCOL.md R2.2).
@@ -145,6 +147,9 @@ type Policy struct {
 	Memory           struct {
 		Enabled bool `yaml:"enabled"`
 		TopK    int  `yaml:"top_k"`
+		// PairState is how A and B are rendered for the same_change pair call: "compact" (default from
+		// v0.3; PROTOCOL.md §R8 C1, R8-H1) or "full" (the run-4 rendering). The main call is always full.
+		PairState string `yaml:"pair_state"`
 	} `yaml:"memory"`
 	Actions Actions `yaml:"actions"`
 	// MaxRounds caps review loops: after this many non-pass verdicts on one PR, route to a human (0 = off).
@@ -278,6 +283,13 @@ func LoadPolicy(path string) (*Policy, error) {
 	p.Portal.Token = os.ExpandEnv(p.Portal.Token)
 	p.Portal.APIToken = os.ExpandEnv(p.Portal.APIToken)
 	p.Portal.Origin = os.ExpandEnv(p.Portal.Origin)
+	switch p.Memory.PairState {
+	case "":
+		p.Memory.PairState = PairStateCompact
+	case PairStateCompact, PairStateFull:
+	default:
+		return nil, fmt.Errorf("policy %s: memory.pair_state %q: want compact or full", path, p.Memory.PairState)
+	}
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
@@ -460,10 +472,44 @@ func (g *Gate) Decide(state string, paths []string) Result {
 	return g.finish(g.Model.Decide(state, QuestionsV2), sha, now)
 }
 
+// Pair-call renderings (policy memory.pair_state).
+const (
+	PairStateCompact = "compact"
+	PairStateFull    = "full"
+)
+
 // pairStage is the memory half of DecideFor: retrieval + one same_change call per candidate.
 type pairStage struct {
-	cands []Candidate
-	ds    []Decision // ds[i] answers cands[i]
+	cands    []Candidate
+	ds       []Decision // ds[i] answers cands[i]
+	render   string     // compact | full: what the pair calls were sent
+	fallback int        // candidates sent full under compact because the state is not a render_state text
+}
+
+// pairRender is the policy's pair-call rendering ("" = compact, the default).
+func (g *Gate) pairRender() string {
+	if g.Policy != nil && g.Policy.Memory.PairState == PairStateFull {
+		return PairStateFull
+	}
+	return PairStateCompact
+}
+
+// renderPairs rewrites each candidate's full pair state with the C1 compact rules (render.CompactPairState,
+// A compacted from the full state). A state the compact rules cannot parse (not a render_state text, e.g.
+// a caller-supplied MCP state) is sent full and counted, never dropped.
+func (g *Gate) renderPairs(state string, cands []Candidate) (string, int) {
+	if g.pairRender() == PairStateFull {
+		return PairStateFull, 0
+	}
+	fallback := 0
+	for i := range cands {
+		if cs, err := render.CompactPairState(cands[i].PairState, state); err == nil {
+			cands[i].PairState = cs
+		} else {
+			fallback++
+		}
+	}
+	return PairStateCompact, fallback
 }
 
 // pairs retrieves the top-k candidates and asks same_change for each, at most PairConcurrency at a time.
@@ -474,6 +520,7 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 		k = 5
 	}
 	cands := g.Memory.Candidates(meta, state, k)
+	rend, fallback := g.renderPairs(state, cands)
 	ds := make([]Decision, len(cands))
 	conc := g.PairConcurrency
 	if conc <= 0 {
@@ -483,7 +530,7 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 		for i, c := range cands {
 			ds[i] = g.Model.Decide(c.PairState, []string{"same_change"})
 		}
-		return pairStage{cands, ds}
+		return pairStage{cands, ds, rend, fallback}
 	}
 	sem := make(chan struct{}, conc)
 	var wg sync.WaitGroup
@@ -496,7 +543,7 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 		}(i)
 	}
 	wg.Wait()
-	return pairStage{cands, ds}
+	return pairStage{cands, ds, rend, fallback}
 }
 
 // DecideFor is Decide plus the run-4 signals when a PR memory is configured:
@@ -544,6 +591,12 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 	}
 	res.Probs["duplicate_of"] = math.Round(best*1000) / 1000
 	extra["candidates"] = seen
+	if len(ps.cands) > 0 {
+		extra["render"] = ps.render
+		if ps.fallback > 0 {
+			extra["render_fallback"] = ps.fallback
+		}
+	}
 	if bestN != 0 {
 		extra["duplicate_candidate"] = bestN
 	}

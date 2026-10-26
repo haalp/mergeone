@@ -21,6 +21,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/haalp/mergeone/gate/internal/render"
 )
 
 const (
@@ -280,10 +282,7 @@ func (r *Repo) Candidates(number int, title, body string, files []string, author
 		if len(paths) > 60 {
 			paths = paths[:60]
 		}
-		b := s.e.Body
-		if len(b) > 1500 {
-			b = b[:1500]
-		}
+		b := render.Chars(s.e.Body, 1500)
 		out = append(out, Candidate{Number: s.e.Number, Score: round4(score), Jaccard: round4(s.jac), BM25: round4(s.bm / bmMax), SameAuthor: same,
 			State: s.e.State, Title: s.e.Title, Body: b, Author: s.e.Author, CreatedAt: s.e.CreatedAt, MergedAt: s.e.MergedAt, Files: paths})
 	}
@@ -371,19 +370,14 @@ func (s *Store) Sizes() map[string]int {
 	return out
 }
 
-// PairState renders the two-sided input for the same_change question. Byte-equivalent to
-// mergeone/eval/run4.py pair_state() + _render_b().
+// PairState renders the two-sided input for the same_change question. Equivalent to
+// mergeone/eval/run4.py pair_state() + _render_b(); the caps count characters, as Python's slices do.
 func PairState(aState string, c Candidate) string {
-	if len(aState) > 6000 {
-		aState = aState[:6000]
-	}
+	aState = render.Chars(aState, 6000)
 	var sb strings.Builder
 	sb.WriteString("PULL REQUEST TITLE: " + c.Title + "\n")
 	sb.WriteString("MERGE MESSAGE BODY:\n")
-	body := strings.TrimSpace(c.Body)
-	if len(body) > 1200 {
-		body = body[:1200]
-	}
+	body := render.Chars(strings.TrimSpace(c.Body), 1200)
 	sb.WriteString(body + "\n\n")
 	st := "STATE: " + strings.ToLower(c.State)
 	if c.MergedAt != "" {
@@ -402,9 +396,6 @@ func PairState(aState string, c Candidate) string {
 		}
 		sb.WriteString("  " + p + "\n")
 	}
-	b := strings.TrimRight(sb.String(), "\n")
-	if len(b) > 3000 {
-		b = b[:3000]
-	}
+	b := render.Chars(strings.TrimRight(sb.String(), "\n"), 3000)
 	return "=== PULL REQUEST A ===\n" + aState + "\n\n=== PULL REQUEST B ===\n" + b + "\n\nHow does A relate to B?"
 }

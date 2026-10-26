@@ -28,6 +28,7 @@ always_human_paths:
 memory:
   enabled: true
   top_k: 5
+  pair_state: compact   # pair call input: compact (default; PROTOCOL.md §R8 C1, R8-H1) | full (the run-4 rendering)
 
 rules:
   - name: duplicate-of

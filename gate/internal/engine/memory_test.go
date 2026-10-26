@@ -1,6 +1,10 @@
 package engine
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 )
@@ -53,5 +57,92 @@ func TestDecideForDuplicateAndStale(t *testing.T) {
 	res = g2.DecideFor("state", PRMeta{Repo: "o/n", UpdatedAt: time.Now()})
 	if res.Rule != "trivial" || res.Verdict != "pass" {
 		t.Fatalf("expected trivial pass without memory, got %s/%s", res.Rule, res.Verdict)
+	}
+}
+
+// fixtureMem returns one candidate whose pair state is the Python run4.pair_state from the golden fixture.
+type fixtureMem struct{ pair string }
+
+func (m fixtureMem) Candidates(PRMeta, string, int) []Candidate {
+	return []Candidate{{Number: 7, Score: 0.9, State: "MERGED", PairState: m.pair}}
+}
+
+type pairRecorder struct {
+	mu   sync.Mutex
+	sent []string
+}
+
+func (*pairRecorder) Name() string { return "rec" }
+func (r *pairRecorder) Decide(state string, qs []string) Decision {
+	if len(qs) == 1 && qs[0] == "same_change" {
+		r.mu.Lock()
+		r.sent = append(r.sent, state)
+		r.mu.Unlock()
+		return Decision{Probs: map[string]float64{"same_change": 0.2}}
+	}
+	return Decision{Probs: map[string]float64{"is_logic_change": 0.1}}
+}
+
+// memory.pair_state: the pair call gets the C1 compact rendering by default (identical to the Python
+// compact_pair_state, golden fixture), the full one under `full`; the main call always gets the full state.
+func TestPairCallCompactByDefault(t *testing.T) {
+	b, err := os.ReadFile(filepath.Join("..", "..", "testdata", "compact_fixture.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var f struct {
+		Cases []struct {
+			AState           string `json:"a_state"`
+			PairState        string `json:"pair_state"`
+			CompactPairState string `json:"compact_pair_state"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(b, &f); err != nil {
+		t.Fatal(err)
+	}
+	c := f.Cases[1]
+	for _, mode := range []string{"", PairStateCompact, PairStateFull} {
+		p := testPolicy(t)
+		p.Memory.PairState = mode
+		rec := &pairRecorder{}
+		g := &Gate{Policy: p, Model: rec, Cal: &Calibrator{}, Memory: fixtureMem{c.PairState}}
+		res := g.DecideFor(c.AState, PRMeta{Repo: "o/n", Number: 9})
+		want, wantRender := c.CompactPairState, "compact"
+		if mode == PairStateFull {
+			want, wantRender = c.PairState, "full"
+		}
+		if len(rec.sent) != 1 || rec.sent[0] != want {
+			t.Fatalf("mode %q: pair call got the wrong rendering", mode)
+		}
+		if res.Extra["render"] != wantRender || res.Extra["render_fallback"] != nil {
+			t.Fatalf("mode %q: extra %v", mode, res.Extra)
+		}
+	}
+	// A state the compact rules cannot parse is sent full and counted.
+	g := &Gate{Policy: testPolicy(t), Model: fakeModel{}, Cal: &Calibrator{}, Memory: fakeMem{}, PairK: 5}
+	res := g.DecideFor("state", PRMeta{Repo: "o/n", Number: 50})
+	if res.Extra["render"] != "compact" || res.Extra["render_fallback"] != 2 || res.Rule != "duplicate-of" {
+		t.Fatalf("fallback: %v %s", res.Extra, res.Rule)
+	}
+}
+
+func TestPolicyPairStateKey(t *testing.T) {
+	dir := t.TempDir()
+	write := func(body string) string {
+		p := filepath.Join(dir, "p.yaml")
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	p, err := LoadPolicy(write("memory: {enabled: true}\n"))
+	if err != nil || p.Memory.PairState != PairStateCompact {
+		t.Fatalf("default: %v %v", err, p)
+	}
+	if p, err = LoadPolicy(write("memory: {pair_state: full}\n")); err != nil || p.Memory.PairState != PairStateFull {
+		t.Fatalf("full: %v", err)
+	}
+	if _, err = LoadPolicy(write("memory: {pair_state: short}\n")); err == nil {
+		t.Fatal("bad pair_state accepted")
 	}
 }

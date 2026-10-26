@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/render"
 )
 
 // Candidates implements engine.Memory: retrieval + pair-state rendering for the gate.
@@ -53,10 +54,7 @@ func (r *Repo) candidatesV2AsV1(meta engine.PRMeta, k int) []Candidate {
 		if len(paths) > 60 {
 			paths = paths[:60]
 		}
-		b := e.Body
-		if len(b) > 1500 {
-			b = b[:1500]
-		}
+		b := render.Chars(e.Body, 1500)
 		out = append(out, Candidate{Number: h.Number, Score: round4(h.Score), Jaccard: round4(h.Jaccard), BM25: round4(h.BM25), SameAuthor: h.SameAuthor,
 			State: e.State, Title: e.Title, Body: b, Author: e.Author, CreatedAt: e.CreatedAt, MergedAt: e.MergedAt, Files: paths})
 	}

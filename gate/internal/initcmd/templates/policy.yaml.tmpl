@@ -51,6 +51,7 @@ always_human_paths:
 memory:
   enabled: false
   top_k: 5
+  pair_state: compact   # pair call input: compact (default since v0.3; run 8 R8-H1) | full
 
 rules:
   # Needs memory (duplicate_of is never set while memory is off, so this rule cannot fire).
