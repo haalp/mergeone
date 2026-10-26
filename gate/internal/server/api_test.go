@@ -57,7 +57,7 @@ func seedQueue(t *testing.T, gw *Gateway) {
 	if err := gw.Store.Record(store.Record{Repo: "o/r", PR: 4, HeadSHA: "sha4", Source: "webhook", Result: res, Context: ctx, State: state}); err != nil {
 		t.Fatal(err)
 	}
-	gw.Store.ClosePR("o/r", 2)
+	gw.Store.ClosePR("o/r", 2, false)
 }
 
 func TestAPIAuthAndCORS(t *testing.T) {
@@ -159,7 +159,7 @@ func TestAPIQueueGraphVerdict(t *testing.T) {
 	if rr := apiCall(t, gw, "GET", "/api/verdict/nope?repo=o/r", "s3cret", nil); rr.Code != 404 {
 		t.Fatalf("unknown sha: %d", rr.Code)
 	}
-	if rr := apiCall(t, gw, "POST", "/api/calibrate", "s3cret", map[string]string{"since": "7d"}); rr.Code != 501 || !strings.Contains(rr.Body.String(), "not implemented") {
+	if rr := apiCall(t, gw, "POST", "/api/calibrate", "s3cret", map[string]string{"since": "7d"}); rr.Code != 422 || !strings.Contains(rr.Body.String(), "need at least 200") {
 		t.Fatalf("calibrate: %d %s", rr.Code, rr.Body.String())
 	}
 }
@@ -329,5 +329,46 @@ func TestPortalIngest(t *testing.T) {
 	_ = json.Unmarshal(rr.Body.Bytes(), &stats)
 	if ps, ok := stats["portal"].(map[string]any); !ok || ps["sent"] != 2.0 || ps["dropped"] != 0.0 {
 		t.Fatalf("/stats portal block %v", stats["portal"])
+	}
+}
+
+// PR closures (with merged) and gateway-side resolutions reach the portal as `events` beside `records`,
+// so the portal's queue drops a closed PR.
+func TestPortalIngestEvents(t *testing.T) {
+	var mu sync.Mutex
+	var events []store.Event
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			Events []store.Event `json:"events"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		mu.Lock()
+		events = append(events, body.Events...)
+		mu.Unlock()
+		w.WriteHeader(202)
+	}))
+	t.Cleanup(srv.Close)
+	gw, _ := newTestGateway(t, testRules+testPortal+"  url: \""+srv.URL+"\"\n  token: ptok\n", nil)
+	gw.Decide("o/r", 1, "a", "hold", nil, "api")
+	gw.Decide("o/r", 2, "b", "hold", nil, "api")
+	if rr := apiCall(t, gw, "POST", "/api/resolve", "s3cret", map[string]any{"repo": "o/r", "pr": 1, "head_sha": "a", "action": "approve"}); rr.Code != 200 {
+		t.Fatalf("resolve %d %s", rr.Code, rr.Body)
+	}
+	webhookClosed(t, gw, 2, true)
+	gw.Portal.Close(5 * time.Second)
+	mu.Lock()
+	defer mu.Unlock()
+	kinds := map[string]int{}
+	for _, e := range events {
+		kinds[e.Kind]++
+		if e.Kind == "closed" && (e.PR != 2 || e.Merged == nil || !*e.Merged) {
+			t.Fatalf("closed event %+v", e)
+		}
+		if e.Kind == "resolution" && (e.Resolution == nil || e.Resolution.Action != "approve" || e.Resolution.Login != "maria") {
+			t.Fatalf("resolution event %+v", e)
+		}
+	}
+	if kinds["closed"] != 1 || kinds["resolution"] != 1 || kinds["outcome"] != 1 {
+		t.Fatalf("events %v", kinds)
 	}
 }

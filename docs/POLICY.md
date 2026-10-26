@@ -12,12 +12,12 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `question_set` | `v2` (default today, five questions), `v3` (ten; run 5) or `v4` (v3 minus `follows_conventions` and `message_matches_diff`; the set the gateway asks from v0.3) — below |
 | `calibration` | `auto` uses the shipped isotonic map for the model |
 | `always_human_paths` | path prefixes that always `hold → human`, before any model call |
-| `memory` | PR memory (run 4–6): `enabled`, `top_k`; adds `duplicate_of` and `silent_days` to the probabilities |
+| `memory` | PR memory (run 4–6): `enabled`, `top_k`, `pair_state` (`compact` default, or `full`; below); adds `duplicate_of` and `silent_days` to the probabilities |
 | `rules` | evaluated top to bottom on calibrated probabilities; first match wins; each has `name`, `when`, `verdict`, `route`, `reason` |
 | `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
 | `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
 | `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
-| `drift` / `on_drift` | drift monitor (`drift: {enabled: false}` default) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
+| `drift` / `on_drift` | drift monitor (`drift: {enabled: true}` default since v0.3; `false` turns it off) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
 | `portal` | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
@@ -36,6 +36,27 @@ asked, a missing probability is a non-match, and the rule would silently do noth
 `policy.yaml` and from the template `mergeone init` writes. A policy of your own that still has the rule keeps working
 under `v2` / `v3`; under `v4` it never matches.
 
+## Pair-call rendering (`memory.pair_state`)
+
+The PR-memory pair call (`same_change(A, B)`, one per retrieved candidate) is sent the compact rendering by default
+from v0.3: A with its diff cut to 2,000 characters, body to 600 and at most 20 files listed; B with body 600 and at
+most 20 files; the run-4 caps (A 6,000, B 3,000 characters) re-applied. These are the rules frozen in PROTOCOL.md
+§R8 C1. Run 8 (R8-H1, bar Δ ≥ −0.02) measured them against a same-day full-state control: pair AUC −0.018 (jev,
+CI [−0.035, −0.004]) / −0.015 (pplx-flash), median pair request 1,564 vs 2,468 tokens (`results/run8/README.md`).
+
+```yaml
+memory:
+  enabled: true
+  top_k: 5
+  pair_state: compact   # default; `full` sends the run-4 rendering
+```
+
+The main decision call always gets the full state. The Go renderer (`gate/internal/render`) is a port of
+`mergeone/data/features.py` `compact_state` / `compact_pair_state` and is checked byte for byte against their output
+(`gate/testdata/compact_fixture.json`). A decision with pair calls records `extra.render` (`compact` | `full`); a
+state the compact rules cannot parse (no `SUMMARY` / `DIFF` markers, e.g. a hand-written MCP state) is sent full
+and counted in `extra.render_fallback`.
+
 ## Drift monitor (`drift`, `on_drift`)
 
 The gateway keeps, per model version and question, daily sums of the **raw** (pre-calibration) probabilities it
@@ -47,21 +68,55 @@ the ones pre-registered in PROTOCOL.md §R8 and are moved only by a run. Spec: [
 
 ```yaml
 drift:
-  enabled: false                          # default
+  enabled: true                           # default since v0.3 (run 8 R8-H5 passed); false turns it off
 on_drift: { verdict: hold, route: human } # default; `on_drift: ignore` keeps the rules as they are
 ```
 
+A policy without a `drift:` key gets the monitor on. Run 8 replayed the run-5 → run-7 predictions through this code
+path (`results/run8/drift_replay.json`): it flags exactly `follows_conventions` and `message_matches_diff` for
+pplx-flash and nothing for jev or the run-6A self-hosted row (R8-H5 pass).
+
 - `GET /stats` always carries a `drift` block (per model: `reference` = `gatelog` | `fit_stats` | `none`, per question
-  `mean_raw`, `shift`, `yes_rate`, `spread`, `n`, the reference values, `degraded`). It is measurement only; nothing
-  acts on it while `drift.enabled` is false.
-- With `drift.enabled: true`: rules run top to bottom as usual; the first rule whose `when` reads a degraded question
+  `mean_raw`, `shift`, `yes_rate`, `spread`, `n`, the reference values, `degraded`). With `drift.enabled: false` it
+  is measurement only and nothing acts on it.
+- With `drift.enabled: true` (the default): rules run top to bottom as usual; the first rule whose `when` reads a degraded question
   is not evaluated and the PR gets `on_drift` (rule `on_drift`, reason `drift:<question>`). Rules above it decide as
   before; a degraded question that no rule reads changes no verdict. The result lists the degraded questions
   (`drift`), the commit status description ends in `drift: <question>` while they last, and the server logs each
   degraded question once an hour.
-- Not yet implemented: the slow signal (AUC against outcomes fell > 0.05) and `mergeone calibrate --from-gatelog`.
+- **Slow signal.** Where PRs have closed with an outcome, the gateway also computes, per model and question, the
+  ROC-AUC of the raw answer against `iterated` on PRs decided in the trailing 7 days and in the 28 before. A drop
+  of more than **0.05** with n ≥ 200 labelled decisions in the current window flags the question (PROTOCOL.md §R8).
+  It is reported as `drift.<model>.slow` (`label`, `reference`, per question `auc`, `ref_auc`, `delta`, `n`, `ref_n`,
+  `degraded`; an AUC is null when a window has one class) and its flagged questions are acted on like the fast
+  signal's. It lags by the time PRs take to close.
+- **Outcomes.** The webhook's `closed` event records `merged` and `iterated` for the PR. `iterated` is the gateway's
+  proxy for the run-5 label (two or more force pushes): the PR was decided on 3 or more distinct head SHAs. CI can
+  add or correct labels with `POST /api/outcome` (below); fields merge per PR, the latest value winning.
 - `mergeone drift-replay --predictions then.jsonl --predictions now.jsonl` runs the same computation over two
   prediction files (both sides restricted to the PRs both answered); a comma joins several files into one side.
+  `--labels data/run3/dataset.jsonl --label iterated` adds the slow signal (any JSONL whose rows carry `pr_number`
+  and `labels` works, prediction files included). `--mode joint` (default) reads joint rows only; `--mode any` reads
+  every request mode, last row per PR, which is the selection `scripts/drift_slow.py` makes. With `--mode any` the
+  replay reproduces `results/run8/drift_slow.json` on all four comparisons (flags, n, AUCs to 4 decimals).
+
+## Recalibration (`mergeone calibrate --from-gatelog`)
+
+```
+mergeone calibrate --from-gatelog [--since 28d] [--model m] [--label iterated] [--out calibration_<m>_<qset>.json] [--force]
+```
+
+Per question, an isotonic map (the fit `gate fit-calibration` makes: sklearn `IsotonicRegression(out_of_bounds="clip",
+y_min=0, y_max=1)`, tabulated on 101 points) of the raw answers of PRs decided in the window whose outcome carries the
+label. The file has the shape the engine loads, plus `fit_stats` (mean, yes-rate, spread, n per question) and
+`fit_meta` (`source: gatelog`, label, since, fit_at, n, model versions). `--model` takes a model version or a registry
+name (`jev` matches `jev-*`); the default is the newest labelled decision's version. The default output is
+`calibration_<policy model>_<question_set>.json` beside the policy; an existing file is replaced only with `--force`.
+
+- It refuses under 200 labelled decisions (exit 1) and says where outcomes come from.
+- Nothing refits automatically. A running gateway keeps its map until it is restarted with the new file.
+- A map refit from the gatelog within the last 35 days is the drift reference (its `fit_stats`) even when the gatelog
+  is older, so the refit clears the flag it answered.
 
 ## Portal (`portal:`) and the `/api/*` read API
 
@@ -74,14 +129,18 @@ portal:
 ```
 
 All four keys are optional; without the block the gateway behaves as before. `mergeone init --portal <token>
-[--portal-url URL]` writes `url` (default `https://app.mergeone.dev`) and `token`; if `.mergeone.yaml` is committed,
-replace the token with `${MERGEONE_PORTAL_TOKEN}`.
+[--portal-url URL]` writes `url` (default `https://app.mergeone.dev`) and `token: "${MERGEONE_PORTAL_TOKEN}"`, and
+prints `export MERGEONE_PORTAL_TOKEN=<token>` (the only place the token appears), so the policy can be committed.
+`--inline-token` writes the token itself into the file instead.
 
 **Outbound.** With `url` and `token` set, each `store.Record` written by `serve`, `mcp` or `pr` is also queued for
-`POST <url>/ingest` with `Authorization: Bearer <token>` and body `{"records": [Record, ...]}`: batches of up to 100 or
-every second, asynchronous, never in a verdict's path. A failed POST (network, 5xx, 408, 429) is retried with backoff
+`POST <url>/ingest` with `Authorization: Bearer <token>` and body `{"records": [Record, ...], "events": [Event, ...]}`:
+batches of up to 100 or every second, asynchronous, never in a verdict's path. `events` (present only when the batch
+has any) carries what the gateway writes to its sidecar log: `{kind: "closed", repo, pr, merged, ts}` when a PR is
+closed, `{kind: "resolution", resolution: Resolution, ts}` for a resolution made through `/api/resolve`, and
+`{kind: "outcome", outcome: {repo, pr, merged?, reverted?, iterated?, source}, ts}`. A failed POST (network, 5xx, 408, 429) is retried with backoff
 (0.5 s doubling, 5 attempts) and then dropped; a full buffer (10,000 records) also drops. `/stats` carries a `portal`
-block: `url`, `sent`, `dropped`, `failed_attempts`, `pending`, `last_error`. The gatelog stays the source of truth.
+block: `url`, `sent` (records), `events_sent`, `dropped`, `failed_attempts`, `pending`, `last_error`. The gatelog stays the source of truth.
 
 **Inbound: `/api/*`.** Bearer `api_token` on every route (preflight `OPTIONS` excepted). With no `api_token` the routes
 answer only when the server is bound to loopback (`--addr 127.0.0.1:8787`), else 403. The acting login is the
@@ -95,7 +154,8 @@ answer only when the server is bound to loopback (`--addr 127.0.0.1:8787`), else
 | `GET /api/verdict/{sha}[?repo=]` | the whole `store.Record`, `state` included (without `repo`: the newest record for that SHA in any repository); 404 if none |
 | `GET /api/stats[?window=]` | `/stats` (window in seconds or `7d`/`36h`; default 24 h): `window_s, decisions, per_hour, verdicts, routes, rules, cost_usd, error_rate, p50_ms, p99_ms, drift`, `history.daily[] {day, decisions, pass, hold, block, cost_usd}`, and when present `resolutions {total, agreed, approved_as_is, linked, rebase_requested, by_rule{rule: {agreed, overridden}}}`, `calibration {model, fit_at, n, file}` (`fit_at` is the calibration file's modification time; `n` the largest `fit_stats` n, 0 without one), `portal` |
 | `POST /api/resolve` | body `{repo, pr, head_sha, action: approve \| link_duplicate \| request_rebase, target_pr?}` → `{ok, logged_at, resolution}`. Records a `store.Resolution` keyed on the head SHA with the acting login (in `<gatelog>.events.jsonl`, fsync'd; the head leaves the queue). `link_duplicate` without `target_pr` takes the record's duplicate candidate. 400 on a bad body, 404 when no decision exists for that PR head. |
-| `POST /api/calibrate` | 501: refitting from the gatelog is not built; calibration maps change only with a run |
+| `POST /api/outcome` | body `{repo, pr, merged?, reverted?, iterated?}` (at least one) → `{ok, outcome}`: records a PR's outcome for the slow drift signal and recalibration (CI, e.g. after a revert); merged with what the webhook recorded |
+| `POST /api/calibrate` | body (optional) `{since: "28d", model?, label?}` → `{ok, summary, file, note}`: runs `mergeone calibrate --from-gatelog`, writes `calibration_<model>_<qset>.gatelog-<UTC time>.json` beside the gatelog and loads nothing (`summary`: label, since, fit_at, model_versions, n, positives, per question n / positives / mean / yes_rate / spread / fitted). 422 under 200 labelled decisions |
 
 A resolution never merges, closes, or changes the commit status. With `actions.enabled` it is mirrored on the PR through
 the verdict-action path: one exclusive label (`mergeone:approved`, `mergeone:duplicate`, `mergeone:rebase`) and, when

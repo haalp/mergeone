@@ -15,6 +15,7 @@ type driftLog struct {
 	last     string                                           // model of the newest decision
 	lastDay  int64
 	fitStats map[string]engine.QStats
+	fitAt    time.Time // when fitStats were fit from the gatelog (zero: a shipped map)
 }
 
 const driftKeepDays = engine.R8DriftCurrentDays + engine.R8DriftRefDays
@@ -92,11 +93,14 @@ func (d *driftLog) window(model string, from, to int64) map[string]engine.QStats
 }
 
 // model compares the trailing 7 days with the 28 before them, or with the calibration's fit_stats
-// while the model's log is younger than 35 days.
+// while the model's log is younger than 35 days or the map was refit from the gatelog after the reference
+// window began (`mergeone calibrate --from-gatelog`: the new fit set is the reference, so a refit clears
+// the flag it answered).
 func (d *driftLog) model(model string, now time.Time) engine.ModelDrift {
 	today := dayOf(now)
 	cur := d.window(model, today-engine.R8DriftCurrentDays+1, today)
-	if today-d.first[model]+1 >= driftKeepDays {
+	refit := len(d.fitStats) > 0 && !d.fitAt.IsZero() && dayOf(d.fitAt) > today-driftKeepDays
+	if today-d.first[model]+1 >= driftKeepDays && !refit {
 		return engine.DriftReport(cur, d.window(model, today-driftKeepDays+1, today-engine.R8DriftCurrentDays), "gatelog")
 	}
 	if len(d.fitStats) > 0 {
@@ -105,30 +109,27 @@ func (d *driftLog) model(model string, now time.Time) engine.ModelDrift {
 	return engine.DriftReport(cur, nil, "none")
 }
 
-func (d *driftLog) report(now time.Time) map[string]engine.ModelDrift {
-	out := map[string]engine.ModelDrift{}
-	for m := range d.days {
-		out[m] = d.model(m, now)
-	}
-	return out
-}
-
 // SetFitStats gives the drift monitor the shipped calibration's fit_stats (the reference while the
 // gatelog is younger than 35 days).
-func (s *Store) SetFitStats(fs map[string]engine.QStats) {
+func (s *Store) SetFitStats(fs map[string]engine.QStats) { s.SetFitStatsAt(fs, time.Time{}) }
+
+// SetFitStatsAt is SetFitStats for a map refit from the gatelog at fitAt: while fitAt is inside the last 35
+// days its fit_stats are the reference even for an old gatelog.
+func (s *Store) SetFitStatsAt(fs map[string]engine.QStats, fitAt time.Time) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.drift.fitStats = fs
+	s.drift.fitStats, s.drift.fitAt = fs, fitAt
 }
 
 // Drift is the drift block of Stats: per model, per question, at now.
 func (s *Store) Drift(now time.Time) map[string]engine.ModelDrift {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.drift.report(now)
+	return s.driftReport(now)
 }
 
-// DegradedQuestions is the degraded set for the model of the newest decision (the one being served).
+// DegradedQuestions is the degraded set (fast or slow signal) for the model of the newest decision (the one
+// being served).
 func (s *Store) DegradedQuestions(now time.Time) map[string]bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -136,7 +137,7 @@ func (s *Store) DegradedQuestions(now time.Time) map[string]bool {
 		return nil
 	}
 	var out map[string]bool
-	for _, q := range s.drift.model(s.drift.last, now).Degraded {
+	for _, q := range s.modelDrift(s.drift.last, now).AllDegraded() {
 		if out == nil {
 			out = map[string]bool{}
 		}

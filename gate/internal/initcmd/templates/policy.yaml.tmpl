@@ -51,6 +51,7 @@ always_human_paths:
 memory:
   enabled: false
   top_k: 5
+  pair_state: compact   # pair call input: compact (default since v0.3; run 8 R8-H1) | full
 
 rules:
   # Needs memory (duplicate_of is never set while memory is off, so this rule cannot fire).
@@ -109,10 +110,10 @@ on_error:
   reason: "Decision model unavailable"
 
 # Drift monitor (docs/drift-monitor.md): watches each question's raw-probability mean and spread in the
-# gatelog. Off until run 8 reports the replay (PROTOCOL.md R8-H5). When on, a rule that reads a degraded
-# question is not evaluated and the PR gets on_drift with reason drift:<question>.
+# gatelog. On by default since v0.3 (run 8 R8-H5 passed). A rule that reads a degraded question is not
+# evaluated and the PR gets on_drift with reason drift:<question>. `enabled: false` turns it off.
 drift:
-  enabled: false
+  enabled: true
 # on_drift: { verdict: hold, route: human }   # default; `ignore` keeps the rules as they are
 
 # Convergence cap: with agent authors and automated review a PR can be re-decided on every push. Off (0) by
@@ -133,9 +134,13 @@ actions:
   on_block: { status: failure, labels: ["mergeone:block"] }
 [[- if .PortalURL]]
 
-# Hosted portal (docs/portal.md): every verdict record is also posted to <url>/ingest (async, batched,
-# never in a verdict's way). The token was issued when the repository was connected; if this file is
-# committed, replace it with ${MERGEONE_PORTAL_TOKEN} and set that variable where the gateway runs.
+# Hosted portal (docs/portal.md): every verdict record, and every PR closure and resolution, is also posted
+# to <url>/ingest (async, batched, never in a verdict's way). The token was issued when the repository was
+[[- if .PortalTokenInline]]
+# connected and is written here (--inline-token): do not commit this file with it; use ${MERGEONE_PORTAL_TOKEN}.
+[[- else]]
+# connected; it is read from the environment (${VAR}), so this file can be committed.
+[[- end]]
 portal:
   url: [[.PortalURL]]
   token: "[[.PortalToken]]"

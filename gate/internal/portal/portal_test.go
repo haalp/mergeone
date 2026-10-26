@@ -12,6 +12,8 @@ import (
 type fakePortal struct {
 	mu      sync.Mutex
 	records int
+	events  int
+	noKey   int // POSTs without an "events" key
 	posts   int
 	fail    int // fail this many POSTs with 503 first
 	auth    string
@@ -32,10 +34,16 @@ func (f *fakePortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Records []map[string]any `json:"records"`
+		Records []map[string]any  `json:"records"`
+		Events  *[]map[string]any `json:"events"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	f.records += len(body.Records)
+	if body.Events == nil {
+		f.noKey++
+	} else {
+		f.events += len(*body.Events)
+	}
 	w.WriteHeader(202)
 }
 
@@ -81,5 +89,25 @@ func TestNilSinkIsOff(t *testing.T) {
 	s.Close(time.Millisecond)
 	if New("", "x") != nil || New("http://x", "") != nil || s.Stats() != nil {
 		t.Fatal("empty url or token must give a nil sink")
+	}
+}
+
+func TestSinkSendsEventsBesideRecords(t *testing.T) {
+	f := &fakePortal{}
+	s := newSink(t, f)
+	s.Enqueue(map[string]any{"i": 1})
+	s.Close(5 * time.Second)
+	if f.records != 1 || f.noKey != 1 {
+		t.Fatalf("records-only batch must not carry events: %+v", f)
+	}
+	f2 := &fakePortal{}
+	s2 := newSink(t, f2)
+	s2.Enqueue(map[string]any{"i": 1})
+	s2.EnqueueEvent(map[string]any{"kind": "closed", "repo": "o/r", "pr": 1})
+	s2.EnqueueEvent(map[string]any{"kind": "resolution"})
+	s2.Close(5 * time.Second)
+	st := s2.Stats()
+	if f2.records != 1 || f2.events != 2 || st["sent"].(int64) != 1 || st["events_sent"].(int64) != 2 {
+		t.Fatalf("portal %+v stats %v", f2, st)
 	}
 }

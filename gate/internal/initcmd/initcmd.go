@@ -81,7 +81,11 @@ type Options struct {
 	CI, MCP, Write, All, Force, Quiet bool
 	Dir                               string
 	Portal, PortalURL                 string // --portal <token> writes the portal: block
+	InlineToken                       bool   // --inline-token: write the token itself instead of ${MERGEONE_PORTAL_TOKEN}
 }
+
+// PortalTokenEnv is the variable the portal: block reads its token from by default.
+const PortalTokenEnv = "MERGEONE_PORTAL_TOKEN"
 
 // DefaultPortalURL is the hosted portal (docs/portal.md).
 const DefaultPortalURL = "https://app.mergeone.dev"
@@ -106,8 +110,9 @@ func ParseFlags(args []string, stderr io.Writer) (Options, error) {
 	fs.BoolVar(&o.Quiet, "quiet", false, "no banner")
 	fs.StringVar(&o.Portal, "portal", "", "portal token: write the portal: block (every verdict is also posted to the portal)")
 	fs.StringVar(&o.PortalURL, "portal-url", DefaultPortalURL, "with --portal: the portal's base URL")
+	fs.BoolVar(&o.InlineToken, "inline-token", false, "with --portal: write the token into the policy instead of ${"+PortalTokenEnv+"}")
 	fs.Usage = func() {
-		fmt.Fprintln(stderr, "usage: mergeone init [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet] [--portal TOKEN [--portal-url URL]]")
+		fmt.Fprintln(stderr, "usage: mergeone init [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet] [--portal TOKEN [--portal-url URL] [--inline-token]]")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -246,7 +251,8 @@ type PolicyData struct {
 	Local             bool
 	RepoOrPlaceholder string
 	PortalURL         string // "" = no portal: block
-	PortalToken       string
+	PortalToken       string // the token, or ${MERGEONE_PORTAL_TOKEN}
+	PortalTokenInline bool   // the token itself is in the file (--inline-token)
 }
 
 // RenderPolicy renders the .mergeone.yaml template.
@@ -404,8 +410,14 @@ func RunEnv(args []string, env Env) int {
 	}
 
 	fmt.Fprintln(out, "Wrote")
+	// The token goes into the environment, not the file, unless --inline-token (or the caller already
+	// passed a ${VAR} reference): .mergeone.yaml is usually committed.
+	written, envLine := o.Portal, ""
+	if o.Portal != "" && !o.InlineToken && !strings.HasPrefix(o.Portal, "${") {
+		written, envLine = "${"+PortalTokenEnv+"}", "export "+PortalTokenEnv+"="+o.Portal
+	}
 	policy, err := RenderPolicy(PolicyData{Model: o.Model, Local: o.Model == "local", RepoOrPlaceholder: d.Remote,
-		PortalURL: strings.TrimRight(o.PortalURL, "/"), PortalToken: o.Portal})
+		PortalURL: strings.TrimRight(o.PortalURL, "/"), PortalToken: written, PortalTokenInline: written == o.Portal && !strings.HasPrefix(o.Portal, "${")})
 	if err != nil {
 		fmt.Fprintln(env.Stderr, "error:", err)
 		return ExitError
@@ -415,8 +427,14 @@ func RunEnv(args []string, env Env) int {
 		return ExitError
 	}
 	pr.line("✓", PolicyFile, "model: "+o.Model+overwrote(d.HasPolicy))
-	if o.Portal != "" {
-		pr.line("✓", "portal", o.PortalURL+" (token written to "+PolicyFile+"; use ${MERGEONE_PORTAL_TOKEN} there if the file is committed)")
+	switch {
+	case o.Portal != "" && envLine != "":
+		pr.line("✓", "portal", o.PortalURL+" (token read from $"+PortalTokenEnv+"; set it where the gateway runs:)")
+		fmt.Fprintln(out, "  "+envLine)
+	case o.Portal != "" && strings.HasPrefix(o.Portal, "${"):
+		pr.line("✓", "portal", o.PortalURL+" (token read from "+o.Portal+")")
+	case o.Portal != "":
+		pr.line("✓", "portal", o.PortalURL+" (token written to "+PolicyFile+"; do not commit it, or re-run without --inline-token)")
 	}
 	return writeRest(o, env, pr, d, spec, workflowPath)
 }

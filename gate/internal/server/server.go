@@ -44,7 +44,11 @@ type Gateway struct {
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{})}
 	if g.Cal != nil {
-		st.SetFitStats(g.Cal.FitStats)
+		var refit time.Time
+		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
+			refit = m.FitAt
+		}
+		st.SetFitStatsAt(g.Cal.FitStats, refit)
 	}
 	if g.Policy.Drift.Enabled {
 		g.Degraded = func() map[string]bool { return st.DegradedQuestions(time.Now()) }
@@ -53,6 +57,7 @@ func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL str
 	if pc := g.Policy.Portal; pc.URL != "" && pc.Token != "" {
 		gw.Portal = portal.New(pc.URL, pc.Token)
 		st.SetOnRecord(func(r store.Record) { gw.Portal.Enqueue(r) })
+		st.SetOnEvent(func(e store.Event) { gw.Portal.EnqueueEvent(e) })
 	}
 	for i := 0; i < workers; i++ {
 		gw.wg.Add(1)
@@ -81,6 +86,13 @@ func (gw *Gateway) logDrift(now time.Time) {
 			d := md.Questions[q]
 			log.Printf("drift: model=%s question=%s mean_raw=%.3f ref=%.3f shift=%.3f spread=%.3f ref_spread=%.3f n=%d reference=%s",
 				model, q, d.MeanRaw, d.RefMeanRaw, d.Shift, d.Spread, d.RefSpread, d.N, md.Reference)
+		}
+		if sd := md.Slow; sd != nil {
+			for _, q := range sd.Degraded {
+				d := sd.Questions[q]
+				log.Printf("drift (slow): model=%s question=%s auc=%.3f ref_auc=%.3f delta=%.3f n=%d label=%s",
+					model, q, *d.AUC, *d.RefAUC, *d.Delta, d.N, sd.Label)
+			}
 		}
 	}
 }
@@ -367,7 +379,14 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			}
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", nil)})
 		case "closed":
-			gw.Store.ClosePR(repo, pr)
+			gw.Store.ClosePR(repo, pr, ev.PullRequest.Merged)
+			// Outcome for the slow drift signal and calibrate: merged from the event; iterated is the gateway's
+			// proxy for the run-5 label (force_pushes >= 2): decided on >= 3 distinct heads. reverted comes
+			// later, from CI (POST /api/outcome).
+			merged, iterated := ev.PullRequest.Merged, gw.Store.DistinctHeads(repo, pr) >= store.IteratedHeads
+			if _, err := gw.Store.RecordOutcome(store.PROutcome{Repo: repo, PR: pr, Merged: &merged, Iterated: &iterated, Source: "webhook"}); err != nil {
+				log.Printf("outcome %s#%d not recorded: %v", repo, pr, err)
+			}
 			if gw.Memory != nil {
 				if e, ok := gw.Memory.Repo(repo).Get(pr); ok {
 					e.State = "CLOSED"

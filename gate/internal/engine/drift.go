@@ -6,7 +6,7 @@ import (
 )
 
 // Drift-monitor thresholds, pre-registered in PROTOCOL.md §R8 (C5, R8.4) and docs/drift-monitor.md.
-// They may be moved only by a run. The slow signal (AUC vs outcome fell > 0.05) is not implemented yet.
+// They may be moved only by a run. The slow signal (AUC vs outcome fell > 0.05) is in slow.go.
 const (
 	R8DriftShift        = 0.20 // |mean_raw(current) − mean_raw(reference)| above this is drift
 	R8DriftSpreadFactor = 0.5  // spread (std of raw) at or below this fraction of the reference is drift
@@ -93,7 +93,24 @@ func CompareDrift(cur, ref QStats) QuestionDrift {
 type ModelDrift struct {
 	Reference string                   `json:"reference"` // gatelog | fit_stats | none
 	Questions map[string]QuestionDrift `json:"questions"`
-	Degraded  []string                 `json:"degraded"`
+	Degraded  []string                 `json:"degraded"` // fast signal
+	// Slow is the AUC-vs-outcome signal, present when the gatelog has outcomes for this model (or a replay
+	// was given labels). Its degraded questions are acted on like the fast signal's.
+	Slow *SlowDrift `json:"slow,omitempty"`
+}
+
+// AllDegraded is the union of the fast and slow degraded questions, sorted.
+func (md ModelDrift) AllDegraded() []string {
+	set := map[string]bool{}
+	for _, q := range md.Degraded {
+		set[q] = true
+	}
+	if md.Slow != nil {
+		for _, q := range md.Slow.Degraded {
+			set[q] = true
+		}
+	}
+	return sortedKeys(set)
 }
 
 // DriftReport compares current against reference question by question.

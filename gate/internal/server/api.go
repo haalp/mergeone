@@ -3,6 +3,7 @@ package server
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/haalp/mergeone/gate/internal/calibrate"
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/store"
 )
@@ -105,10 +107,8 @@ func (gw *Gateway) apiRoutes(mux *http.ServeMux) {
 		writeJSON(w, 200, gw.stats(win))
 	}))
 	mux.HandleFunc("POST /api/resolve", gw.api(gw.apiResolve))
-	mux.HandleFunc("POST /api/calibrate", gw.api(func(w http.ResponseWriter, r *http.Request, _ string) {
-		writeJSON(w, 501, map[string]any{"ok": false, "error": "not implemented: refitting the calibration from the gatelog " +
-			"(mergeone calibrate --from-gatelog) is not built yet; calibration maps change only with a run"})
-	}))
+	mux.HandleFunc("POST /api/outcome", gw.api(gw.apiOutcome))
+	mux.HandleFunc("POST /api/calibrate", gw.api(gw.apiCalibrate))
 }
 
 // parseAge reads "86400" (seconds), "36h", "7d"; "" gives def.
@@ -306,6 +306,75 @@ func (gw *Gateway) apiResolve(w http.ResponseWriter, r *http.Request, login stri
 		return
 	}
 	writeJSON(w, 200, map[string]any{"ok": true, "logged_at": res.TS.Format(time.RFC3339Nano), "resolution": res})
+}
+
+// apiOutcome records what happened to a PR (CI: merged, reverted, iterated) for the slow drift signal and
+// `mergeone calibrate --from-gatelog`. Fields left out stay as they were; at least one is required.
+func (gw *Gateway) apiOutcome(w http.ResponseWriter, r *http.Request, _ string) {
+	var body struct {
+		Repo     string `json:"repo"`
+		PR       int    `json:"pr"`
+		Merged   *bool  `json:"merged"`
+		Reverted *bool  `json:"reverted"`
+		Iterated *bool  `json:"iterated"`
+	}
+	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&body); err != nil || body.Repo == "" || body.PR <= 0 ||
+		(body.Merged == nil && body.Reverted == nil && body.Iterated == nil) {
+		writeJSON(w, 400, map[string]string{"error": "need repo, pr and at least one of merged, reverted, iterated (booleans)"})
+		return
+	}
+	o, err := gw.Store.RecordOutcome(store.PROutcome{Repo: body.Repo, PR: body.PR, Merged: body.Merged, Reverted: body.Reverted,
+		Iterated: body.Iterated, Source: "api"})
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": "outcome not recorded: " + err.Error()})
+		return
+	}
+	writeJSON(w, 200, map[string]any{"ok": true, "outcome": o})
+}
+
+// apiCalibrate runs `mergeone calibrate --from-gatelog` (body, all optional: {since: "28d", model, label}) and
+// returns the fit summary. The map is written beside the gatelog under a timestamped name and is never
+// loaded by the running gateway: nothing refits automatically. 422 under 200 labelled decisions.
+func (gw *Gateway) apiCalibrate(w http.ResponseWriter, r *http.Request, _ string) {
+	var body struct {
+		Since string `json:"since"`
+		Model string `json:"model"`
+		Label string `json:"label"`
+	}
+	if r.ContentLength != 0 {
+		if err := json.NewDecoder(io.LimitReader(r.Body, 1<<16)).Decode(&body); err != nil && err != io.EOF {
+			writeJSON(w, 400, map[string]string{"error": "bad body: " + err.Error()})
+			return
+		}
+	}
+	opt := calibrate.Options{Model: body.Model, Label: body.Label}
+	if body.Since != "" {
+		d, err := calibrate.ParseAge(body.Since)
+		if err != nil {
+			writeJSON(w, 400, map[string]string{"error": "since: " + err.Error()})
+			return
+		}
+		opt.Since = d
+	}
+	f, sum, err := calibrate.Fit(gw.Store, opt)
+	if err != nil {
+		code := 400
+		if errors.Is(err, calibrate.ErrTooFew) {
+			code = 422
+		}
+		writeJSON(w, code, map[string]any{"ok": false, "error": err.Error(), "summary": sum})
+		return
+	}
+	p := gw.Gate.Policy
+	name := fmt.Sprintf("calibration_%s_%s.gatelog-%s.json", p.Model, p.QuestionSet, sum.FitAt.UTC().Format("20060102T150405Z"))
+	path := filepath.Join(filepath.Dir(gw.Store.Path()), name)
+	if err := calibrate.Write(path, f, false); err != nil {
+		writeJSON(w, 500, map[string]any{"ok": false, "error": err.Error(), "summary": sum})
+		return
+	}
+	sum.File = path
+	writeJSON(w, 200, map[string]any{"ok": true, "summary": sum, "file": path,
+		"note": fmt.Sprintf("not loaded: the gateway refits nothing by itself; to use it, replace calibration_%s_%s.json with this file and restart", p.Model, p.QuestionSet)})
 }
 
 // ResolutionLabels are the labels a resolution sets (exclusive among themselves; verdict labels and

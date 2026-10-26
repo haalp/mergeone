@@ -28,6 +28,7 @@ always_human_paths:
 memory:
   enabled: true
   top_k: 5
+  pair_state: compact   # pair call input: compact (default; PROTOCOL.md §R8 C1, R8-H1) | full (the run-4 rendering)
 
 rules:
   - name: duplicate-of
@@ -78,8 +79,8 @@ on_error:
   reason: "Decision model unavailable"
 
 # Drift monitor (docs/drift-monitor.md): watches each question's raw-probability mean and spread in the
-# gatelog. Off until run 8 reports the replay (PROTOCOL.md R8-H5). When on, a rule that reads a degraded
-# question is not evaluated and the PR gets on_drift with reason drift:<question>.
+# gatelog. On by default since v0.3 (run 8 R8-H5 passed). A rule that reads a degraded question is not
+# evaluated and the PR gets on_drift with reason drift:<question>. `enabled: false` turns it off.
 drift:
-  enabled: false
+  enabled: true
 # on_drift: { verdict: hold, route: human }   # default; `ignore` keeps the rules as they are

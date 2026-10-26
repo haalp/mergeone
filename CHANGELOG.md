@@ -2,7 +2,7 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## v0.3 (unreleased)
+## v0.3.0 (unreleased)
 
 - 2026-10-25 gateway: portal read API under `/api/` (`queue`, `graph`, `verdict/{sha}`, `stats` with `history.daily`,
   `resolutions`, `calibration`; `POST /api/resolve` records a `store.Resolution` per head SHA and, with actions on,
@@ -10,6 +10,38 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   501), bearer `portal.api_token` (or loopback only) and CORS for `portal.origin`; `Record.context` filled from the
   fetched PR (`author, base, created_at, title, additions, deletions, files`); outbound ingest behind
   `portal: {url, token}` (batched, async, retried, dropped and counted in `/stats`); `mergeone init --portal <token>`.
+  No protocol change, no model call.
+- 2026-10-26 gateway (`36333eb`): compact state for the PR-memory pair call by default — `memory.pair_state:
+  compact|full`, compact per PROTOCOL.md §R8 C1 (A: diff 2,000 chars, body 600, 20 files; B: body 600, 20 files; run-4
+  caps re-applied), as R8-H1 decided; the main call stays full; `extra.render` records it. `gate/internal/render` ports
+  `features.compact_state` / `compact_pair_state` and matches their output byte for byte on three run-3 PRs
+  (`gate/testdata/compact_fixture.json`). `memory.PairState` now cuts by characters like `run4.pair_state`; with byte
+  cuts it rendered a different B for a non-ASCII candidate body (fixture row 103).
+- 2026-10-26 gateway (`ffcb251`): `drift.enabled` defaults to true (R8-H5 pass); `on_drift` stays `{verdict: hold,
+  route: human}`. `policy.yaml`, the `init` template and `docs/POLICY.md` changed with it.
+- 2026-10-26 gateway (`0d7db9f`): slow drift signal in Go — per model and question, ROC-AUC of the raw answer vs
+  `iterated` on the trailing 7 days vs the 28 before, flagged at a drop > 0.05 with n ≥ 200 (the §R8 threshold), in
+  `/stats.drift.<model>.slow` and acted on like the fast signal. Outcome recorder: the webhook's `closed` event
+  (`merged`; `iterated` = decided on ≥ 3 heads, the gateway's proxy for ≥ 2 force pushes) and `POST /api/outcome`.
+  `mergeone drift-replay --labels … --label iterated` replays it.
+- 2026-10-26 finding while porting the slow signal, no result changed: `scripts/drift_slow.py` keeps the last row per
+  PR of every request mode, so its run-6A comparison (`pplx-flash_test_run5hosted_to_run6Alocal` in
+  `results/run8/drift_slow.json`) reads the 6A **single-question** rows, while the fast-signal replay
+  (`drift_replay.json`, "6A flags nothing") reads the **joint** rows. The Go replay reproduces the Python file exactly
+  with `--mode any` (all four comparisons: flags, n, every AUC within 5e-5). On the joint 6A rows the slow signal
+  flags `hard_to_revert` instead (ΔAUC −0.0556, `mergeone drift-replay --mode joint` output), and the fast signal on the single-question rows flags
+  `follows_conventions` and `message_matches_diff`. R8-H5's verdict is unchanged here; the two halves of its 6A row
+  read different request modes, and that belongs beside the verdict in `results/run8/README.md`.
+- 2026-10-26 gateway (`d8d8ff9`): `mergeone calibrate --from-gatelog --since 28d [--model m] [--label iterated]
+  [--out …] [--force]` — isotonic per question (sklearn's fit, matched to 1e-9 on `gate/testdata/isotonic_fixture.json`)
+  from gatelog decisions with outcomes, written with `fit_stats` and `fit_meta`; refuses under 200 labelled decisions;
+  `POST /api/calibrate` (was 501) runs it, writes a timestamped file beside the gatelog and returns the fit summary.
+  Nothing refits automatically; a refit inside the last 35 days becomes the drift reference.
+- 2026-10-26 gateway (`9d4cfaa`): portal ingest completeness — `POST /ingest` carries `events` (PR `closed` with
+  `merged`, `resolution`, `outcome`) beside `records`, so the portal queue drops closed PRs. `mergeone init --portal`
+  writes `token: "${MERGEONE_PORTAL_TOKEN}"` and prints the export line; `--inline-token` keeps the token in the file.
+- 2026-10-26 docs: `docs/POLICY.md` (`memory.pair_state`, slow signal, outcomes, recalibration, `/api/outcome`,
+  `/api/calibrate`, ingest events, `init --portal`), `docs/portal.md` (events), `docs/drift-monitor.md` (status).
   No protocol change, no model call.
 
 ## Run 8 complete — 2026-10-25

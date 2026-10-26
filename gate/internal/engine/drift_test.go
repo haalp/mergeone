@@ -70,7 +70,7 @@ func driftGate(t *testing.T, extra string, degraded ...string) *Gate {
 		t.Fatal(err)
 	}
 	path := filepath.Join(t.TempDir(), "p.yaml")
-	base := strings.Replace(string(b), "drift:\n  enabled: false\n", "", 1) // the shipped default, replaced by extra
+	base := strings.Replace(string(b), "drift:\n  enabled: true\n", "", 1) // the shipped default, replaced by extra
 	if err := os.WriteFile(path, []byte(base+"\n"+extra+"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -117,10 +117,15 @@ func TestDriftIgnoreAndDisabled(t *testing.T) {
 	if r := g.Decide("x", nil); r.Rule != "trivial" {
 		t.Fatalf("ignore must keep the rules: %+v", r)
 	}
-	g = driftGate(t, "", "needs_human_review") // drift.enabled defaults to false
+	g = driftGate(t, "drift: {enabled: false}", "needs_human_review")
 	g.Model = fixed{p: probs}
 	if r := g.Decide("x", nil); r.Rule != "trivial" || r.Drift != nil {
 		t.Fatalf("disabled monitor must not act: %+v", r)
+	}
+	g = driftGate(t, "", "needs_human_review") // v0.3: drift.enabled defaults to true when the key is absent
+	g.Model = fixed{p: probs}
+	if r := g.Decide("x", nil); r.Rule != "on_drift" || !g.Policy.Drift.Enabled {
+		t.Fatalf("default-on monitor must act: %+v", r)
 	}
 	if g.Policy.OnDrift.Verdict != "hold" || g.Policy.OnDrift.Route != "human" {
 		t.Fatalf("default on_drift %+v", g.Policy.OnDrift)

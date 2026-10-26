@@ -71,3 +71,34 @@ func TestDriftFitStatsReferenceWhileYoung(t *testing.T) {
 		t.Fatalf("fit_stats reference: %+v", md)
 	}
 }
+
+// A map refit from the gatelog inside the last 35 days is the reference even for an old gatelog, so the refit
+// clears the flag it answered; a shipped map's fit_stats (no refit time) are not, once the log is 35 days old.
+func TestDriftRefitReference(t *testing.T) {
+	s, _ := Open(filepath.Join(t.TempDir(), "log.jsonl"))
+	now := time.Date(2026, 10, 25, 12, 0, 0, 0, time.UTC)
+	n := 0
+	for d := 39; d >= 0; d-- {
+		p := 0.2
+		if d < 7 {
+			p = 0.6
+		}
+		for k := 0; k < 40; k++ {
+			n++
+			_ = s.Record(rec(n, now.Add(-time.Duration(d)*24*time.Hour), "m1", p))
+		}
+	}
+	fs := map[string]engine.QStats{"q": {Mean: 0.6, Spread: 0, YesRate: 1, N: 300}, "h": {Mean: 0.5, N: 300}}
+	s.SetFitStats(fs)
+	if md := s.Drift(now)["m1"]; md.Reference != "gatelog" || len(md.Degraded) != 1 {
+		t.Fatalf("shipped fit_stats on an old log: %+v", md)
+	}
+	s.SetFitStatsAt(fs, now.Add(-2*24*time.Hour))
+	if md := s.Drift(now)["m1"]; md.Reference != "fit_stats" || len(md.Degraded) != 0 {
+		t.Fatalf("refit reference: %+v", md)
+	}
+	s.SetFitStatsAt(fs, now.Add(-40*24*time.Hour))
+	if md := s.Drift(now)["m1"]; md.Reference != "gatelog" {
+		t.Fatalf("an old refit is not the reference: %+v", md.Reference)
+	}
+}
