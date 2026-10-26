@@ -4,6 +4,7 @@
   gate pr --policy .mergeone.yaml --repo . --base main --head HEAD             # build state from git, decide
   gate replay --policy .mergeone.yaml --dataset data/dataset.jsonl --n 200     # dry-run a policy on history
   gate fit-calibration --run results/run2 --model jev --qset v2                 # write calibration_<model>_<qset>.json
+  gate fit-calibration --run results/run5 --model jev --qset v4 --from-qset v3 --label iterated   # v4 maps (run-5 val)
 """
 from __future__ import annotations
 
@@ -72,37 +73,71 @@ def cmd_replay(a):
 
 
 def cmd_fit_calibration(a):
-    """Fit isotonic maps on the run's val predictions vs judge labels; save as piecewise-linear tables."""
+    """Fit isotonic maps on a run's val predictions; save as piecewise-linear tables + fit_stats.
+
+    --label judge (default, run 2): per-question judge labels from <run>/judge_val.jsonl (labels_v2).
+    --label <outcome> (run 5, e.g. iterated): one outcome label for every question, from --dataset rows' `labels`,
+    fit exactly as run 5's R5-H5 (mergeone.eval.run5._iso): NaN answers dropped per question, no map below 30 rows
+    or with one class. --from-qset picks the prediction rows (v4 is fit on run-5 v3 rows restricted to its eight
+    questions; R8-H3: v4 = the v3 control on those eight)."""
     import numpy as np
     from sklearn.isotonic import IsotonicRegression
-    from ..models.base import DECISIONS_V2
+    from ..models.base import QUESTION_SETS
     run = Path(a.run)
-    labels = {json.loads(l)["pr_number"]: json.loads(l)["labels_v2"] for l in (run / "judge_val.jsonl").open()}
+    questions = QUESTION_SETS[a.qset]
+    from_qset = a.from_qset or a.qset
     preds = {}
     for l in (run / f"predictions_{a.model}_val_all.jsonl").open():
         r = json.loads(l)
-        if r.get("qset") == a.qset and r["decision"]["error"] is None:
+        if r.get("qset") == from_qset and r["decision"]["error"] is None:
             preds[r["pr_number"]] = r["decision"]["probs"]
-    keys = sorted(set(labels) & set(preds))
     maps = {}
-    for q in DECISIONS_V2:
-        y = np.array([int(labels[k][q]) for k in keys]); p = np.array([preds[k][q] for k in keys])
-        if y.sum() == 0 or y.sum() == len(y):
-            continue
-        iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(p, y)
-        xs = np.linspace(0, 1, 101)
-        maps[q] = {"x": xs.tolist(), "y": iso.predict(xs).tolist(), "n": int(len(y)), "positives": int(y.sum())}
+    if a.label == "judge":
+        labels = {json.loads(l)["pr_number"]: json.loads(l)["labels_v2"] for l in (run / "judge_val.jsonl").open()}
+        keys = sorted(set(labels) & set(preds))
+        for q in questions:
+            y = np.array([int(labels[k][q]) for k in keys]); p = np.array([preds[k][q] for k in keys])
+            if y.sum() == 0 or y.sum() == len(y):
+                continue
+            iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(p, y)
+            xs = np.linspace(0, 1, 101)
+            maps[q] = {"x": xs.tolist(), "y": iso.predict(xs).tolist(), "n": int(len(y)), "positives": int(y.sum())}
+    else:
+        ds = {}
+        for l in Path(a.dataset).open():
+            r = json.loads(l)
+            ds[r["pr_number"]] = r
+        keys = sorted(k for k in preds if k in ds)
+        for q in questions:
+            x = np.array([preds[k].get(q, np.nan) for k in keys], dtype=float)
+            y = np.array([int(ds[k]["labels"][a.label]) for k in keys])
+            m = ~np.isnan(x)
+            x, y = x[m], y[m]
+            if len(x) < 30 or y.sum() == 0 or y.sum() == len(y):
+                continue
+            iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0).fit(x, y)
+            xs = np.linspace(0, 1, 101)
+            maps[q] = {"x": xs.tolist(), "y": iso.predict(xs).tolist(), "n": int(len(y)), "positives": int(y.sum())}
     # fit_stats: the raw answers the maps were fit on — the Go drift monitor's reference while the gatelog is
-    # younger than 35 days (docs/drift-monitor.md). Population std, yes = raw >= 0.5.
+    # younger than 35 days (docs/drift-monitor.md). Population std, yes = raw >= 0.5. Only the qset's questions.
     fit = {}
-    for q in sorted({q for k in keys for q in preds[k]}):
+    for q in questions:
         p = np.array([preds[k][q] for k in keys if preds[k].get(q) is not None and preds[k][q] == preds[k][q]], dtype=float)
         if len(p):
             fit[q] = {"mean": float(p.mean()), "yes_rate": float((p >= 0.5).mean()), "spread": float(p.std()), "n": int(len(p))}
     maps["fit_stats"] = fit
-    out = Path(__file__).with_name(f"calibration_{a.model}_{a.qset}.json")
+    out = Path(a.out or Path(__file__).parent) / f"calibration_{a.model}_{a.qset}.json"
     out.write_text(json.dumps(maps, indent=1))
     print("wrote", out, "questions:", [q for q in maps if q != "fit_stats"])
+
+
+def add_fit_calibration_args(f):
+    f.add_argument("--run", required=True); f.add_argument("--model", default="jev"); f.add_argument("--qset", default="v2")
+    f.add_argument("--from-qset", help="qset of the prediction rows to read (default: --qset); v4 maps read v3 rows")
+    f.add_argument("--label", default="judge", help="judge (run-2 judge labels) or an outcome label in --dataset, e.g. iterated")
+    f.add_argument("--dataset", default="data/run3/dataset.jsonl", help="rows with `labels` (outcome mode)")
+    f.add_argument("--out", help="output directory (default: mergeone/gate/)")
+    f.set_defaults(fn=cmd_fit_calibration)
 
 
 def main(argv=None):
@@ -111,7 +146,7 @@ def main(argv=None):
     d = sub.add_parser("decide"); d.add_argument("--policy", required=True); d.add_argument("--state", required=True); d.add_argument("--paths", nargs="*"); d.add_argument("--log", default=".mergeone/gatelog.jsonl"); d.set_defaults(fn=cmd_decide)
     p = sub.add_parser("pr"); p.add_argument("--policy", required=True); p.add_argument("--repo", default="."); p.add_argument("--base", default="main"); p.add_argument("--head", default="HEAD"); p.add_argument("--log", default=".mergeone/gatelog.jsonl"); p.set_defaults(fn=cmd_pr)
     r = sub.add_parser("replay"); r.add_argument("--policy", required=True); r.add_argument("--predictions", required=True); r.add_argument("--calibration"); r.add_argument("--n", type=int); r.set_defaults(fn=cmd_replay)
-    f = sub.add_parser("fit-calibration"); f.add_argument("--run", required=True); f.add_argument("--model", default="jev"); f.add_argument("--qset", default="v2"); f.set_defaults(fn=cmd_fit_calibration)
+    add_fit_calibration_args(sub.add_parser("fit-calibration"))
     a = ap.parse_args(argv); a.fn(a)
 
 

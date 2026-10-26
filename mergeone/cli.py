@@ -626,6 +626,8 @@ def main(argv=None):
     cp = sub.add_parser("compact", help="dedupe prediction files after --append re-runs (keep last non-error row per PR)")
     cp.add_argument("files", nargs="+"); cp.set_defaults(fn=cmd_compact)
     sub.add_parser("models", help="list the decision-model registry (prompts/models.yaml)").set_defaults(fn=cmd_models)
+    from .gate.cli import add_fit_calibration_args
+    add_fit_calibration_args(sub.add_parser("fit-calibration", help="isotonic calibration_<model>_<qset>.json (+ fit_stats) from a run's val predictions (same as `gate fit-calibration`)"))
     lb = sub.add_parser("leaderboard", help="rank every model that has been run under PROTOCOL.md on gateway-relevant metrics → results/leaderboard.md")
     lb.set_defaults(fn=lambda a: __import__("mergeone.eval.leaderboard", fromlist=["x"]).run())
     sub.add_parser("serve", help="run the gateway server; all further args go to mergeone.server.app")

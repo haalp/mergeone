@@ -25,6 +25,19 @@ import (
 // QuestionsV2 is the run-2 typed-triage question set (PROTOCOL.md R2.2).
 var QuestionsV2 = []string{"is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review"}
 
+// QuestionsV4 is v3 minus message_matches_diff and follows_conventions (run 8, R8-H3). The wording is
+// prompts/jev_v4.json / prompts/haiku_v4.md; maps are calibration_<model>_v4.json (run-5 val, vs iterated).
+var QuestionsV4 = []string{"is_logic_change", "weakens_tests", "touches_concurrency", "needs_human_review",
+	"exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert"}
+
+// Questions is the main call's question list for a policy question_set ("" and anything else: v2).
+func Questions(set string) []string {
+	if set == "v4" {
+		return QuestionsV4
+	}
+	return QuestionsV2
+}
+
 // Decision is what a model returns: P(true) per question plus cost/latency.
 type Decision struct {
 	Probs        map[string]float64 `json:"probs"`
@@ -410,6 +423,14 @@ type Gate struct {
 	Degraded func() map[string]bool
 }
 
+// questions is the policy's main question list (v2 when no policy is set).
+func (g *Gate) questions() []string {
+	if g.Policy == nil {
+		return QuestionsV2
+	}
+	return Questions(g.Policy.QuestionSet)
+}
+
 // precheck returns the result for a change that never reaches the model (protected path, no model).
 func (g *Gate) precheck(sha string, now time.Time, paths []string) *Result {
 	for _, prefix := range g.Policy.AlwaysHumanPaths {
@@ -457,7 +478,7 @@ func (g *Gate) Decide(state string, paths []string) Result {
 	if r := g.precheck(sha, now, paths); r != nil {
 		return *r
 	}
-	return g.finish(g.Model.Decide(state, QuestionsV2), sha, now)
+	return g.finish(g.Model.Decide(state, g.questions()), sha, now)
 }
 
 // pairStage is the memory half of DecideFor: retrieval + one same_change call per candidate.
@@ -518,7 +539,7 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 		return *r
 	}
 	mainCh := make(chan Decision, 1)
-	go func() { mainCh <- g.Model.Decide(state, QuestionsV2) }()
+	go func() { mainCh <- g.Model.Decide(state, g.questions()) }()
 	ps := g.pairs(state, meta)
 	res := g.finish(<-mainCh, sha, now)
 	if res.Error != "" {

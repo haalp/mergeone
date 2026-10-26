@@ -15,6 +15,7 @@ inputs; model calls need the keys named in each script's header.
 | 6A | `run6_gpu.sh` (+ `docs/run6-gpu.md`) | self-hosted serving, probe, load tests on L4 / H100 |
 | 6B | `run6b_mac.sh` | candidate pool k, pairs, blind sample, labels |
 | 8 prep | `run8_prep.py` | routing, v4 and drift numbers from existing predictions, no model call → `docs/run8-numbers.md`, `results/run8prep/` |
+| v4 maps | `mergeone fit-calibration --run results/run5 --model <jev\|pplx-flash\|haiku> --qset v4 --from-qset v3 --label iterated --dataset data/run3/dataset.jsonl` | `mergeone/gate/calibration_<model>_v4.json`: isotonic per question on the run-5 val v3 rows vs `iterated` (as R5-H5), the eight v4 questions, plus `fit_stats`; no model call; `tests/test_calibration_v4.py` checks the refit is byte-identical |
 | — | `extract.sh` | dataset extraction (run 1 base data) |
 | — | `fig_decision_models_under_load.py` | the load figure in `results/figures/` |
 
