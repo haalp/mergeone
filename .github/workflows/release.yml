@@ -23,9 +23,22 @@ jobs:
         run: |
           cd gate
           go build -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}" -o ../dist/mergeone_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }} ./cmd/mergeone
-          mkdir -p ../dist/assets && cp ../mergeone/gate/policy.yaml ../mergeone/gate/calibration_*.json ../prompts/jev_v2.json ../prompts/jev_pair.json ../prompts/haiku_v2.md ../prompts/haiku_pair.md ../prompts/models.yaml ../dist/assets/
+          mkdir -p ../dist/assets && cp ../mergeone/gate/policy.yaml ../mergeone/gate/calibration_*.json ../prompts/jev_v2.json ../prompts/jev_v3.json ../prompts/jev_v4.json ../prompts/jev_pair.json ../prompts/haiku_v2.md ../prompts/haiku_v3.md ../prompts/haiku_v4.md ../prompts/haiku_pair.md ../prompts/models.yaml ../dist/assets/
           cd ../dist && tar czf mergeone_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz mergeone_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }} assets
+      - name: smoke (subcommands in the binary)
+        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+        run: |
+          ./dist/mergeone_linux_amd64 version | grep -qx "mergeone ${GITHUB_REF_NAME}"
+          for c in init serve pr decide replay drift-replay calibrate loadtest index models mcp; do
+            ./dist/mergeone_linux_amd64 "$c" -h >/dev/null 2>&1 || { echo "subcommand $c missing"; exit 1; }
+          done
+      - name: release notes (the CHANGELOG summary of this tag)
+        run: |
+          awk -v h="## ${GITHUB_REF_NAME} " 'index($0, h) == 1 { f = 1; next } f && (/^## / || /^Dated changes:/) { exit } f' CHANGELOG.md \
+            | sed -e '/./,$!d' > dist/notes.md
+          grep -q '[^[:space:]]' dist/notes.md || { echo "no CHANGELOG.md summary under '## ${GITHUB_REF_NAME} '"; exit 1; }
+          cat dist/notes.md
       - uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
-          generate_release_notes: true
+          body_path: dist/notes.md

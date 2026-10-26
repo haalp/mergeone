@@ -2,7 +2,15 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## v0.3.0 (unreleased)
+## v0.3.0 — 2026-10-26 (gateway release; no protocol change)
+
+- Compact pair call: PR memory sends the `same_change` call a compact rendering by default (`memory.pair_state: compact | full`, PROTOCOL.md §R8 C1, R8-H1); the main call stays full.
+- Drift monitor on by default (R8-H5): fast signal (mean shift > 0.20 or spread halved, n ≥ 200) plus a slow signal (AUC vs `iterated` drops > 0.05); `mergeone drift-replay` replays it on prediction files.
+- Calibrate from the gatelog: `mergeone calibrate --from-gatelog` and `POST /api/calibrate` refit the isotonic maps from decided PRs with outcomes (≥ 200); nothing refits by itself.
+- Portal API and ingest: `/api/queue|graph|verdict|stats`, `POST /api/resolve|outcome`, outbound `POST <portal>/ingest` with records and events, `mergeone init --portal <token>`; never merges or closes.
+- `question_set: v4` is opt-in with calibration maps for jev, haiku and pplx-flash (`v2` stays the default; `v3` needs a map of your own); `memory.top_k` defaults to 10 (run 6B).
+
+Dated changes:
 
 - 2026-10-25 gateway: portal read API under `/api/` (`queue`, `graph`, `verdict/{sha}`, `stats` with `history.daily`,
   `resolutions`, `calibration`; `POST /api/resolve` records a `store.Resolution` per head SHA and, with actions on,
@@ -43,6 +51,17 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - 2026-10-26 docs: `docs/POLICY.md` (`memory.pair_state`, slow signal, outcomes, recalibration, `/api/outcome`,
   `/api/calibrate`, ingest events, `init --portal`), `docs/portal.md` (events), `docs/drift-monitor.md` (status).
   No protocol change, no model call.
+- 2026-10-26 merge (`71633d7`): `v0.3-gateway` merged into main; `memory.top_k: 10` in `policy.yaml`, the `init`
+  template, README and `docs/POLICY.md`, per run 6B (R6B-H1: pool size not the lever; k = 10 default); post-hoc note in
+  `results/run8/README.md` beside R8-H5 on the slow signal's row selection (the finding above). No verdict changed.
+- 2026-10-26 gateway: the check-run summary and the verdict comment list the policy's question set
+  (`engine.Questions(question_set)`) instead of the five v2 questions, so `question_set: v4` shows all eight.
+- 2026-10-26 gateway: `question_set: v3` asks the ten v3 questions (it asked the five v2 ones) when
+  `calibration_<model>_v3.json` resolves (or `calibration:` names an existing file); otherwise the gateway refuses at
+  policy load: `no calibration map for v3; use v2 or v4`. `mergeone calibrate` is exempt, since it makes such a map.
+  `memory.top_k` absent from a policy now means 10 (was 5 in code; the shipped files already said 10). README policy
+  section and the `docs/POLICY.md` key table (checked key by key against `policy.yaml`) updated; the release workflow
+  ships the v3/v4 prompts and takes its notes from this summary. No protocol change, no model call.
 
 ## Run 8 complete — 2026-10-25
 

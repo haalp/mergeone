@@ -348,7 +348,7 @@ func TestActionsCommentIdempotentPerSHA(t *testing.T) {
 	// memory line and docs link
 	res.Probs["duplicate_of"] = 0.81
 	res.Extra = map[string]any{"duplicate_candidate": 123}
-	body := CommentBody("beef01", res)
+	body := CommentBody("beef01", "v2", res)
 	if !strings.Contains(body, "memory: candidate #123 (duplicate_of p=0.81)") || !strings.Contains(body, DocsURL) || !strings.Contains(body, "mergeone") {
 		t.Fatalf("comment body:\n%s", body)
 	}

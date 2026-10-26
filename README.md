@@ -71,8 +71,8 @@ mergeone pr --policy .mergeone.yaml --base origin/main --head HEAD
 ```
 
 ```json
-{ "verdict": "hold", "route": "human", "rule": "message-mismatch",
-  "reason": "Message does not explain the behavioural change in the diff",
+{ "verdict": "hold", "route": "human", "rule": "maintainer-judgement",
+  "reason": "Decision model thinks a maintainer should look",
   "probs": { "is_logic_change": 0.93, "weakens_tests": 0.05, "message_matches_diff": 0.31,
              "touches_concurrency": 0.12, "needs_human_review": 0.58 },
   "model_version": "jev-1.13.0", "latency_ms": 318, "cost_usd": 0.00007 }
@@ -109,13 +109,16 @@ The MCP tools (`gate_decide`, `gate_similar`) never write to GitHub.
 
 ## 5. Policy
 
-`.mergeone.yaml` is the whole product surface: which model, which question set, paths that always need a human, whether PR memory is on, the rules, the convergence cap, and what to write back to the PR.
+`.mergeone.yaml` is the whole product surface: which model, which question set, paths that always need a human, whether PR memory is on, the rules, the convergence cap, the drift monitor, the portal, and what to write back to the PR.
 
 ```yaml
 model: jev                     # or pplx-flash, haiku, local, … — one YAML row, no code
-question_set: v2
+question_set: v2               # v2 (default, five questions) | v4 (opt-in, eight)
 always_human_paths: ["migrations/", "auth/"]
-memory: { enabled: false, top_k: 10 }   # opt-in: asks whether the PR duplicates a recent one
+memory:                        # opt-in: asks whether the PR duplicates a recent one
+  enabled: false
+  top_k: 10                    # candidates compared per PR (default 10)
+  pair_state: compact          # compact (default) | full: how the two PRs are sent to the pair call
 max_rounds: 0                  # 3 = after three non-pass verdicts on one PR, route to a human
 rules:
   - { name: weakens-tests, when: { weakens_tests: ">= 0.6" }, verdict: block, route: human }
@@ -123,14 +126,32 @@ rules:
   - { name: duplicate-of,  when: { duplicate_of: ">= 0.7" },  verdict: hold,  route: dedup }
 default: { verdict: pass, route: auto-merge }
 on_error: { verdict: hold, route: human }      # fail closed
+drift: { enabled: true }       # default on; a rule that reads a drifted question holds for a human instead
 actions:                       # webhook / CI mode only; off by default; never merges
   enabled: false
   on_pass:  { status: success, labels: ["mergeone:pass"] }
   on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [] }
   on_block: { status: failure, labels: ["mergeone:block"] }
+portal:                        # optional: written by `mergeone init --portal <token>`
+  url: https://app.mergeone.dev
+  token: ${MERGEONE_PORTAL_TOKEN}
 ```
 
-Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human. Verdict actions are deterministic GitHub calls and never change a verdict; the token needs statuses, pull requests and issues write. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
+Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human. Verdict actions are deterministic GitHub calls and never change a verdict; the token needs statuses, pull requests and issues write.
+
+- **`question_set`** — `v2` asks five questions. `v4` asks eight (`is_logic_change`, `weakens_tests`, `touches_concurrency`, `needs_human_review`, `exceeds_scope`, `breaking_change`, `tests_cover_change`, `hard_to_revert`); calibration maps ship for `jev`, `haiku` and `pplx-flash`. `v3` runs only with a `calibration_<model>_v3.json` of your own; without one the gateway refuses to start. The check-run and the verdict comment list the questions of the set you chose.
+- **`memory.pair_state`** — the duplicate check compares the PR with each of `top_k` similar recent PRs in one small call each. `compact` sends shortened diffs and bodies (32–42 % fewer tokens, pair AUC within 0.02 of `full` in run 8, bar −0.02); the main decision always sees the full PR.
+- **`drift`** — the gateway watches each question's answers in the gatelog. When a question's mean moves by more than 0.20 or its spread halves (n ≥ 200, trailing 7 days against the 28 before), or, once PRs close, its AUC against review iteration drops by more than 0.05, rules that read it stop deciding and the PR is held for a human (`on_drift`). `GET /stats` shows the numbers; `drift: { enabled: false }` turns it off.
+- **`portal`** — every gatelog record is also posted to the hosted portal; the gateway's own read API (`/api/queue`, `/api/graph`, `/api/verdict/{sha}`, `/api/stats`, `POST /api/resolve`, `POST /api/outcome`, `POST /api/calibrate`) is behind `portal.api_token` (without one, it answers only on a loopback bind). A resolution there is a label and a comment, never a merge or a close.
+
+Two commands look after the model over time:
+
+```bash
+mergeone calibrate --from-gatelog --since 28d        # refit the calibration maps from your own decided-and-closed PRs (needs ≥ 200)
+mergeone drift-replay --predictions then.jsonl --predictions now.jsonl   # would the drift monitor flag this change of model?
+```
+
+`calibrate` writes `calibration_<model>_<question_set>.json` beside the policy (an existing file only with `--force`); nothing refits by itself, and a running gateway keeps its map until restarted. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
 
 ---
 
@@ -184,7 +205,7 @@ What survives: typed triage of *what a change does* at System One speed and cost
 ## Layout
 
 ```
-gate/            Go: the mergeone binary (init, pr, serve, decide, replay, loadtest, index, mcp, models)
+gate/            Go: the mergeone binary (init, pr, serve, decide, replay, drift-replay, calibrate, loadtest, index, mcp, models)
 mergeone/        Python: gatebench (extraction, judge, calibration, reports) + reference gateway
 prompts/         frozen question sets, prompts and the decision-model registry (models.yaml)
 serve/           self-hosting an open-weight decision model behind /v1/systemone (run 6)

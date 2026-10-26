@@ -16,7 +16,7 @@ import (
 	"github.com/haalp/mergeone/gate/internal/server"
 )
 
-// timedModel wraps one decision's model calls and records when the main (QuestionsV2) call and the
+// timedModel wraps one decision's model calls and records when the main call and the
 // pair (same_change) calls ran. It is per decision, so the breakdown does not depend on engine internals.
 type timedModel struct {
 	inner              engine.Model

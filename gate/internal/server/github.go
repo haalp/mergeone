@@ -178,12 +178,13 @@ func topDir(p string) string {
 	return parts[0]
 }
 
-// PostCheck writes a check-run for the head sha.
-func (g *GitHub) PostCheck(repo, sha string, res engine.Result, detailsURL string) {
+// PostCheck writes a check-run for the head sha. The summary lists the questions of the policy's
+// question set qset (engine.Questions) that carry a probability.
+func (g *GitHub) PostCheck(repo, sha, qset string, res engine.Result, detailsURL string) {
 	concl := map[string]string{"pass": "success", "hold": "neutral", "block": "failure"}[res.Verdict]
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "**%s** → route `%s` (rule `%s`)\n\n%s\n\n", strings.ToUpper(res.Verdict), res.Route, res.Rule, res.Reason)
-	for _, q := range engine.QuestionsV2 {
+	for _, q := range engine.Questions(qset) {
 		if p, ok := res.Probs[q]; ok {
 			fmt.Fprintf(&sb, "- `%s`: %.2f\n", q, p)
 		}

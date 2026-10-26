@@ -155,6 +155,17 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 	if assetsDir == "" {
 		assetsDir = filepath.Dir(policyPath)
 	}
+	calPath := ""
+	switch p.Calibration {
+	case "", "auto":
+		calPath = findAsset(assetsDir, fmt.Sprintf("calibration_%s_%s.json", p.Model, p.QuestionSet))
+	case "none":
+	default:
+		calPath = p.Calibration
+	}
+	if err := engine.CheckQuestionSet(p.QuestionSet, calPath); err != nil {
+		return nil, fmt.Errorf("policy %s: %w", policyPath, err)
+	}
 	var m engine.Model
 	if mock || p.Model == "mock" {
 		m = &models.Mock{LatencyMS: 300, JitterMS: 60}
@@ -163,14 +174,6 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 	}
 	if err != nil {
 		return nil, err
-	}
-	calPath := ""
-	switch p.Calibration {
-	case "", "auto":
-		calPath = findAsset(assetsDir, fmt.Sprintf("calibration_%s_%s.json", p.Model, p.QuestionSet))
-	case "none":
-	default:
-		calPath = p.Calibration
 	}
 	cal, err := engine.LoadCalibration(calPath)
 	if err != nil {

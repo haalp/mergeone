@@ -229,7 +229,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			}
 			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res})
 			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled {
-				gw.GitHub.PostCheck(repo, sha, res, "")
+				gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, "")
 			}
 		}
 	}()
@@ -268,7 +268,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	// Legacy write-back (check-run + gate:/route: labels) stays as it was while actions are off;
 	// with actions enabled the commit status and mergeone:* labels replace it (one signal, one name).
 	if gw.GitHub != nil && !gw.Gate.Policy.Actions.Enabled {
-		gw.GitHub.PostCheck(repo, sha, res, gw.verdictURL(repo, sha))
+		gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, gw.verdictURL(repo, sha))
 		gw.GitHub.SetLabels(repo, pr, res)
 	}
 	return nil

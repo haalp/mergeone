@@ -55,7 +55,7 @@ func ApplyActions(g *GitHub, cfg engine.Actions, repo string, pr int, sha string
 		rep.Skipped = fmt.Sprintf("unknown verdict %q", res.Verdict)
 		return rep
 	}
-	a := actor{g: g, repo: repo, rep: rep}
+	a := actor{g: g, repo: repo, rep: rep, qset: cfg.QuestionSet}
 	a.status(cfg.StatusContext, va.Status, sha, res, targetURL)
 	a.labels(pr, va.Labels, allLabels(cfg))
 	if cfg.CommentEnabled() {
@@ -86,6 +86,7 @@ type actor struct {
 	g    *GitHub
 	repo string
 	rep  *engine.ActionsReport
+	qset string // policy question_set: the questions the comment lists
 }
 
 func (a actor) url(format string, args ...any) string {
@@ -193,7 +194,7 @@ func (a actor) labels(pr int, want []string, exclusive map[string]bool) {
 }
 
 func (a actor) comment(pr int, sha string, res engine.Result) {
-	a.commentOnce(pr, CommentMarker(sha), CommentBody(sha, res))
+	a.commentOnce(pr, CommentMarker(sha), CommentBody(sha, a.qset, res))
 }
 
 // commentOnce posts body unless a comment already carries marker.
@@ -277,16 +278,17 @@ func prefixed(p string, xs []string) []string {
 	return out
 }
 
-// CommentBody renders the verdict comment: verdict and rule, reason, typed questions with calibrated
-// probabilities, the memory line when a duplicate candidate was scored, a docs link and the marker.
-func CommentBody(sha string, res engine.Result) string {
+// CommentBody renders the verdict comment: verdict and rule, reason, the policy question set's questions
+// (engine.Questions(qset), in that order) with calibrated probabilities, the memory line when a duplicate
+// candidate was scored, a docs link and the marker.
+func CommentBody(sha, qset string, res engine.Result) string {
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "**mergeone: %s** · rule `%s` · route `%s`\n\n", strings.ToUpper(res.Verdict), res.Rule, res.Route)
 	if res.Reason != "" {
 		fmt.Fprintf(&sb, "%s\n\n", res.Reason)
 	}
 	rows := 0
-	for _, q := range engine.QuestionsV2 {
+	for _, q := range engine.Questions(qset) {
 		p, ok := res.Probs[q]
 		if !ok || math.IsNaN(p) {
 			continue

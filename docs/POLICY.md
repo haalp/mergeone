@@ -4,27 +4,35 @@
 
 ## The file
 
-The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/policy.yaml) and `mergeone init` writes a commented copy into your repo. Keys:
+The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/policy.yaml) and `mergeone init` writes a commented copy into your repo. Keys, with the value the shipped file sets (— = not in the file; the default applies):
 
-| key | meaning |
-|---|---|
-| `model` | a row of [`prompts/models.yaml`](../prompts/models.yaml) (`jev`, `pplx`, `pplx-flash`, `haiku`, `local`, …); `model_id` pins a version; `provider:` defines a private endpoint inline |
-| `question_set` | `v2` (default today, five questions), `v3` (ten; run 5) or `v4` (v3 minus `follows_conventions` and `message_matches_diff`; the set the gateway asks from v0.3) — below |
-| `calibration` | `auto` uses the shipped isotonic map for the model |
-| `always_human_paths` | path prefixes that always `hold → human`, before any model call |
-| `memory` | PR memory (run 4–6): `enabled`, `top_k`, `pair_state` (`compact` default, or `full`; below); adds `duplicate_of` and `silent_days` to the probabilities |
-| `rules` | evaluated top to bottom on calibrated probabilities; first match wins; each has `name`, `when`, `verdict`, `route`, `reason` |
-| `default` / `on_error` | the outcome when no rule matches / when the model fails (fail closed: `hold → human`) |
-| `actions` | what the gateway writes back to the PR in webhook/CI mode — below |
-| `max_rounds` | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
-| `drift` / `on_drift` | drift monitor (`drift: {enabled: true}` default since v0.3; `false` turns it off) and what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
-| `portal` | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
+| key | shipped `policy.yaml` | meaning |
+|---|---|---|
+| `version` | `1` | policy format version |
+| `model` | `jev` | a row of [`prompts/models.yaml`](../prompts/models.yaml) (`jev`, `pplx`, `pplx-flash`, `haiku`, `local`, …) |
+| `model_id` | — (commented) | pins one model version, e.g. `pplx-decider-flash-v1.2` |
+| `provider` | — (commented) | defines or overrides the model row inline (same keys as a `models.yaml` row), e.g. a private endpoint |
+| `question_set` | `v2` | `v2` (default, five questions) or `v4` (opt-in, eight; calibration maps ship for `jev`, `haiku`, `pplx-flash`). `v3` (ten; run 5) is asked only when `calibration_<model>_v3.json` exists; otherwise the gateway refuses to start: `no calibration map for v3; use v2 or v4` — below |
+| `calibration` | `auto` | `auto`: `calibration_<model>_<question_set>.json` from the assets directory (`--assets`, default the policy's directory), next to the binary or in `~/.mergeone`; identity if absent; `none`: raw probabilities; or a path |
+| `always_human_paths` | three Kubernetes prefixes | path prefixes that always `hold → human`, before any model call |
+| `memory` | `enabled: true`, `top_k: 10`, `pair_state: compact` | PR memory (runs 4–6): `enabled` (default false), `top_k` (default 10, run 6B), `pair_state` (`compact` default, or `full`; below); adds `duplicate_of` and `silent_days` to the probabilities |
+| `rules` | six rules | evaluated top to bottom on calibrated probabilities; first match wins; each has `name`, `when`, `verdict`, `route`, `reason` |
+| `default` | `pass → auto-merge-after-ci` | the outcome when no rule matches (default `pass → auto-merge`) |
+| `on_error` | `hold → human` | the outcome when the model fails (fail closed; the default is the same) |
+| `drift` | `enabled: true` | drift monitor, on by default since v0.3; `enabled: false` turns it off — below |
+| `on_drift` | — (commented) | what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
+| `actions` | — | what the gateway writes back to the PR in webhook/CI mode (default off) — below |
+| `max_rounds` | — | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
+| `portal` | — | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
 
-From v0.3 the gateway asks question set **v4**: v3 without `follows_conventions` and `message_matches_diff` (eight
-questions, `prompts/jev_v4.json`). The shipped default stays `v2` until a v4 calibration map is fit and shipped; the
-v2 and v3 sets stay selectable, and runs 1–7 are scored with the sets they were run with.
+From v0.3 the gateway can ask question set **v4**: v3 without `follows_conventions` and `message_matches_diff` (eight
+questions, `prompts/jev_v4.json` / `prompts/haiku_v4.md`). It is opt-in (`question_set: v4`); calibration maps ship
+for `jev`, `haiku` and `pplx-flash` (`calibration_<model>_v4.json`, fit on run-5 validation rows). The default stays
+`v2`. `v3` ships no map: the gateway asks its ten questions only when `calibration_<model>_v3.json` is present (for
+example one fit with `mergeone calibrate --from-gatelog`) and otherwise refuses to start. Runs 1–7 are scored with the
+sets they were run with. The check-run summary and the verdict comment list the questions of the policy's set.
 
 The two questions are gone because run 7 showed they drift: on identical input, under an unchanged version string,
 `pplx-decider-flash-v1.2` moved `follows_conventions` from a mean probability of 0.26 to 0.82 and `message_matches_diff`
@@ -199,7 +207,7 @@ actions:
 |---|---|
 | status | `POST /repos/{o}/{r}/statuses/{sha}` — `state` from the verdict, `context` = `status_context`, `description` = `<verdict> · <rule> · <reason>` (≤ 140 chars), `target_url` = the gatelog entry (`<public-url>/verdict/{o}/{r}/{sha}`) when `--public-url` is set |
 | labels | `GET /issues/{n}/labels`, then `DELETE /issues/{n}/labels/{name}` for every label of the *other* verdicts that is present, and `POST /issues/{n}/labels` for this verdict's labels that are missing |
-| comment | `GET /issues/{n}/comments` (up to 10 pages of 100) looking for the marker; `POST /issues/{n}/comments` only if absent. Verdict and rule, reason, the typed questions with calibrated probabilities, `memory: candidate #N (duplicate_of p=…)` when the PR memory scored a candidate |
+| comment | `GET /issues/{n}/comments` (up to 10 pages of 100) looking for the marker; `POST /issues/{n}/comments` only if absent. Verdict and rule, reason, the questions of the policy's `question_set` with calibrated probabilities, `memory: candidate #N (duplicate_of p=…)` when the PR memory scored a candidate |
 | reviewers | `GET /pulls/{n}/requested_reviewers`, then `POST /pulls/{n}/requested_reviewers` for the users/teams not yet requested |
 
 - `status` ∈ `success | failure | pending | error`; defaults are success / failure / failure. A missing `labels` key takes the default label; `labels: []` sets none.

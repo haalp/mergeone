@@ -99,3 +99,67 @@ func TestQuestionSetDefaultV2(t *testing.T) {
 		t.Fatalf("set %q asked %v", p.QuestionSet, rec.asked)
 	}
 }
+
+// QuestionsV3 is exactly prompts/jev_v3.json, in the order of mergeone/models/base.py DECISIONS_V3 (v2 + five).
+func TestQuestionsV3MatchPrompt(t *testing.T) {
+	b, err := os.ReadFile("../../../prompts/jev_v3.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var qs map[string]json.RawMessage
+	if err := json.Unmarshal(b, &qs); err != nil {
+		t.Fatal(err)
+	}
+	keys := make([]string, 0, len(qs))
+	for k := range qs {
+		keys = append(keys, k)
+	}
+	if len(QuestionsV3) != 10 || strings.Join(sorted(keys), ",") != strings.Join(sorted(QuestionsV3), ",") {
+		t.Fatalf("QuestionsV3 %v != prompts/jev_v3.json %v", QuestionsV3, keys)
+	}
+	if strings.Join(QuestionsV3[:5], ",") != strings.Join(QuestionsV2, ",") {
+		t.Fatalf("QuestionsV3 must start with the v2 questions: %v", QuestionsV3)
+	}
+	for set, n := range map[string]int{"": 5, "v2": 5, "v3": 10, "v4": 8} {
+		if len(Questions(set)) != n {
+			t.Fatalf("Questions(%q) = %d questions, want %d", set, len(Questions(set)), n)
+		}
+	}
+}
+
+// CheckQuestionSet: v3 needs an existing map; v2 and v4 never refuse here.
+func TestCheckQuestionSet(t *testing.T) {
+	dir := t.TempDir()
+	m := filepath.Join(dir, "calibration_jev_v3.json")
+	for _, c := range []struct {
+		set, path string
+		ok        bool
+	}{{"v2", "", true}, {"v4", "", true}, {"v3", "", false}, {"v3", m, false}, {"v3", dir, false}} {
+		if err := CheckQuestionSet(c.set, c.path); (err == nil) != c.ok {
+			t.Fatalf("%s %q: err %v", c.set, c.path, err)
+		}
+	}
+	os.WriteFile(m, []byte(`{}`), 0o644)
+	if err := CheckQuestionSet("v3", m); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckQuestionSet("v3", ""); err == nil || !strings.Contains(err.Error(), "no calibration map for v3; use v2 or v4") {
+		t.Fatalf("message: %v", err)
+	}
+}
+
+// memory.top_k defaults to 10 when the key is absent (v0.3, run 6B); an explicit value is kept.
+func TestTopKDefault(t *testing.T) {
+	dir := t.TempDir()
+	pp := filepath.Join(dir, "p.yaml")
+	for yml, want := range map[string]int{"memory: {enabled: true}\n": 10, "": 10, "memory: {enabled: true, top_k: 5}\n": 5} {
+		os.WriteFile(pp, []byte(yml), 0o644)
+		p, err := LoadPolicy(pp)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if p.Memory.TopK != want {
+			t.Fatalf("%q: top_k %d, want %d", yml, p.Memory.TopK, want)
+		}
+	}
+}

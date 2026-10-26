@@ -13,8 +13,9 @@ model: jev            # any key in prompts/models.yaml: jev | pplx | pplx-flash 
 #   key_env: MY_GATE_KEY
 #   key_optional: true
 #   input_per_mtok: 0
-question_set: v2      # prompts/jev_v2.json / prompts/haiku_v2.md
-calibration: auto     # auto = use shipped calibration.json for this model if present
+question_set: v2      # v2 (default, five questions) | v4 (opt-in, eight; maps ship for jev, haiku, pplx-flash);
+                      # wording in prompts/jev_<set>.json / prompts/haiku_<set>.md. v3 needs calibration_<model>_v3.json.
+calibration: auto     # auto = calibration_<model>_<question_set>.json if present; none = raw probabilities; or a path
 
 # Paths that always need a human, regardless of model output (mechanical, free).
 always_human_paths:

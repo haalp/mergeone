@@ -27,6 +27,11 @@ import (
 // QuestionsV2 is the run-2 typed-triage question set (PROTOCOL.md R2.2).
 var QuestionsV2 = []string{"is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review"}
 
+// QuestionsV3 is the run-5 set: v2 plus five (prompts/jev_v3.json / prompts/haiku_v3.md). No calibration map
+// ships for it, so the gateway asks it only when calibration_<model>_v3.json is present (CheckQuestionSet).
+var QuestionsV3 = []string{"is_logic_change", "weakens_tests", "message_matches_diff", "touches_concurrency", "needs_human_review",
+	"exceeds_scope", "breaking_change", "tests_cover_change", "hard_to_revert", "follows_conventions"}
+
 // QuestionsV4 is v3 minus message_matches_diff and follows_conventions (run 8, R8-H3). The wording is
 // prompts/jev_v4.json / prompts/haiku_v4.md; maps are calibration_<model>_v4.json (run-5 val, vs iterated).
 var QuestionsV4 = []string{"is_logic_change", "weakens_tests", "touches_concurrency", "needs_human_review",
@@ -34,10 +39,28 @@ var QuestionsV4 = []string{"is_logic_change", "weakens_tests", "touches_concurre
 
 // Questions is the main call's question list for a policy question_set ("" and anything else: v2).
 func Questions(set string) []string {
-	if set == "v4" {
+	switch set {
+	case "v3":
+		return QuestionsV3
+	case "v4":
 		return QuestionsV4
 	}
 	return QuestionsV2
+}
+
+// CheckQuestionSet refuses a question set the gateway cannot score. v3 has no shipped calibration map, so it
+// needs calibration_<model>_v3.json (calPath: the map the gateway resolved; "" or missing = none). Policy
+// loading for a gate calls it; `mergeone calibrate` does not, since it is how such a map is made.
+func CheckQuestionSet(set, calPath string) error {
+	if set != "v3" {
+		return nil
+	}
+	if calPath != "" {
+		if st, err := os.Stat(calPath); err == nil && !st.IsDir() {
+			return nil
+		}
+	}
+	return fmt.Errorf("question_set v3: no calibration map for v3; use v2 or v4 (or fit calibration_<model>_v3.json with `mergeone calibrate --from-gatelog`)")
 }
 
 // Decision is what a model returns: P(true) per question plus cost/latency.
@@ -211,6 +234,9 @@ type Actions struct {
 	OnPass        VerdictAction `yaml:"on_pass"`
 	OnHold        VerdictAction `yaml:"on_hold"`
 	OnBlock       VerdictAction `yaml:"on_block"`
+	// QuestionSet is the policy's question_set (not a YAML key; LoadPolicy copies it here) so the verdict
+	// comment lists the questions the gate asked.
+	QuestionSet string `yaml:"-"`
 }
 
 // VerdictAction is what one verdict writes. A missing labels key takes the default label; `labels: []` sets none.
@@ -292,6 +318,9 @@ func LoadPolicy(path string) (*Policy, error) {
 	if p.Model == "" {
 		p.Model = "jev"
 	}
+	if p.Memory.TopK <= 0 {
+		p.Memory.TopK = 10 // v0.3 default (run 6B); the shipped policy.yaml says so too
+	}
 	if p.Default.Verdict == "" {
 		p.Default = Outcome{"pass", "auto-merge", ""}
 	}
@@ -321,6 +350,7 @@ func LoadPolicy(path string) (*Policy, error) {
 	if err := p.Actions.Normalize(); err != nil {
 		return nil, fmt.Errorf("policy %s: %w", path, err)
 	}
+	p.Actions.QuestionSet = p.QuestionSet
 	return &p, nil
 }
 
@@ -454,7 +484,7 @@ type Gate struct {
 	Model  Model
 	Cal    *Calibrator
 	Memory Memory // nil → duplicate_of is never set and dedup rules never fire
-	PairK  int    // candidates asked per PR (default 5)
+	PairK  int    // candidates asked per PR (default 5 when unset here; LoadPolicy fills memory.top_k = 10)
 	// PairConcurrency bounds the same_change calls in flight for one decision (default 8; 1 = sequential).
 	// It changes latency only: aggregation is in candidate order whatever the completion order.
 	PairConcurrency int
@@ -488,7 +518,7 @@ func (g *Gate) precheck(sha string, now time.Time, paths []string) *Result {
 	return nil
 }
 
-// finish turns the main QuestionsV2 decision into a result (on_error on model failure).
+// finish turns the main (policy question set) decision into a result (on_error on model failure).
 func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 	if d.Error != "" {
 		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason, Rule: "on_error",
@@ -599,7 +629,7 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 // duplicate_of = max over top-k candidates of same_change, silent_days from UpdatedAt.
 // Both are added to the probability map so policy rules can reference them.
 //
-// With a memory, the main QuestionsV2 call and the pair stage (retrieval + same_change calls, which need
+// With a memory, the main call and the pair stage (retrieval + same_change calls, which need
 // only state and meta) run at the same time and are joined before policy matching; pair calls run
 // PairConcurrency at a time. Result.LatencyMS is then the wall clock of the whole decision and
 // Result.ModelLatencySumMS the sum over every model call counted (the pre-parallel LatencyMS).

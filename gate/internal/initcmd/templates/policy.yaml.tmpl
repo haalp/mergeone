@@ -3,7 +3,7 @@
 # How one decision works:
 #   1. The decision model reads the PR (title, message, diff) and answers typed questions, each with a
 #      probability; the rules below read is_logic_change, weakens_tests, touches_concurrency and
-#      needs_human_review (question set v4; docs/POLICY.md says which questions it dropped and why).
+#      needs_human_review, which question sets v2 and v4 both ask (docs/POLICY.md: v4 and what it dropped).
 #   2. The probabilities are calibrated with the maps shipped for the model (0.6 means sixty percent).
 #   3. The rules below run top to bottom. The first rule whose conditions ALL hold sets the verdict
 #      (pass | hold | block) and the route (who or what handles the PR next). No match: `default`.
@@ -32,7 +32,7 @@ model: [[.Model]]
 # provider: { ... }   # optional: override or define the model inline (same keys as a models.yaml row)
 [[- end]]
 
-question_set: v2      # which question wording the model gets (prompts/jev_v2.json, prompts/haiku_v2.md)
+question_set: v2      # v2 (default, five questions) | v4 (opt-in, eight; calibration maps ship for jev, haiku, pplx-flash)
 calibration: auto     # auto = the calibration file shipped for this model, if any; none = raw probabilities
 
 # Paths that always go to a human, whatever the model says. Prefix match on the changed file paths,
