@@ -10,8 +10,10 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/store"
 )
 
 func writePreds(t *testing.T, path string, rows func(i int) map[string]any, n int) {
@@ -164,5 +166,46 @@ func TestAUCMatchesRankFormula(t *testing.T) {
 	}
 	if _, ok := engine.AUC([]bool{true, true}, []float64{0.1, 0.2}); ok {
 		t.Fatal("one class has no AUC")
+	}
+}
+
+func TestCalibrateCommand(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(dir, "gatelog.jsonl")
+	var o, e bytes.Buffer
+	oldOut, oldErr := stdout, stderr
+	t.Cleanup(func() { stdout, stderr = oldOut, oldErr })
+	stdout, stderr = &o, &e
+	out := filepath.Join(dir, "cal.json")
+	if code := run([]string{"calibrate", "--log", logPath, "--out", out}); code != 2 {
+		t.Fatalf("without --from-gatelog: %d", code)
+	}
+	if code := run([]string{"calibrate", "--from-gatelog", "--log", logPath, "--out", out}); code != 1 || !strings.Contains(e.String(), "need at least 200") {
+		t.Fatalf("empty gatelog: %d %s", code, e.String())
+	}
+	st, err := store.Open(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now().UTC()
+	for i := 1; i <= 210; i++ {
+		y := i%2 == 0
+		p := 0.25
+		if y {
+			p = 0.75
+		}
+		_ = st.Record(store.Record{Repo: "o/r", PR: i, HeadSHA: fmt.Sprint(i), Result: engine.Result{RawProbs: map[string]float64{"q": p},
+			ModelVersion: "jev-1.14.0", InputSHA256: fmt.Sprint(i), TS: now}})
+		_, _ = st.RecordOutcome(store.PROutcome{Repo: "o/r", PR: i, Iterated: &y})
+	}
+	if code := run([]string{"calibrate", "--from-gatelog", "--since", "7d", "--log", logPath, "--out", out}); code != 0 {
+		t.Fatalf("calibrate: %d %s", code, e.String())
+	}
+	c, err := engine.LoadCalibration(out)
+	if err != nil || c.Meta == nil || c.Meta.N != 210 || !strings.Contains(o.String(), "wrote "+out) {
+		t.Fatalf("map %v %+v %s", err, c, o.String())
+	}
+	if code := run([]string{"calibrate", "--from-gatelog", "--log", logPath, "--out", out}); code != 3 {
+		t.Fatalf("existing file without --force: %d", code)
 	}
 }

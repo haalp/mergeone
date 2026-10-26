@@ -44,7 +44,11 @@ type Gateway struct {
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{})}
 	if g.Cal != nil {
-		st.SetFitStats(g.Cal.FitStats)
+		var refit time.Time
+		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
+			refit = m.FitAt
+		}
+		st.SetFitStatsAt(g.Cal.FitStats, refit)
 	}
 	if g.Policy.Drift.Enabled {
 		g.Degraded = func() map[string]bool { return st.DegradedQuestions(time.Now()) }

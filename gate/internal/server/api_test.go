@@ -159,7 +159,7 @@ func TestAPIQueueGraphVerdict(t *testing.T) {
 	if rr := apiCall(t, gw, "GET", "/api/verdict/nope?repo=o/r", "s3cret", nil); rr.Code != 404 {
 		t.Fatalf("unknown sha: %d", rr.Code)
 	}
-	if rr := apiCall(t, gw, "POST", "/api/calibrate", "s3cret", map[string]string{"since": "7d"}); rr.Code != 501 || !strings.Contains(rr.Body.String(), "not implemented") {
+	if rr := apiCall(t, gw, "POST", "/api/calibrate", "s3cret", map[string]string{"since": "7d"}); rr.Code != 422 || !strings.Contains(rr.Body.String(), "need at least 200") {
 		t.Fatalf("calibrate: %d %s", rr.Code, rr.Body.String())
 	}
 }

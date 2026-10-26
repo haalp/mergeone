@@ -169,6 +169,9 @@ func (s *Store) record(r *Record) (func(Record), error) {
 	return s.onRecord, nil
 }
 
+// Path is the gatelog file.
+func (s *Store) Path() string { return s.path }
+
 // Latest returns the newest decision for a head sha, or nil.
 func (s *Store) Latest(repo, sha string) *Record {
 	s.mu.Lock()

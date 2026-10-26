@@ -342,6 +342,18 @@ type Calibrator struct {
 	// Path is the file the map came from ("" = identity map); FitAt is its modification time.
 	Path  string
 	FitAt time.Time
+	// Meta is the optional `fit_meta` block `mergeone calibrate --from-gatelog` writes (nil otherwise).
+	Meta *FitMeta
+}
+
+// FitMeta records where a calibration map came from when it was refit from the gatelog.
+type FitMeta struct {
+	Source        string    `json:"source"` // gatelog
+	Label         string    `json:"label"`
+	Since         time.Time `json:"since"`
+	FitAt         time.Time `json:"fit_at"`
+	N             int       `json:"n"`
+	ModelVersions []string  `json:"model_versions"`
 }
 
 type calMap struct {
@@ -375,6 +387,13 @@ func LoadCalibration(path string) (*Calibrator, error) {
 			return nil, fmt.Errorf("calibration %s: fit_stats: %w", path, err)
 		}
 		delete(raw, "fit_stats")
+	}
+	if fm, ok := raw["fit_meta"]; ok {
+		c.Meta = &FitMeta{}
+		if err := json.Unmarshal(fm, c.Meta); err != nil {
+			return nil, fmt.Errorf("calibration %s: fit_meta: %w", path, err)
+		}
+		delete(raw, "fit_meta")
 	}
 	c.maps = make(map[string]calMap, len(raw))
 	for q, m := range raw {

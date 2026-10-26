@@ -10,6 +10,7 @@
 //	mergeone mcp     --policy .mergeone.yaml [--mock]
 //	mergeone drift-replay --predictions then.jsonl[,more] --predictions now.jsonl[,more] [--qset v3] [--mode joint|any] [--json]
 //	                      [--labels data/run3/dataset.jsonl --label iterated]
+//	mergeone calibrate --from-gatelog [--since 28d] [--model m] [--label iterated] [--out calibration_<m>_<qset>.json] [--force]
 //
 //	mergeone         (on a terminal) the banner, then an interactive session with the same commands
 //
@@ -77,6 +78,7 @@ var commands = map[string]func([]string) int{
 	"mcp":          cmdMCP,
 	"models":       cmdModels,
 	"drift-replay": cmdDriftReplay,
+	"calibrate":    cmdCalibrate,
 }
 
 // run is the whole CLI for args (os.Args[1:]); it returns the exit code.
@@ -106,7 +108,7 @@ func run(args []string) int {
 	return cmd(args[1:])
 }
 
-const usageLine = "usage: mergeone <init|serve|pr|decide|replay|drift-replay|loadtest|index|models|mcp|version> [flags]"
+const usageLine = "usage: mergeone <init|serve|pr|decide|replay|drift-replay|calibrate|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
 	fmt.Fprintln(stderr, usageLine)
