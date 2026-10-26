@@ -115,7 +115,7 @@ The MCP tools (`gate_decide`, `gate_similar`) never write to GitHub.
 model: jev                     # or pplx-flash, haiku, local, … — one YAML row, no code
 question_set: v2
 always_human_paths: ["migrations/", "auth/"]
-memory: { enabled: false, top_k: 5 }   # opt-in: asks whether the PR duplicates a recent one
+memory: { enabled: false, top_k: 10 }   # opt-in: asks whether the PR duplicates a recent one
 max_rounds: 0                  # 3 = after three non-pass verdicts on one PR, route to a human
 rules:
   - { name: weakens-tests, when: { weakens_tests: ">= 0.6" }, verdict: block, route: human }

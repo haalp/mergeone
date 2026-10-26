@@ -62,6 +62,15 @@ slow signal (Python reference, `scripts/drift_slow.py`: AUC vs outcome on identi
 "not equivalent" verdict, visible here for the first time. `drift.enabled` therefore defaults to **true** in the next
 gateway release; the slow signal's Go implementation and `calibrate --from-gatelog` are the v0.3 items that remain.
 
+> **Post-hoc, 2026-10-26 — row selection in the slow-signal replay.** Porting the slow signal to Go showed that
+> `scripts/drift_slow.py` keeps the last row per PR across request modes, so its run-6A comparison read the
+> self-hosted *single-question* rows, while the fast replay read the *joint* rows. With the same rows the Go replay
+> reproduces `drift_slow.json` exactly (all four comparisons, AUCs within 5e-5); on the joint 6A rows the slow signal
+> flags `hard_to_revert` (−0.056) instead of the three questions above, and on the single-question rows the fast
+> signal flags `follows_conventions` and `message_matches_diff`. The R8-H5 clauses are unaffected (the 6A clause is a
+> fast-signal clause, and jev `tests_cover_change` holds under both selections); the 6A slow-signal sentence above
+> should be read with this caveat. `drift-replay --mode joint|single|any` makes the selection explicit.
+
 ## What run 8 changes
 
 - Gateway: compact state for the pair call (v0.3); `drift.enabled: true` by default (v0.3); `message-mismatch` rule

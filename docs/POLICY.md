@@ -47,7 +47,7 @@ CI [−0.035, −0.004]) / −0.015 (pplx-flash), median pair request 1,564 vs 2
 ```yaml
 memory:
   enabled: true
-  top_k: 5
+  top_k: 10
   pair_state: compact   # default; `full` sends the run-4 rendering
 ```
 

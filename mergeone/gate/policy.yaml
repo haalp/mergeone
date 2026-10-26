@@ -27,7 +27,7 @@ always_human_paths:
 # to the probabilities so rules below can use them. Backfill once: mergeone index owner/name
 memory:
   enabled: true
-  top_k: 5
+  top_k: 10
   pair_state: compact   # pair call input: compact (default; PROTOCOL.md §R8 C1, R8-H1) | full (the run-4 rendering)
 
 rules:

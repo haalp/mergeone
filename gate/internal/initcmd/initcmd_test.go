@@ -64,8 +64,8 @@ func TestPolicyTemplateLoadsForEveryRegistryModel(t *testing.T) {
 		if p.Model != name {
 			t.Errorf("%s: model = %q", name, p.Model)
 		}
-		if p.Memory.Enabled || p.Memory.TopK != 5 {
-			t.Errorf("%s: memory = %+v, want disabled, top_k 5", name, p.Memory)
+		if p.Memory.Enabled || p.Memory.TopK != 10 {
+			t.Errorf("%s: memory = %+v, want disabled, top_k 10", name, p.Memory)
 		}
 		if p.Actions.Enabled {
 			t.Errorf("%s: actions must be off", name)
