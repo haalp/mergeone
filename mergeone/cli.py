@@ -278,6 +278,9 @@ def apply_prompt_file(model, path: str) -> str:
 
 
 def cmd_predict(args):
+    if args.qset == "pair_shared":  # run 9 R9-H4: one request per A group (prompts/jev_pair_shared.json)
+        from .eval.run9_pairs import predict_shared
+        return predict_shared(args)
     pmode = "single" if getattr(args, "single_question", False) else "joint"
     rows = load_dataset(args.split, args.limit, Path(args.dataset) if args.dataset else None)
     if args.only_errors_from or args.only_missing_from:
@@ -317,6 +320,7 @@ def cmd_predict(args):
     # question set's or mode's rows, so a v3/v4 run and a pair/relation run into one --run dir keep both
     out_path = run_dir / f"predictions_{args.model}_{args.split}_{variant}.jsonl"
     t0 = time.time()
+    started_at = datetime.now(timezone.utc).isoformat()
     n_err = 0
 
     def work(r):
@@ -347,6 +351,7 @@ def cmd_predict(args):
             "finished_at": datetime.now(timezone.utc).isoformat(), "host": platform.node(), "python": sys.version.split()[0]}
     meta["qset"] = args.qset
     meta["mode"] = pmode
+    meta.update(started_at=started_at, wall_s=time.time() - t0)  # run 9: closed-loop throughput = n / wall_s of this pass
     meta["predictions_file"] = out_path.name
     meta["other_rows_kept"] = kept_other
     if compact:
@@ -578,7 +583,7 @@ def main(argv=None):
     p.add_argument("--append", action="store_true", help="keep this question set's earlier rows too (rows of other question sets / modes are always kept)")
     p.add_argument("--only-errors-from")
     p.add_argument("--only-missing-from", help="predict only rows absent (or errored) in this predictions file; use with --append after the dataset grew")
-    p.add_argument("--qset", choices=["v1", "v2", "v3", "v4", "pair", "pair_assume", "relation", "relation2"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), v4 = run8 (v3 minus follows_conventions, message_matches_diff), pair = run4 same_change, pair_assume = run5 assumption_conflict, relation = run7 C5 (four binaries), relation2 = run8 (three binaries; branch from metadata)")
+    p.add_argument("--qset", choices=["v1", "v2", "v3", "v4", "pair", "pair_assume", "relation", "relation2", "pair_shared"], default="v1", help="question set: v1 = run1 (revert), v2 = run2 (semantic triage), v3 = run5 (v2 + 5), v4 = run8 (v3 minus follows_conventions, message_matches_diff), pair = run4 same_change, pair_assume = run5 assumption_conflict, relation = run7 C5 (four binaries), relation2 = run8 (three binaries; branch from metadata), pair_shared = run9 shared-A same_change (--dataset results/run9/groups_<a|b>.jsonl; one request per group, one row per candidate)")
     p.add_argument("--subset", help="jsonl of {pr_number} rows to restrict to (e.g. the judged sample)")
     p.add_argument("--dataset", help="dataset path (default data/dataset.jsonl; run3: data/run3/dataset.jsonl)")
     p.add_argument("--single-question", action="store_true", help="run 6 R6A-H4: one request per question, answers merged into one row (mode=single); default joint")
