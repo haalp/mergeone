@@ -25,6 +25,15 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - Tooling still to write before the pod (no model call; `docs/run9-tooling.md` §1): the server's `--fast-options` flag,
   `predict --qset pair_shared`, `mergeone.eval.run9_pairs`, `scripts/run9_gpu.sh`; `mergeone.eval.run9_report` before
   any run-9 number is scored. Budget: one L4 ≈ 2–3 h (≈ $1.8), Perplexity ≈ $0.2.
+- 2026-10-28 run-9 tooling written (no model or GPU call; `docs/run9-tooling.md` §1): `serve/systemone_server.py
+  --fast-options` (→ `Decider.from_pretrained(…, fast=FastOptions(**options))`, read from the Hub copy of `pplx_decider`
+  0.3.0; options in effect in `serve_meta.json` and `GET /meta`), `predict --qset pair_shared`, `mergeone.eval.run9_pairs`
+  (`groups`, `score`), `mergeone.eval.run9_step` (throughput), `loadtest` errors per step, `scripts/run9_gpu.sh`
+  (`sequence`, `--dry-run`), `mergeone.eval.run9_report`. Not a protocol change; bars and sets as frozen. Tooling names
+  differ from the freeze-time draft of the runbook: `groups_{a,b}.jsonl` (was `pair_groups_{a,b}`), `slot` (was
+  `position`), one directory per step under each arm. The optional pair-inclusive load curve (§R9.3, no bar) has no
+  loader mode and will be reported "not run". Open until the pod: FP8 on sm_89, the pinned revision, the installed
+  vendor API (`results/run9/logs/vendor_api.json`).
 
 ## v0.3.0 — 2026-10-26 (gateway release; no protocol change)
 

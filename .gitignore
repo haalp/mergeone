@@ -44,3 +44,8 @@ results/run6/pairs_todo_*.jsonl
 # portal (Next.js)
 portal/node_modules/
 portal/.next/
+
+# run 9 (pod logs; pair groups hold PR text and are rebuildable with run9_pairs groups)
+results/run9/logs/
+results/run9/groups_*.jsonl
+results/run9/pairs_b.jsonl

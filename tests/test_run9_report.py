@@ -118,16 +118,16 @@ def test_h5_token_ratio_and_equivalence(tmp_path):
     n = 50
     base = rng.uniform(0, 1, (n, 10))
     _w(tmp_path / R9.preds_path("bf16", "equiv"), [_v3(i, dict(zip(DECISIONS_V3, map(float, base[i]))), tokens=2000) for i in range(n)])
-    _w(tmp_path / "results/run9/h5/predictions_pplx-flash_test_all.jsonl",
+    _w(tmp_path / "results/run9/h5/hosted/predictions_pplx-flash_test_all.jsonl",
        [_v3(i, dict(zip(DECISIONS_V3, map(float, base[i]))), tokens=2000 * (7 if i % 2 else 9), model="pplx-flash-1") for i in range(n)])
-    _w(tmp_path / "results/run9/h5/predictions_pplx-flash-local_test_all.jsonl",
+    _w(tmp_path / "results/run9/h5/single/predictions_pplx-flash-local_test_all.jsonl",
        [_v3(i, dict(zip(DECISIONS_V3, map(float, np.clip(base[i] + 0.001, 0, 1)))), tokens=21000, mode="single") for i in range(n)])
     rep = R9.build(tmp_path)
     h5 = rep["h5"]
     assert h5["same_utc_day"] is True and h5["tokens"]["n"] == n and h5["tokens"]["median"] == pytest.approx(8.0)
     assert h5["equivalence"]["pass"] is True and rep["hypotheses"]["R9-H5"]["pass"] is True
     # a different UTC day is reported beside the verdict
-    _w(tmp_path / "results/run9/h5/predictions_pplx-flash_test_all.jsonl",
+    _w(tmp_path / "results/run9/h5/hosted/predictions_pplx-flash_test_all.jsonl",
        [_v3(i, dict(zip(DECISIONS_V3, map(float, base[i]))), tokens=2000 * 3, ts="2026-11-03T01:00:00+00:00") for i in range(n)])
     rep = R9.build(tmp_path)
     assert rep["h5"]["same_utc_day"] is False and rep["hypotheses"]["R9-H5"]["pass"] is False

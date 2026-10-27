@@ -22,8 +22,8 @@ Inputs (scripts/run9_gpu.sh writes them; docs/run9-tooling.md)
              results/run6/pass2-l4/loadtest_pplx-flash-local_x{1,10,30}.json            run 6A pass 2 (reference, beside)
   H4         results/run9/{bf16,shared}/pairs_{a,b}/predictions_pplx-flash-local_test_all.jsonl, …/throughput.json
              results/run6/pairs_eval_test.jsonl (set (a) ids), results/run9/groups_summary.json
-  H5         results/run9/h5/predictions_pplx-flash_test_all.jsonl         hosted, joint v3 (the client's request)
-             results/run9/h5/predictions_pplx-flash-local_test_all.jsonl   local vendor BF16, --single-question (mode single)
+  H5         results/run9/h5/hosted/predictions_pplx-flash_test_all.jsonl         hosted, joint v3 (the client's request)
+             results/run9/h5/single/predictions_pplx-flash-local_test_all.jsonl   local vendor BF16, --single-question (mode single)
              results/run9/bf16/equiv/predictions_pplx-flash-local_test_all.jsonl   the token ratio's denominator (local joint)
 
 Scoring (fixed here, before any run-9 number is scored)
@@ -300,7 +300,7 @@ def token_ratio(hosted: dict[int, dict], local_joint: dict[int, dict]) -> dict:
 
 
 def h5(inp: Inputs, local_joint: dict[int, dict]) -> dict:
-    hp, lp = step("h5", "") / f"predictions_{HOSTED}_test_all.jsonl", step("h5", "") / f"predictions_{LOCAL}_test_all.jsonl"
+    hp, lp = preds_path("h5", "hosted", HOSTED), preds_path("h5", "single")
     hrows, lrows = inp.jsonl(hp), inp.jsonl(lp)
     hosted, single = decisions(hrows, "v3", "joint"), decisions(lrows, "v3", "single")
     out = {"dates": {"hosted": _dates(hrows, "v3", "joint"), "local_single": _dates(lrows, "v3", "single")},
