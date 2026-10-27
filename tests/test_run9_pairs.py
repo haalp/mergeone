@@ -216,3 +216,34 @@ def test_score_and_h4_verdict(tmp_path):
     assert v["pass"] is False and v["clauses"] == {"speed": False, "auc_set_a": True, "dup_vs_rest_set_b": True}
     v = P.h4_verdict({"ratio": None}, {}, {})
     assert v["pass"] is None
+
+
+# ----------------------------------------------------------------- loadtest: errors per step and the server's options
+def test_loadtest_reports_errors_per_step_and_server_meta(tmp_path, monkeypatch):
+    from mergeone.models.base import Decision
+    rows = [{"pr_number": i, "split": "test", "labels": {}, "features": {}, "state": f"s{i}"} for i in range(40)]
+    ds = tmp_path / "ds.jsonl"
+    _w(ds, rows)
+
+    class M:
+        endpoint = "http://127.0.0.1:8080/v1/systemone"
+        max_retries_429 = 5
+
+        def decide(self, state, features, questions):
+            i = int(state[1:])
+            return Decision(probs={}, latency_ms=float(i), error=("HTTP 500: boom" if i % 10 == 3 else ("ReadTimeout: slow" if i == 7 else None)))
+
+    monkeypatch.setattr(cli, "RESULTS", tmp_path)
+    monkeypatch.setattr(cli, "build_model", lambda name, version="v1": M())
+    monkeypatch.setattr(cli, "_server_meta", lambda ep: {"fast_options_effective": {"fp8": True}, "dtype": "fp8 (…)"} if ep else None)
+    cli.main(["loadtest", "--model", "pplx-flash-local", "--multiplier", "1000", "--limit", "40", "--run", "run9/fp8/load", "--dataset", str(ds),
+              "--qset", "v3", "--concurrency", "512", "--no-retry"])
+    s = json.loads((tmp_path / "run9/fp8/load/loadtest_pplx-flash-local_x1000.json").read_text())["summary"]
+    assert s["n"] == 40 and s["n_errors"] == 5 and s["n_ok"] == 35 and s["error_rate"] == 5 / 40
+    assert s["errors_by_kind"] == {"HTTP 500": 4, "ReadTimeout": 1}
+    assert s["retry_429"] == 0 and s["p99_ms"] is not None and s["server_meta"]["fast_options_effective"] == {"fp8": True}
+
+
+def test_server_meta_only_for_local_systemone_urls():
+    assert cli._server_meta(None) is None and cli._server_meta("https://api.perplexity.ai/v1/decide") is None
+    assert cli._server_meta("http://127.0.0.1:9/v1/systemone", timeout=0.2) is None  # nothing listening

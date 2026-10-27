@@ -457,6 +457,30 @@ def cmd_handcheck(args):
     print(f"wrote {len(sample)} rows to {out}; fill `verdict` with 'correct'/'wrong'/'unclear'")
 
 
+def _server_meta(endpoint: str | None, timeout: float = 3.0) -> dict | None:
+    """Run 9: GET <server>/meta of a local System One server (serve/systemone_server.py) — which fast options / dtype served
+    this load test. None when the endpoint is not a /v1/systemone URL or does not answer (hosted APIs, older servers)."""
+    if not endpoint or not endpoint.rstrip("/").endswith("/v1/systemone"):
+        return None
+    import httpx
+    base = endpoint.rstrip("/")[: -len("/v1/systemone")]
+    try:
+        r = httpx.get(base + "/meta", timeout=timeout)
+        if r.status_code != 200:
+            return None
+        m = r.json()
+        keep = ("model", "revision", "served_as", "gpu_name", "dtype", "fast", "fast_options_flag", "fast_options_effective", "batch_max",
+                "batch_ms", "batch_tokens", "started_at", "vm_type", "usd_per_hour")
+        return {k: m.get(k) for k in keep}
+    except Exception:
+        return None
+
+
+def _error_kind(e: str) -> str:
+    """'HTTP 500: {...}' → 'HTTP 500'; 'ReadTimeout: …' → 'ReadTimeout'."""
+    return e.split(":", 1)[0].strip()[:60]
+
+
 def cmd_loadtest(args):
     """Open-loop replay of the test-split merge stream at a fixed decisions-per-second rate.
 
@@ -494,14 +518,19 @@ def cmd_loadtest(args):
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         for fut in as_completed([ex.submit(work, i) for i in range(len(rows))]):
             results.append(fut.result())
+    wall = time.perf_counter() - t0
     lat = sorted(r["latency_ms"] for r in results if r["error"] is None)
     lag = sorted(r["lag_s"] for r in results)
     errs = sum(1 for r in results if r["error"])
+    from collections import Counter
+    err_kinds = dict(Counter(_error_kind(r["error"]) for r in results if r["error"]).most_common())
     summary = {"model": args.model, "multiplier": args.multiplier, "base_rate_per_s": args.base_rate, "rate_per_s": rate, "n": len(rows),
                "p50_ms": lat[len(lat)//2] if lat else None, "p99_ms": lat[int(len(lat)*0.99)] if lat else None,
                "p99_schedule_lag_s": lag[int(len(lag)*0.99)], "error_rate": errs / len(rows), "concurrency": args.concurrency, "http_max_connections": max_conn,
                "qset": args.qset, "retry_429": getattr(model, "max_retries_429", None), "n_429": sum(1 for r in results if r["error"] and "429" in r["error"]),
-               "wall_s": time.perf_counter() - t0, "finished_at": datetime.now(timezone.utc).isoformat()}
+               "n_ok": len(lat), "n_errors": errs, "errors_by_kind": err_kinds,  # run 9: errors per step, not only the rate
+               "wall_s": wall, "finished_at": datetime.now(timezone.utc).isoformat(),
+               "server_meta": _server_meta(getattr(model, "endpoint", None))}
     run_dir = RESULTS / args.run
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / f"loadtest_{args.model}_x{args.multiplier:g}.json").write_text(json.dumps({"summary": summary, "samples": results}, indent=1))
