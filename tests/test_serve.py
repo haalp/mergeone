@@ -209,3 +209,88 @@ def test_batch_tokens_end_to_end_padding_stats():
     assert h["batch_tokens"] == 4000
     assert h["stats"]["padding_efficiency"] is not None and h["stats"]["padding_efficiency"] > 0.5  # long ones never padded against short ones
     assert sum(dec.sizes) == 6 and max(dec.sizes) <= 4
+
+
+# ----------------------------------------------------------------- run 9: --fast-options and /meta
+def test_parse_fast_options_json_and_key_value():
+    assert srv.parse_fast_options(None) is None
+    assert srv.parse_fast_options(['{"fp8": true}']) == {"fp8": True}
+    kv = srv.parse_fast_options(["fp8=true", "buckets=2560,3072,4096,8192,16384,32768", "compile=layer", "token_budget=65536"])
+    assert kv == {"fp8": True, "buckets": (2560, 3072, 4096, 8192, 16384, 32768), "compile": "layer", "token_budget": 65536}
+    assert srv.parse_fast_options(['{"buckets": [2560, 3072]}'])["buckets"] == (2560, 3072)
+    assert srv.parse_fast_options(["fp8=false;prune_last=true"]) == {"fp8": False, "prune_last": True}
+    assert srv.parse_fast_options(["compile=null"]) == {"compile": None}
+
+
+@pytest.mark.parametrize("bad", [['{"fp9": true}'], ["fp8=yes"], ["buckets=0,4096"], ["buckets=a,b"], ["fp8"], ['{"fp8": tru'],
+                                 ["compile=full"], ["token_budget=0"], ["[1, 2]"]])
+def test_parse_fast_options_refuses(bad):
+    with pytest.raises(ValueError):
+        srv.parse_fast_options(bad)
+
+
+def test_parse_args_fast_options():
+    a = srv.parse_args(["--fast-options", '{"fp8": true}'])
+    assert a.fast_options == {"fp8": True} and a.fast_options_raw == '{"fp8": true}'
+    assert srv.parse_args([]).fast_options is None
+    with pytest.raises(SystemExit):
+        srv.parse_args(["--no-fast", "--fast-options", "fp8=true"])
+    with pytest.raises(SystemExit):
+        srv.parse_args(["--fast-options", "fp9=true"])
+
+
+def test_make_fast_options_against_a_dataclass():
+    import dataclasses
+
+    @dataclasses.dataclass(frozen=True)
+    class FastOptions:  # the 0.3.0 shape
+        compile: str | None = "layer"
+        cuda_graphs: bool = True
+        buckets: tuple = (2048, 4096, 8192, 16384, 32768)
+        token_budget: int = 32768
+        prune_last: bool = True
+        fp8: bool = False
+        prefetch: bool = True
+
+    fo = srv.make_fast_options({"fp8": True}, FastOptions)
+    assert fo.fp8 and fo.buckets == (2048, 4096, 8192, 16384, 32768)
+    assert srv.options_dict(fo)["fp8"] is True and srv.options_dict(fo)["buckets"] == [2048, 4096, 8192, 16384, 32768]
+
+    @dataclasses.dataclass(frozen=True)
+    class Older:
+        compile: str | None = "layer"
+
+    with pytest.raises(RuntimeError, match="no field"):
+        srv.make_fast_options({"fp8": True}, Older)
+    with pytest.raises(RuntimeError, match="no FastOptions"):
+        srv.make_fast_options({"fp8": True}, None)
+
+    class Dec:
+        fast = None
+    d = Dec()
+    assert srv.effective_fast_options(d) is None
+    d.fast = type("FP", (), {"options": fo})()
+    eff = srv.effective_fast_options(d)
+    assert eff["fp8"] is True
+    assert srv.dtype_label(eff).startswith("fp8") and srv.dtype_label(None).startswith("bf16")
+
+
+def test_meta_endpoint_and_healthz_report_fast_options():
+    meta = {"gpu_name": "NVIDIA L4", "fast_options_effective": {"fp8": True, "buckets": [2048]}, "dtype": "fp8 (…)", "revision": "abc123"}
+
+    async def go(c, app):
+        return await c.get("/meta"), await c.get("/healthz")
+    m, h = asyncio.run(_with_client(FakeDecider(), go, meta=meta, batch_tokens=131072))
+    assert m.status_code == 200
+    j = m.json()
+    assert j["fast_options_effective"] == {"fp8": True, "buckets": [2048]} and j["revision"] == "abc123" and j["batch_tokens"] == 131072
+    assert h.json()["fast_options"] == {"fp8": True, "buckets": [2048]}
+
+
+def test_build_meta_records_options(tmp_path):
+    a = srv.parse_args(["--fast-options", "buckets=2560,3072", "--usd-per-hour", "0.6"])
+    m = srv.build_meta(a, tmp_path, "abc", "x@abc", 1.0, {"fp8": False, "buckets": [2560, 3072]})
+    assert m["fast_options_flag"] == "buckets=2560,3072" and m["fast_options_requested"] == {"buckets": [2560, 3072]}
+    assert m["fast_options_effective"]["buckets"] == [2560, 3072] and m["dtype"].startswith("bf16")
+    m2 = srv.build_meta(srv.parse_args([]), tmp_path, "abc", "x@abc", 1.0, None)
+    assert m2["fast_options_flag"] is None and m2["fast_options_requested"] is None

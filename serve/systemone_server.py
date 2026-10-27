@@ -2,7 +2,8 @@
 
     POST /v1/systemone   {state, model, questions{name: {type: noul|choice|score, instructions, criteria?}}}
                       →  {model: "pplx-decider-flash-v1.2@<revision>", answers{name: {...}}, usage{input_tokens, output_tokens, ...}}
-    GET  /healthz        {ok, model, batch_max, batch_ms, stats}
+    GET  /healthz        {ok, model, batch_max, batch_ms, stats, fast_options}
+    GET  /meta           serve_meta.json as written at startup (model, revision, GPU, fast options in effect, …)
 
 PROTOCOL.md R6A.2: the vendor's own `pplx_decider` package does the inference, unmodified (`Decider.from_pretrained(...,
 fast=True)`, BF16, no quantisation). This wrapper changes no prompt, question or temperature: the request's `state` and
@@ -18,6 +19,15 @@ the requests closest in length to the oldest one such that `count × longest ≤
 tokenizer in the server); the rest wait for the next flush. The vendor call, prompts, questions and temperature are
 unchanged; only which requests share a forward pass. /healthz reports padded vs useful token estimates.
 
+Run 9 (--fast-options, off by default): the vendor's `FastOptions` (pplx_decider 0.3.0, `model.py`: a frozen dataclass with
+compile, cuda_graphs, buckets, token_budget, prune_last, fp8, prefetch) reach the decider through
+`Decider.from_pretrained(ckpt, device=…, fast=FastOptions(**options))`; absent = `fast=True` = `FastOptions()` defaults, i.e.
+the run-6A behaviour. The options in effect (read back from the loaded decider) are written to serve_meta.json and served at
+GET /meta, so every results directory can show which row it was. FP8 (`fp8: true`) is the R9-H3 row (§R9.4 exception).
+
+    --fast-options '{"fp8": true}'                       JSON object
+    --fast-options fp8=true buckets=2560,3072,4096,8192,16384,32768     key=value list (values parsed as JSON; a comma list → list)
+
 Errors: the vendor's RequestError / LengthError (and malformed requests) → HTTP 400; anything else → 500. A failing batch
 is retried request by request so one bad request cannot fail the others, and the batcher never stops on an exception.
 
@@ -31,6 +41,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import dataclasses
 import json
 import logging
 import os
@@ -343,9 +354,120 @@ def create_app(decider, model_name: str, batch_max: int = 32, batch_ms: float = 
     @app.get("/healthz")
     async def healthz():
         return {"ok": True, "model": model_name, "batch_max": batcher.batch_max, "batch_ms": batcher.batch_s * 1000, "batch_tokens": batcher.batch_tokens,
-                "stats": batcher.stats.as_dict(), **({"gpu": meta.get("gpu_name")} if meta else {})}
+                "stats": batcher.stats.as_dict(), **({"gpu": meta.get("gpu_name"), "fast_options": meta.get("fast_options_effective"),
+                                                     "dtype": meta.get("dtype")} if meta else {})}
+
+    @app.get("/meta")
+    async def meta_endpoint():
+        return {**(meta or {}), "batch_max": batcher.batch_max, "batch_ms": batcher.batch_s * 1000, "batch_tokens": batcher.batch_tokens}
 
     return app
+
+
+# ----------------------------------------------------------------- run 9: vendor FastOptions
+# Fields of pplx_decider.FastOptions as published in 0.3.0 (source/src/pplx_decider/model.py). Used to validate the flag before
+# the vendor package is imported (and in tests, where it is not installed); at load time the installed dataclass's own fields win.
+FAST_OPTION_FIELDS = ("compile", "cuda_graphs", "buckets", "token_budget", "prune_last", "fp8", "prefetch")
+FAST_OPTIONS_SIGNATURE = "pplx_decider 0.3.0: Decider.from_pretrained(path, *, device, fast: bool | FastOptions = False, …)"
+
+
+def _parse_value(v: str) -> Any:
+    v = v.strip()
+    try:
+        return json.loads(v)
+    except ValueError:
+        pass
+    if "," in v:
+        return [_parse_value(x) for x in v.split(",") if x.strip()]
+    low = v.lower()
+    if low in ("none", "null"):
+        return None
+    return v
+
+
+def parse_fast_options(tokens: list[str] | str | None) -> dict | None:
+    """`--fast-options` → {field: value}. Accepts one JSON object, or `key=value` items (separated by spaces, `;` or given as
+    several arguments). Values are JSON when they parse (true, 2560, [1, 2], "layer"); `a,b,c` is a list. `buckets` becomes a
+    tuple of ints (the dataclass default is a tuple). Unknown keys are refused here against the 0.3.0 field list."""
+    if tokens is None:
+        return None
+    text = " ".join(tokens) if isinstance(tokens, (list, tuple)) else str(tokens)
+    text = text.strip()
+    if not text:
+        return None
+    if text.startswith("{"):
+        try:
+            opts = json.loads(text)
+        except ValueError as e:
+            raise ValueError(f"--fast-options: invalid JSON: {e}") from e
+        if not isinstance(opts, dict):
+            raise ValueError("--fast-options: JSON must be an object")
+    else:
+        opts = {}
+        for item in text.replace(";", " ").split():
+            if "=" not in item:
+                raise ValueError(f"--fast-options: expected key=value, got {item!r}")
+            k, v = item.split("=", 1)
+            opts[k.strip()] = _parse_value(v)
+    unknown = sorted(set(opts) - set(FAST_OPTION_FIELDS))
+    if unknown:
+        raise ValueError(f"--fast-options: unknown field(s) {', '.join(unknown)}; FastOptions (pplx_decider 0.3.0) has {', '.join(FAST_OPTION_FIELDS)}")
+    if "buckets" in opts:
+        b = opts["buckets"]
+        b = [b] if isinstance(b, int) else b
+        if not isinstance(b, (list, tuple)) or not b or not all(isinstance(x, int) and not isinstance(x, bool) and x > 0 for x in b):
+            raise ValueError("--fast-options: buckets must be a non-empty list of positive integers")
+        opts["buckets"] = tuple(b)
+    for k in ("cuda_graphs", "prune_last", "fp8", "prefetch"):
+        if k in opts and not isinstance(opts[k], bool):
+            raise ValueError(f"--fast-options: {k} must be true or false")
+    if "token_budget" in opts and (not isinstance(opts["token_budget"], int) or isinstance(opts["token_budget"], bool) or opts["token_budget"] < 1):
+        raise ValueError("--fast-options: token_budget must be a positive integer")
+    if "compile" in opts and opts["compile"] not in (None, "sub", "layer"):
+        raise ValueError("--fast-options: compile must be null, \"sub\" or \"layer\"")
+    return opts
+
+
+def options_dict(obj: Any) -> dict | None:
+    """A FastOptions instance (or any dataclass) → JSON-able dict; None stays None."""
+    if obj is None:
+        return None
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+        return _jsonable(dataclasses.asdict(obj))
+    if isinstance(obj, dict):
+        return _jsonable(obj)
+    return {"repr": repr(obj)}
+
+
+def make_fast_options(opts: dict, fast_options_cls: Any) -> Any:
+    """{field: value} → the installed FastOptions. Fails with the documented signature in the message if the installed vendor
+    package differs (no such class, or a field it does not have)."""
+    if fast_options_cls is None:
+        raise RuntimeError("--fast-options: the installed pplx_decider has no FastOptions (written against " + FAST_OPTIONS_SIGNATURE +
+                           "); read the installed model.py / fast.py and record the difference in CHANGELOG before any run-9 call")
+    if dataclasses.is_dataclass(fast_options_cls):
+        have = {f.name for f in dataclasses.fields(fast_options_cls)}
+        missing = sorted(set(opts) - have)
+        if missing:
+            raise RuntimeError(f"--fast-options: installed FastOptions has no field(s) {', '.join(missing)} (has {', '.join(sorted(have))}); "
+                               f"written against {FAST_OPTIONS_SIGNATURE}")
+    return fast_options_cls(**opts)
+
+
+def effective_fast_options(decider: Any) -> dict | None:
+    """The options the loaded decider actually runs with: `decider.fast.options` (0.3.0: FastPath keeps them), None on the
+    reference path."""
+    fp = getattr(decider, "fast", None)
+    if fp is None:
+        return None
+    opts = getattr(fp, "options", None)
+    return options_dict(opts) if opts is not None else {"unknown": "decider.fast has no `options` attribute"}
+
+
+def dtype_label(effective: dict | None) -> str:
+    if effective and effective.get("fp8"):
+        return "fp8 (vendor FastOptions(fp8=True): rowwise-scaled float8_e4m3fn decoder matmuls; bf16 elsewhere)"
+    return "bf16 (vendor default; no quantisation)"
 
 
 # ----------------------------------------------------------------- startup: checkpoint, decider, meta
@@ -361,9 +483,15 @@ def resolved_revision(ckpt: Path, requested: str | None) -> str:
     return requested or "unknown"
 
 
-def load_decider(ckpt: Path, fast: bool, device: str = "cuda"):
-    from pplx_decider import Decider  # lazy: only on the GPU VM, after `pip install "<ckpt>/source[fast]"`
-    return Decider.from_pretrained(str(ckpt), device=device, fast=fast)
+def load_decider(ckpt: Path, fast: bool, device: str = "cuda", fast_options: dict | None = None):
+    import pplx_decider  # lazy: only on the GPU VM, after `pip install "<ckpt>/source[fast]"`
+    Decider = pplx_decider.Decider
+    if fast_options is None:  # runs 6A–8 and every run-9 control row: unchanged call
+        return Decider.from_pretrained(str(ckpt), device=device, fast=fast)
+    if not fast:
+        raise ValueError("--fast-options needs --fast (the options configure the vendor fast path)")
+    fo = make_fast_options(fast_options, getattr(pplx_decider, "FastOptions", None))
+    return Decider.from_pretrained(str(ckpt), device=device, fast=fo)
 
 
 def _version(*dists: str) -> str | None:
@@ -389,7 +517,7 @@ def ec2_metadata(timeout: float = 0.5) -> dict:
         return {}
 
 
-def build_meta(args, ckpt: Path, revision: str, model_name: str, warmup_s: float | None) -> dict:
+def build_meta(args, ckpt: Path, revision: str, model_name: str, warmup_s: float | None, fast_effective: dict | None = None) -> dict:
     gpu = cuda = torch_v = None
     try:
         import torch
@@ -402,7 +530,9 @@ def build_meta(args, ckpt: Path, revision: str, model_name: str, warmup_s: float
     return {
         "model": args.model, "revision": revision, "served_as": model_name, "checkpoint_dir": str(ckpt),
         "decision_config": json.loads(dc.read_text()) if dc.exists() else None,
-        "fast": args.fast, "device": args.device, "dtype": "bf16 (vendor default; no quantisation)",
+        "fast": args.fast, "device": args.device, "dtype": dtype_label(fast_effective),
+        "fast_options_flag": getattr(args, "fast_options_raw", None), "fast_options_requested": options_dict(getattr(args, "fast_options", None)),
+        "fast_options_effective": fast_effective,
         "batch_max": args.batch_max, "batch_ms": args.batch_ms, "batch_tokens": args.batch_tokens,
         "batching": "length-aware (pass 2)" if args.batch_tokens else "arrival order (pass 1)",
         "gpu_name": gpu, "cuda": cuda,
@@ -428,13 +558,24 @@ def parse_args(argv=None):
     ap.add_argument("--batch-max", type=int, default=32)
     ap.add_argument("--batch-ms", type=float, default=20.0)
     ap.add_argument("--batch-tokens", type=int, default=0, help="pass 2: padded-token budget per batch (count × longest, chars/4); 0 = arrival-order batching as pass 1")
+    ap.add_argument("--fast-options", nargs="+", metavar="OPT",
+                    help="run 9: vendor FastOptions as a JSON object or key=value list (fp8, buckets, token_budget, compile, cuda_graphs, "
+                         "prune_last, prefetch), e.g. '{\"fp8\": true}' or buckets=2560,3072,4096; absent = FastOptions() defaults")
     ap.add_argument("--vm-type", help="VM type for serve_meta.json (default: EC2 metadata if reachable)")
     ap.add_argument("--region", help="region for serve_meta.json (default: EC2 metadata if reachable)")
     ap.add_argument("--usd-per-hour", type=float, help="VM on-demand price, for the R6A cost row")
     ap.add_argument("--meta-out", default=str(DEFAULT_META))
     ap.add_argument("--access-log", action="store_true")
     ap.add_argument("--log-level", default="info")
-    return ap.parse_args(argv)
+    args = ap.parse_args(argv)
+    args.fast_options_raw = " ".join(args.fast_options) if args.fast_options else None
+    try:
+        args.fast_options = parse_fast_options(args.fast_options)
+    except ValueError as e:
+        ap.error(str(e))
+    if args.fast_options is not None and not args.fast:
+        ap.error("--fast-options needs --fast")
+    return args
 
 
 def main(argv=None) -> None:
@@ -446,12 +587,14 @@ def main(argv=None) -> None:
         return
     revision = resolved_revision(ckpt, args.revision)
     model_name = f"{args.model.split('/')[-1]}@{revision}"
-    log.info("loading %s from %s (fast=%s)", model_name, ckpt, args.fast)
-    decider = load_decider(ckpt, args.fast, args.device)
+    log.info("loading %s from %s (fast=%s, fast_options=%s)", model_name, ckpt, args.fast, args.fast_options)
+    decider = load_decider(ckpt, args.fast, args.device, args.fast_options)
+    fast_effective = effective_fast_options(decider)
+    log.info("fast options in effect: %s", fast_effective)
     t0 = time.perf_counter()
     decider.warmup()
     warmup_s = time.perf_counter() - t0
-    meta = build_meta(args, ckpt, revision, model_name, warmup_s)
+    meta = build_meta(args, ckpt, revision, model_name, warmup_s, fast_effective)
     out = Path(args.meta_out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(meta, indent=2) + "\n")
