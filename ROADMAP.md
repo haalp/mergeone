@@ -9,7 +9,7 @@ PROTOCOL.md): the same weights under a non-vendor engine (equivalence ≥ 0.95 a
 exists at freeze); one L4 at ×10 with the best passing configuration; the vendor FP8 row (same equivalence bars,
 ≥ 1.3× throughput); the shared-A pair call — A once, the k candidates after it — at ≥ 2.5× candidates/s with AUC within
 0.02 of one request per candidate; and R9-H5, a ≈ $0.2 hosted check that settles whether run 7's "drift" was the
-endpoint switching to one question per request (research note §3, post-hoc). One L4 for 3–4 h, ≈ $2.4.
+endpoint switching to one question per request (research note §3, post-hoc). One L4 for 2–3 h, ≈ $1.8.
 
 Gateway v0.3, decided by run 8: the pair call renders the compact state by default (R8-H1); `drift.enabled: true` by
 default (R8-H5); the slow drift signal (AUC vs outcome on identical rows falls by > 0.05) ported from
