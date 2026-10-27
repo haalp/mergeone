@@ -708,3 +708,131 @@ does not exist at freeze).
   same metadata rule (≈ $0.2); it is the difference between "new question" and "new day".
 - **relation2 `LOW` = 0.25.** It is the one constant in the relation2 rule not derived from a run; it is frozen with
   `HIGH` = 0.5 and the rule order and is not moved by run 8.
+
+---
+
+# R9 — serving row: FP8, shared-A pair call, one L4 at ×10, hosted check (addendum, 2026-10-27)
+
+Numbers this addendum rests on: `docs/research/inference.md` (2026-10-25; §2 committed measurements, §3 the post-hoc
+hosted reading, §4 how the vendor package builds a request, §6 techniques, §8 the draft this section transcribes).
+Commands: `docs/run9-tooling.md`. No run-9 model call before the commit that adds this section.
+
+## R9.1 Why
+
+Run 6A showed one GPU, not the weights, is the limit, and attributed it to compute per request. The research note finds
+that the self-hosted joint request is one sequence of ≈2.3k tokens (median 2,344), so the L4 runs at ≈ 22–30 % of its
+dense BF16 peak; that the pair calls (`same_change`, one per retrieved candidate, up to `top_k: 10`, each re-reading
+PR A) carry ≈ 90 % of the prefill tokens per PR with memory on and were never load-tested; and that the hosted row
+changed its request decomposition between runs 5 and 7. Run 9 measures the levers that touch tokens and arithmetic on
+the run-6A harness, against a **same-day vendor-BF16 control on the same pod**. No number from run 6 or from the hosted
+endpoint is a comparison point; run-6A numbers are shown beside, never instead of, the control.
+
+## R9.2 What is served, exactly
+
+- Model: `perplexity-ai/pplx-decider-flash-v1.2` at the run-6A revision (`6d771ad7…`, `results/run6/serve_meta.json`);
+  if the Hub no longer serves that revision, the resolved revision is recorded in CHANGELOG before the first call and
+  every row of run 9 (control and treatments alike) uses it.
+- Inference code: the vendor `pplx_decider` package from the checkpoint's `source/`, fast path, unmodified.
+- Serving: `serve/systemone_server.py`, micro-batch ≤ 32 requests / 20 ms, `--batch-tokens 131072` (run 6A pass 2's
+  choice) for **every** row, control and treatment. The vendor `FastOptions` are reached through one new server flag
+  (`docs/run9-tooling.md` names it), committed after this section and before the pod; it changes nothing when absent.
+- Hardware: one NVIDIA L4 24 GB pod; the benchmark client on the same pod (loopback). Nothing else on the GPU.
+- **Control (every hypothesis):** vendor BF16, default `FastOptions()`, the same pod, the same day, the same inputs.
+- Equivalence set: the 705 run-3 test PRs × 10 v3 questions, joint request (7,050 answers), full state.
+- Equivalence bars, from §R6A.3 (R6A-H1): argmax agreement ≥ **0.95** and mean |Δp| ≤ **0.02** over all 7,050 answers
+  (argmax: p ≥ 0.5).
+- Throughput (closed loop, used by H3 and H4): items completed ÷ wall-clock seconds of one pass over the named set at
+  client concurrency **32**, server warm (`warmup()` done); the server's `decide_s` reported beside it.
+- Load (H2): open loop, **600** v3 decisions per step, steps **×1 / ×10 / ×30** (0.347 / 3.47 / 10.4 decisions/s; ×100
+  and ×300 are not run, cost), 512 workers, no retry, 30 s client timeout, 60 s between steps, as §R6A.3.
+- Pair sets (H4): (a) the 187 R4-H2 test pairs (`results/run6/pairs_eval_test.jsonl`) grouped by A, at most 10 per
+  group in `results/run4/pairs.jsonl` order (a group larger than 10 is split in chunks of 10; group sizes reported);
+  (b) the 100 adjudicated run-6B hold pairs (`data/run6/hold_labels_adjudicated.jsonl`), each A with its first 10
+  run-6B retrieved candidates (k = 10 prefix of the k = 20 list, retrieval order); if the adjudicated B is not among
+  them it replaces the 10th. Set (b) is the throughput set at k = 10 (100 requests shared, 1,000 per candidate).
+- Pair state: full (the run-4 renderer, A ≤ 6,000 and B ≤ 3,000 characters) in both arms. The gateway's default is the
+  compact pair state (R8-H1); run 9 does not measure the shared request on it.
+
+**The shared-A request (frozen as `prompts/jev_pair_shared.json`).** One request per group: state = `=== PULL REQUEST
+A ===` + A once, then `=== CANDIDATE B<i> ===` + each candidate in retrieval order, then one closing line; questions
+`same_change_1 … same_change_k`, each the `same_change` question of `prompts/jev_pair.json` with "B" read as
+"candidate B<i>" and one sentence naming the candidate; type `choice` and the four criteria unchanged; per candidate
+`duplicate_of = P(same) + 0.5 P(subset)` (run 4's rule). This is a native vendor request, not an emulation: the
+vendor encoder builds **one sequence per request** with a readout at each question marker and returns one answer per
+named question (research note §4; split into chunks, each with the full state, only above 262,144 tokens, which no
+group reaches). The server already passes any number of `choice` questions through unchanged. The vendor's batch call
+`decide(list)` packs **independent** requests and carries nothing between them, so it cannot share A; it is not used
+as an H4 arm.
+
+## R9.3 Pre-registered criteria (same-day vendor-BF16 control on the same pod in every case)
+
+- **R9-H1 (engine port) — deferred, not a run-9 hypothesis.** As drafted: the same weights under a non-vendor engine
+  (vLLM / SGLang custom model with noncausal full attention and marker readout, prefix caching off) vs the vendor BF16
+  path, ≥ 0.95 agreement, ≤ 0.02 mean |Δp|, reported throughput ratio, not shipped below 1.2×. **No port exists at
+  this freeze** (none in `serve/`, none published for this checkpoint that we found; research note §5(1)), so H1 is
+  deferred as run 8's C4 was. The label R9-H1 stays reserved; nothing is reported under it in run 9.
+- **R9-H2 (L4 at ×10).** The configuration chosen by the rule below carries **×10** (3.47 v3 decisions/s) with
+  p99 ≤ ×1 p99 + **200 ms** and **0 errors**, ×1 p99 from the same configuration's own ×1 step the same day. The
+  saturation multiplier (first step with p99 > 2 × ×1 p99) is reported, "> ×30" if none. Configuration: FP8 if R9-H3
+  passes both its bars; else vendor BF16 with buckets (2,560, 3,072, 4,096, 8,192, 16,384, 32,768) if that row meets
+  the §R9.2 equivalence bars against the control; else the control. The control's own ×1 / ×10 / ×30 curve is run
+  the same day and reported beside. Measured alongside, no bar, only if the pod time allows after H5: ×1 and ×10 with
+  the gateway's pair calls included (v3 + the set-(b) per-candidate calls of the same A); "not run" if skipped.
+- **R9-H3 (FP8 row).** Vendor `FastOptions(fp8=True)` vs the control: equivalence bars of §R9.2 on the 7,050 answers
+  **and** throughput (equivalence set, §R9.2 definition) ≥ **1.3×** the control's. Pass → `fp8` becomes the documented
+  L4 configuration, with its own isotonic refit on val (FP8 joint v3 on the run-3 val split; calibration is not a
+  bar). Fail on either bar → BF16 stays. If the FP8 path does not load or run on the L4, H3 is reported "not run
+  (unavailable on the pod)"; no INT8 or other substitute is run in its place (§R9.6).
+- **R9-H4 (shared-A pair call, k = 10).** Shared request (§R9.2) vs one request per candidate (`prompts/jev_pair.json`
+  `same_change`), both vendor BF16, same day: (a) candidates scored per second on set (b) ≥ **2.5×** the per-candidate
+  arm's (the token arithmetic gives 2.7–3.3×); (b) `same_change` AUC on set (a) (label `positive`) **and**
+  duplicate-vs-rest AUC on set (b) (adjudicated label `duplicate` vs `pointer` / `unrelated`) each ≥ per-candidate
+  − **0.02**. Argmax agreement and mean |Δp| between the arms are reported, not barred (a different request by design).
+  Pass → the gateway may send shared pair calls to self-hosted pplx-flash, opt-in; fail → one request per candidate stays.
+- **R9-H5 (hosted decomposition, a check, ≈ $0.2).** The same UTC day: hosted `pplx-flash` v3 on the 705 test PRs
+  (joint request as the client sends it) vs local vendor-BF16 one-question-per-request (`--single-question`) on the
+  pod: argmax agreement ≥ **0.95**, mean |Δp| ≤ **0.02** over the 7,050 answers, **and** median per-PR ratio of hosted
+  `usage.input_tokens` to the same-day local joint tokens ≥ **6**. Pass → run 7's drift finding is re-labelled "request
+  decomposition changed" in `docs/EVIDENCE.md`, beside and not in place of the run-7 verdicts; fail → reported.
+
+## R9.4 What is not allowed
+
+- No bar, threshold or set in §R9.2–R9.3 moved after this freeze commit.
+- No retuning: no prompt, question, temperature, calibration-method or threshold change; no tuning on the equivalence
+  set or on either pair set; no choice of batch budget, concurrency or bucket list after seeing a run-9 number (all are
+  fixed above).
+- `prompts/jev_pair_shared.json` is frozen with this section; the shared request format is not edited after it.
+- No engine prefix caching in any row; no row compared only with run 6's or the hosted endpoint's numbers.
+- Quantised weights only in the H3 row (the R6A.4 exception below); every other row is vendor BF16.
+- Every pass of a load curve and every throughput pass is kept in `results/run9/`; a repeated pass is reported, not
+  substituted.
+- Never re-run a completed run; nothing from runs 1–8 is re-scored.
+
+**R6A.4 exception (dated 2026-10-27, CHANGELOG).** §R6A.4's "No quantised weights" is lifted for the R9-H3 row only:
+the vendor's own FP8 path (`FastOptions(fp8=True)`, rowwise-scaled `float8_e4m3fn` decoder matmuls) may be served and
+measured. The equivalence and throughput bars are unchanged (§R6A.3's 0.95 / 0.02, the drafted 1.3×). R6A's verdicts
+are untouched; every other run-9 row and every earlier row stays BF16.
+
+## R9.5 Budget and order
+
+One L4 ≈ 2–3 h (≈ $1.8); Perplexity ≈ $0.2 (H5); no H100, no Jev, no haiku. Order: freeze (this commit) → tooling
+commit (server flag, shared-pair request builder, run-9 runbook; no model call) → pod up, `serve_meta.json` →
+BF16 control (equivalence set, set-(a) and set-(b) per-candidate pair calls) → FP8 (equivalence set, val refit) →
+shared-A pair call (sets (a) and (b)) → load curves (control, then the H2 configuration; bucket equivalence first if
+H3 failed) → R9-H5 (local single-question on the pod, hosted call the same UTC day) → pod down → report
+(`mergeone.eval.run9_report`, derived from `run8_report` and committed before any run-9 number is scored; it does not
+exist at freeze).
+
+## R9.6 Decisions taken at freeze (2026-10-27)
+
+- **H1 deferred.** No engine port exists; R9-H1 is not a run-9 hypothesis.
+- **H4 is one call per A.** The vendor API returns one answer per named question in one sequence (research note §4),
+  so the shared request is a single call with k answers; the batch-API fallback is not needed and is not an arm.
+- **No INT8 substitute.** The draft allowed INT8 W8A8 if FP8 were unavailable; INT8 has no vendor path and the same
+  Ada peak, so it would be engineering after freeze. Dropped.
+- **Bucket row needs equivalence.** The draft let H2 fall back to BF16 with smaller buckets without an equivalence
+  check; bucket changes alter pack composition, so that row must meet the §R9.2 bars against the control first.
+- **Fixed serving knobs.** `--batch-tokens 131072`, batch ≤ 32 / 20 ms; client concurrency 32 for every timed pass
+  (control and FP8 equivalence passes, bucket equivalence pass, both H4 arms on set (b)), 16 for untimed passes (val
+  refit, set (a), single-question); load ×1 / ×10 / ×30 only.
+- **Pair state full.** Both H4 arms use the run-4 full renderer; the compact pair state is out of scope for run 9.

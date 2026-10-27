@@ -4,7 +4,7 @@ Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md
 
 ## Now — run 9: the serving row, and the v0.3 gateway items run 8 decided
 Run 9 measures the levers that touch tokens and arithmetic on the self-hosted 4B decider, against a **same-day
-vendor-BF16 control on the same pod** (draft: `docs/research/inference.md` §8; nothing is a hypothesis until it is in
+vendor-BF16 control on the same pod** (frozen 2026-10-27 as §R9, from `docs/research/inference.md` §8; bars in
 PROTOCOL.md): the same weights under a non-vendor engine (equivalence ≥ 0.95 argmax, |Δp| ≤ 0.02; deferred if no port
 exists at freeze); one L4 at ×10 with the best passing configuration; the vendor FP8 row (same equivalence bars,
 ≥ 1.3× throughput); the shared-A pair call — A once, the k candidates after it — at ≥ 2.5× candidates/s with AUC within

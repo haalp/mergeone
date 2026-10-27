@@ -1,0 +1,24 @@
+{
+  "_about": "Run 9 R9-H4 (PROTOCOL.md §R9): the shared-A pair request. One System One request per PR A: the state holds A once and its k candidates after it; one `same_change_<i>` question per candidate, in candidate order. Frozen at the §R9 freeze commit. The question text is prompts/jev_pair.json `same_change` with 'B' replaced by 'candidate B<i>' and one sentence saying which candidate the question is about; type and criteria are unchanged. `{i}` is the 1-based candidate index, `{k}` the number of candidates in the request. Fields beginning with '_' are documentation and are not sent.",
+  "_answer": "Per candidate i: duplicate_of_i = P(same) + 0.5 * P(subset) from the answer to `same_change_{i}` (run 4's rule for `same_change`).",
+  "state": {
+    "a_header": "=== PULL REQUEST A ===\n",
+    "a_max_chars": 6000,
+    "candidate_header": "\n\n=== CANDIDATE B{i} ===\n",
+    "candidate_max_chars": 3000,
+    "footer": "\n\nHow does A relate to each candidate, B1 to B{k}?",
+    "candidate_order": "retrieval rank (best first); the order is the order the per-candidate calls are made in",
+    "k_max": 10
+  },
+  "question_name": "same_change_{i}",
+  "question": {
+    "type": "choice",
+    "instructions": "You are shown a pull request A and {k} candidate pull requests B1 to B{k} from the same repository. This question is about candidate B{i} only. Decide how A relates to B{i}. 'same': A and B{i} implement the same change or fix the same problem in essentially the same way, so merging both would be redundant. 'subset': A is a strict part of B{i} or B{i} of A; merging the larger one makes the smaller unnecessary. 'related': they touch the same area or feature but do different work; both could merge. 'unrelated': different work.",
+    "criteria": {
+      "same": "Same change or same fix; redundant to merge both",
+      "subset": "One is contained in the other",
+      "related": "Same area, different work; both could land",
+      "unrelated": "Different work"
+    }
+  }
+}

@@ -2,6 +2,30 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 9 frozen — 2026-10-27
+
+- 2026-10-27 16:55Z PROTOCOL.md §R9 committed (serving row, transcribed from `docs/research/inference.md` §8 with the
+  decisions in §R9.6). No run-9 model call has been made before this commit. Frozen with it:
+  - R9-H2 (L4 carries ×10 with p99 ≤ ×1 p99 + 200 ms, 0 errors; steps ×1 / ×10 / ×30, 600 decisions each; ×100 / ×300
+    not run, cost), R9-H3 (vendor FP8 vs same-day BF16: agreement ≥ 0.95, mean |Δp| ≤ 0.02, throughput ≥ 1.3×), R9-H4
+    (shared-A pair call at k = 10: ≥ 2.5× candidates/s, `same_change` and duplicate-vs-rest AUC ≥ per-candidate − 0.02),
+    R9-H5 (hosted pplx-flash v3 vs same-day local one-question-per-request: agreement ≥ 0.95, mean |Δp| ≤ 0.02, token
+    ratio ≥ 6; ≈ $0.2);
+  - `prompts/jev_pair_shared.json` (A once, candidates B1…Bk, one `same_change_<i>` question each; wording from
+    `prompts/jev_pair.json`). The vendor encoder answers every named question of a request in one sequence, so the
+    shared request is one call with k answers; the batch call `decide(list)` shares nothing between requests and is
+    not an arm;
+  - serving knobs: `--batch-tokens 131072`, batch ≤ 32 / 20 ms, client concurrency 32 for timed passes.
+- R9-H1 (non-vendor engine port) **deferred**: no port exists at freeze; it is not a run-9 hypothesis.
+- 2026-10-27 R6A.4 exception: "No quantised weights" (§R6A.4) is lifted for the R9-H3 row only — the vendor's own FP8
+  path, `FastOptions(fp8=True)`. Reason: the research note found the L4 at ≈ 22–30 % of its BF16 peak and FP8 is the
+  only arithmetic lever with a vendor path; Ada has FP8 tensor cores. Bars unchanged (§R6A.3's 0.95 / 0.02 and the
+  drafted 1.3×); R6A verdicts untouched; every other row stays BF16. The draft's INT8 fallback is dropped (no vendor
+  path).
+- Tooling still to write before the pod (no model call; `docs/run9-tooling.md` §1): the server's `--fast-options` flag,
+  `predict --qset pair_shared`, `mergeone.eval.run9_pairs`, `scripts/run9_gpu.sh`; `mergeone.eval.run9_report` before
+  any run-9 number is scored. Budget: one L4 ≈ 2–3 h (≈ $1.8), Perplexity ≈ $0.2.
+
 ## v0.3.0 — 2026-10-26 (gateway release; no protocol change)
 
 - Compact pair call: PR memory sends the `same_change` call a compact rendering by default (`memory.pair_state: compact | full`, PROTOCOL.md §R8 C1, R8-H1); the main call stays full.
