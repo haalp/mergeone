@@ -171,8 +171,13 @@ the verdict-action path: one exclusive label (`mergeone:approved`, `mergeone:dup
 `resolutions.agreed` counts `link_duplicate` and `request_rebase` (the PR stays held); `approve` is an override.
 
 **`Record.context`.** Decisions on a PR the gateway fetched from GitHub (the webhook path) carry
-`context: {author, base, created_at, title, additions, deletions, files}` from the PR metadata. Decisions whose state
-was supplied by the caller (MCP, `POST /decide`, `mergeone pr`) have none.
+`context: {author, base, created_at, title, additions, deletions, files}` from the PR metadata. `mergeone pr` with a PR
+(`mergeone pr owner/name N`, `--gh-repo`/`--pr`, or the GitHub Actions event) and `GITHUB_TOKEN` fetches the PR the
+same way (title, body, files and diff for that head SHA; an older `--head-sha` is rendered from base...sha) and
+carries the same context. Without a token it renders the local diff, prints one notice that context is partial, and
+records only what git knows (`base` when `--base` names a branch, `additions, deletions, files`); `title` and
+`author` stay empty rather than taken from a commit. Decisions whose state was supplied by the caller (MCP,
+`POST /decide`, `mergeone pr` without a PR) have none.
 
 ## max_rounds (convergence cap)
 
@@ -217,7 +222,7 @@ actions:
 - Idempotent for the same (PR, head sha, verdict): a decision served from the gatelog is not acted on again; labels and reviewers already present are not re-sent; the marker stops a second comment for the same sha.
 - No retries. A failed call is recorded and the rest still run; failures **never change the verdict**. The report is added to the gatelog entry and to the response as `actions: {applied: [...], skipped: "...", errors: [...]}` (`skipped` says why nothing ran: disabled, no token, no PR number). The webhook answers `{queued}` at once, so its report is in the gatelog and in `GET /verdict/...`.
 - When enabled, the status and `mergeone:*` labels replace the gateway's check-run and `gate:*` / `route:*` labels. If a webhook job fails (and may be retried), only the status is posted with the `on_error` verdict; labels, comment and reviewers wait for a real verdict. `POST /decide` with `"actions": false` opts a call out (the load generator does).
-- CI mode: `mergeone pr` reads the PR number and head sha from `GITHUB_EVENT_PATH` and the repository from `GITHUB_REPOSITORY` (or `--pr`, `--head-sha`, `--gh-repo`) and authenticates with `GITHUB_TOKEN`. The exit code still follows the verdict.
+- CI mode: `mergeone pr` reads the PR number and head sha from `GITHUB_EVENT_PATH` and the repository from `GITHUB_REPOSITORY` (or `--pr`, `--head-sha`, `--gh-repo`, or `mergeone pr owner/name N`) and authenticates with `GITHUB_TOKEN`; with the token the PR itself is read from GitHub (`GITHUB_API_URL` overrides the API base). The exit code still follows the verdict.
 
 Least-privilege GitHub App (or fine-grained token / workflow `permissions:`): **Commit statuses: write** (`statuses: write`), **Pull requests: write** (`pull-requests: write`, reviewers; also read for the PR fetch), **Issues: write** (`issues: write`, labels and comments), plus the implicit Metadata: read. Contents is not needed.
 

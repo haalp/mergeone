@@ -372,3 +372,16 @@ func TestPortalIngestEvents(t *testing.T) {
 		t.Fatalf("events %v", kinds)
 	}
 }
+
+// TestNodeTitleNeverGuessedFromState: a record whose context carries title "" (CLI without a GitHub token: the
+// state's title is a commit subject) shows no title; a record without context still falls back to the state.
+func TestNodeTitleNeverGuessedFromState(t *testing.T) {
+	state := "PULL REQUEST TITLE: wip: first commit\nMERGE MESSAGE BODY:\n\n\nSUMMARY: 1 files changed, +3 / -0 lines, 1 top-level areas touched.\n"
+	n := nodeOf(store.Record{Repo: "o/r", PR: 12, State: state, Context: map[string]any{"title": "", "author": "", "base": "main", "additions": 3, "deletions": 0, "files": 1}})
+	if n.Title != "" || n.Author != "" || n.Additions != 3 || n.Files != 1 {
+		t.Fatalf("partial context node %+v", n)
+	}
+	if n := nodeOf(store.Record{Repo: "o/r", PR: 12, State: state}); n.Title != "wip: first commit" || n.Additions != 3 {
+		t.Fatalf("no-context node %+v", n)
+	}
+}

@@ -2,6 +2,20 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.3.1 (unreleased)
+
+- 2026-10-28 gateway: `mergeone pr` with a PR and `GITHUB_TOKEN` fetches the PR from GitHub through the webhook's
+  path (`PRStateMetaAt`: title, body, files and diff for that head SHA; an older `--head-sha` is rendered from the
+  compare API) and fills `Record.context` (`author, base, created_at, title, additions, deletions, files`) as the
+  webhook does, deciding with the PR metadata (`DecideFor`). Before, the CLI rendered the local diff with the local
+  HEAD commit subject as the title and left `context` empty, so the portal showed a wrong title and "unknown agent".
+  Without a token (or when the fetch fails) the local rendering stays, one stderr line says context is partial, and
+  `context` holds only what git knows (`base` when `--base` names a branch, `additions, deletions, files`; `title`
+  and `author` empty, never a commit's); `/api/graph` no longer falls back to the state's title when `context.title`
+  is present. `mergeone pr owner/name N` is sugar for `--gh-repo owner/name --pr N` (head SHA from GitHub when
+  omitted); `GITHUB_API_URL` overrides the API base. `mergeone init --ci` without actions now grants
+  `pull-requests: read`. No protocol change, no model call.
+
 ## Run 9 frozen — 2026-10-27
 
 - 2026-10-27 16:55Z PROTOCOL.md §R9 committed (serving row, transcribed from `docs/research/inference.md` §8 with the

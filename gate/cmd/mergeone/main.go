@@ -3,6 +3,7 @@
 //	mergeone init    [--model jev] [--ci] [--mcp [--write]] [--all] [--force] [--dir .] [--quiet]
 //	mergeone serve   --policy .mergeone.yaml [--log .mergeone/gatelog.jsonl] [--workers 16] [--addr :8787] [--mock]
 //	mergeone pr      --policy .mergeone.yaml [--repo .] [--base main] [--head HEAD] [--gh-repo o/r --pr N --head-sha SHA]
+//	mergeone pr      o/r N [--head-sha SHA] [flags]   (= --gh-repo o/r --pr N; with GITHUB_TOKEN the PR is read from GitHub)
 //	mergeone decide  --policy .mergeone.yaml --state file.txt [--paths a.go,b.go]
 //	mergeone replay  --policy .mergeone.yaml --predictions results/run2/predictions_jev_test_all.jsonl
 //	mergeone loadtest --url http://localhost:8787 --rate 35 --n 1200
@@ -341,7 +342,9 @@ func cmdServe(args []string) int {
 	return 0
 }
 
-func stateFromGit(repo, base, head string) (string, []string, error) {
+// stateFromGit renders base...head of a local clone. The title in the state is head's commit subject: a stand-in
+// the model reads, never the PR title (see gitContext).
+func stateFromGit(repo, base, head string) (string, []server.FileStat, error) {
 	git := func(a ...string) (string, error) {
 		out, err := exec.Command("git", append([]string{"-C", repo}, a...)...).Output()
 		return string(out), err
@@ -353,7 +356,6 @@ func stateFromGit(repo, base, head string) (string, []string, error) {
 	body, _ := git("log", "-1", "--format=%b", head)
 	numstat, _ := git("diff", "--numstat", base+"..."+head)
 	var files []server.FileStat
-	var paths []string
 	for _, line := range strings.Split(strings.TrimSpace(numstat), "\n") {
 		parts := strings.Split(line, "\t")
 		if len(parts) != 3 {
@@ -362,10 +364,77 @@ func stateFromGit(repo, base, head string) (string, []string, error) {
 		ins, _ := strconv.Atoi(parts[0])
 		del, _ := strconv.Atoi(parts[1])
 		files = append(files, server.FileStat{Path: parts[2], Insertions: ins, Deletions: del})
-		paths = append(paths, parts[2])
 	}
 	diff, _ := git("diff", base+"..."+head, "--no-color")
-	return server.RenderState(strings.TrimSpace(title), body, files, diff), paths, nil
+	return server.RenderState(strings.TrimSpace(title), body, files, diff), files, nil
+}
+
+// stateFromGitPaths is stateFromGit with the changed paths (the MCP tools' StateFn).
+func stateFromGitPaths(repo, base, head string) (string, []string, error) {
+	state, files, err := stateFromGit(repo, base, head)
+	return state, pathsOf(files), err
+}
+
+func pathsOf(files []server.FileStat) []string {
+	var paths []string
+	for _, f := range files {
+		paths = append(paths, f.Path)
+	}
+	return paths
+}
+
+// gitContext is Record.Context from what a clone can tell for certain: the base branch (only when base names a
+// branch) and the diff size. Title, author and created_at stay empty: a commit subject or commit author is not
+// the PR's, and the portal shows "unknown" rather than a wrong name.
+func gitContext(repo, base string, files []server.FileStat) map[string]any {
+	ref := ""
+	if out, err := exec.Command("git", "-C", repo, "rev-parse", "--verify", "--quiet", "--symbolic-full-name", base).Output(); err == nil {
+		ref = strings.TrimSpace(string(out))
+	}
+	switch {
+	case strings.HasPrefix(ref, "refs/heads/"):
+		ref = strings.TrimPrefix(ref, "refs/heads/")
+	case strings.HasPrefix(ref, "refs/remotes/"):
+		ref = strings.TrimPrefix(ref, "refs/remotes/")
+		if _, b, ok := strings.Cut(ref, "/"); ok {
+			ref = b
+		} else {
+			ref = ""
+		}
+	default:
+		ref = ""
+	}
+	if files == nil {
+		files = []server.FileStat{}
+	}
+	return server.PRContext(engine.PRMeta{Base: ref}, files)
+}
+
+// newGitHub is the CLI's GitHub client: GITHUB_TOKEN authorises, GITHUB_API_URL (set by GitHub Actions, and on
+// GitHub Enterprise) overrides the API base. Nil without a token.
+func newGitHub() *server.GitHub {
+	gh := server.NewGitHub(getenv("GITHUB_TOKEN"))
+	if gh != nil {
+		if u := strings.TrimRight(getenv("GITHUB_API_URL"), "/"); u != "" {
+			gh.API = u
+		}
+	}
+	return gh
+}
+
+// prPositional takes `owner/name N` off the front of args (sugar for --gh-repo owner/name --pr N) and returns
+// the remaining args; repo is "" when args do not start with that pair.
+func prPositional(args []string) (repo string, pr int, rest []string) {
+	if len(args) < 2 {
+		return "", 0, args
+	}
+	a := args[0]
+	n, err := strconv.Atoi(strings.TrimPrefix(args[1], "#"))
+	owner, name, ok := strings.Cut(a, "/")
+	if err != nil || n <= 0 || !ok || owner == "" || name == "" || strings.Contains(name, "/") || strings.HasPrefix(a, "-") {
+		return "", 0, args
+	}
+	return a, n, args[2:]
 }
 
 // verdictCode prints res as JSON and returns its exit code: 0 pass, 1 hold, 2 block.
@@ -391,34 +460,82 @@ func cmdPR(args []string) int {
 	logPath := fs.String("log", ".mergeone/gatelog.jsonl", "gatelog path")
 	mock := fs.Bool("mock", false, "mock model")
 	assets := fs.String("assets", "", "assets dir")
-	// CI mode: with policy actions.enabled, the verdict is written back to this PR (status, labels, comment,
-	// reviewers). Defaults come from GitHub Actions (GITHUB_REPOSITORY, GITHUB_EVENT_PATH); GITHUB_TOKEN authorises.
-	ghRepo := fs.String("gh-repo", os.Getenv("GITHUB_REPOSITORY"), "owner/name for verdict actions")
-	prNum := fs.Int("pr", 0, "PR number for verdict actions (default: from GITHUB_EVENT_PATH)")
-	headSHA := fs.String("head-sha", "", "PR head sha for verdict actions (default: from GITHUB_EVENT_PATH, else git rev-parse --head)")
+	// With a PR (owner/name N, --gh-repo/--pr, or GitHub Actions' GITHUB_REPOSITORY/GITHUB_EVENT_PATH) and
+	// GITHUB_TOKEN, the PR is fetched from GitHub as the webhook does: title, body, author, base, files and diff for
+	// that head sha. With policy actions.enabled the verdict is also written back to the PR (status, labels,
+	// comment, reviewers).
+	ghRepo := fs.String("gh-repo", getenv("GITHUB_REPOSITORY"), "owner/name of the PR (also: mergeone pr owner/name N)")
+	prNum := fs.Int("pr", 0, "PR number (default: from GITHUB_EVENT_PATH)")
+	headSHA := fs.String("head-sha", "", "PR head sha (default: from GITHUB_EVENT_PATH, else the PR's head on GitHub, else git rev-parse --head)")
+	// `mergeone pr owner/name N [flags]` or `mergeone pr [flags] owner/name N`.
+	badArg := func() int {
+		return fail(fmt.Errorf("unexpected argument %q (usage: mergeone pr [owner/name N] [flags])", fs.Arg(0)))
+	}
+	posRepo, posPR, rest := prPositional(args)
 	// A bad flag is an error (3), not 2: for pr/decide 2 means "block".
-	if code, ok := parseFlags(fs, args, 3); !ok {
+	if code, ok := parseFlags(fs, rest, 3); !ok {
 		return code
+	}
+	if fs.NArg() > 0 {
+		if posRepo != "" {
+			return badArg()
+		}
+		if posRepo, posPR, rest = prPositional(fs.Args()); posRepo == "" {
+			return badArg()
+		}
+		if code, ok := parseFlags(fs, rest, 3); !ok {
+			return code
+		}
+		if fs.NArg() > 0 {
+			return badArg()
+		}
+	}
+	if posRepo != "" {
+		*ghRepo, *prNum = posRepo, posPR
 	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {
 		return fail(err)
 	}
-	state, paths, err := stateFromGit(*repo, *base, *head)
-	if err != nil {
-		return fail(err)
-	}
-	res := g.Decide(state, paths)
-	evPR, evSHA := prFromEvent(os.Getenv("GITHUB_EVENT_PATH"))
+	evPR, evSHA := prFromEvent(getenv("GITHUB_EVENT_PATH"))
 	if *prNum == 0 {
 		*prNum = evPR
 	}
-	if *headSHA == "" {
+	if *headSHA == "" && *prNum == evPR {
 		*headSHA = evSHA
 	}
-	if *headSHA == "" {
-		if out, err := exec.Command("git", "-C", *repo, "rev-parse", *head).Output(); err == nil {
-			*headSHA = strings.TrimSpace(string(out))
+	gh := newGitHub()
+	var (
+		state      string
+		paths      []string
+		rctx       map[string]any
+		meta       engine.PRMeta
+		fromGitHub bool
+	)
+	if *ghRepo != "" && *prNum > 0 && gh != nil {
+		st, ps, sha, pm, files, err := gh.PRStateMetaAt(*ghRepo, *prNum, *headSHA)
+		if err != nil {
+			fmt.Fprintf(stderr, "mergeone: could not fetch %s#%d from GitHub (%v); rendering the local diff, context is partial\n", *ghRepo, *prNum, err)
+		} else {
+			state, paths, *headSHA, meta, fromGitHub = st, ps, sha, pm, true
+			rctx = server.PRContext(pm, files)
+		}
+	} else if *ghRepo != "" && *prNum > 0 {
+		fmt.Fprintf(stderr, "mergeone: no GITHUB_TOKEN; rendering the local diff for %s#%d, context is partial (no title, author or created_at)\n", *ghRepo, *prNum)
+	}
+	if !fromGitHub {
+		st, files, err := stateFromGit(*repo, *base, *head)
+		if err != nil {
+			return fail(err)
+		}
+		state, paths = st, pathsOf(files)
+		if *ghRepo != "" && *prNum > 0 { // a named PR: a context that says what git knows (no title rather than a wrong one)
+			rctx = gitContext(*repo, *base, files)
+		}
+		if *headSHA == "" {
+			if out, err := exec.Command("git", "-C", *repo, "rev-parse", *head).Output(); err == nil {
+				*headSHA = strings.TrimSpace(string(out))
+			}
 		}
 	}
 	// With a known PR the gatelog is keyed by (owner/name, PR, head sha) so max_rounds can count rounds.
@@ -427,11 +544,17 @@ func cmdPR(args []string) int {
 	if knownPR {
 		logRepo, logSHA = *ghRepo, *headSHA
 	}
+	var res engine.Result
+	if fromGitHub {
+		res = g.DecideFor(state, meta) // as the webhook decides a fetched PR (memory, silent_days)
+	} else {
+		res = g.Decide(state, paths)
+	}
 	st, stErr := store.Open(*logPath)
 	if stErr == nil && knownPR && g.Policy.MaxRounds > 0 {
 		g.ApplyMaxRounds(&res, st.NonPassRounds(logRepo, *prNum, logSHA))
 	}
-	res.Actions = server.ApplyActions(server.NewGitHub(os.Getenv("GITHUB_TOKEN")), g.Policy.Actions, *ghRepo, *prNum, *headSHA, res, "")
+	res.Actions = server.ApplyActions(gh, g.Policy.Actions, *ghRepo, *prNum, *headSHA, res, "")
 	for _, e := range res.Actions.Errors {
 		fmt.Fprintln(stderr, "actions:", e)
 	}
@@ -441,7 +564,7 @@ func cmdPR(args []string) int {
 			st.SetOnRecord(func(r store.Record) { sink.Enqueue(r) })
 			defer sink.Close(10 * time.Second)
 		}
-		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, State: state})
+		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, Context: rctx, State: state})
 	}
 	return verdictCode(res)
 }
@@ -610,11 +733,11 @@ func cmdMCP(args []string) int {
 		// The session owns stdin: lines are forwarded to the MCP server until Ctrl-C (or Ctrl-D).
 		ctx, stop := interruptContext()
 		in, release := activeSession.stdinUntil(ctx)
-		err = mcp.ServeIO(ctx, gw, stateFromGit, in, stdout)
+		err = mcp.ServeIO(ctx, gw, stateFromGitPaths, in, stdout)
 		stop()
 		release()
 	} else {
-		err = mcp.Serve(gw, stateFromGit)
+		err = mcp.Serve(gw, stateFromGitPaths)
 	}
 	if err != nil {
 		return fail(err)

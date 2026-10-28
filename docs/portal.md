@@ -44,7 +44,7 @@ gateway stays the source of truth and works unchanged without the block.
 | `POST /api/outcome` | records a PR's outcome labels (`merged`, `reverted`, `iterated`) for the slow drift signal and recalibration |
 | `POST /api/calibrate` | refits the calibration from the gatelog (`mergeone calibrate --from-gatelog`), writes it beside the gatelog, returns the fit summary; loads nothing |
 
-`Record.context` (`author, base, created_at, title, additions, deletions, files`) is filled for PRs the gateway fetched
-from GitHub. The portal never merges or closes anything; a resolution comes back to the PR as a `mergeone:*` label and
+`Record.context` (`author, base, created_at, title, additions, deletions, files`) is filled for PRs fetched from GitHub (the webhook,
+or `mergeone pr` with `GITHUB_TOKEN`). The portal never merges or closes anything; a resolution comes back to the PR as a `mergeone:*` label and
 one comment through the same path the verdict actions use (only with `actions.enabled`), and never changes the commit
 status.

@@ -15,6 +15,7 @@ permissions:
   pull-requests: write   # reviewers
   issues: write          # labels and the verdict comment
 [[- else]]
+  pull-requests: read    # the PR's title, author, base and files for the gatelog
   # actions.enabled is false in .mergeone.yaml. When you turn verdict actions on, add:
   # statuses: write        # commit status `mergeone`
   # pull-requests: write   # reviewers

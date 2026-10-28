@@ -72,6 +72,13 @@ func (g *GitHub) PRState(repo string, pr int) (state string, paths []string, hea
 
 // PRStateMeta is PRState plus the PR metadata the memory needs and the file stats.
 func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string, headSHA string, pm engine.PRMeta, files []FileStat, err error) {
+	return g.PRStateMetaAt(repo, pr, "")
+}
+
+// PRStateMetaAt is PRStateMeta for a given head sha. With sha empty or equal to the PR's current head it is
+// exactly PRStateMeta (files and diff of the PR); for an older head it renders the same PR metadata over
+// base...sha (the compare API, as the PR's own diff is base...head), so the state matches the sha it is keyed on.
+func (g *GitHub) PRStateMetaAt(repo string, pr int, sha string) (state string, paths []string, headSHA string, pm engine.PRMeta, files []FileStat, err error) {
 	meta, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d", g.API, repo, pr), "application/vnd.github+json", nil)
 	if err != nil || code != 200 {
 		return "", nil, "", pm, nil, fmt.Errorf("GET pull %d: %d %v", pr, code, err)
@@ -93,10 +100,13 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 	_ = json.Unmarshal(meta, &m)
+	if sha == "" {
+		sha = m.Head.SHA
+	}
 	var diff string
-	if cf, cd, ok := g.diffs.get(repo, pr, m.Head.SHA); ok {
+	if cf, cd, ok := g.diffs.get(repo, pr, sha); ok {
 		files, diff = cf, cd
-	} else {
+	} else if sha == m.Head.SHA {
 		filesOK := true
 		for page := 1; page <= 30; page++ {
 			b, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d/files?per_page=100&page=%d", g.API, repo, pr, page), "application/vnd.github+json", nil)
@@ -104,11 +114,7 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 				filesOK = false
 				break
 			}
-			var fs []struct {
-				Filename  string `json:"filename"`
-				Additions int    `json:"additions"`
-				Deletions int    `json:"deletions"`
-			}
+			var fs []ghFile
 			_ = json.Unmarshal(b, &fs)
 			for _, f := range fs {
 				files = append(files, FileStat{f.Filename, f.Additions, f.Deletions})
@@ -120,14 +126,38 @@ func (g *GitHub) PRStateMeta(repo string, pr int) (state string, paths []string,
 		d, code, err := g.do("GET", fmt.Sprintf("%s/repos/%s/pulls/%d", g.API, repo, pr), "application/vnd.github.diff", nil)
 		diff = string(d)
 		if filesOK && err == nil && code == 200 { // only complete fetches are cached
-			g.diffs.put(repo, pr, m.Head.SHA, files, diff)
+			g.diffs.put(repo, pr, sha, files, diff)
+		}
+	} else {
+		cmp := fmt.Sprintf("%s/repos/%s/compare/%s...%s", g.API, repo, m.Base.Ref, sha)
+		b, code, err := g.do("GET", cmp, "application/vnd.github+json", nil)
+		if err != nil || code != 200 {
+			return "", nil, "", pm, nil, fmt.Errorf("GET compare %s...%s: %d %v", m.Base.Ref, sha, code, err)
+		}
+		var c struct {
+			Files []ghFile `json:"files"`
+		}
+		_ = json.Unmarshal(b, &c)
+		for _, f := range c.Files {
+			files = append(files, FileStat{f.Filename, f.Additions, f.Deletions})
+		}
+		d, code, err := g.do("GET", cmp, "application/vnd.github.diff", nil)
+		diff = string(d)
+		if err == nil && code == 200 {
+			g.diffs.put(repo, pr, sha, files, diff)
 		}
 	}
 	for _, f := range files {
 		paths = append(paths, f.Path)
 	}
 	pm = engine.PRMeta{Repo: repo, Number: pr, Title: m.Title, Body: m.Body, Author: m.User.Login, Base: m.Base.Ref, Paths: paths, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
-	return RenderState(m.Title, m.Body, files, diff), paths, m.Head.SHA, pm, files, nil
+	return RenderState(m.Title, m.Body, files, diff), paths, sha, pm, files, nil
+}
+
+type ghFile struct {
+	Filename  string `json:"filename"`
+	Additions int    `json:"additions"`
+	Deletions int    `json:"deletions"`
 }
 
 // RenderState is the byte-for-byte equivalent of gatebench's render_state().

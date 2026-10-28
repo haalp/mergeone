@@ -228,11 +228,14 @@ func (gw *Gateway) apiGraph(w http.ResponseWriter, r *http.Request, _ string) {
 	writeJSON(w, 200, map[string]any{"nodes": nodes, "edges": edges})
 }
 
-// nodeOf builds a graph node from Record.Context, falling back to the rendered state for title and size.
+// nodeOf builds a graph node from Record.Context, falling back to the rendered state for title and size when the
+// record has no context (a CLI record without a GitHub token carries title "" on purpose: its state title is a commit
+// subject, not the PR title).
 func nodeOf(rec store.Record) GraphNode {
 	n := GraphNode{ID: prID(rec.Repo, rec.PR), Repo: rec.Repo, PR: rec.PR, HeadSHA: rec.HeadSHA, Verdict: rec.Result.Verdict,
 		Route: rec.Result.Route, Rule: rec.Result.Rule, Updated: rec.TS.UTC().Format(time.RFC3339)}
 	c := rec.Context
+	_, hasTitle := c["title"] // a context with an empty title means "unknown": never guess it from the state
 	if s, ok := c["title"].(string); ok {
 		n.Title = s
 	}
@@ -244,7 +247,7 @@ func nodeOf(rec store.Record) GraphNode {
 	} else if i := strings.Index(rec.State, "\nSUMMARY: "); i >= 0 {
 		fmt.Sscanf(rec.State[i+1:], "SUMMARY: %d files changed, +%d / -%d lines", &n.Files, &n.Additions, &n.Deletions)
 	}
-	if n.Title == "" {
+	if !hasTitle {
 		if t, ok := strings.CutPrefix(rec.State, "PULL REQUEST TITLE: "); ok {
 			n.Title, _, _ = strings.Cut(t, "\n")
 		}
