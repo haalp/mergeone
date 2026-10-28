@@ -25,7 +25,7 @@ mergeone sits in front of your main branch. For every pull request it asks a sma
 curl -fsSL https://mergeone.dev/install.sh | sh        # macOS / Linux, one static binary → /usr/local/bin/mergeone
 ```
 
-Alternatives: download a release archive from [Releases](https://github.com/haalp/mergeone/releases), or `go install github.com/haalp/mergeone/gate/cmd/mergeone@latest`.
+Alternatives: download a release archive from [Releases](https://github.com/haalp/mergeone/releases) (current: [v0.3.0](https://github.com/haalp/mergeone/releases/tag/v0.3.0)), or `go install github.com/haalp/mergeone/gate/cmd/mergeone@latest`.
 
 ```bash
 mergeone version
