@@ -141,6 +141,17 @@ reason, and offer it as a guard for trunk. A test is a verdict a human can run.
 - **More registry rows:** a 4B model that runs on one L4, a 26B MoE with 4B active parameters (27B quality at
   4B compute, the interesting self-host candidate), a 9B on an A10G; two further hosted decision APIs.
 
+## Next — run 10: is a stronger decider worth it?
+Run 7–8 showed the lever is rarely the model (prompt tuning, structure and a new relation prompt all failed; the base
+branch did the work). Before any fine-tuning, measure whether a stronger model changes the two things the 4B models
+cannot do: *competing fix* (same goal, different method: 0/7 and 2/7 in run 8) and `needs_human_review` (0.76–0.82).
+Rows: the full `pplx` decider (runs 4–5), the 26B-MoE / 4B-active self-host candidate (C4, one L4), and one
+LLM-class row (Haiku) on the relation question only (cost). Same questions, same 100 adjudicated pairs and the run-3
+test split, every row with a same-day pplx-flash control. Bars set at freeze from run 8's numbers (competing +
+same-area ≥ 0.40 is the one that matters). If no row moves them, fine-tuning is off the table until the portal has
+produced ≥ 10k human resolutions to learn from; if one does, run 11 is the fine-tune of a small decider on that
+signal, pre-registered.
+
 ## Later
 - Relation graph: once C5 lands, every `(A, B, relation, p)` goes to the gatelog, which gives a per-repository PR
   graph (node = PR, edge = duplicate / follow-up / competing / backport / same-area). `GET /graph?repo=` serves it;
