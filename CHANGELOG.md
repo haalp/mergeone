@@ -54,6 +54,14 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   Same day, pass 2 still lost exactly 32 rows (= one full batch): `cuda_graphs` are captured per (bucket, batch)
   shape and the sequential warm only made batches of one. The warm pass gained a second phase, the same rows with
   32 in flight (`--concurrency 32`, the timed steps' maximum); bf16 `equiv` repeated once more, passes 1 and 2 kept.
+- 2026-11-02 **the first pod's results are lost.** The pod sequence finished (bf16 `equiv` pass 3: 705/705, 0 errors,
+  360.7 s wall, 1.95 PR/s — the only number that survives, read from the log) and the pod then idled waiting for the
+  hosted half; RunPod stopped it at 06:19Z (account credit exhausted; audit log actor `runpod`), which wipes the
+  container disk where `results/run9/` lived, and no copy had been taken off the pod. Every pod-side step is run again
+  on a new pod; the repeat is dated here and in `results/run9/README.md`, and the passes above (1, 2 and 3 of bf16
+  `equiv`, kept under `passes/` on the lost disk) are no longer available to report. Tooling change so this cannot
+  repeat: `scripts/run9_gpu.sh` writes `results/run9/` through a symlink to the pod's persistent volume
+  (`/workspace/run9`, survives a stop), and the Mac pulls it every five minutes while the pod is up. Spend: $3.77.
 
 ## Run 9 frozen — 2026-10-27
 

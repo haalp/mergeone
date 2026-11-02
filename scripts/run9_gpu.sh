@@ -56,6 +56,13 @@ done
 [ -f .env ] && [ "$DRY" = 0 ] && set -a && . ./.env && set +a
 PY="${PYTHON:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}"
 M=pplx-flash-local; DS=data/run3/dataset.jsonl; R=results/run9; LOG=$R/logs
+# 2026-11-02: the first pod's results died with its container disk (CHANGELOG). When PERSIST names a directory on the
+# pod's persistent volume (default /workspace/run9 if /workspace is mounted), results/run9 is a symlink into it.
+PERSIST="${PERSIST:-$([ -d /workspace ] && echo /workspace/run9 || echo "")}"
+if [ -n "$PERSIST" ] && [ "$DRY" = 0 ] && [ ! -L "$R" ]; then
+  mkdir -p "$PERSIST"; [ -d "$R" ] && cp -an "$R/." "$PERSIST/" && rm -rf "$R"; ln -s "$PERSIST" "$R"
+  echo "results/run9 → $PERSIST (persistent volume)"
+fi
 PORT="${PORT:-8080}"; USD_PER_HOUR="${USD_PER_HOUR:-}"
 REVISION="${REVISION:-6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d}"   # run 6A's (results/run6/serve_meta.json), §R9.2
 BUCKETS_JSON='{"buckets": [2560, 3072, 4096, 8192, 16384, 32768]}'

@@ -72,6 +72,10 @@ network volume: 4 min vs 27 min in run 6A). Copy over `data/run3/dataset.jsonl`,
 `results/run4/pairs.jsonl` (gitignored) and the run-6B candidate list `results/run6/candidates_k20.jsonl` (gitignored;
 rebuild with `python -m mergeone.eval.run6b retrieve --k 20` if absent).
 
+On the pod `results/run9` is a symlink into the persistent volume (`/workspace/run9`; `PERSIST=` overrides) so a stopped
+pod does not take the results with it (2026-11-02, CHANGELOG), and the Mac pulls it every five minutes while the pod is up
+(`rsync -a -e "ssh -p <port>" root@<ip>:/workspace/run9/ results/run9/`).
+
 The whole pod part, in §R9.5 order, is one resumable command (re-run it after any failure; finished work is skipped):
 
 ```bash
