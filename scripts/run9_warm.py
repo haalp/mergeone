@@ -44,13 +44,15 @@ def main() -> None:
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
-    model = build_model(a.model, "v3")
-    model.client.timeout = None  # type: ignore[attr-defined]  # compile may take minutes on the first request of a bucket
+    models = {}
+    for qset in ("v3", "pair"):  # the pair question needs the model built for the pair set (prompts/models.yaml)
+        models[qset] = build_model(a.model, qset)
+        models[qset].client.timeout = None  # compile may take minutes on the first request of a bucket
     record = {"model": a.model, "started_at": datetime.now(timezone.utc).isoformat(), "requests": []}
 
     def hit(kind: str, state: str, features: dict, questions) -> None:
         t0 = time.perf_counter()
-        d = model.decide(state, features, questions)
+        d = models[kind].decide(state, features, questions)
         dt = time.perf_counter() - t0
         record["requests"].append({"kind": kind, "chars": len(state), "s": round(dt, 2), "error": d.error})
         print(f"warm {kind:5s} {len(state):7d} chars {dt:7.1f}s {'ERROR ' + str(d.error)[:80] if d.error else ''}", flush=True)
