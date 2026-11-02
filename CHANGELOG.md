@@ -51,6 +51,9 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   is compiled before the first timed request of any arm (`<arm>/warm.json` records the per-request time). The bf16
   `equiv` pass is repeated with `FORCE=1`; pass 1 stays under `results/run9/bf16/equiv/passes/` and the report
   shows both (§R9.4: a repeated pass is reported, not substituted). No bar, no prompt, no model input changes.
+  Same day, pass 2 still lost exactly 32 rows (= one full batch): `cuda_graphs` are captured per (bucket, batch)
+  shape and the sequential warm only made batches of one. The warm pass gained a second phase, the same rows with
+  32 in flight (`--concurrency 32`, the timed steps' maximum); bf16 `equiv` repeated once more, passes 1 and 2 kept.
 
 ## Run 9 frozen — 2026-10-27
 

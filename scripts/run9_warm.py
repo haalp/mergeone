@@ -42,6 +42,7 @@ def main() -> None:
     ap.add_argument("--pairs", help="pair jsonl (results/run4/pairs.jsonl); warms the pair rendering too")
     ap.add_argument("--n-pairs", type=int, default=8)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--concurrency", type=int, default=32, help="in-flight requests of the second, batched pass (= the timed steps' maximum)")
     a = ap.parse_args()
 
     models = {}
@@ -55,16 +56,21 @@ def main() -> None:
         d = models[kind].decide(state, features, questions)
         dt = time.perf_counter() - t0
         record["requests"].append({"kind": kind, "chars": len(state), "s": round(dt, 2), "error": d.error})
-        print(f"warm {kind:5s} {len(state):7d} chars {dt:7.1f}s {'ERROR ' + str(d.error)[:80] if d.error else ''}", flush=True)
+        print(f"warm {kind:6s} {len(state):7d} chars {dt:7.1f}s {'ERROR ' + str(d.error)[:80] if d.error else ''}", flush=True)
 
     rows = load_dataset(a.split, None, Path(a.dataset))
     for r in spread(rows, "state", a.n):  # shortest → longest: each bucket compiles once, alone
         hit("v3", r["state"], r["features"], DECISIONS_V3)
-    if a.pairs and Path(a.pairs).exists():
-        prow = [json.loads(l) for l in Path(a.pairs).open()]
-        key = "state" if prow and "state" in prow[0] else "pair_state"
-        for r in spread(prow, key, a.n_pairs):
-            hit("pair", r[key], r.get("features", {}), QUESTION_SETS["pair"])
+    prow = [json.loads(l) for l in Path(a.pairs).open()] if a.pairs and Path(a.pairs).exists() else []
+    for r in spread(prow, "state", a.n_pairs):
+        hit("pair", r["state"], r.get("features", {}), QUESTION_SETS["pair"])
+    # cuda_graphs are captured per (bucket, batch) shape: the sequential pass only ever made batches of one, and the
+    # first full batch of a timed step (32 in flight) still timed out. Send the same rows again with `--concurrency`
+    # requests in flight so the batched shapes are captured too (the server batches up to --batch-max).
+    from concurrent.futures import ThreadPoolExecutor
+    both = [("v3", r) for r in spread(rows, "state", a.n * 2)] + [("pair", r) for r in spread(prow, "state", a.n_pairs * 2)]
+    with ThreadPoolExecutor(max_workers=a.concurrency) as ex:
+        list(ex.map(lambda kr: hit(kr[0] + "+", kr[1]["state"], kr[1].get("features", {}), DECISIONS_V3 if kr[0] == "v3" else QUESTION_SETS["pair"]), both))
     record["finished_at"] = datetime.now(timezone.utc).isoformat()
     record["errors"] = sum(1 for q in record["requests"] if q["error"])
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)

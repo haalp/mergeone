@@ -186,7 +186,7 @@ PYEOF
     curl -fsS "http://127.0.0.1:${PORT}/meta"; echo
     # 2026-11-02: every length bucket compiles on its first request (FastOptions compile="layer"); hit them one at a time
     # before any timed step so no timed request pays for a compile or times out behind one (scripts/run9_warm.py, CHANGELOG).
-    run "$PY scripts/run9_warm.py --model $M --dataset $DS --split val --n 24 --pairs results/run4/pairs.jsonl --out '$R/$ARM/warm.json' 2>&1 | tail -4"
+    run "$PY scripts/run9_warm.py --model $M --dataset $DS --split val --n 24 --pairs results/run4/pairs.jsonl --concurrency 32 --out '$R/$ARM/warm.json' 2>&1 | tail -4"
     ;;
   equiv)    check_arm; echo "=== equivalence set, timed (ARM=$ARM)"; timed equiv v3 --dataset "$DS" ;;
   val)      check_arm; echo "=== val, untimed (ARM=$ARM)"; untimed val val v3 --dataset "$DS" ;;
