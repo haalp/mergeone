@@ -113,3 +113,7 @@ actions:
   # reviewers / team_reviewers are requested only on hold or block routed to `human`
   on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [], team_reviewers: [] }
   on_block: { status: failure, labels: ["mergeone:block"] }
+
+portal:
+  url: https://app.mergeone.dev
+  token: ${MERGEONE_PORTAL_TOKEN}
