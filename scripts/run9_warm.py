@@ -53,7 +53,7 @@ def main() -> None:
 
     def hit(kind: str, state: str, features: dict, questions) -> None:
         t0 = time.perf_counter()
-        d = models[kind].decide(state, features, questions)
+        d = models[kind.rstrip("+")].decide(state, features, questions)
         dt = time.perf_counter() - t0
         record["requests"].append({"kind": kind, "chars": len(state), "s": round(dt, 2), "error": d.error})
         print(f"warm {kind:6s} {len(state):7d} chars {dt:7.1f}s {'ERROR ' + str(d.error)[:80] if d.error else ''}", flush=True)
