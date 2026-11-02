@@ -120,6 +120,8 @@ memory:                        # opt-in: asks whether the PR duplicates a recent
   top_k: 10                    # candidates compared per PR (default 10)
   pair_state: compact          # compact (default) | full: how the two PRs are sent to the pair call
 max_rounds: 0                  # 3 = after three non-pass verdicts on one PR, route to a human
+reuse_verdict_on_same_patch: true   # default: a rebased head with the same patch copies the verdict, no model call
+debounce: 45s                  # default: pushes to one PR within 45 s are decided once, on the last head (0 = off)
 rules:
   - { name: weakens-tests, when: { weakens_tests: ">= 0.6" }, verdict: block, route: human }
   - { name: needs-human,   when: { needs_human_review: ">= 0.5" }, verdict: hold,  route: human }
@@ -143,6 +145,24 @@ Rules run top to bottom on *calibrated* probabilities; first match wins; a model
 - **`memory.pair_state`** — the duplicate check compares the PR with each of `top_k` similar recent PRs in one small call each. `compact` sends shortened diffs and bodies (32–42 % fewer tokens, pair AUC within 0.02 of `full` in run 8, bar −0.02); the main decision always sees the full PR.
 - **`drift`** — the gateway watches each question's answers in the gatelog. When a question's mean moves by more than 0.20 or its spread halves (n ≥ 200, trailing 7 days against the 28 before), or, once PRs close, its AUC against review iteration drops by more than 0.05, rules that read it stop deciding and the PR is held for a human (`on_drift`). `GET /stats` shows the numbers; `drift: { enabled: false }` turns it off.
 - **`portal`** — every gatelog record is also posted to the hosted portal; the gateway's own read API (`/api/queue`, `/api/graph`, `/api/verdict/{sha}`, `/api/stats`, `POST /api/resolve`, `POST /api/outcome`, `POST /api/calibrate`) is behind `portal.api_token` (without one, it answers only on a loopback bind). A resolution there is a label and a comment, never a merge or a close.
+
+- **`reuse_verdict_on_same_patch`** and **`debounce`** (v0.4) save model calls without changing any verdict rule; both are measurable from the gatelog:
+
+| key | default | what it does | what the gatelog shows |
+|---|---|---|---|
+| `reuse_verdict_on_same_patch` | `true` | a new head SHA whose patch id (SHA-256 over the normalised hunks, as `git patch-id --stable`), `policy_hash` and served model version match an earlier error-free decision on the same PR gets that decision's verdict, probabilities, rule and route without a model call; status and comment are posted for the new head as usual | `reused_from` on the new record; `/stats` → `reused` |
+| `debounce` | `45s` | `synchronize` events on one PR start or extend a timer; when it fires only the PR's current head is decided. Each pushed head gets a `pending` status ("mergeone: waiting for pushes to settle"); the decision sets the final status on the head that ran. Timers are in memory: after a restart the next push re-triggers | `debounced_shas` on the decided record; `/stats` → `debounced` |
+
+Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /api/verdict/{sha}`):
+
+| field | on | meaning |
+|---|---|---|
+| `patch_id` | every record with a diff, first evaluations included | stable id of the PR's patch; the same across rebases. "Same `patch_id`, different `head_sha`" counts rebases |
+| `policy_hash` | every record | SHA-256 over the verdict-relevant policy keys, the model name and the calibration file; reuse never crosses it |
+| `reused_from` | reused records | the head SHA whose verdict was copied (cost 0, latency 0; not counted by the drift monitor) |
+| `debounced_shas` | debounced decisions | heads pushed during the window and never decided |
+
+`GET /stats` (and `/api/stats`) gain `reused` and `debounced` counts for the window; `mergeone stats [--log …| --url …] [--window 24h]` prints them.
 
 Two commands look after the model over time:
 

@@ -2,6 +2,24 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.4 (unreleased)
+
+- 2026-11-02 gateway: **verdict reuse by patch id** (`reuse_verdict_on_same_patch`, default `true`). Every record now
+  carries `patch_id` (SHA-256 over the diff's normalised hunks, as `git patch-id --stable`: index lines and hunk
+  headers dropped, context whitespace ignored, file order ignored) and `policy_hash` (verdict-relevant policy keys,
+  model name, calibration file). A new head of a PR with the same `patch_id`, `policy_hash`, served model version and
+  drift state as an earlier error-free decision gets that verdict, probabilities, rule and route without a model call;
+  the record is the new head's, with `reused_from: <old sha>`, cost 0. Status and comment are posted as usual. Reused
+  records are not counted by the drift monitor. `/stats` gains `reused`; new `mergeone stats` prints it. Measurement
+  enabled: share of decisions with no model call (`reused / decisions`), and rebases per PR (same `patch_id`,
+  different `head_sha`), first evaluations included.
+- 2026-11-02 gateway: **webhook debounce** (`debounce`, default `45s`, `0` off). `synchronize` events on one PR start
+  or extend a timer; when it fires only the PR's current head is decided. Each pushed SHA gets a `pending` status
+  ("mergeone: waiting for pushes to settle"); the decision sets the final status on the head that ran. The record
+  carries `debounced_shas`; `/stats` gains `debounced`. Measurement enabled: pushes never sent to the model. Timers are
+  in memory: a restart drops open windows and the next push re-triggers. `on_error` / fail-closed unchanged; a `hold`
+  still never closes a PR and the gateway never merges. No protocol change, no model call.
+
 ## v0.3.1 (unreleased)
 
 - 2026-10-28 gateway: `mergeone pr` with a PR and `GITHUB_TOKEN` fetches the PR from GitHub through the webhook's

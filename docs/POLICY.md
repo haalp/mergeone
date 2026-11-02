@@ -23,6 +23,8 @@ The default policy ships as [`mergeone/gate/policy.yaml`](../mergeone/gate/polic
 | `on_drift` | — (commented) | what a PR gets when a rule reads a degraded question (default `{verdict: hold, route: human}`, or `ignore`) — below |
 | `actions` | — | what the gateway writes back to the PR in webhook/CI mode (default off) — below |
 | `max_rounds` | — | convergence cap: after N non-pass verdicts on one PR, route to a human (default 0 = off) — below |
+| `reuse_verdict_on_same_patch` | — | v0.4, default `true`: a new head with the same patch id, policy hash and served model version as an earlier decision on the PR copies its verdict without a model call; `false` asks the model on every head — below |
+| `debounce` | — | v0.4, default `45s`: `synchronize` events on one PR within the window are decided once, on the head when the timer fires; `0` disables — below |
 | `portal` | — | `url` + `token`: post every gatelog record to the hosted portal; `api_token` + `origin`: auth and CORS for the gateway's own `/api/*` read API — below |
 
 ## Question set v4 and the removed `message-mismatch` rule (2026-10-25)
@@ -160,7 +162,7 @@ answer only when the server is bound to loopback (`--addr 127.0.0.1:8787`), else
 | `GET /api/queue[?repo=]` | `{holds: Record[], matches: {"owner/repo#N": Record}}`. `holds`: the latest record of every open PR whose verdict is `hold` with route `dedup` or `human`, or `block`, and whose head SHA has no resolution yet; oldest first. `matches`: the latest record of each hold's `result.extra.duplicate_candidate`. |
 | `GET /api/graph?repo=&since=` | `{nodes, edges}`. Node per open PR decided since `since` (RFC 3339 or an age: `7d`, `36h`, seconds): `{id: "owner/repo#N", repo, pr, title, head_sha, verdict, route, rule, additions, deletions, files, author?, updated}`. Edge per `duplicate_candidate` whose PR is also a node: `{source, target, relation: "duplicate_of", p}` (`p` = calibrated `duplicate_of`); `type` appears only from a typed relation record, and none exist yet. |
 | `GET /api/verdict/{sha}[?repo=]` | the whole `store.Record`, `state` included (without `repo`: the newest record for that SHA in any repository); 404 if none |
-| `GET /api/stats[?window=]` | `/stats` (window in seconds or `7d`/`36h`; default 24 h): `window_s, decisions, per_hour, verdicts, routes, rules, cost_usd, error_rate, p50_ms, p99_ms, drift`, `history.daily[] {day, decisions, pass, hold, block, cost_usd}`, and when present `resolutions {total, agreed, approved_as_is, linked, rebase_requested, by_rule{rule: {agreed, overridden}}}`, `calibration {model, fit_at, n, file}` (`fit_at` is the calibration file's modification time; `n` the largest `fit_stats` n, 0 without one), `portal` |
+| `GET /api/stats[?window=]` | `/stats` (window in seconds or `7d`/`36h`; default 24 h): `window_s, decisions, per_hour, verdicts, routes, rules, cost_usd, reused, debounced, error_rate, p50_ms, p99_ms, drift`, `history.daily[] {day, decisions, pass, hold, block, cost_usd}`, and when present `resolutions {total, agreed, approved_as_is, linked, rebase_requested, by_rule{rule: {agreed, overridden}}}`, `calibration {model, fit_at, n, file}` (`fit_at` is the calibration file's modification time; `n` the largest `fit_stats` n, 0 without one), `portal` |
 | `POST /api/resolve` | body `{repo, pr, head_sha, action: approve \| link_duplicate \| request_rebase, target_pr?}` → `{ok, logged_at, resolution}`. Records a `store.Resolution` keyed on the head SHA with the acting login (in `<gatelog>.events.jsonl`, fsync'd; the head leaves the queue). `link_duplicate` without `target_pr` takes the record's duplicate candidate. 400 on a bad body, 404 when no decision exists for that PR head. |
 | `POST /api/outcome` | body `{repo, pr, merged?, reverted?, iterated?}` (at least one) → `{ok, outcome}`: records a PR's outcome for the slow drift signal and recalibration (CI, e.g. after a revert); merged with what the webhook recorded |
 | `POST /api/calibrate` | body (optional) `{since: "28d", model?, label?}` → `{ok, summary, file, note}`: runs `mergeone calibrate --from-gatelog`, writes `calibration_<model>_<qset>.gatelog-<UTC time>.json` beside the gatelog and loads nothing (`summary`: label, since, fit_at, model_versions, n, positives, per question n / positives / mean / yes_rate / spread / fitted). 422 under 200 labelled decisions |
@@ -178,6 +180,58 @@ carries the same context. Without a token it renders the local diff, prints one 
 records only what git knows (`base` when `--base` names a branch, `additions, deletions, files`); `title` and
 `author` stay empty rather than taken from a commit. Decisions whose state was supplied by the caller (MCP,
 `POST /decide`, `mergeone pr` without a PR) have none.
+
+**v0.4 record fields.** `patch_id` and `policy_hash` on every decision (`patch_id` empty when the gateway saw no
+diff), `reused_from` on a reused verdict, `debounced_shas` on a decision that superseded debounced pushes — above.
+
+## Verdict reuse (`reuse_verdict_on_same_patch`) and webhook debounce (`debounce`) — v0.4
+
+Two model-free savings for agent PRs, which are rebased and pushed in bursts. Neither changes a rule, a threshold or
+what a verdict does: a `hold` never closes a PR, the gateway never merges, and every verdict is keyed on the head SHA
+it was recorded for.
+
+```yaml
+reuse_verdict_on_same_patch: true   # default; false = ask the model on every head
+debounce: 45s                       # default; a Go duration or seconds; 0 = decide every push at once
+```
+
+**Patch id.** Every decision records `patch_id`: SHA-256 over the PR's diff normalised in the spirit of
+`git patch-id --stable` — `index` lines and hunk headers (line numbers, function context) dropped, whitespace removed
+from context lines, added/removed lines kept with trailing whitespace trimmed, each file hashed separately and the
+sorted file hashes hashed again (file order does not matter). On the webhook path it is computed from the full diff
+the gateway fetches; on `POST /decide` and MCP, from the state's `FILES CHANGED` block plus its diff section; a state
+without a diff section has none (and is never reused). The same patch on a new base gives the same id; one changed
+added or removed line gives a different one.
+
+**Reuse.** Before calling the model for a new head of a PR, the gateway looks for the latest error-free decision on
+the same repository and PR with the same `patch_id`, the same `policy_hash` (rules, default, on_error,
+always_human_paths, question_set, model, model_id, provider, calibration, memory, max_rounds, drift, on_drift, plus
+the model name and the calibration file's path and modification time), a `model_version` equal to the one the
+gateway is serving (the newest model answer in the gatelog), and the same drift-degraded questions as now. If one
+exists, a new record is written for the new head SHA with that decision's verdict, probabilities, rule, route and
+reason, `reused_from: <old head sha>`, `cost_usd: 0` and `latency_ms: 0`; the commit status, labels and per-SHA
+comment are posted for the new head as for any decision. Reused records are skipped by the drift monitor (their
+answers were counted once already), counted in `/stats` → `reused`, and still count as a head for `max_rounds` and
+the `iterated` outcome proxy. The PR's title and body are not part of the patch id: a rebase that also rewrote the
+description keeps the earlier verdict.
+
+**Debounce.** A `synchronize` webhook does not enqueue a decision at once: it starts (or extends) a per-PR timer of
+`debounce` and posts a `pending` commit status with description `mergeone: waiting for pushes to settle` on the pushed
+SHA (context `actions.status_context`, default `mergeone`). When no push arrives for the window, the PR is fetched and
+its current head is decided; the record carries `debounced_shas`, the heads pushed in the window that were never
+decided (`/stats` → `debounced`). The decision's status replaces the pending one on the head that ran (with actions
+off, a commit status mirroring the check-run is posted on that head: `success` for pass and hold, `failure` for block);
+superseded heads keep `pending`, which is accurate: they were not checked. `opened`, `reopened` and
+`ready_for_review` decide at once and take over a pending window's heads. `on_error` is unchanged: a failed decision
+of the head that ran is held, fail closed, as before.
+
+*Restart safety.* Timers live in memory. A gateway restart (or stop) while a window is open drops it: those heads keep
+`pending` and are decided on the PR's next push, reopen or `ready_for_review`; nothing is decided twice and nothing
+is marked as passed.
+
+**Measuring the savings.** From the gatelog alone: `reused` / `decisions` is the share of decisions that made no model
+call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
+`debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
 ## max_rounds (convergence cap)
 

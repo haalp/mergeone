@@ -200,6 +200,61 @@ type Policy struct {
 	// Portal (docs/portal.md): outbound ingest to the hosted portal (URL + Token) and the gateway's own
 	// /api/* read API (APIToken, Origin for CORS). Values may name environment variables (${VAR}).
 	Portal Portal `yaml:"portal"`
+	// ReuseVerdictOnSamePatch (v0.4, default true): a new head whose patch id, policy hash and served model
+	// version match an earlier error-free decision on the same PR copies that verdict instead of calling the
+	// model (the record carries reused_from). `false` asks the model on every head.
+	ReuseVerdictOnSamePatch bool `yaml:"reuse_verdict_on_same_patch"`
+	// Debounce (v0.4, top-level `debounce:`, default 45s; 0 disables): synchronize events on one PR within
+	// this window are coalesced and only the PR's head when the timer fires is decided.
+	Debounce time.Duration `yaml:"-"`
+}
+
+// DefaultDebounce is the debounce window when the policy has no `debounce:` key.
+const DefaultDebounce = 45 * time.Second
+
+// parseDebounce reads `debounce:` as a Go duration ("45s", "2m", "0") or a number of seconds.
+func parseDebounce(v any) (time.Duration, error) {
+	switch x := v.(type) {
+	case string:
+		if n, err := strconv.ParseFloat(strings.TrimSpace(x), 64); err == nil {
+			return time.Duration(n * float64(time.Second)), nil
+		}
+		return time.ParseDuration(strings.TrimSpace(x))
+	case int:
+		return time.Duration(x) * time.Second, nil
+	case int64:
+		return time.Duration(x) * time.Second, nil
+	case uint64:
+		return time.Duration(x) * time.Second, nil
+	case float64:
+		return time.Duration(x * float64(time.Second)), nil
+	}
+	return 0, fmt.Errorf("want a duration such as 45s, or 0")
+}
+
+// Hash is a SHA-256 over every policy key that can change a verdict (rules, default, on_error,
+// always_human_paths, question_set, model, model_id, provider, calibration, memory, max_rounds, drift,
+// on_drift). Verdict reuse (reuse_verdict_on_same_patch) only copies across decisions with the same hash.
+func (p *Policy) Hash() string {
+	if p == nil {
+		return ""
+	}
+	type rule struct {
+		Name, Verdict, Route, Reason string
+		When                         map[string]string
+	}
+	rules := make([]rule, len(p.Rules))
+	for i, r := range p.Rules {
+		rules[i] = rule{r.Name, r.Verdict, r.Route, r.Reason, r.When}
+	}
+	b, _ := json.Marshal(map[string]any{
+		"version": p.Version, "model": p.Model, "model_id": p.ModelID, "provider": p.Provider,
+		"question_set": p.QuestionSet, "calibration": p.Calibration, "always_human_paths": p.AlwaysHumanPaths,
+		"rules": rules, "default": p.Default, "on_error": p.OnError, "memory": p.Memory, "max_rounds": p.MaxRounds,
+		"drift": p.Drift.Enabled, "on_drift": map[string]any{"ignore": p.OnDrift.Ignore, "outcome": p.OnDrift.Outcome},
+	})
+	s := sha256.Sum256(b)
+	return hex.EncodeToString(s[:])
 }
 
 // Portal is the policy's `portal:` block. All fields are optional; an empty block changes nothing.
@@ -308,9 +363,24 @@ func LoadPolicy(path string) (*Policy, error) {
 		Drift struct {
 			Enabled *bool `yaml:"enabled"`
 		} `yaml:"drift"`
+		Reuse    *bool `yaml:"reuse_verdict_on_same_patch"`
+		Debounce any   `yaml:"debounce"`
 	}
-	if err := yaml.Unmarshal(b, &keys); err == nil && keys.Drift.Enabled == nil {
-		p.Drift.Enabled = true // v0.3 default (R8-H5 passed); `drift: {enabled: false}` turns it off
+	if err := yaml.Unmarshal(b, &keys); err == nil {
+		if keys.Drift.Enabled == nil {
+			p.Drift.Enabled = true // v0.3 default (R8-H5 passed); `drift: {enabled: false}` turns it off
+		}
+		if keys.Reuse == nil {
+			p.ReuseVerdictOnSamePatch = true // v0.4 default
+		}
+		p.Debounce = DefaultDebounce
+		if keys.Debounce != nil {
+			d, err := parseDebounce(keys.Debounce)
+			if err != nil || d < 0 {
+				return nil, fmt.Errorf("policy %s: debounce %v: want a duration such as 45s, or 0 to disable", path, keys.Debounce)
+			}
+			p.Debounce = d
+		}
 	}
 	if p.QuestionSet == "" {
 		p.QuestionSet = "v2" // v0.3: v4 (once calibration_<model>_v4.json exists)
@@ -491,6 +561,32 @@ type Gate struct {
 	// Degraded returns the questions the drift monitor currently flags (nil = none). Read only when
 	// policy drift.enabled is true.
 	Degraded func() map[string]bool
+}
+
+// PolicyHash is Policy.Hash plus the model behind the gate and the calibration map it applies (path and
+// modification time): the `policy_hash` field of every gatelog record.
+func (g *Gate) PolicyHash() string {
+	if g == nil || g.Policy == nil {
+		return ""
+	}
+	name, cal := "", ""
+	if g.Model != nil {
+		name = g.Model.Name()
+	}
+	if g.Cal != nil {
+		cal = g.Cal.Path + "@" + g.Cal.FitAt.UTC().Format(time.RFC3339Nano)
+	}
+	s := sha256.Sum256([]byte(g.Policy.Hash() + "\x00" + name + "\x00" + cal))
+	return hex.EncodeToString(s[:])
+}
+
+// DegradedNow is the sorted list of questions the drift monitor flags right now (nil when off or none):
+// what Result.Drift would carry for a decision made now.
+func (g *Gate) DegradedNow() []string {
+	if deg := sortedKeys(g.degradedSet()); len(deg) > 0 {
+		return deg
+	}
+	return nil
 }
 
 // questions is the policy's main question list (v2 when no policy is set).

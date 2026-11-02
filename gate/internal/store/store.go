@@ -31,6 +31,17 @@ type Record struct {
 	Result  engine.Result  `json:"result"`
 	Context map[string]any `json:"context,omitempty"`
 	State   string         `json:"state,omitempty"` // the exact input; the audit trail
+	// PatchID (v0.4) is the stable id of the PR's patch (internal/patchid): equal across rebases of the same
+	// change. "" when the gateway saw no diff. "same patch_id, different head_sha" is a rebase, measurable here.
+	PatchID string `json:"patch_id,omitempty"`
+	// PolicyHash (v0.4) is engine.Gate.PolicyHash at decision time: verdict reuse copies only within one hash.
+	PolicyHash string `json:"policy_hash,omitempty"`
+	// ReusedFrom (v0.4) is the head sha whose verdict this record copies (same patch_id, policy_hash and
+	// served model version; no model call was made). Reused records are not counted by the drift monitor.
+	ReusedFrom string `json:"reused_from,omitempty"`
+	// DebouncedSHAs (v0.4) are the heads of this PR that were pushed during the debounce window and never
+	// decided, because a later push superseded them before the timer fired.
+	DebouncedSHAs []string `json:"debounced_shas,omitempty"`
 }
 
 // OpenPR is what the planner sees.
@@ -66,6 +77,8 @@ type Store struct {
 	// outcomes (outcome.go): repo + "\x00" + pr → merged outcome; lastGood: its last error-free decision
 	outcomes map[string]*PROutcome
 	lastGood map[string]*Record
+	// byPatch (v0.4): repo + "\x00" + pr + "\x00" + patch_id → latest error-free decision with model answers
+	byPatch map[string]*Record
 }
 
 // Job is an idempotent unit of work keyed by repo:pr:head_sha.
@@ -88,7 +101,7 @@ func Open(path string) (*Store, error) {
 	}
 	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{},
 		drift: newDriftLog(), resolved: map[string]int{}, closed: map[string]time.Time{},
-		outcomes: map[string]*PROutcome{}, lastGood: map[string]*Record{}}
+		outcomes: map[string]*PROutcome{}, lastGood: map[string]*Record{}, byPatch: map[string]*Record{}}
 	s.cond = sync.NewCond(&s.mu)
 	if f, err := os.Open(path); err == nil {
 		sc := bufio.NewScanner(f)
@@ -115,7 +128,8 @@ func Open(path string) (*Store, error) {
 
 func (s *Store) index(r *Record) {
 	// A cached verdict recorded again (re-act) carries the same decision time: count its answers once.
-	if prev := s.bySHA[r.Repo+"\x00"+r.HeadSHA]; prev == nil || prev.Result.InputSHA256 != r.Result.InputSHA256 || !prev.Result.TS.Equal(r.Result.TS) {
+	// A reused verdict (reused_from) repeats answers already counted: never counted again.
+	if prev := s.bySHA[r.Repo+"\x00"+r.HeadSHA]; r.ReusedFrom == "" && (prev == nil || prev.Result.InputSHA256 != r.Result.InputSHA256 || !prev.Result.TS.Equal(r.Result.TS)) {
 		s.drift.add(r)
 	}
 	s.bySHA[r.Repo+"\x00"+r.HeadSHA] = r
@@ -130,6 +144,9 @@ func (s *Store) index(r *Record) {
 				s.shasPR[k] = map[string]string{}
 			}
 			s.shasPR[k][r.HeadSHA] = r.Result.Verdict
+		}
+		if r.PatchID != "" && r.Result.Error == "" && len(r.Result.RawProbs) > 0 {
+			s.byPatch[r.Repo+"\x00"+itoa(r.PR)+"\x00"+r.PatchID] = r
 		}
 	}
 	s.recent = append(s.recent, r)
@@ -187,6 +204,23 @@ func (s *Store) LatestForPR(repo string, pr int) *Record {
 	return s.byPR[repo+"\x00"+itoa(pr)]
 }
 
+// ReusableForPatch returns the latest error-free decision on repo#pr with this patch id whose head is not
+// exceptSHA, whose policy hash is policyHash and whose model version is the one being served (the model of
+// the newest decision the drift monitor counted), or nil. That record's verdict may be copied to the new head
+// instead of asking the model again (policy reuse_verdict_on_same_patch).
+func (s *Store) ReusableForPatch(repo string, pr int, patchID, policyHash, exceptSHA string) *Record {
+	if pr <= 0 || patchID == "" || policyHash == "" {
+		return nil
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	r := s.byPatch[repo+"\x00"+itoa(pr)+"\x00"+patchID]
+	if r == nil || r.HeadSHA == exceptSHA || r.PolicyHash != policyHash || r.Result.ModelVersion == "" || r.Result.ModelVersion != s.drift.last {
+		return nil
+	}
+	return r
+}
+
 // NonPassRounds counts a PR's earlier rounds for max_rounds: distinct head shas whose latest non-error
 // verdict is not pass, excluding exceptSHA (the head being decided). Counting shas, not records, keeps
 // re-decisions, re-acts and worker retries of one head from inflating the count; errors are not rounds.
@@ -210,7 +244,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	verdicts, routes, rules := map[string]int{}, map[string]int{}, map[string]int{}
 	var lat []float64
 	var cost float64
-	n, errs := 0, 0
+	n, errs, reused, debounced := 0, 0, 0, 0
 	daily := dailyAcc{}
 	for _, r := range s.recent {
 		if r.TS.Before(t0) {
@@ -222,6 +256,10 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		routes[r.Result.Route]++
 		rules[r.Result.Rule]++
 		cost += r.Result.CostUSD
+		if r.ReusedFrom != "" {
+			reused++
+		}
+		debounced += len(r.DebouncedSHAs)
 		if r.Result.Error != "" {
 			errs++
 		} else if r.Result.LatencyMS > 0 {
@@ -230,7 +268,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	}
 	sort.Float64s(lat)
 	out := map[string]any{"window_s": window.Seconds(), "decisions": n, "per_hour": float64(n) / window.Hours(),
-		"verdicts": verdicts, "routes": routes, "rules": rules, "cost_usd": cost, "error_rate": 0.0, "p50_ms": nil, "p99_ms": nil}
+		"verdicts": verdicts, "routes": routes, "rules": rules, "cost_usd": cost, "reused": reused, "debounced": debounced, "error_rate": 0.0, "p50_ms": nil, "p99_ms": nil}
 	if n > 0 {
 		out["error_rate"] = float64(errs) / float64(n)
 	}

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/patchid"
 )
 
 // GitHub is a minimal REST client: PR state in, check-runs and labels out.
@@ -26,6 +27,18 @@ func (g *GitHub) InvalidateHead(repo string, pr int, sha string) {
 	if g != nil {
 		g.diffs.invalidate(repo, pr, sha)
 	}
+}
+
+// PatchID is the patch id (internal/patchid) of the full diff cached for repo#pr@sha by the last
+// PRStateMeta(At) call, or "" when no complete diff is cached (the caller then derives it from the state).
+func (g *GitHub) PatchID(repo string, pr int, sha string) string {
+	if g == nil {
+		return ""
+	}
+	if _, d, ok := g.diffs.get(repo, pr, sha); ok {
+		return patchid.Diff(d)
+	}
+	return ""
 }
 
 // NewGitHub returns nil when token is empty (gateway then runs API-only).

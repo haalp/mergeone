@@ -44,6 +44,10 @@ gateway stays the source of truth and works unchanged without the block.
 | `POST /api/outcome` | records a PR's outcome labels (`merged`, `reverted`, `iterated`) for the slow drift signal and recalibration |
 | `POST /api/calibrate` | refits the calibration from the gatelog (`mergeone calibrate --from-gatelog`), writes it beside the gatelog, returns the fit summary; loads nothing |
 
+From v0.4 records also carry `patch_id`, `policy_hash`, and, when they apply, `reused_from` (the verdict was copied
+from an earlier head with the same patch, no model call) and `debounced_shas` (heads superseded inside the debounce
+window); `/api/stats` gains `reused` and `debounced`. A reused record is a record for its own head SHA.
+
 `Record.context` (`author, base, created_at, title, additions, deletions, files`) is filled for PRs fetched from GitHub (the webhook,
 or `mergeone pr` with `GITHUB_TOKEN`). The portal never merges or closes anything; a resolution comes back to the PR as a `mergeone:*` label and
 one comment through the same path the verdict actions use (only with `actions.enabled`), and never changes the commit

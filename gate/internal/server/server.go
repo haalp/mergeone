@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/memory"
+	"github.com/haalp/mergeone/gate/internal/patchid"
 	"github.com/haalp/mergeone/gate/internal/plan"
 	"github.com/haalp/mergeone/gate/internal/portal"
 	"github.com/haalp/mergeone/gate/internal/store"
@@ -38,11 +40,15 @@ type Gateway struct {
 	BoundLocal bool
 	stop       chan struct{}
 	wg         sync.WaitGroup
+	// webhook debounce (debounce.go): repo#pr → pushes waiting for the window to close
+	pmu     sync.Mutex
+	pending map[string]*pendingPush
 }
 
 // New starts the worker pool.
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
-	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{})}
+	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{}),
+		pending: map[string]*pendingPush{}}
 	if g.Cal != nil {
 		var refit time.Time
 		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
@@ -99,6 +105,7 @@ func (gw *Gateway) logDrift(now time.Time) {
 
 // Stop drains workers.
 func (gw *Gateway) Stop() {
+	gw.stopPending()
 	close(gw.stop)
 	gw.Store.Wake()
 	gw.wg.Wait()
@@ -142,9 +149,31 @@ func PRContext(meta engine.PRMeta, files []FileStat) map[string]any {
 	return c
 }
 
+// decideReq is one decision request: the head, its rendered state and how to record it.
+type decideReq struct {
+	repo, sha, state, source string
+	pr                       int
+	meta                     engine.PRMeta
+	rctx                     map[string]any
+	act                      bool
+	patchID                  string   // "" = derived from the state (patchid.State)
+	debounced                []string // heads skipped by the webhook debounce, recorded on this decision
+}
+
 func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PRMeta, rctx map[string]any, source string, act bool) engine.Result {
+	return gw.decideReq(decideReq{repo: repo, pr: pr, sha: sha, state: state, meta: meta, rctx: rctx, source: source, act: act})
+}
+
+func (gw *Gateway) decideReq(q decideReq) engine.Result {
+	repo, pr, sha, state, meta, rctx, act := q.repo, q.pr, q.sha, q.state, q.meta, q.rctx, q.act
 	h := sha256.Sum256([]byte(state))
 	inputSHA := hex.EncodeToString(h[:])
+	pid := q.patchID
+	if pid == "" {
+		pid = patchid.State(state)
+	}
+	phash := gw.Gate.PolicyHash()
+	reusedFrom := ""
 	var res engine.Result
 	if prev := gw.Store.Latest(repo, sha); prev != nil && prev.Result.InputSHA256 == inputSHA && prev.Result.Error == "" {
 		if !act {
@@ -154,6 +183,16 @@ func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PR
 			return prev.Result
 		}
 		res = prev.Result
+		reusedFrom = prev.ReusedFrom
+		if q.debounced == nil {
+			q.debounced = prev.DebouncedSHAs
+		}
+	} else if old := gw.reusable(repo, pr, sha, pid, phash); old != nil {
+		// Same patch on a new head (a rebase): copy the verdict, no model call. The record is the new head's.
+		res = old.Result
+		res.Actions, res.LatencyMS, res.ModelLatencySumMS, res.CostUSD = nil, 0, 0, 0
+		res.InputSHA256, res.TS = inputSHA, time.Now().UTC()
+		reusedFrom = old.HeadSHA
 	} else {
 		meta.Repo, meta.Number = repo, pr
 		res = gw.Gate.DecideFor(state, meta)
@@ -172,10 +211,26 @@ func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PR
 			rctx = prev.Context
 		}
 	}
-	if err := gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: source, Result: res, Context: rctx, State: state}); err != nil {
+	rec := store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: q.source, Result: res, Context: rctx, State: state,
+		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced}
+	if err := gw.Store.Record(rec); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
 	return res
+}
+
+// reusable is the earlier decision whose verdict a new head may copy (policy reuse_verdict_on_same_patch),
+// or nil: same PR, same patch id, same policy hash, same served model version, and the drift monitor
+// flagging the same questions now as when it was decided.
+func (gw *Gateway) reusable(repo string, pr int, sha, pid, phash string) *store.Record {
+	if !gw.Gate.Policy.ReuseVerdictOnSamePatch {
+		return nil
+	}
+	old := gw.Store.ReusableForPatch(repo, pr, pid, phash, sha)
+	if old == nil || !slices.Equal(old.Result.Drift, gw.Gate.DegradedNow()) {
+		return nil
+	}
+	return old
 }
 
 // verdictURL is the public gatelog entry for a head sha, or "" when the server has no public URL.
@@ -230,6 +285,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res})
 			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled {
 				gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, "")
+				gw.settleLegacyStatus(j, repo, sha, res)
 			}
 		}
 	}()
@@ -238,6 +294,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	meta := engine.PRMeta{Repo: repo, Number: pr}
 	var files []FileStat
 	var rctx map[string]any
+	var pid string
 	if s, ok := j.Payload["state"].(string); ok && s != "" {
 		state = s
 		if ps, ok := j.Payload["paths"].([]any); ok {
@@ -255,8 +312,16 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			return err
 		}
 		rctx = PRContext(meta, files)
+		pid = gw.GitHub.PatchID(repo, pr, sha)
 	}
-	res := gw.decide(repo, pr, sha, state, meta, rctx, source, act)
+	var debounced []string
+	for _, d := range payloadStrings(j.Payload["debounced_shas"]) {
+		if d != sha { // the head that actually ran is not a skipped one
+			debounced = append(debounced, d)
+		}
+	}
+	res := gw.decideReq(decideReq{repo: repo, pr: pr, sha: sha, state: state, meta: meta, rctx: rctx, source: source, act: act,
+		patchID: pid, debounced: debounced})
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
 	if gw.Memory != nil && meta.Title != "" {
 		mf := make([]memory.FileStat, 0, len(files))
@@ -270,6 +335,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	if gw.GitHub != nil && !gw.Gate.Policy.Actions.Enabled {
 		gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, gw.verdictURL(repo, sha))
 		gw.GitHub.SetLabels(repo, pr, res)
+		gw.settleLegacyStatus(j, repo, sha, res)
 	}
 	return nil
 }
@@ -376,8 +442,17 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		case "opened", "synchronize", "reopened", "ready_for_review":
 			if ev.Action == "synchronize" {
 				gw.GitHub.InvalidateHead(repo, pr, sha)
+				if gw.debounceWindow() > 0 {
+					gw.debouncePush(repo, pr, sha)
+					writeJSON(w, 200, map[string]any{"debounced": true, "settle_s": gw.debounceWindow().Seconds()})
+					return
+				}
 			}
-			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", nil)})
+			var extra map[string]any
+			if skipped := gw.flushPending(repo, pr); len(skipped) > 0 { // a non-push event decides now
+				extra = map[string]any{"debounced_shas": skipped}
+			}
+			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", extra)})
 		case "closed":
 			gw.Store.ClosePR(repo, pr, ev.PullRequest.Merged)
 			// Outcome for the slow drift signal and calibrate: merged from the event; iterated is the gateway's
