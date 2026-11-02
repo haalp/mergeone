@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from mergeone.cli import build_model, load_dataset
-from mergeone.questions import DECISIONS_V3, QUESTION_SETS
+from mergeone.models.base import DECISIONS_V3, QUESTION_SETS
 
 
 def spread(rows: list[dict], key: str, n: int) -> list[dict]:
