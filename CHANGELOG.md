@@ -16,6 +16,24 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   omitted); `GITHUB_API_URL` overrides the API base. `mergeone init --ci` without actions now grants
   `pull-requests: read`. No protocol change, no model call.
 
+## Run 9 — 2026-11-02 (in progress)
+
+- 2026-11-02 00:04Z pod up (RunPod Secure, 1 × L4, US-MO-2, $0.59/h; driver 595.91.07; torch 2.14.0+cu130; vendor
+  package 0.3.0 with `FastOptions(compile="layer", cuda_graphs=True, buckets=(2048, 4096, 8192, 16384, 32768),
+  token_budget=32768, prune_last=True, fp8=False, prefetch=True)` as the defaults — `results/run9/logs/vendor_api.json`).
+  Checkpoint resolved to the frozen revision `6d771ad7…` (§R9.2). The image's system Python could not resolve the
+  package set (`ResolutionImpossible` against its pre-installed packages); the run uses a uv venv (Python 3.12.16) as
+  `docs/run6-gpu.md` §2 says. First model call 00:13Z (bf16 control `equiv`).
+- 2026-11-02 **deviation, tooling only — bf16 `equiv` pass 1 repeated.** The vendor defaults compile each length
+  bucket on its first request; `warmup()` covers one bucket. With 32 concurrent timed requests on the cold server,
+  the first request of every bucket took longer than the client's 30 s read timeout and its neighbours queued behind it:
+  96 of 705 rows ended in `ReadTimeout`, the throughput number counted compile time, and an equivalence set with
+  96 holes cannot pair against the FP8 arm. Fix: the `serve` stage now ends with `scripts/run9_warm.py` — one request
+  at a time, no client timeout, 24 val rows spread over the state-length quantiles plus 8 pair rows, so every bucket
+  is compiled before the first timed request of any arm (`<arm>/warm.json` records the per-request time). The bf16
+  `equiv` pass is repeated with `FORCE=1`; pass 1 stays under `results/run9/bf16/equiv/passes/` and the report
+  shows both (§R9.4: a repeated pass is reported, not substituted). No bar, no prompt, no model input changes.
+
 ## Run 9 frozen — 2026-10-27
 
 - 2026-10-27 16:55Z PROTOCOL.md §R9 committed (serving row, transcribed from `docs/research/inference.md` §8 with the
