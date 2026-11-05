@@ -11,6 +11,11 @@ exists at freeze); one L4 at ×10 with the best passing configuration; the vendo
 0.02 of one request per candidate; and R9-H5, a ≈ $0.2 hosted check that settles whether run 7's "drift" was the
 endpoint switching to one question per request (research note §3, post-hoc). One L4 for 2–3 h, ≈ $1.8.
 
+Status 2026-11-05: the first pod (2026-11-02) finished its part and lost it — the provider stopped the pod on an
+exhausted balance before the results were copied off its container disk (CHANGELOG, dated). The tooling now writes
+`results/run9/` to the pod's persistent volume and warms every length bucket before a timed step
+(`scripts/run9_warm.py`); the rerun waits on an L4 (none in stock on 2026-11-05) and runs once the data can be copied.
+
 Gateway v0.3, decided by run 8: the pair call renders the compact state by default (R8-H1); `drift.enabled: true` by
 default (R8-H5); the slow drift signal (AUC vs outcome on identical rows falls by > 0.05) ported from
 `scripts/drift_slow.py` to Go; `calibrate --from-gatelog`. The v4/v3 call keeps the full state; `duplicate_of` stays
@@ -160,6 +165,10 @@ signal, pre-registered.
 - Campaign dedup: N agents opening the same fix across repos → one decision, N applications.
 - Agent-specific priors: per-agent calibration maps once run3 shows they differ.
 - GitLab / Gitea webhooks.
+- Claude plugin: a small public repo (`.claude-plugin/plugin.json`, `.mcp.json` → `mergeone mcp`, skills for
+  "check before you open a PR" / "ask the gate" / "connect the portal", `/mergeone:pr N`), submitted to the community
+  catalog (`anthropics/claude-plugins-community`, via the claude.ai submission form; entries pin a commit SHA). After
+  the v0.4 release, so the first catalogued version carries verdict reuse and debounce.
 - Serving row (run 9 draft): the decision calls are prefill-bound and the vendor path already batches; the levers are
   fewer tokens (a grouped pair call, ≈ 2.7–3.3× at k = 10) and FP8 on Ada, not prefix caching (the checkpoint's
   attention is noncausal). Diagnosis, technique table and draft §R9: [`docs/research/inference.md`](docs/research/inference.md).
