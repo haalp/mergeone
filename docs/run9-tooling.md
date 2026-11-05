@@ -76,6 +76,20 @@ On the pod `results/run9` is a symlink into the persistent volume (`/workspace/r
 pod does not take the results with it (2026-11-02, CHANGELOG), and the Mac pulls it every five minutes while the pod is up
 (`rsync -a -e "ssh -p <port>" root@<ip>:/workspace/run9/ results/run9/`).
 
+What the first pod taught (2026-11-02 … 05), so the next one goes in one pass:
+
+- The image's system Python (3.11, RunPod `pytorch:2.8.0` image) cannot resolve the package set against its
+  pre-installed packages (`ResolutionImpossible`); use the uv venv from `docs/run6-gpu.md` §2 (`uv venv --seed
+  --python 3.12 .venv`, then `.venv/bin/python3 -m pip install -e .`; the vendor package goes into the same venv).
+- `pip install -e .` and the checkpoint fetch (≈ 1 min with `HF_HOME=/workspace/hf`) are fast; the first server start
+  is ≈ 2 min (weights 60 s, `warmup()` 60 s) and every arm restarts the server, so the sequence pays that three times.
+- The vendor defaults compile per (length bucket, batch shape); `scripts/run9_warm.py` runs at the end of the `serve`
+  stage and must be left in — without it the first timed step of every arm loses one batch to `ReadTimeout`.
+- Keep the pod alive only while a stage runs or until the results are pulled; the balance is the one thing the
+  sequence cannot see. L4 stock comes and goes (none at all on 2026-11-05 for several hours, both clouds); the
+  `create-pod` call fails on capacity, not on the request, so retry the same body.
+- Copy the data and start the sequence in one sitting; after that the pod needs nothing from the laptop.
+
 The whole pod part, in §R9.5 order, is one resumable command (re-run it after any failure; finished work is skipped):
 
 ```bash
