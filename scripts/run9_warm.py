@@ -41,6 +41,7 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=24)
     ap.add_argument("--pairs", help="pair jsonl (results/run4/pairs.jsonl); warms the pair rendering too")
     ap.add_argument("--n-pairs", type=int, default=8)
+    ap.add_argument("--groups", help="shared-A group jsonl (results/run9/groups_a.jsonl); warms the longest shared rendering too")
     ap.add_argument("--out", required=True)
     ap.add_argument("--concurrency", type=int, default=32, help="in-flight requests of the second, batched pass (= the timed steps' maximum)")
     a = ap.parse_args()
@@ -64,6 +65,20 @@ def main() -> None:
     prow = [json.loads(l) for l in Path(a.pairs).open()] if a.pairs and Path(a.pairs).exists() else []
     for r in spread(prow, "state", a.n_pairs):
         hit("pair", r["state"], r.get("features", {}), QUESTION_SETS["pair"])
+    if a.groups and Path(a.groups).exists():  # R9-H4: A + up to 10 candidates in one request, the longest bucket
+        from mergeone.eval.run9_pairs import load_spec, render_shared
+        spec = load_spec()
+        groups = [json.loads(l) for l in Path(a.groups).open()]
+        groups.sort(key=lambda g: len(g["a_state"]) + sum(len(c["b_state"]) for c in g["candidates"]))
+        from mergeone.eval.run9_pairs import decide_group
+        for g in [groups[len(groups) // 2], groups[-1]] if groups else []:
+            t0 = time.perf_counter()
+            rows = decide_group(models["pair"], g, spec)
+            dt = time.perf_counter() - t0
+            err = next((r["error"] for r in rows if r["error"]), None)
+            n = len(render_shared(g, spec)[0])
+            record["requests"].append({"kind": "shared", "chars": n, "s": round(dt, 2), "error": err})
+            print(f"warm shared {n:7d} chars {dt:7.1f}s {'ERROR ' + str(err)[:80] if err else ''}", flush=True)
     # cuda_graphs are captured per (bucket, batch) shape: the sequential pass only ever made batches of one, and the
     # first full batch of a timed step (32 in flight) still timed out. Send the same rows again with `--concurrency`
     # requests in flight so the batched shapes are captured too (the server batches up to --batch-max).

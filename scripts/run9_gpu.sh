@@ -67,6 +67,7 @@ PORT="${PORT:-8080}"; USD_PER_HOUR="${USD_PER_HOUR:-}"
 REVISION="${REVISION:-6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d}"   # run 6A's (results/run6/serve_meta.json), §R9.2
 BUCKETS_JSON='{"buckets": [2560, 3072, 4096, 8192, 16384, 32768]}'
 export MERGEONE_LOCAL_ENDPOINT="http://127.0.0.1:${PORT}/v1/systemone"
+export MERGEONE_HTTP_TIMEOUT="${MERGEONE_HTTP_TIMEOUT:-900}"   # 2026-11-06: shared-A requests queue for minutes at 32 in flight (CHANGELOG)
 C_TIMED=32; C_UNTIMED=16; LT_MULTS="1 10 30"
 
 run() {  # print, and execute unless --dry-run
@@ -193,7 +194,7 @@ PYEOF
     curl -fsS "http://127.0.0.1:${PORT}/meta"; echo
     # 2026-11-02: every length bucket compiles on its first request (FastOptions compile="layer"); hit them one at a time
     # before any timed step so no timed request pays for a compile or times out behind one (scripts/run9_warm.py, CHANGELOG).
-    run "$PY scripts/run9_warm.py --model $M --dataset $DS --split val --n 24 --pairs results/run4/pairs.jsonl --concurrency 32 --out '$R/$ARM/warm.json' 2>&1 | tail -4"
+    run "$PY scripts/run9_warm.py --model $M --dataset $DS --split val --n 24 --pairs results/run4/pairs.jsonl --groups '$R/groups_a.jsonl' --concurrency 32 --out '$R/$ARM/warm.json' 2>&1 | tail -4"
     ;;
   equiv)    check_arm; echo "=== equivalence set, timed (ARM=$ARM)"; timed equiv v3 --dataset "$DS" ;;
   val)      check_arm; echo "=== val, untimed (ARM=$ARM)"; untimed val val v3 --dataset "$DS" ;;
@@ -237,7 +238,9 @@ PYEOF
   report)   echo "=== report"; run "$PY -m mergeone.eval.run9_report" ;;
   stop)
     echo "=== stop server"
-    run "if [ -f '$LOG/server.pid' ] && kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; then kill \"\$(cat '$LOG/server.pid')\"; sleep 5; echo stopped; else echo 'not running'; fi" ;;
+    # 2026-11-06: wait until the process is gone and the GPU is released — the next arm's server OOM'd against a
+    # server that was still shutting down (18.5 GiB held by the old pid five seconds after SIGTERM).
+    run "if [ -f '$LOG/server.pid' ] && kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; then kill \"\$(cat '$LOG/server.pid')\"; for i in \$(seq 1 60); do kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null || break; sleep 2; done; kill -9 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; for i in \$(seq 1 30); do [ \"\$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)\" -lt 2000 ] && break; sleep 2; done; nvidia-smi --query-gpu=memory.used --format=csv,noheader; echo stopped; else echo 'not running'; fi" ;;
   *) echo "unknown stage $1"; exit 2 ;;
   esac
 }

@@ -62,6 +62,16 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `equiv`, kept under `passes/` on the lost disk) are no longer available to report. Tooling change so this cannot
   repeat: `scripts/run9_gpu.sh` writes `results/run9/` through a symlink to the pod's persistent volume
   (`/workspace/run9`, survives a stop), and the Mac pulls it every five minutes while the pod is up. Spend: $3.77.
+- 2026-11-06 (second pod, up 2026-11-05 22:48Z, L4 Secure US-MO-2, $0.59/h; first model call 22:53Z) **two tooling
+  deviations, no bar changes.** (1) The shared-A timed set (b) lost 840 of 1,000 rows to `ReadTimeout`: a shared
+  request carries A plus ten candidates (up to 32k tokens) and with 32 in flight each waits minutes in the server's
+  queue, past the adapter's 30 s client timeout — a client limit, not a serving one (set (a), 29 requests at 16 in
+  flight, had no errors). The self-hosted steps now run with `MERGEONE_HTTP_TIMEOUT=900`; the warm pass also sends
+  two shared requests (median and longest group) so the long bucket is compiled before the timed step. (2) The
+  `stop` stage returned five seconds after SIGTERM while the old server still held 18.5 GiB, and the next arm's
+  server died on `CUDA out of memory`; `stop` now waits for the process to exit and the GPU to drop under 2 GB. The
+  bf16 and fp8 arms (equiv, val, pairs) and shared set (a) stand; shared set (b), both load curves and h5 are run
+  from the resumed sequence, the shared (b) pass 1 kept under `passes/`.
 
 ## Run 9 frozen — 2026-10-27
 
