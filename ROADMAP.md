@@ -2,7 +2,18 @@
 
 Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md](PROTOCOL.md).
 
-## Now — run 9: the serving row, and the v0.3 gateway items run 8 decided
+## Now — after run 9: v0.4 (verdict reuse, debounce), the plugin, run 10
+
+Run 9 (2026-11-06) is done: one pass, three fails. The hosted endpoint asked jointly equals the local checkpoint asked
+one question at a time (0.990 agreement, 7.27× the tokens) — run 7's drift was the provider's request decomposition.
+FP8 on the L4 is slower (0.64×) and not the same answers (|Δp| 0.036); the shared-A pair call is 2.46× faster but reads
+ten candidates worse (dup-vs-rest AUC −0.136); one L4 is ≈ 1.9 decisions/s and no configuration carries ×10. Nothing
+ships from the serving row; `results/run9/README.md`.
+
+Gateway v0.4 (unreleased, on main): verdict reuse by patch id and webhook debounce, both measurable from the gatelog
+(`reused`, `debounced`); release after the run-9 propagation, then the Claude plugin (Later, below).
+
+## Run 9 — the serving row, and the v0.3 gateway items run 8 decided (done)
 Run 9 measures the levers that touch tokens and arithmetic on the self-hosted 4B decider, against a **same-day
 vendor-BF16 control on the same pod** (frozen 2026-10-27 as §R9, from `docs/research/inference.md` §8; bars in
 PROTOCOL.md): the same weights under a non-vendor engine (equivalence ≥ 0.95 argmax, |Δp| ≤ 0.02; deferred if no port

@@ -34,7 +34,28 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   omitted); `GITHUB_API_URL` overrides the API base. `mergeone init --ci` without actions now grants
   `pull-requests: read`. No protocol change, no model call.
 
-## Run 9 — 2026-11-02 (in progress)
+## Run 9 complete — 2026-11-06
+
+One pass, three fails, H1 deferred at freeze. Second pod (RunPod Secure 1 × L4, US-MO-2, $0.59/h): up 2026-11-05
+22:48Z, first model call 22:53Z (bf16 `equiv`), pod part done 03:30Z; the hosted half of R9-H5 from the laptop
+03:09–03:12Z, the same UTC day as the local single-question pass (both 2026-11-06). Every table from
+`mergeone.eval.run9_report` (`results/run9/tables.md`, `metrics.json`); write-up `results/run9/README.md`.
+- R9-H5 ✅ hosted joint = local single-question: agreement 0.990, mean |Δp| 0.014, median token ratio 7.27 (bars
+  0.95 / 0.02 / 6). `docs/EVIDENCE.md` carries the reading beside run 7's verdicts: the provider's request
+  decomposition changed, not the weights.
+- R9-H3 ❌ FP8: agreement 0.963, mean |Δp| 0.036 (bar 0.02), throughput 0.64× (bar 1.3×). BF16 stays; no FP8 map.
+- R9-H4 ❌ shared-A pair call: 2.46× candidates/s (bar 2.5×), set-(a) AUC −0.031, dup-vs-rest AUC −0.136 (bar −0.02).
+  One request per candidate stays.
+- R9-H2 ❌ bucket row chosen by the rule (equivalent, 0.993 / 0.008): ×10 p99 447,918 ms vs 1,432 + 200; the control
+  174 s; saturation ×10 for both. The load client ran under the 900 s client timeout set on 2026-11-06 (below), so
+  its 0 errors are not comparable with run 6A's 535; the p99 clause fails under either timeout.
+- Nothing ships. Spend: pod 1 $3.77 (results lost), pod 2 ≈ $2.8, one idle pod on 2026-11-05 ≈ $0.6 (opened on
+  L4 stock, released after an hour without the laptop), Perplexity $0.12.
+- Retries, dated: the hosted pass hit 19 HTTP 429s (rate limit) at the default concurrency; those 19 rows were
+  re-requested at concurrency 2 within four minutes, the same UTC day, and the file keeps both rows (724 rows, 705
+  error-free; the report takes the error-free row per PR).
+
+## Run 9 — 2026-11-02 … 11-06 (log)
 
 - 2026-11-02 00:04Z pod up (RunPod Secure, 1 × L4, US-MO-2, $0.59/h; driver 595.91.07; torch 2.14.0+cu130; vendor
   package 0.3.0 with `FastOptions(compile="layer", cuda_graphs=True, buckets=(2048, 4096, 8192, 16384, 32768),
