@@ -240,7 +240,7 @@ PYEOF
     echo "=== stop server"
     # 2026-11-06: wait until the process is gone and the GPU is released — the next arm's server OOM'd against a
     # server that was still shutting down (18.5 GiB held by the old pid five seconds after SIGTERM).
-    run "if [ -f '$LOG/server.pid' ] && kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; then kill \"\$(cat '$LOG/server.pid')\"; for i in \$(seq 1 60); do kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null || break; sleep 2; done; kill -9 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; for i in \$(seq 1 30); do [ \"\$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)\" -lt 2000 ] && break; sleep 2; done; nvidia-smi --query-gpu=memory.used --format=csv,noheader; echo stopped; else echo 'not running'; fi" ;;
+    run "if [ -f '$LOG/server.pid' ] && kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null; then kill \"\$(cat '$LOG/server.pid')\"; for i in \$(seq 1 60); do kill -0 \"\$(cat '$LOG/server.pid')\" 2>/dev/null || break; sleep 2; done; kill -9 \"\$(cat '$LOG/server.pid')\" 2>/dev/null || true; for i in \$(seq 1 30); do [ \"\$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)\" -lt 2000 ] && break; sleep 2; done; nvidia-smi --query-gpu=memory.used --format=csv,noheader; echo stopped; else echo 'not running'; fi" ;;
   *) echo "unknown stage $1"; exit 2 ;;
   esac
 }
