@@ -73,9 +73,9 @@ def main() -> None:
         from mergeone.eval.run9_pairs import decide_group
         for g in [groups[len(groups) // 2], groups[-1]] if groups else []:
             t0 = time.perf_counter()
-            rows = decide_group(models["pair"], g, spec)
+            out_rows = decide_group(models["pair"], g, spec)
             dt = time.perf_counter() - t0
-            err = next((r["error"] for r in rows if r["error"]), None)
+            err = next((r["error"] for r in out_rows if r["error"]), None)
             n = len(render_shared(g, spec)[0])
             record["requests"].append({"kind": "shared", "chars": n, "s": round(dt, 2), "error": err})
             print(f"warm shared {n:7d} chars {dt:7.1f}s {'ERROR ' + str(err)[:80] if err else ''}", flush=True)
