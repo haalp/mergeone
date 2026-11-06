@@ -836,3 +836,72 @@ exist at freeze).
   (control and FP8 equivalence passes, bucket equivalence pass, both H4 arms on set (b)), 16 for untimed passes (val
   refit, set (a), single-question); load ×1 / ×10 / ×30 only.
 - **Pair state full.** Both H4 arms use the run-4 full renderer; the compact pair state is out of scope for run 9.
+
+# R10 — is a stronger decider worth it? (DRAFT, 2026-11-06 — not frozen; no model call until the freeze commit and tag)
+
+Numbers this draft rests on: run 8 (`results/run8/relation_tables.md`, `tables.md`), run 9 (`results/run9/README.md`),
+ROADMAP "Next". Everything below may still change until the freeze commit; after it, nothing.
+
+## R10.1 Why
+
+Runs 7–9 moved the prompt, the state, the structure and the server and found the lever was rarely the model. Two
+things the 4B deciders cannot do are unchanged since run 4: read a **competing fix** (same goal, different method —
+0/7 pplx-flash, 2/7 Jev, run 8), and separate **same-area** work from the real relations (1/10 for both), and
+`needs_human_review` sits at 0.78 (pplx-flash) / 0.82 (Jev) AUC on the 705 test PRs. Before any fine-tune, run 10
+asks whether a stronger decider changes those three numbers, with the cost of each row beside them.
+
+## R10.2 Rows
+
+Every row answers the same questions on the same inputs, with a **same-day pplx-flash (hosted) control** in the run
+directory; nothing is compared to a run-8 number.
+
+| row | what | where | why |
+|---|---|---|---|
+| control | `pplx-decider-flash-v1.2`, hosted, joint request | API | the gateway's default; the comparison for every row |
+| full | `pplx-decider` (26B-MoE, 4B active), hosted | API | runs 4–5: +0.03 on `same_change`; never measured on relation or on the test split's human-review question |
+| d3-flash | `vllm-sr/d3-flash` (8.4B, Apache-2.0, Qwen3.5-9B base), self-hosted BF16, `/v1/systemone` | one 48 GB GPU (A40 / L40S) | the first open decider with an Apache-2.0-equivalent licence (R8-H4's missing candidate); Jev Decision Index 0.3.2 55.8 |
+| haiku | Claude Haiku 5.5, JSON schema, relation question only | API | the LLM-class reference on the one question the deciders fail; cost reported |
+
+Questions: the v4 set (eight) on the 705 run-3 test PRs; `relation2` (`same_change`, `builds_on`, `same_goal`, prompts
+`prompts/jev_relation2.json` / `haiku_relation2.md`, unchanged) on the 100 adjudicated run-6B hold pairs with the run-8
+rule and metadata branch. d3-flash gets the same question texts through its `/v1/systemone` request (names, types and
+instructions as `prompts/jev_v4.json`); its request builder is committed before the freeze and changes no wording.
+
+## R10.3 Pre-registered criteria (draft)
+
+- **R10-H1 (competing and same-area).** A row reads competing fixes and same-area pairs: on the 100 adjudicated
+  pairs, accuracy on competing + same-area (17 pairs) ≥ **0.40** (run 8: 3/17 Jev, 1/17 pplx-flash), with class
+  accuracy ≥ the control's same-day class accuracy − 0.02 (so the gain is not bought by breaking duplicate/backport).
+  Pass for a row → that row is a documented relation option in the gateway (opt-in, cost shown); fail for every row →
+  the braid keeps `duplicate_of` as its only edge, and fine-tuning waits for ≥ 10k portal resolutions (ROADMAP).
+- **R10-H2 (needs_human_review).** A row's `needs_human_review` AUC on the 705 test PRs ≥ control + **0.03** with a
+  bootstrap CI excluding zero (1,000 resamples, as run 8). Pass → that row may be the main-call model for the
+  `review` rule (documented, opt-in); fail → pplx-flash stays.
+- **R10-H3 (cost and speed, reported, one bar).** Per-PR cost (main call + ten pair calls, list prices or GPU-hour
+  ÷ throughput) and p50 latency for every row. Bar: a row that passes H1 or H2 ships only if its per-PR cost ≤ **5×**
+  the control's ($0.0005 → $0.0025); above that it is reported, not shipped.
+- **R10-H4 (d3-flash as the registry row; R8-H4's bars).** Self-hosted d3-flash vs the hosted control on the eight v4
+  questions: argmax agreement and mean |Δp| reported (no equivalence bar — different weights); AUC on each question
+  ≥ control − 0.02 on at least six of eight; throughput on the equivalence set at concurrency 32 ≥ **1.0** PR/s on the
+  48 GB GPU. Pass → d3-flash is the documented self-hosted alternative with its own calibration map (fit on val, not
+  a bar); fail → reported.
+
+## R10.4 What is not allowed
+
+- No bar moved after the freeze; no prompt or question edited; no row chosen after seeing a number.
+- No fine-tuning in run 10. No new labels: the 100 adjudicated pairs and the run-3 test split as they are.
+- Every comparison against the same-day hosted control; run 8's numbers appear beside it, never instead.
+- Quantised weights only if the vendor ships them as the default (d3-flash is served BF16).
+
+## R10.5 Budget and order (draft)
+
+Hosted: `pplx` full ≈ $2 (705 + 100 × relation), Haiku relation only ≈ $1; one 48 GB GPU 2–3 h ≈ $2–3 (d3-flash
+weights ≈ 17 GB, 23.8 GiB peak per the model card); control ≈ $0.5. Order: freeze commit + tag → d3-flash request
+builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-flash rows → hosted rows the same UTC day
+(control first) → GPU down → report → `results/run10/README.md`.
+
+## R10.6 Open before freeze
+
+- d3-flash's `/v1/systemone` request shape vs ours (names, `noul`/`choice` types): verified on the GPU before the
+  freeze, as a tooling commit; if it cannot take the v4 questions unchanged, the row is dropped at freeze, not adapted.
+- Whether `pplx` full is still served under that name (runs 4–5 used it; the hosted catalogue changes).
