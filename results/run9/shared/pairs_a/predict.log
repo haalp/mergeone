@@ -1,0 +1,56 @@
+29 groups not yet predicted (skipping 0)
+pplx-flash-local test pair_shared: 10/29 groups, 66 candidates, errors=0 elapsed=24s
+pplx-flash-local test pair_shared: 20/29 groups, 129 candidates, errors=0 elapsed=36s
+pplx-flash-local test pair_shared: 29/29 groups, 187 candidates, errors=0 elapsed=36s
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "qset": "pair_shared",
+  "mode": "shared",
+  "n": 187,
+  "n_requests": 29,
+  "errors": 0,
+  "request_errors": 0,
+  "concurrency": 16,
+  "group_sizes": {
+    "6": 16,
+    "7": 13
+  },
+  "model_version": "pplx-decider-flash-v1.2",
+  "prompt_file": "prompts/jev_pair_shared.json",
+  "prompt_sha256": "e9407f6c2a4bf862206ab7bafcf563952b2f0fc8826dd69db093d2ee13263605",
+  "dataset": "results/run9/groups_a.jsonl",
+  "started_at": "2026-11-05T23:48:47.865207+00:00",
+  "wall_s": 36.300050020217896,
+  "finished_at": "2026-11-05T23:49:24.165801+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}
+0 groups not yet predicted (skipping 29)
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "qset": "pair_shared",
+  "mode": "shared",
+  "n": 0,
+  "n_requests": 0,
+  "errors": 0,
+  "request_errors": 0,
+  "concurrency": 16,
+  "group_sizes": {},
+  "model_version": "pplx-decider-flash-v1.2",
+  "prompt_file": "prompts/jev_pair_shared.json",
+  "prompt_sha256": "e9407f6c2a4bf862206ab7bafcf563952b2f0fc8826dd69db093d2ee13263605",
+  "dataset": "results/run9/groups_a.jsonl",
+  "started_at": "2026-11-06T00:45:20.371921+00:00",
+  "wall_s": 0.00013756752014160156,
+  "finished_at": "2026-11-06T00:45:20.372264+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}

@@ -1,0 +1,18 @@
+{
+  "model": "pplx-flash-local",
+  "split": "val",
+  "variant": "all",
+  "n": 0,
+  "errors": 0,
+  "concurrency": 16,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-06T00:43:49.566966+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "qset": "v3",
+  "mode": "joint",
+  "started_at": "2026-11-06T00:43:49.544033+00:00",
+  "wall_s": 0.022949695587158203,
+  "predictions_file": "predictions_pplx-flash-local_val_all.jsonl",
+  "other_rows_kept": 0
+}

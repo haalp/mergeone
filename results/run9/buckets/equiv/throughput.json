@@ -1,0 +1,46 @@
+{
+  "step": "equiv",
+  "arm": "buckets",
+  "qset": "v3",
+  "split": "test",
+  "mode": "joint",
+  "n_items": 705,
+  "n_rows": 705,
+  "errors": 0,
+  "n_requests": 705,
+  "request_errors": 0,
+  "wall_s": 626.7520513534546,
+  "wall_source": "predict meta",
+  "outer_wall_s": 627.136730670929,
+  "items_per_s": 1.1248467372026483,
+  "requests_per_s": 1.1248467372026483,
+  "concurrency": 32,
+  "decide_s": 626.697,
+  "server": {
+    "served_as": "pplx-decider-flash-v1.2@6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d",
+    "dtype": "bf16 (vendor default; no quantisation)",
+    "fast_options_effective": {
+      "compile": "layer",
+      "cuda_graphs": true,
+      "buckets": [
+        2560,
+        3072,
+        4096,
+        8192,
+        16384,
+        32768
+      ],
+      "token_budget": 32768,
+      "prune_last": true,
+      "fp8": false,
+      "prefetch": true
+    },
+    "batch_tokens": 131072,
+    "batch_max": 32,
+    "batch_ms": 20.0,
+    "gpu_name": "NVIDIA L4"
+  },
+  "predict_meta": "meta_pplx-flash-local_test_all_v3.json",
+  "started_at": "2026-11-06T01:34:37.976808+00:00",
+  "finished_at": "2026-11-06T01:45:04.728807+00:00"
+}

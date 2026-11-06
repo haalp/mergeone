@@ -1,0 +1,38 @@
+pplx-flash-local test all: 50/1000 errors=0 elapsed=24s
+pplx-flash-local test all: 100/1000 errors=0 elapsed=51s
+pplx-flash-local test all: 150/1000 errors=0 elapsed=63s
+pplx-flash-local test all: 200/1000 errors=0 elapsed=96s
+pplx-flash-local test all: 250/1000 errors=0 elapsed=109s
+pplx-flash-local test all: 300/1000 errors=0 elapsed=141s
+pplx-flash-local test all: 350/1000 errors=0 elapsed=155s
+pplx-flash-local test all: 400/1000 errors=0 elapsed=179s
+pplx-flash-local test all: 450/1000 errors=0 elapsed=215s
+pplx-flash-local test all: 500/1000 errors=0 elapsed=229s
+pplx-flash-local test all: 550/1000 errors=0 elapsed=256s
+pplx-flash-local test all: 600/1000 errors=0 elapsed=269s
+pplx-flash-local test all: 650/1000 errors=0 elapsed=294s
+pplx-flash-local test all: 700/1000 errors=0 elapsed=307s
+pplx-flash-local test all: 750/1000 errors=0 elapsed=328s
+pplx-flash-local test all: 800/1000 errors=0 elapsed=342s
+pplx-flash-local test all: 850/1000 errors=0 elapsed=367s
+pplx-flash-local test all: 900/1000 errors=0 elapsed=392s
+pplx-flash-local test all: 950/1000 errors=0 elapsed=407s
+pplx-flash-local test all: 1000/1000 errors=0 elapsed=427s
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 1000,
+  "errors": 0,
+  "concurrency": 32,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-05T23:15:32.541153+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "qset": "pair",
+  "mode": "joint",
+  "started_at": "2026-11-05T23:08:25.880536+00:00",
+  "wall_s": 426.6606545448303,
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}

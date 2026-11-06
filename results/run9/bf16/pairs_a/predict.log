@@ -1,0 +1,42 @@
+3343 rows not yet predicted (skipping 0)
+pplx-flash-local test all: 50/187 errors=0 elapsed=36s
+pplx-flash-local test all: 100/187 errors=0 elapsed=66s
+pplx-flash-local test all: 150/187 errors=0 elapsed=86s
+pplx-flash-local test all: 187/187 errors=0 elapsed=99s
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 187,
+  "errors": 0,
+  "concurrency": 16,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-05T23:08:25.471375+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "qset": "pair",
+  "mode": "joint",
+  "started_at": "2026-11-05T23:06:46.560720+00:00",
+  "wall_s": 98.9106993675232,
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}
+3156 rows not yet predicted (skipping 187)
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 0,
+  "errors": 0,
+  "concurrency": 16,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-06T00:41:38.784495+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "qset": "pair",
+  "mode": "joint",
+  "started_at": "2026-11-06T00:41:38.779232+00:00",
+  "wall_s": 0.0052776336669921875,
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}

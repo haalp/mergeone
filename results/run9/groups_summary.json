@@ -1,0 +1,62 @@
+{
+  "built_at": "2026-11-06T00:39:30+00:00",
+  "prompt_sha256": "e9407f6c2a4bf862206ab7bafcf563952b2f0fc8826dd69db093d2ee13263605",
+  "a": {
+    "status": "ok",
+    "groups": 29,
+    "candidates": 187,
+    "eval_pairs": 187,
+    "missing_pairs": 0,
+    "group_sizes": {
+      "6": 16,
+      "7": 13
+    },
+    "a_split_into_chunks": 0,
+    "positives": 29
+  },
+  "b": {
+    "status": "ok",
+    "groups": 100,
+    "candidates": 1000,
+    "b_forced_into_slot_10": 4,
+    "forced": [
+      {
+        "repo": "Comfy-Org/ComfyUI_frontend",
+        "a": 18531,
+        "b": 18113,
+        "replaced_rank": 10,
+        "b_rank": 13
+      },
+      {
+        "repo": "mattermost/mattermost",
+        "a": 38784,
+        "b": 39097,
+        "replaced_rank": 10,
+        "b_rank": 17
+      },
+      {
+        "repo": "microsoft/vscode",
+        "a": 329225,
+        "b": 329226,
+        "replaced_rank": 10,
+        "b_rank": 18
+      },
+      {
+        "repo": "microsoft/vscode",
+        "a": 331664,
+        "b": 322632,
+        "replaced_rank": 10,
+        "b_rank": 13
+      }
+    ],
+    "b_from_memory": [],
+    "labels": {
+      "pointer": 52,
+      "duplicate": 46,
+      "unrelated": 2
+    },
+    "group_sizes": {
+      "10": 100
+    }
+  }
+}

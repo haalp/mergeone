@@ -1,0 +1,36 @@
+pplx-flash-local test pair_shared: 10/100 groups, 100 candidates, errors=0 elapsed=24s
+pplx-flash-local test pair_shared: 20/100 groups, 200 candidates, errors=0 elapsed=48s
+pplx-flash-local test pair_shared: 30/100 groups, 300 candidates, errors=0 elapsed=72s
+pplx-flash-local test pair_shared: 40/100 groups, 400 candidates, errors=0 elapsed=72s
+pplx-flash-local test pair_shared: 50/100 groups, 500 candidates, errors=0 elapsed=96s
+pplx-flash-local test pair_shared: 60/100 groups, 600 candidates, errors=0 elapsed=119s
+pplx-flash-local test pair_shared: 70/100 groups, 700 candidates, errors=0 elapsed=119s
+pplx-flash-local test pair_shared: 80/100 groups, 800 candidates, errors=0 elapsed=143s
+pplx-flash-local test pair_shared: 90/100 groups, 900 candidates, errors=0 elapsed=167s
+pplx-flash-local test pair_shared: 100/100 groups, 1000 candidates, errors=0 elapsed=173s
+{
+  "model": "pplx-flash-local",
+  "split": "test",
+  "variant": "all",
+  "qset": "pair_shared",
+  "mode": "shared",
+  "n": 1000,
+  "n_requests": 100,
+  "errors": 0,
+  "request_errors": 0,
+  "concurrency": 32,
+  "group_sizes": {
+    "10": 100
+  },
+  "model_version": "pplx-decider-flash-v1.2",
+  "prompt_file": "prompts/jev_pair_shared.json",
+  "prompt_sha256": "e9407f6c2a4bf862206ab7bafcf563952b2f0fc8826dd69db093d2ee13263605",
+  "dataset": "results/run9/groups_b.jsonl",
+  "started_at": "2026-11-06T00:45:22.283040+00:00",
+  "wall_s": 173.41709804534912,
+  "finished_at": "2026-11-06T00:48:15.700809+00:00",
+  "host": "9fbf2c85dd14",
+  "python": "3.12.16",
+  "predictions_file": "predictions_pplx-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}

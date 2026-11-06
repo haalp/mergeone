@@ -1,0 +1,34 @@
+705 rows not yet predicted (skipping 0)
+pplx-flash test all: 50/705 errors=0 elapsed=6s
+pplx-flash test all: 100/705 errors=0 elapsed=11s
+pplx-flash test all: 150/705 errors=0 elapsed=17s
+pplx-flash test all: 200/705 errors=0 elapsed=23s
+pplx-flash test all: 250/705 errors=0 elapsed=28s
+pplx-flash test all: 300/705 errors=8 elapsed=65s
+pplx-flash test all: 350/705 errors=8 elapsed=71s
+pplx-flash test all: 400/705 errors=8 elapsed=80s
+pplx-flash test all: 450/705 errors=8 elapsed=87s
+pplx-flash test all: 500/705 errors=8 elapsed=92s
+pplx-flash test all: 550/705 errors=19 elapsed=129s
+pplx-flash test all: 600/705 errors=19 elapsed=135s
+pplx-flash test all: 650/705 errors=19 elapsed=141s
+pplx-flash test all: 700/705 errors=19 elapsed=148s
+pplx-flash test all: 705/705 errors=19 elapsed=148s
+{
+  "model": "pplx-flash",
+  "split": "test",
+  "variant": "all",
+  "n": 705,
+  "errors": 19,
+  "concurrency": 8,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-06T02:49:44.440948+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "v3",
+  "mode": "joint",
+  "started_at": "2026-11-06T02:47:16.383875+00:00",
+  "wall_s": 148.05715608596802,
+  "predictions_file": "predictions_pplx-flash_test_all.jsonl",
+  "other_rows_kept": 0
+}
