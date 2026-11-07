@@ -1,0 +1,719 @@
+{
+  "endpoint": "http://127.0.0.1:8000/v1/systemone",
+  "health": {
+    "status": "ready",
+    "model": "d3-flash",
+    "max_input_tokens": null,
+    "modalities": [
+      "text",
+      "image",
+      "video"
+    ],
+    "authentication": false
+  },
+  "raw": [
+    {
+      "pr": 6134027467987,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.021607145989047675
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.011043387269764804
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.009414972719894773
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.06913410230180773
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.11498548604483096
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.06089097974212727
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.02718693199160149
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.02022074861110691
+        }
+      },
+      "usage": {
+        "input_tokens": 13191,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 54566867011585,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.46337382386248777
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.001222784171556414
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.0005915270241055177
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.6371051073074341
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.005425172622171561
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.7747197382068556
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.01599542175251272
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.0313081542238977
+        }
+      },
+      "usage": {
+        "input_tokens": 6767,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 201311364485095,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.17036210254374298
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.010945573286033074
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.06069598820674472
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.10210745249128217
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.3058519959449768
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.04058167217428469
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.13319473960956482
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.01070285240328236
+        }
+      },
+      "usage": {
+        "input_tokens": 13863,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 136618704980098,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.04790065899306273
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.0006635436670309082
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.0033908982635030118
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.05377930755250414
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.0314984194581231
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.05944864540470608
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.8860454095310779
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.004183145571203416
+        }
+      },
+      "usage": {
+        "input_tokens": 14287,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 67411201317349,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.0267720530645458
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.01873026267817782
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.004097583448013206
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.08560224941381252
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.06890864567594758
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.06717050770543137
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.33967228711628056
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.006488970535249203
+        }
+      },
+      "usage": {
+        "input_tokens": 14783,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 132878469191484,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.00820602143808558
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.0036673726779280534
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.0009945588566584028
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.018021463273676437
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.02422349736302623
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.04303075309051941
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.30448824167251587
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.003589602537600987
+        }
+      },
+      "usage": {
+        "input_tokens": 12231,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 195929634004254,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.07409451322468773
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.015888070186322982
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.16635984182357788
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.114180101242958
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.036560689121204706
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.05694481912067766
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.013164371644388785
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.010411889893930167
+        }
+      },
+      "usage": {
+        "input_tokens": 14095,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 45657976916799,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.14666924317685495
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.01753967268422002
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.5680683424493177
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.5855023090391663
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.05815635361568539
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.011094487790223666
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.850282605716392
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.0036740518646651192
+        }
+      },
+      "usage": {
+        "input_tokens": 8695,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 127920297825424,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.9847716432310585
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.005127721962826506
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.0093722786289925
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.37940444411622154
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.021105934170327346
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.037902333689533184
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.9789094693552505
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.014150716680676863
+        }
+      },
+      "usage": {
+        "input_tokens": 12135,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 33378119904623,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.01748991482834787
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.000551458541271011
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.020844842113651337
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.07323990871369702
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.017769965678715367
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.04198150756189422
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.017547233324358424
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.01797590337783458
+        }
+      },
+      "usage": {
+        "input_tokens": 12895,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 109961557490564,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.07685223680540038
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.02210631900708917
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.07362091541290283
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.19273588635730404
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.08719264780873542
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.008120229543375126
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.8556349873542786
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.019328431833617602
+        }
+      },
+      "usage": {
+        "input_tokens": 13823,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    },
+    {
+      "pr": 119969915342248,
+      "answers": {
+        "is_logic_change": {
+          "type": "noul",
+          "noul": 0.07113533944053989
+        },
+        "weakens_tests": {
+          "type": "noul",
+          "noul": 0.1144922309703546
+        },
+        "touches_concurrency": {
+          "type": "noul",
+          "noul": 0.0806290068706939
+        },
+        "needs_human_review": {
+          "type": "noul",
+          "noul": 0.4906422192241084
+        },
+        "exceeds_scope": {
+          "type": "noul",
+          "noul": 0.06667510569114474
+        },
+        "breaking_change": {
+          "type": "noul",
+          "noul": 0.0030215338992129388
+        },
+        "tests_cover_change": {
+          "type": "noul",
+          "noul": 0.7651201486587524
+        },
+        "hard_to_revert": {
+          "type": "noul",
+          "noul": 0.008967826059387753
+        }
+      },
+      "usage": {
+        "input_tokens": 13391,
+        "output_tokens": 0
+      },
+      "model": "d3-flash"
+    }
+  ],
+  "adapter": [
+    {
+      "pr": 6134027467987,
+      "probs": {
+        "is_logic_change": 0.021607145989047675,
+        "weakens_tests": 0.011043387269764804,
+        "touches_concurrency": 0.009414972719894773,
+        "needs_human_review": 0.06913410230180773,
+        "exceeds_scope": 0.11498548604483096,
+        "breaking_change": 0.06089097974212727,
+        "tests_cover_change": 0.02718693199160149,
+        "hard_to_revert": 0.02022074861110691
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 54566867011585,
+      "probs": {
+        "is_logic_change": 0.46337382386248777,
+        "weakens_tests": 0.001222784171556414,
+        "touches_concurrency": 0.0005915270241055177,
+        "needs_human_review": 0.6371051073074341,
+        "exceeds_scope": 0.005425172622171561,
+        "breaking_change": 0.7747197382068556,
+        "tests_cover_change": 0.01599542175251272,
+        "hard_to_revert": 0.0313081542238977
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 201311364485095,
+      "probs": {
+        "is_logic_change": 0.17036210254374298,
+        "weakens_tests": 0.010945573286033074,
+        "touches_concurrency": 0.06069598820674472,
+        "needs_human_review": 0.10210745249128217,
+        "exceeds_scope": 0.3058519959449768,
+        "breaking_change": 0.04058167217428469,
+        "tests_cover_change": 0.13319473960956482,
+        "hard_to_revert": 0.01070285240328236
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 136618704980098,
+      "probs": {
+        "is_logic_change": 0.04790065899306273,
+        "weakens_tests": 0.0006635436670309082,
+        "touches_concurrency": 0.0033908982635030118,
+        "needs_human_review": 0.05377930755250414,
+        "exceeds_scope": 0.0314984194581231,
+        "breaking_change": 0.05944864540470608,
+        "tests_cover_change": 0.8860454095310779,
+        "hard_to_revert": 0.004183145571203416
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 67411201317349,
+      "probs": {
+        "is_logic_change": 0.0267720530645458,
+        "weakens_tests": 0.01873026267817782,
+        "touches_concurrency": 0.004097583448013206,
+        "needs_human_review": 0.08560224941381252,
+        "exceeds_scope": 0.06890864567594758,
+        "breaking_change": 0.06717050770543137,
+        "tests_cover_change": 0.33967228711628056,
+        "hard_to_revert": 0.006488970535249203
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 132878469191484,
+      "probs": {
+        "is_logic_change": 0.00820602143808558,
+        "weakens_tests": 0.0036673726779280534,
+        "touches_concurrency": 0.0009945588566584028,
+        "needs_human_review": 0.018021463273676437,
+        "exceeds_scope": 0.02422349736302623,
+        "breaking_change": 0.04303075309051941,
+        "tests_cover_change": 0.30448824167251587,
+        "hard_to_revert": 0.003589602537600987
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 195929634004254,
+      "probs": {
+        "is_logic_change": 0.07409451322468773,
+        "weakens_tests": 0.015888070186322982,
+        "touches_concurrency": 0.16635984182357788,
+        "needs_human_review": 0.114180101242958,
+        "exceeds_scope": 0.036560689121204706,
+        "breaking_change": 0.05694481912067766,
+        "tests_cover_change": 0.013164371644388785,
+        "hard_to_revert": 0.010411889893930167
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 45657976916799,
+      "probs": {
+        "is_logic_change": 0.14666924317685495,
+        "weakens_tests": 0.01753967268422002,
+        "touches_concurrency": 0.5680683424493177,
+        "needs_human_review": 0.5855023090391663,
+        "exceeds_scope": 0.05815635361568539,
+        "breaking_change": 0.011094487790223666,
+        "tests_cover_change": 0.850282605716392,
+        "hard_to_revert": 0.0036740518646651192
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 127920297825424,
+      "probs": {
+        "is_logic_change": 0.9847716432310585,
+        "weakens_tests": 0.005127721962826506,
+        "touches_concurrency": 0.0093722786289925,
+        "needs_human_review": 0.37940444411622154,
+        "exceeds_scope": 0.021105934170327346,
+        "breaking_change": 0.037902333689533184,
+        "tests_cover_change": 0.9789094693552505,
+        "hard_to_revert": 0.014150716680676863
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 33378119904623,
+      "probs": {
+        "is_logic_change": 0.01748991482834787,
+        "weakens_tests": 0.000551458541271011,
+        "touches_concurrency": 0.020844842113651337,
+        "needs_human_review": 0.07323990871369702,
+        "exceeds_scope": 0.017769965678715367,
+        "breaking_change": 0.04198150756189422,
+        "tests_cover_change": 0.017547233324358424,
+        "hard_to_revert": 0.01797590337783458
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 109961557490564,
+      "probs": {
+        "is_logic_change": 0.07685223680540038,
+        "weakens_tests": 0.02210631900708917,
+        "touches_concurrency": 0.07362091541290283,
+        "needs_human_review": 0.19273588635730404,
+        "exceeds_scope": 0.08719264780873542,
+        "breaking_change": 0.008120229543375126,
+        "tests_cover_change": 0.8556349873542786,
+        "hard_to_revert": 0.019328431833617602
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "pr": 119969915342248,
+      "probs": {
+        "is_logic_change": 0.07113533944053989,
+        "weakens_tests": 0.1144922309703546,
+        "touches_concurrency": 0.0806290068706939,
+        "needs_human_review": 0.4906422192241084,
+        "exceeds_scope": 0.06667510569114474,
+        "breaking_change": 0.0030215338992129388,
+        "tests_cover_change": 0.7651201486587524,
+        "hard_to_revert": 0.008967826059387753
+      },
+      "error": null,
+      "model_version": "d3-flash"
+    }
+  ],
+  "timings_s": [
+    3.48815220099641,
+    1.791388615994947,
+    3.6238314599904697,
+    3.753763168002479,
+    3.9288135600218084,
+    3.228779871016741,
+    3.709418182988884,
+    2.3302662780042738,
+    3.178800499998033,
+    3.415169819985749,
+    3.652040739019867,
+    3.574137616000371
+  ],
+  "shapes": [
+    "[\"noul\", \"type\"]"
+  ]
+}
