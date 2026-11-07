@@ -17,14 +17,14 @@
 #           then the warm pass (scripts/run10_warm.py: 12 val rows by length, v4 questions, sequential, no timeout) → d3/warm.json.
 #           A server already up is kept.
 #   d3      the three d3 predicts into results/run10/d3/ (python -m mergeone.eval.run10_rows run d3 --part …):
-#             v4_test   TIMED, 705 PRs, concurrency D3_CONCURRENCY (8) → + server_before/after.json, throughput.json (run9_step)
+#             v4_test   TIMED, 705 PRs, concurrency D3_CONCURRENCY (32, §R10.3) → + server_before/after.json, throughput.json (run9_step)
 #             v4_val    1,491 PRs, resumable (calibration-map input; not a bar)
 #             relation2 100 adjudicated pairs, resumable
 #           A finished timed pass (throughput.json present) is kept; FORCE=1 repeats it. An interrupted timed pass (v4 test rows
 #           without throughput.json) is moved to d3/passes/<UTC>/ (run10_rows set-aside) and re-run whole.
 #   stop    stop the server, wait until the GPU is released
 #   report  python -m mergeone.eval.run10_report
-# Env: USD_PER_HOUR (required by sequence), VM_TYPE ("runpod A40 <secure|community> <dc>"), PORT (8000), D3_CONCURRENCY (8),
+# Env: USD_PER_HOUR (required by sequence), VM_TYPE ("runpod A40 <secure|community> <dc>"), PORT (8000), D3_CONCURRENCY (32),
 #      PERSIST (/workspace/run10), HF_HOME (/workspace/hf), MERGEONE_HTTP_TIMEOUT (900).
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -48,7 +48,7 @@ if [ -n "$PERSIST" ] && [ "$DRY" = 0 ] && [ ! -L "$R" ]; then
   mkdir -p "$PERSIST"; [ -d "$R" ] && cp -an "$R/." "$PERSIST/" && rm -rf "$R"; ln -s "$PERSIST" "$R"
   echo "results/run10 → $PERSIST (persistent volume)"
 fi
-PORT="${PORT:-8000}"; USD_PER_HOUR="${USD_PER_HOUR:-}"; C_D3="${D3_CONCURRENCY:-8}"
+PORT="${PORT:-8000}"; USD_PER_HOUR="${USD_PER_HOUR:-}"; C_D3="${D3_CONCURRENCY:-32}"   # §R10.3: the throughput pass at concurrency 32; the server queues (900 s client timeout)
 export HF_HOME="${HF_HOME:-$([ -d /workspace ] && echo /workspace/hf || echo "$HOME/.cache/huggingface")}"
 export MERGEONE_D3_ENDPOINT="http://127.0.0.1:${PORT}/v1/systemone"
 export MERGEONE_HTTP_TIMEOUT="${MERGEONE_HTTP_TIMEOUT:-900}"

@@ -53,7 +53,7 @@ USD_PER_HOUR=<pod $/h> VM_TYPE="runpod A40 <secure|community> <dc>" bash scripts
 |---|---|
 | setup | `uv venv --seed --python 3.12 .venv`; `pip install -e .`; `transformers==5.17.0 torch torchvision pillow opencv-python-headless safetensors accelerate flash-linear-attention`; `snapshot_download("vllm-sr/d3-flash")` under `HF_HOME=/workspace/hf`; the snapshot's `requirements.txt`; revision → `logs/snapshot.json`, `pip freeze` → `logs/pip_freeze.txt`. Warns if `requirements.txt` moved `transformers` off 5.17.0 or `fla` does not import (CHANGELOG before the first call) |
 | serve | `<snapshot>/d3_server.py --model <snapshot> --host 127.0.0.1 --port 8000 --batch-size 8`; waits for `/health` = ready; `d3/serve_meta.json` (revision, `/health`, `/v1/models`, GPU, `USD_PER_HOUR`); warm pass |
-| d3 | **timed** v4 test at concurrency `D3_CONCURRENCY` (8) → `throughput.json` (`run9_step throughput`: error-free PRs ÷ the pass's wall seconds); v4 val; relation2 (both resumable). A finished timed pass is kept (`FORCE=1` repeats it); an interrupted one is set aside and re-run whole |
+| d3 | **timed** v4 test at concurrency `D3_CONCURRENCY` (32, §R10.3) → `throughput.json` (`run9_step throughput`: error-free PRs ÷ the pass's wall seconds); v4 val; relation2 (both resumable). A finished timed pass is kept (`FORCE=1` repeats it); an interrupted one is set aside and re-run whole |
 | stop | stop the server, wait for the GPU to be released |
 | report | `python -m mergeone.eval.run10_report` |
 
@@ -61,7 +61,7 @@ Manual equivalents of the `d3` stage:
 
 ```bash
 export MERGEONE_D3_ENDPOINT=http://127.0.0.1:8000/v1/systemone MERGEONE_HTTP_TIMEOUT=900
-python -m mergeone.eval.run10_rows run d3 --part v4_test --concurrency 8 --i-have-frozen-the-protocol     # timed by the runbook
+python -m mergeone.eval.run10_rows run d3 --part v4_test --concurrency 32 --i-have-frozen-the-protocol     # timed by the runbook
 python -m mergeone.eval.run10_rows run d3 --part v4_val --i-have-frozen-the-protocol
 python -m mergeone.eval.run10_rows run d3 --part relation2 --i-have-frozen-the-protocol
 ```
