@@ -837,10 +837,11 @@ exist at freeze).
   refit, set (a), single-question); load ×1 / ×10 / ×30 only.
 - **Pair state full.** Both H4 arms use the run-4 full renderer; the compact pair state is out of scope for run 9.
 
-# R10 — is a stronger decider worth it? (DRAFT, 2026-11-06 — not frozen; no model call until the freeze commit and tag)
+# R10 — is a stronger decider worth it? (frozen 2026-11-07, tag `r10-frozen`)
 
-Numbers this draft rests on: run 8 (`results/run8/relation_tables.md`, `tables.md`), run 9 (`results/run9/README.md`),
-ROADMAP "Next". Everything below may still change until the freeze commit; after it, nothing.
+Numbers this section rests on: run 8 (`results/run8/relation_tables.md`, `tables.md`), run 9 (`results/run9/README.md`),
+ROADMAP "Next". Drafted 2026-11-06, two open questions closed 2026-11-07 (below), frozen 2026-11-07 before any model
+call; nothing below changes after the freeze commit. Deviations go to CHANGELOG.md, dated.
 
 ## R10.1 Why
 
@@ -867,7 +868,7 @@ Questions: the v4 set (eight) on the 705 run-3 test PRs; `relation2` (`same_chan
 rule and metadata branch. d3-flash gets the same question texts through its `/v1/systemone` request (names, types and
 instructions as `prompts/jev_v4.json`); its request builder is committed before the freeze and changes no wording.
 
-## R10.3 Pre-registered criteria (draft)
+## R10.3 Pre-registered criteria
 
 - **R10-H1 (competing and same-area).** A row reads competing fixes and same-area pairs: on the 100 adjudicated
   pairs, accuracy on competing + same-area (17 pairs) ≥ **0.40** (run 8: 3/17 Jev, 1/17 pplx-flash), with class
@@ -893,14 +894,16 @@ instructions as `prompts/jev_v4.json`); its request builder is committed before 
 - Every comparison against the same-day hosted control; run 8's numbers appear beside it, never instead.
 - Quantised weights only if the vendor ships them as the default (d3-flash is served BF16).
 
-## R10.5 Budget and order (draft)
+## R10.5 Budget and order
 
-Hosted: `pplx` full ≈ $2 (705 + 100 × relation), Haiku relation only ≈ $1; one 48 GB GPU 2–3 h ≈ $2–3 (d3-flash
-weights ≈ 17 GB, 23.8 GiB peak per the model card); control ≈ $0.5. Order: freeze commit + tag → d3-flash request
+Hosted (from run 9's measured hosted price, $0.12 for 705 PRs × 17k tokens on pplx-flash; `pplx` full bills 2×):
+control ≈ $0.15, `pplx` full ≈ $0.3 (705 + 100 × relation), Haiku relation only ≈ $1 (Anthropic key); one 48 GB A40
+at $0.59/h for 2–3 h ≈ $1.8 (d3-flash: 17 GB weights, `d3_server.py --batch-size 8` with `flash-linear-attention`;
+test 705 + val 1,491 for its calibration map + 100 relation pairs). Total ≈ $3.5. Order: freeze commit + tag → d3-flash request
 builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-flash rows → hosted rows the same UTC day
 (control first) → GPU down → report → `results/run10/README.md`.
 
-## R10.6 Open before freeze
+## R10.6 Open before freeze (both closed 2026-11-07)
 
 - ~~d3-flash's `/v1/systemone` request shape vs ours~~ — checked 2026-11-07 on one A40 (`results/run10prep/d3_check.json`,
   `scripts/r10_d3_check.py`): the package's own `d3_server.py` takes our adapter's body as is (the eight v4 questions,
