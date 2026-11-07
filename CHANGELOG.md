@@ -4,6 +4,9 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 
 ## Run 10 tooling — 2026-11-08 (after the freeze, before any run-10 model call)
 
+- 2026-11-07 22:30Z pod up (RunPod Secure 1 × A40, EU-SE-1, $0.59/h) for the `setup` stage only, ahead of the
+  00:00Z same-UTC-day start; snapshot `vllm-sr/d3-flash@67e03e1b`; `flash-linear-attention` 0.5.2 (pip's pick) does
+  not import against triton 3.9 (torch 2.15), 0.6.0 does — pinned in `run10_gpu.sh`. No model call.
 - 2026-11-08 tooling commit (no model call): `d3-flash-local` registry row, `mergeone.eval.run10_rows` (one resumable,
   guarded command per row), `scripts/run10_gpu.sh` + `scripts/run10_warm.py` (pod), `mergeone.eval.run10_report`
   (R10-H1…H4 from `results/run10/` only), `docs/run10-tooling.md`, tests. Scoring rules are fixed in the report's

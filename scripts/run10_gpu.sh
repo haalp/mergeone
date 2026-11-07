@@ -73,7 +73,7 @@ stage() {
     run "[ -x .venv/bin/python3 ] || uv venv --seed --python 3.12 .venv"
     PY=.venv/bin/python3
     run "$PY -m pip install -q -e ."
-    run "$PY -m pip install -q transformers==5.17.0 torch torchvision pillow opencv-python-headless safetensors accelerate flash-linear-attention"
+    run "$PY -m pip install -q transformers==5.17.0 torch torchvision pillow opencv-python-headless safetensors accelerate \"flash-linear-attention==0.6.0\""   # 0.5.2 (pip's pick on 2026-11-07) does not import with triton 3.9
     if [ "$DRY" = 1 ] || [ ! -s "$LOG/snapshot_dir" ]; then
       run "$PY -c \"from huggingface_hub import snapshot_download; print(snapshot_download('$REPO_ID'))\" | tail -1 > '$LOG/snapshot_dir'"
     fi
