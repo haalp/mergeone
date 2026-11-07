@@ -902,7 +902,12 @@ builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-
 
 ## R10.6 Open before freeze
 
-- d3-flash's `/v1/systemone` request shape vs ours (names, `noul`/`choice` types): verified on the GPU before the
-  freeze, as a tooling commit; if it cannot take the v4 questions unchanged, the row is dropped at freeze, not adapted.
+- ~~d3-flash's `/v1/systemone` request shape vs ours~~ — checked 2026-11-07 on one A40 (`results/run10prep/d3_check.json`,
+  `scripts/r10_d3_check.py`): the package's own `d3_server.py` takes our adapter's body as is (the eight v4 questions,
+  `noul`, word for word) and answers `{model, answers: {q: {type, noul}}, usage}`; 12 test PRs, 0 errors, the
+  adapter's probabilities identical to the raw reply on 96/96 answers; median 3.6 s per eight-question request
+  **without** `flash-linear-attention` (reference kernels; 13.2k input tokens per PR as the model tokenises it). The
+  run installs that kernel and serves with `--batch-size 8`; the timing above is a ceiling, not the row's number.
+  GPU memory at rest 17 GB weights + activations on a 48 GB A40, no OOM at 32k. The row stays.
 - ~~Whether `pplx` full is still served under that name~~ — checked 2026-11-07: `pplx-decider-v1.2` and
   `pplx-decider-flash-v1.2` both answer at `/v1/decisions` (one toy request each, $0.00003).
