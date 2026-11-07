@@ -61,8 +61,8 @@ def main() -> None:
         if d.error or "answers" not in rr:
             continue
         for q in DECISIONS_V4:
-            a = rr["answers"].get(q, {})
-            p_raw = a.get("noul", a.get("probability"))
+            ans_q = rr["answers"].get(q, {})
+            p_raw = ans_q.get("noul", ans_q.get("probability"))
             if p_raw is None:
                 continue
             n_cmp += 1
