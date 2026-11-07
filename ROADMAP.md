@@ -10,8 +10,9 @@ FP8 on the L4 is slower (0.64×) and not the same answers (|Δp| 0.036); the sha
 ten candidates worse (dup-vs-rest AUC −0.136); one L4 is ≈ 1.9 decisions/s and no configuration carries ×10. Nothing
 ships from the serving row; `results/run9/README.md`.
 
-Gateway v0.4 (unreleased, on main): verdict reuse by patch id and webhook debounce, both measurable from the gatelog
-(`reused`, `debounced`); release after the run-9 propagation, then the Claude plugin (Later, below).
+Gateway **v0.4.0** (2026-11-07): verdict reuse by patch id and webhook debounce, both measurable from the gatelog
+(`reused`, `debounced`), plus `mergeone stats` and the `pr` metadata fix. Next: the Claude plugin (Later, below), then
+§R10 (drafted in PROTOCOL.md, not frozen).
 
 ## Run 9 — the serving row, and the v0.3 gateway items run 8 decided (done)
 Run 9 measures the levers that touch tokens and arithmetic on the self-hosted 4B decider, against a **same-day

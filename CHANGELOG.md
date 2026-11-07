@@ -2,7 +2,15 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## v0.4 (unreleased)
+## v0.4.0 — 2026-11-07 (gateway release; no protocol change)
+
+Two model-free optimisations measurable from the gatelog — verdict reuse by patch id and webhook debounce — plus
+`mergeone stats` and the v0.3.1 fix (`mergeone pr` fetches the PR from GitHub). Nothing from run 9 ships: the
+self-hosted row stays vendor BF16, one request per candidate (`results/run9/README.md`). Binaries and assets as
+v0.3.0; config keys `reuse_verdict_on_same_patch` (default `true`) and `debounce` (default `45s`) documented in
+`docs/POLICY.md`; new record fields `patch_id`, `policy_hash`, `reused_from`, `debounced_shas` in the README API table.
+
+Dated changes:
 
 - 2026-11-02 gateway: **verdict reuse by patch id** (`reuse_verdict_on_same_patch`, default `true`). Every record now
   carries `patch_id` (SHA-256 over the diff's normalised hunks, as `git patch-id --stable`: index lines and hunk
@@ -20,7 +28,7 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   in memory: a restart drops open windows and the next push re-triggers. `on_error` / fail-closed unchanged; a `hold`
   still never closes a PR and the gateway never merges. No protocol change, no model call.
 
-## v0.3.1 (unreleased)
+## v0.3.1 — folded into v0.4.0
 
 - 2026-10-28 gateway: `mergeone pr` with a PR and `GITHUB_TOKEN` fetches the PR from GitHub through the webhook's
   path (`PRStateMetaAt`: title, body, files and diff for that head SHA; an older `--head-sha` is rendered from the
