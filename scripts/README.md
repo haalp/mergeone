@@ -15,6 +15,7 @@ inputs; model calls need the keys named in each script's header.
 | 6A | `run6_gpu.sh` (+ `docs/run6-gpu.md`) | self-hosted serving, probe, load tests on L4 / H100 |
 | 6B | `run6b_mac.sh` | candidate pool k, pairs, blind sample, labels |
 | 9 | `run9_gpu.sh` (`sequence`, `--dry-run`; + `docs/run9-tooling.md`) | BF16 control, FP8, shared-A pair call, load curves ×1/×10/×30, local single-question on one L4 |
+| 10 | `run10_gpu.sh` (`sequence`, `--dry-run`; + `run10_warm.py`, `docs/run10-tooling.md`) | d3-flash (self-hosted BF16) on one 48 GB GPU: v4 test (timed), v4 val, relation2; hosted rows via `python -m mergeone.eval.run10_rows` |
 | 8 prep | `run8_prep.py` | routing, v4 and drift numbers from existing predictions, no model call → `docs/run8-numbers.md`, `results/run8prep/` |
 | v4 maps | `mergeone fit-calibration --run results/run5 --model <jev\|pplx-flash\|haiku> --qset v4 --from-qset v3 --label iterated --dataset data/run3/dataset.jsonl` | `mergeone/gate/calibration_<model>_v4.json`: isotonic per question on the run-5 val v3 rows vs `iterated` (as R5-H5), the eight v4 questions, plus `fit_stats`; no model call; `tests/test_calibration_v4.py` checks the refit is byte-identical |
 | — | `extract.sh` | dataset extraction (run 1 base data) |

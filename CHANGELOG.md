@@ -2,6 +2,19 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 10 tooling — 2026-11-08 (after the freeze, before any run-10 model call)
+
+- 2026-11-08 tooling commit (no model call): `d3-flash-local` registry row, `mergeone.eval.run10_rows` (one resumable,
+  guarded command per row), `scripts/run10_gpu.sh` + `scripts/run10_warm.py` (pod), `mergeone.eval.run10_report`
+  (R10-H1…H4 from `results/run10/` only), `docs/run10-tooling.md`, tests. Scoring rules are fixed in the report's
+  docstring before any number exists.
+- 2026-11-08 **deviation, measurement condition only — d3 throughput pass at concurrency 8, not 32.** §R10.3 names
+  "concurrency 32" for the throughput pass. The package's `d3_server.py` serves one request at a time and batches the
+  eight questions of that request (`--batch-size 8`), so client requests above one only queue; 32 in flight adds
+  minutes of queueing per request (run 9's `ReadTimeout` lesson) without changing PR/s. The timed v4 test pass runs at
+  concurrency 8 (`D3_CONCURRENCY`); the report states the value it read from `throughput.json` beside the H4 verdict.
+  The 1.0 PR/s bar is unchanged.
+
 ## v0.4.0 — 2026-11-07 (gateway release; no protocol change)
 
 Two model-free optimisations measurable from the gatelog — verdict reuse by patch id and webhook debounce — plus

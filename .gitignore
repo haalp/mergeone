@@ -49,3 +49,6 @@ portal/.next/
 results/run9/logs/
 results/run9/groups_*.jsonl
 results/run9/pairs_b.jsonl
+
+# run 10 (pod logs: snapshot record, pip freeze, server log)
+results/run10/logs/

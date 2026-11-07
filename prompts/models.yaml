@@ -160,6 +160,19 @@ models:
     params_b: 4.5
     notes: "run 6A self-hosted row; compute cost reported separately"
 
+  d3-flash-local:
+    dialect: systemone
+    endpoint: ${MERGEONE_D3_ENDPOINT:-http://127.0.0.1:8000/v1/systemone}
+    key_env: MERGEONE_LOCAL_KEY
+    key_optional: true
+    model_id: d3-flash                  # the package's d3_server.py answers `model: "d3-flash"`; pinned from the reply
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    weights: vllm-sr/d3-flash
+    license: Apache-2.0
+    params_b: 8.4
+    notes: "run 10 self-hosted row (§R10): Qwen3.5-9B base, BF16, d3_server.py --batch-size 8; compute cost = GPU $/h ÷ measured PR/s"
+
   local:
     dialect: systemone
     endpoint: ${MERGEONE_LOCAL_ENDPOINT:-http://127.0.0.1:8080/v1/systemone}
