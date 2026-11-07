@@ -904,4 +904,5 @@ builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-
 
 - d3-flash's `/v1/systemone` request shape vs ours (names, `noul`/`choice` types): verified on the GPU before the
   freeze, as a tooling commit; if it cannot take the v4 questions unchanged, the row is dropped at freeze, not adapted.
-- Whether `pplx` full is still served under that name (runs 4–5 used it; the hosted catalogue changes).
+- ~~Whether `pplx` full is still served under that name~~ — checked 2026-11-07: `pplx-decider-v1.2` and
+  `pplx-decider-flash-v1.2` both answer at `/v1/decisions` (one toy request each, $0.00003).
