@@ -2,6 +2,13 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 11 frozen — 2026-11-08
+
+PROTOCOL.md §R11 (compact main call, model-free pair prefilter on run 9's recorded answers, conditional team
+recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed first: `mergeone/eval/run11_prefilter.py`
+(scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
+`scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
+
 ## v0.5.0 — unreleased (gateway hardening; no protocol change, nothing from run 10 ships)
 
 The gateway as a thing a team can run for a week without reading its code: a defined failure mode, a shadow mode,

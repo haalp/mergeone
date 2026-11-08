@@ -915,7 +915,7 @@ builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-
 - ~~Whether `pplx` full is still served under that name~~ — checked 2026-11-07: `pplx-decider-v1.2` and
   `pplx-decider-flash-v1.2` both answer at `/v1/decisions` (one toy request each, $0.00003).
 
-# R11 — three cheaper calls (draft 2026-11-08, not frozen)
+# R11 — three cheaper calls (frozen 2026-11-08, tag `r11-frozen`)
 
 Numbers this section rests on: run 8 (`results/run8/README.md`, R8-H1), run 9 (`results/run9/README.md`, R9-H4's
 set (b) answers), run 10 (`results/run10/README.md`), the v0.5 gateway (`docs/POLICY.md`). Drafted after run 10;
