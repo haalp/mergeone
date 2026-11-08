@@ -58,7 +58,7 @@ func cmdPolicy(args []string) int {
 }
 
 func policyCheck(policyPath, assets string, asJSON bool) int {
-	g, err := buildGate(policyPath, true, assets)
+	g, err := buildGateOpts(policyPath, true, assets, false)
 	if err != nil {
 		return fail(err)
 	}
@@ -157,7 +157,7 @@ func runPolicyCase(g *engine.Gate, c policyCase) caseResult {
 }
 
 func policyTest(policyPath, testsPath, assets string, asJSON bool) int {
-	g, err := buildGate(policyPath, true, assets)
+	g, err := buildGateOpts(policyPath, true, assets, false)
 	if err != nil {
 		return fail(err)
 	}
@@ -220,7 +220,7 @@ func policyTest(policyPath, testsPath, assets string, asJSON bool) int {
 // it (every earlier rule's questions at 0), one for the default, one per protected path. The expectations
 // are what the policy does today; the file is the regression baseline to edit from.
 func policyScaffold(policyPath, testsPath, assets string) int {
-	g, err := buildGate(policyPath, true, assets)
+	g, err := buildGateOpts(policyPath, true, assets, false)
 	if err != nil {
 		return fail(err)
 	}

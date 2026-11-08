@@ -152,6 +152,12 @@ func cmdInit(args []string) int {
 // buildGate wires policy + model + calibration. promptsDir holds jev_v2.json / haiku_v2.md;
 // calDir holds calibration_<model>_<qset>.json (both default to the directory of the policy file).
 func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, error) {
+	return buildGateOpts(policyPath, mock, assetsDir, true)
+}
+
+// buildGateOpts is buildGate with the PR memory optional: the policy, replay and check commands never call the
+// model or the memory, so they must not create .mergeone/memory next to the policy (which may be read-only).
+func buildGateOpts(policyPath string, mock bool, assetsDir string, withMemory bool) (*engine.Gate, error) {
 	p, err := engine.LoadPolicy(policyPath)
 	if err != nil {
 		return nil, err
@@ -184,7 +190,7 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 		return nil, err
 	}
 	g := &engine.Gate{Policy: p, Model: m, Cal: cal, PairK: p.Memory.TopK}
-	if p.Memory.Enabled {
+	if p.Memory.Enabled && withMemory {
 		switch mm := m.(type) {
 		case *models.Jev:
 			if err := mm.AddQuestions(findAsset(assetsDir, "jev_pair.json")); err != nil {

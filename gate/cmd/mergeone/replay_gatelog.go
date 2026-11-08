@@ -171,7 +171,7 @@ func fmtCounts(m map[string]int) string {
 // gatelog is re-run through the policy file and calibration map the gateway would load now, on the recorded
 // raw probabilities — no model call, no GitHub call — and the report says which verdicts would differ.
 func cmdReplayGatelog(policyPath, logPath, assets, since string, asJSON bool, maxChanges int) int {
-	g, err := buildGate(policyPath, true, assets)
+	g, err := buildGateOpts(policyPath, true, assets, false)
 	if err != nil {
 		return fail(err)
 	}
