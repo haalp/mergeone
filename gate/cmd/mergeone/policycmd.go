@@ -33,8 +33,11 @@ import (
 //
 // Questions not named in probs are 0 (no rule reading them fires); `calibrated: true` on a case skips the map.
 func cmdPolicy(args []string) int {
-	if len(args) == 0 {
+	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" {
 		fmt.Fprintln(stderr, "usage: mergeone policy <check|test|scaffold> [flags]")
+		if len(args) > 0 {
+			return 0
+		}
 		return 2
 	}
 	fs := flag.NewFlagSet("policy "+args[0], flag.ContinueOnError)
