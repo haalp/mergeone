@@ -21,12 +21,12 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
-## v0.5.0 — unreleased (gateway hardening; no protocol change, nothing from run 10 ships)
+## v0.5.0 — 2026-11-08 (gateway hardening; no protocol change; nothing from runs 10–11 ships)
 
 The gateway as a thing a team can run for a week without reading its code: a defined failure mode, a shadow mode,
 two policy test commands, one comment per PR, metrics, a hardened webhook, and signed, reproducible distribution.
 No verdict rule, threshold or model changes; every new number is a gatelog field or an in-process counter.
-Reference: `docs/POLICY.md` ("Failure handling", "Shadow mode", "Policy tests", "Policy regression check",
+Runs 10 and 11 closed the same day with nothing to ship (`results/run10/README.md`, `results/run11/README.md`). Reference: `docs/POLICY.md` ("Failure handling", "Shadow mode", "Policy tests", "Policy regression check",
 "Observability", "Webhook hardening", "Verdict actions"). Default behaviour changes, each dated below: the verdict
 comment is edited in place per PR (was one per head); a non-loopback bind without `MERGEONE_WEBHOOK_SECRET` answers
 401 (was: accepted unsigned); transient model failures are retried (were: one call, then `on_error`).
