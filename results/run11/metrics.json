@@ -1,0 +1,248 @@
+{
+  "built_at": "2026-11-08T15:44:12+00:00",
+  "protocol": "PROTOCOL.md \u00a7R11",
+  "R11-H1": {
+    "status": "ok",
+    "label_source": "data/run3/dataset.jsonl",
+    "versions_compact": [
+      "pplx-decider-flash-v1.2"
+    ],
+    "versions_control": [
+      "pplx-decider-flash-v1.2"
+    ],
+    "questions": {
+      "is_logic_change": {
+        "auc": 0.5947076693492512,
+        "n": 705,
+        "baseline": 0.6107232318925545,
+        "delta": -0.016015562543303274,
+        "n_paired": 705,
+        "ci95": [
+          -0.050181095036804756,
+          0.01830125775298463
+        ],
+        "delta_same_keys": -0.016015562543303274
+      },
+      "weakens_tests": {
+        "auc": 0.740180141768374,
+        "n": 705,
+        "baseline": 0.7438575920694984,
+        "delta": -0.0036774503011244297,
+        "n_paired": 705,
+        "ci95": [
+          -0.03258447611280327,
+          0.028632408753229997
+        ],
+        "delta_same_keys": -0.0036774503011246518
+      },
+      "touches_concurrency": {
+        "auc": 0.6866705750679529,
+        "n": 705,
+        "baseline": 0.681927197143314,
+        "delta": 0.00474337792463897,
+        "n_paired": 705,
+        "ci95": [
+          -0.02416533945105124,
+          0.033658459605921495
+        ],
+        "delta_same_keys": 0.00474337792463897
+      },
+      "needs_human_review": {
+        "auc": 0.7607525449022011,
+        "n": 705,
+        "baseline": 0.7586473378457603,
+        "delta": 0.0021052070564407943,
+        "n_paired": 705,
+        "ci95": [
+          -0.03526285027007915,
+          0.03403107887793515
+        ],
+        "delta_same_keys": 0.0021052070564407943
+      },
+      "exceeds_scope": {
+        "auc": 0.7609124340457284,
+        "n": 705,
+        "baseline": 0.7513990300058626,
+        "delta": 0.00951340403986578,
+        "n_paired": 705,
+        "ci95": [
+          -0.02056911460707083,
+          0.04343513217169126
+        ],
+        "delta_same_keys": 0.00951340403986567
+      },
+      "breaking_change": {
+        "auc": 0.7176091243404573,
+        "n": 705,
+        "baseline": 0.7159569365240099,
+        "delta": 0.0016521878164473813,
+        "n_paired": 705,
+        "ci95": [
+          -0.018521447454881722,
+          0.022190203908769503
+        ],
+        "delta_same_keys": 0.0016521878164472703
+      },
+      "tests_cover_change": {
+        "auc": 0.6029686084314876,
+        "n": 705,
+        "baseline": 0.6347865479933913,
+        "delta": -0.03181793956190371,
+        "n_paired": 705,
+        "ci95": [
+          -0.09465854375155806,
+          0.020151359767741066
+        ],
+        "delta_same_keys": -0.03181793956190382
+      },
+      "hard_to_revert": {
+        "auc": 0.7928636145605713,
+        "n": 705,
+        "baseline": 0.7807653360336833,
+        "delta": 0.012098278526888051,
+        "n_paired": 705,
+        "ci95": [
+          -0.012965575663220704,
+          0.040599967121410015
+        ],
+        "delta_same_keys": 0.01209827852688794
+      }
+    },
+    "mean": {
+      "auc": 0.707083089058253,
+      "baseline": 0.7097579011885092,
+      "n_questions": 8,
+      "delta": -0.002674812130256221,
+      "n_paired": 705,
+      "ci95": [
+        -0.020291510771223084,
+        0.015005341869653363
+      ],
+      "delta_same_keys": -0.002674812130256443
+    },
+    "tokens": {
+      "compact": {
+        "n": 705,
+        "median": 1492.0,
+        "p90": 1798.8000000000002
+      },
+      "control": {
+        "n": 705,
+        "median": 2209.0,
+        "p90": 2681.6
+      },
+      "same_prs": true,
+      "ratio_median": 0.6754187415119963
+    },
+    "clauses": {
+      "mean": true,
+      "each": false,
+      "tokens": true
+    },
+    "pass": false,
+    "bar": "compact main call \u2212 same-day full-state control: mean v4 AUC \u0394 \u2265 \u22120.02, every question \u0394 \u2265 \u22120.03, median input tokens \u2264 0.75\u00d7 control",
+    "worst_question": [
+      "tests_cover_change",
+      -0.03181793956190371
+    ]
+  },
+  "R11-H2": {
+    "status": "ok",
+    "pass": false,
+    "ships_k": null,
+    "primary": "retrieval",
+    "control": {
+      "k": 10,
+      "recall_dup": 1.0,
+      "auc_dup_rest": 0.971834837298332,
+      "candidates": 1000,
+      "positives": 46,
+      "calls_per_a": 10.0
+    },
+    "scores": {
+      "retrieval": {
+        "3": {
+          "recall_dup": 0.8913043478260869,
+          "auc_dup_rest": 0.9294660514172709,
+          "delta_auc": -0.04236878588106108,
+          "kept": 300,
+          "positives": 41,
+          "calls_per_a": 3,
+          "pass": false
+        },
+        "5": {
+          "recall_dup": 0.9130434782608695,
+          "auc_dup_rest": 0.955656061551258,
+          "delta_auc": -0.016178775747073937,
+          "kept": 500,
+          "positives": 42,
+          "calls_per_a": 5,
+          "pass": false
+        }
+      },
+      "overlap": {
+        "3": {
+          "recall_dup": 0.782608695652174,
+          "auc_dup_rest": 0.9217171717171717,
+          "delta_auc": -0.050117665581160264,
+          "kept": 300,
+          "positives": 36,
+          "calls_per_a": 3,
+          "pass": false
+        },
+        "5": {
+          "recall_dup": 0.8260869565217391,
+          "auc_dup_rest": 0.9505012531328321,
+          "delta_auc": -0.021333584165499908,
+          "kept": 500,
+          "positives": 38,
+          "calls_per_a": 5,
+          "pass": false
+        }
+      },
+      "blend": {
+        "3": {
+          "recall_dup": 0.8478260869565217,
+          "auc_dup_rest": 0.9185578151095393,
+          "delta_auc": -0.05327702218879271,
+          "kept": 300,
+          "positives": 39,
+          "calls_per_a": 3,
+          "pass": false
+        },
+        "5": {
+          "recall_dup": 0.8913043478260869,
+          "auc_dup_rest": 0.9478186938732132,
+          "delta_auc": -0.02401614342511882,
+          "kept": 500,
+          "positives": 41,
+          "calls_per_a": 5,
+          "pass": false
+        }
+      }
+    },
+    "groups": 100,
+    "labels": {
+      "duplicate": 46,
+      "pointer": 52,
+      "unrelated": 2
+    },
+    "bar": "primary score `retrieval`, k' \u2208 {3, 5}: recall of the adjudicated duplicate \u2265 0.95 and dup-vs-rest AUC \u2265 k'=10 \u2212 0.02 (run 9's recorded answers)"
+  },
+  "R11-H3": {
+    "status": "not run yet (conditional: waits for \u2265 200 outcomes; results/run11/recalibration.json missing)",
+    "pass": null,
+    "bar": "conditional on \u2265 200 outcomes: refit ECE \u2264 shipped \u2212 0.02 on \u2265 5 of 8 questions, AUC unchanged"
+  },
+  "inputs": {
+    "results/run11/main/predictions_pplx-flash_test_all_compact.jsonl": "c90ba79dc1024f7ce52fcd715400725173076619bde10c546d7fbe378a702396",
+    "results/run11/main/predictions_pplx-flash_test_all.jsonl": "6e9f9c7f10a812daa307dc99ec993d71624dad2f6b3e11f125e92e67e69b07e0",
+    "data/run3/dataset.jsonl": "d1a6c6325666cdab576549132b97dbdad8da53b8b71114f3184e436a31504952",
+    "results/run11/prefilter.json": "5ea69a24d7fb402b6e3844dff6aaca7bb60b7ea221491dc1dc5b51b584b97dfe"
+  },
+  "verdicts": {
+    "R11-H1": "fail",
+    "R11-H2": "fail",
+    "R11-H3": "not run yet"
+  }
+}

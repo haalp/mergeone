@@ -1,0 +1,18 @@
+{
+  "model": "pplx-flash",
+  "split": "test",
+  "variant": "all",
+  "n": 705,
+  "errors": 0,
+  "concurrency": 4,
+  "model_version": "pplx-decider-flash-v1.2",
+  "finished_at": "2026-11-08T15:42:40.720420+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "v4",
+  "mode": "joint",
+  "started_at": "2026-11-08T15:41:14.076020+00:00",
+  "wall_s": 86.64448475837708,
+  "predictions_file": "predictions_pplx-flash_test_all.jsonl",
+  "other_rows_kept": 0
+}

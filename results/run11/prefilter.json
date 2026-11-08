@@ -1,0 +1,104 @@
+{
+  "groups": 100,
+  "labels": {
+    "duplicate": 46,
+    "pointer": 52,
+    "unrelated": 2
+  },
+  "scores": {
+    "retrieval": {
+      "3": {
+        "recall_dup": 0.8913043478260869,
+        "auc_dup_rest": 0.9294660514172709,
+        "delta_auc": -0.04236878588106108,
+        "kept": 300,
+        "positives": 41,
+        "calls_per_a": 3,
+        "pass": false
+      },
+      "5": {
+        "recall_dup": 0.9130434782608695,
+        "auc_dup_rest": 0.955656061551258,
+        "delta_auc": -0.016178775747073937,
+        "kept": 500,
+        "positives": 42,
+        "calls_per_a": 5,
+        "pass": false
+      }
+    },
+    "overlap": {
+      "3": {
+        "recall_dup": 0.782608695652174,
+        "auc_dup_rest": 0.9217171717171717,
+        "delta_auc": -0.050117665581160264,
+        "kept": 300,
+        "positives": 36,
+        "calls_per_a": 3,
+        "pass": false
+      },
+      "5": {
+        "recall_dup": 0.8260869565217391,
+        "auc_dup_rest": 0.9505012531328321,
+        "delta_auc": -0.021333584165499908,
+        "kept": 500,
+        "positives": 38,
+        "calls_per_a": 5,
+        "pass": false
+      }
+    },
+    "blend": {
+      "3": {
+        "recall_dup": 0.8478260869565217,
+        "auc_dup_rest": 0.9185578151095393,
+        "delta_auc": -0.05327702218879271,
+        "kept": 300,
+        "positives": 39,
+        "calls_per_a": 3,
+        "pass": false
+      },
+      "5": {
+        "recall_dup": 0.8913043478260869,
+        "auc_dup_rest": 0.9478186938732132,
+        "delta_auc": -0.02401614342511882,
+        "kept": 500,
+        "positives": 41,
+        "calls_per_a": 5,
+        "pass": false
+      }
+    }
+  },
+  "control": {
+    "k": 10,
+    "recall_dup": 1.0,
+    "auc_dup_rest": 0.971834837298332,
+    "candidates": 1000,
+    "positives": 46,
+    "calls_per_a": 10.0
+  },
+  "verdict": {
+    "primary": "retrieval",
+    "bars": {
+      "recall_dup": 0.95,
+      "delta_auc": -0.02
+    },
+    "ships_k": null,
+    "pass": false
+  },
+  "inputs": {
+    "predictions": "results/run9/bf16/pairs_b/predictions_pplx-flash-local_test_all.jsonl",
+    "pairs_b": "results/run9/pairs_b.jsonl",
+    "candidates": "results/run6/candidates_k20.jsonl",
+    "adjudicated": "data/run6/hold_labels_adjudicated.jsonl"
+  },
+  "weights": {
+    "overlap": {
+      "jaccard": 0.5,
+      "dir_jaccard": 0.3,
+      "ident_jaccard": 0.2
+    },
+    "blend": {
+      "rank": 0.5,
+      "overlap": 0.5
+    }
+  }
+}
