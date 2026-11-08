@@ -2,6 +2,56 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.5.0 — unreleased (gateway hardening; no protocol change, nothing from run 10 ships)
+
+The gateway as a thing a team can run for a week without reading its code: a defined failure mode, a shadow mode,
+two policy test commands, one comment per PR, metrics, a hardened webhook, and signed, reproducible distribution.
+No verdict rule, threshold or model changes; every new number is a gatelog field or an in-process counter.
+Reference: `docs/POLICY.md` ("Failure handling", "Shadow mode", "Policy tests", "Policy regression check",
+"Observability", "Webhook hardening", "Verdict actions"). Default behaviour changes, each dated below: the verdict
+comment is edited in place per PR (was one per head); a non-loopback bind without `MERGEONE_WEBHOOK_SECRET` answers
+401 (was: accepted unsigned); transient model failures are retried (were: one call, then `on_error`).
+
+Dated changes:
+
+- 2026-11-08 gateway: **retries and a circuit breaker** around every model call (`resilience:`; defaults retries 2,
+  backoff 500 ms doubling to 8 s with jitter, breaker after 5 consecutive failed decisions, 30 s cooldown, one probe).
+  Retried: connection errors and timeouts, HTTP 429, HTTP 5xx; not retried: other 4xx and malformed replies. While
+  the breaker is open a PR is held at once (`on_error`, error `CircuitOpen: …`) instead of waiting through timeouts.
+  Record field `retries`; `breaker` on `/healthz` and `/stats`. The engine's `on_error` default (hold → human) is
+  unchanged. Why now: run 9 saw 19 hosted 429s in 724 requests; before this each would have been a held PR.
+- 2026-11-08 gateway: **`mode: shadow`**. Decides and records every PR exactly as `enforce` does and writes nothing to
+  GitHub (no status, label, comment, pending status or check-run). Records carry `shadow: true`; `/stats` and
+  `mergeone stats` count them. Switching to `enforce` applies the recorded verdicts on the next event without a
+  model call. Why: a team's first week should be "what would it have done", not labels.
+- 2026-11-08 gateway: **`mergeone replay --gatelog`** re-runs recorded decisions through the current policy and
+  calibration (no model call) and reports verdict flips by transition and by rule; exit 1 on a flip. Records that
+  never reached the model (`on_error`, `always_human_paths`, `max_rounds`) are counted, not replayed.
+- 2026-11-08 gateway: **observability**. `GET /metrics` (Prometheus text: decisions by verdict/rule/source, model
+  errors by kind, calls, retries, pair errors, tokens, cost, reused, debounced, shadow, webhooks by action, a
+  decision-latency histogram, queue depth, mode, breaker). Record fields `input_tokens`, `output_tokens`,
+  `model_calls`, `pair_errors`, `delivery_id` (the webhook's `X-GitHub-Delivery`). `/stats` gains `mode`, `shadow`
+  and a `model` block (`errors_by_kind`, token p50/p99 per decision, `cost_per_decision_usd`, model latency p50/p99).
+- 2026-11-08 gateway: **one verdict comment per PR** (`actions.comment_mode: update`, the new default): the first head
+  posts it, every later head edits it in place and lists the earlier heads with their verdicts (up to 8). `per_head`
+  keeps the v0.4 behaviour. Why: an agent pushing twenty heads left twenty comments.
+- 2026-11-08 gateway: **webhook hardening**. Unsigned deliveries are refused (401) on a non-loopback bind unless
+  `serve --allow-unsigned-webhooks`; `X-GitHub-Delivery` ids are remembered 24 h and a redelivery answers
+  `{"duplicate": true}` without a decision; one token bucket per repository (`--webhook-rate`, default 300/min; 429 +
+  `Retry-After`). The policy parser is fuzzed (`FuzzLoadPolicy`, 25 s in CI-equivalent local run, no crasher).
+- 2026-11-08 gateway: **`mergeone policy check | test | scaffold`**. `check` prints the rules in order with the hash
+  and every switch; `test` runs `.mergeone-tests.yaml` (cases of probabilities or paths with the expected verdict,
+  route, rule; exit 1 on a failure); `scaffold` writes a starter from the policy (one case per rule, default,
+  protected paths). No model call.
+- 2026-11-08 distribution: `Dockerfile` (distroless, `ghcr.io/haalp/mergeone:<tag>` built for amd64/arm64 and
+  signed keyless on release), composite GitHub Action (`uses: haalp/mergeone@<tag>`; outputs verdict, rule,
+  reason; `args: --mock` for a keyless dry run), release `checksums.txt` signed with Sigstore (`cosign sign-blob`,
+  bundle attached), SPDX SBOM per release, `MERGEONE_ASSETS` honoured by the asset search, Homebrew formula
+  template in `packaging/homebrew/` (the tap repository is still to be created). CI builds the image and runs the
+  action on every PR.
+- 2026-11-08 init: the fallback registry knows `d3-flash-local` (run 10 added the row to `models.yaml`; the test
+  that keeps the two equal had been failing since 2026-11-07).
+
 ## Run 10 complete — 2026-11-08
 
 One pass, three fails. All four rows on 2026-11-08 UTC: hosted control / full / haiku from the laptop 00:03:23Z –
