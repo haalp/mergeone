@@ -112,6 +112,12 @@ type Result struct {
 	Actions *ActionsReport `json:"actions,omitempty"`
 	// Retries is the number of extra endpoint calls the main decision needed (resilience block); omitted when 0.
 	Retries int `json:"retries,omitempty"`
+	// InputTokens / OutputTokens (v0.5) sum the main call and every pair call, as the endpoints reported them;
+	// ModelCalls counts the calls that answered (main + pair), PairErrors the pair calls that did not.
+	InputTokens  int `json:"input_tokens,omitempty"`
+	OutputTokens int `json:"output_tokens,omitempty"`
+	ModelCalls   int `json:"model_calls,omitempty"`
+	PairErrors   int `json:"pair_errors,omitempty"`
 }
 
 // ActionsReport records the GitHub writes made for one verdict. Errors never change the verdict.
@@ -684,12 +690,14 @@ func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 	if d.Error != "" {
 		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason, Rule: "on_error",
 			Probs: map[string]float64{}, RawProbs: map[string]float64{}, ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS,
-			CostUSD: d.CostUSD, InputSHA256: sha, Error: d.Error, TS: now, Retries: max(0, d.Attempts-1)}
+			CostUSD: d.CostUSD, InputSHA256: sha, Error: d.Error, TS: now, Retries: max(0, d.Attempts-1),
+			InputTokens: d.InputTokens, OutputTokens: d.OutputTokens}
 	}
 	cal := g.Cal.Apply(d.Probs)
 	rule, out := g.Match(cal)
 	res := Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
-		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now, Retries: max(0, d.Attempts-1)}
+		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now, Retries: max(0, d.Attempts-1),
+		InputTokens: d.InputTokens, OutputTokens: d.OutputTokens, ModelCalls: 1}
 	if deg := sortedKeys(g.degradedSet()); len(deg) > 0 {
 		res.Drift = deg
 	}
@@ -820,6 +828,13 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 		d := ps.ds[i]
 		res.ModelLatencySumMS += d.LatencyMS
 		res.CostUSD += d.CostUSD
+		res.InputTokens += d.InputTokens
+		res.OutputTokens += d.OutputTokens
+		if d.Error != "" {
+			res.PairErrors++
+		} else {
+			res.ModelCalls++
+		}
 		p := d.Probs["same_change"]
 		if d.Error != "" || math.IsNaN(p) {
 			p = 0

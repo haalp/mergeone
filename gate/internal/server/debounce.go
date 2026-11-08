@@ -23,8 +23,9 @@ import (
 const PendingStatusDescription = "mergeone: waiting for pushes to settle"
 
 type pendingPush struct {
-	timer *time.Timer
-	shas  []string // every head pushed in this window, oldest first
+	timer    *time.Timer
+	shas     []string // every head pushed in this window, oldest first
+	delivery string   // X-GitHub-Delivery of the last push
 }
 
 func (gw *Gateway) debounceWindow() time.Duration {
@@ -37,7 +38,7 @@ func (gw *Gateway) debounceWindow() time.Duration {
 func pendingKey(repo string, pr int) string { return fmt.Sprintf("%s#%d", repo, pr) }
 
 // debouncePush records a synchronize to sha and (re)starts the PR's timer.
-func (gw *Gateway) debouncePush(repo string, pr int, sha string) {
+func (gw *Gateway) debouncePush(repo string, pr int, sha, delivery string) {
 	win := gw.debounceWindow()
 	k := pendingKey(repo, pr)
 	gw.pmu.Lock()
@@ -52,6 +53,7 @@ func (gw *Gateway) debouncePush(repo string, pr int, sha string) {
 	if sha != "" && (len(p.shas) == 0 || p.shas[len(p.shas)-1] != sha) {
 		p.shas = append(p.shas, sha)
 	}
+	p.delivery = delivery
 	gw.pmu.Unlock()
 	if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Shadow() {
 		go gw.postPendingStatus(repo, sha)
@@ -67,12 +69,17 @@ func (gw *Gateway) firePending(repo string, pr int, p *pendingPush) {
 	}
 	delete(gw.pending, pendingKey(repo, pr))
 	shas := append([]string(nil), p.shas...)
+	delivery := p.delivery
 	gw.pmu.Unlock()
 	if len(shas) == 0 {
 		return
 	}
 	head := shas[len(shas)-1]
-	gw.Submit(repo, pr, head, "webhook", map[string]any{"debounced_shas": shas[:len(shas)-1]})
+	extra := map[string]any{"debounced_shas": shas[:len(shas)-1]}
+	if delivery != "" {
+		extra["delivery_id"] = delivery
+	}
+	gw.Submit(repo, pr, head, "webhook", extra)
 }
 
 // flushPending cancels the PR's timer (another event decides it now) and returns the heads it was holding.

@@ -233,6 +233,35 @@ is marked as passed.
 call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
 `debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
+## Observability (`/stats`, `/metrics`, record fields) — v0.5
+
+Every number comes from the gatelog or from counters the gateway keeps since start; nothing is sampled or estimated.
+
+**Record fields** (besides the verdict): `latency_ms` (wall clock), `model_latency_sum_ms` (sum over the calls made),
+`input_tokens` / `output_tokens` (main call + pair calls, as the endpoints reported them), `model_calls` (calls that
+answered), `pair_errors` (pair calls that did not; the candidate counts as not a duplicate), `retries` (extra calls
+the resilience layer made for the main decision), `cost_usd`, `error`, `reused_from`, `debounced_shas`, `shadow`,
+`delivery_id` (the webhook's `X-GitHub-Delivery`, also on the fail-closed `worker-error` record).
+
+**`GET /stats?window=86400`** (and `/api/stats`, `mergeone stats`): `decisions`, `per_hour`, `verdicts`, `routes`,
+`rules`, `error_rate`, `p50_ms` / `p99_ms` (decision wall clock), `cost_usd`, `reused`, `debounced`, `shadow`, `mode`,
+`drift`, `history.daily`, `resolutions`, `calibration`, `breaker` (resilience block), and a `model` block: `calls`,
+`retries`, `pair_errors`, `errors_by_kind` (`connect` · `http_429` · `http_5xx` · `http_4xx` · `circuit_open` ·
+`bad_reply` · `other`), `input_tokens`, `input_tokens_p50` / `p99` per decision that called the model,
+`output_tokens`, `model_latency_p50_ms` / `p99_ms`, `cost_per_decision_usd`.
+
+**`GET /metrics`** is the same information as Prometheus text (no auth; bind the gateway to loopback or a private
+network, or put it behind the reverse proxy that already fronts the webhook): `mergeone_decisions_total{verdict,rule,
+source}`, `mergeone_model_errors_total{kind}`, `mergeone_model_calls_total`, `mergeone_model_retries_total`,
+`mergeone_pair_call_errors_total`, `mergeone_model_tokens_total{direction}`, `mergeone_model_cost_usd_total`,
+`mergeone_verdicts_reused_total`, `mergeone_pushes_debounced_total`, `mergeone_shadow_decisions_total`,
+`mergeone_webhooks_total{event,action}`, `mergeone_decision_latency_seconds` (histogram, buckets 0.1 s … 300 s, decisions
+that called the model), `mergeone_queue_jobs{status}`, `mergeone_mode_shadow`, `mergeone_breaker_open`,
+`mergeone_breaker_opened_total`, `mergeone_breaker_short_circuited_total`. Counters restart with the process; the
+gatelog is the durable record.
+
+**`GET /healthz`**: `ok`, `workers`, `queue`, `model`, `mode`, `breaker`.
+
 ## Policy regression check (`mergeone replay --gatelog`) — v0.5
 
 ```bash

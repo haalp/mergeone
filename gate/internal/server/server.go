@@ -44,12 +44,14 @@ type Gateway struct {
 	// webhook debounce (debounce.go): repo#pr → pushes waiting for the window to close
 	pmu     sync.Mutex
 	pending map[string]*pendingPush
+	// metrics (metrics.go): in-process counters for GET /metrics
+	metrics *metrics
 }
 
 // New starts the worker pool.
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{}),
-		pending: map[string]*pendingPush{}}
+		pending: map[string]*pendingPush{}, metrics: newMetrics()}
 	if g.Cal != nil {
 		var refit time.Time
 		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
@@ -158,6 +160,7 @@ type decideReq struct {
 	rctx                     map[string]any
 	act                      bool
 	patchID                  string   // "" = derived from the state (patchid.State)
+	deliveryID               string   // X-GitHub-Delivery of the webhook that caused this decision
 	debounced                []string // heads skipped by the webhook debounce, recorded on this decision
 }
 
@@ -217,10 +220,11 @@ func (gw *Gateway) decideReq(q decideReq) engine.Result {
 		}
 	}
 	rec := store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: q.source, Result: res, Context: rctx, State: state,
-		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced, Shadow: shadow}
+		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced, Shadow: shadow, DeliveryID: q.deliveryID}
 	if err := gw.Store.Record(rec); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
+	gw.metrics.observe(rec)
 	return res
 }
 
@@ -288,7 +292,10 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			if gw.Gate.Policy.Actions.Enabled && act && !shadow {
 				res.Actions = ApplyStatusOnly(gw.GitHub, gw.Gate.Policy.Actions, repo, pr, sha, res)
 			}
-			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res, Shadow: shadow})
+			erec := store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res, Shadow: shadow}
+			erec.DeliveryID, _ = j.Payload["delivery_id"].(string)
+			_ = gw.Store.Record(erec)
+			gw.metrics.observe(erec)
 			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled && !shadow {
 				gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, "")
 				gw.settleLegacyStatus(j, repo, sha, res)
@@ -326,8 +333,9 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			debounced = append(debounced, d)
 		}
 	}
+	deliveryID, _ := j.Payload["delivery_id"].(string)
 	res := gw.decideReq(decideReq{repo: repo, pr: pr, sha: sha, state: state, meta: meta, rctx: rctx, source: source, act: act,
-		patchID: pid, debounced: debounced})
+		patchID: pid, debounced: debounced, deliveryID: deliveryID})
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
 	if gw.Memory != nil && meta.Title != "" {
 		mf := make([]memory.FileStat, 0, len(files))
@@ -355,6 +363,15 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			h["breaker"] = r.Stats()
 		}
 		writeJSON(w, 200, h)
+	})
+	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
+		var br *models.BreakerStats
+		if rm, ok := gw.Gate.Model.(*models.Resilient); ok {
+			b := rm.Stats()
+			br = &b
+		}
+		w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+		gw.metrics.write(w, gw.Store.QueueDepth(), br, gw.Gate.Policy.Mode)
 	})
 	mux.HandleFunc("GET /stats", func(w http.ResponseWriter, r *http.Request) {
 		win := 86400
@@ -426,7 +443,9 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 				return
 			}
 		}
+		delivery := r.Header.Get("X-GitHub-Delivery")
 		if r.Header.Get("X-GitHub-Event") != "pull_request" {
+			gw.metrics.webhook(r.Header.Get("X-GitHub-Event"), "")
 			writeJSON(w, 200, map[string]string{"ignored": r.Header.Get("X-GitHub-Event")})
 			return
 		}
@@ -448,19 +467,23 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			return
 		}
 		repo, pr, sha := ev.Repository.FullName, ev.PullRequest.Number, ev.PullRequest.Head.SHA
+		gw.metrics.webhook("pull_request", ev.Action)
 		switch ev.Action {
 		case "opened", "synchronize", "reopened", "ready_for_review":
 			if ev.Action == "synchronize" {
 				gw.GitHub.InvalidateHead(repo, pr, sha)
 				if gw.debounceWindow() > 0 {
-					gw.debouncePush(repo, pr, sha)
+					gw.debouncePush(repo, pr, sha, delivery)
 					writeJSON(w, 200, map[string]any{"debounced": true, "settle_s": gw.debounceWindow().Seconds()})
 					return
 				}
 			}
-			var extra map[string]any
+			extra := map[string]any{}
 			if skipped := gw.flushPending(repo, pr); len(skipped) > 0 { // a non-push event decides now
-				extra = map[string]any{"debounced_shas": skipped}
+				extra["debounced_shas"] = skipped
+			}
+			if delivery != "" {
+				extra["delivery_id"] = delivery
 			}
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", extra)})
 		case "closed":

@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -44,6 +45,9 @@ type Record struct {
 	DebouncedSHAs []string `json:"debounced_shas,omitempty"`
 	// Shadow (v0.5) marks a decision made under `mode: shadow`: recorded, nothing written to GitHub.
 	Shadow bool `json:"shadow,omitempty"`
+	// DeliveryID (v0.5) is the X-GitHub-Delivery header of the webhook that caused this decision, so a record
+	// can be traced back to GitHub's delivery log (and a redelivery recognised).
+	DeliveryID string `json:"delivery_id,omitempty"`
 }
 
 // OpenPR is what the planner sees.
@@ -244,9 +248,10 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	defer s.mu.Unlock()
 	t0 := time.Now().Add(-window)
 	verdicts, routes, rules := map[string]int{}, map[string]int{}, map[string]int{}
-	var lat []float64
+	var lat, tokIn, mlat []float64
 	var cost float64
-	n, errs, reused, debounced, shadow := 0, 0, 0, 0, 0
+	n, errs, reused, debounced, shadow, retries, calls, pairErrs, tokOut := 0, 0, 0, 0, 0, 0, 0, 0, 0
+	errKinds := map[string]int{}
 	daily := dailyAcc{}
 	for _, r := range s.recent {
 		if r.TS.Before(t0) {
@@ -265,13 +270,28 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		if r.Shadow {
 			shadow++
 		}
+		retries += r.Result.Retries
+		calls += r.Result.ModelCalls
+		pairErrs += r.Result.PairErrors
+		tokOut += r.Result.OutputTokens
 		if r.Result.Error != "" {
 			errs++
+			errKinds[ErrorKind(r.Result.Error)]++
 		} else if r.Result.LatencyMS > 0 {
 			lat = append(lat, r.Result.LatencyMS)
+			if r.ReusedFrom == "" { // a reused verdict made no call: no tokens, no model latency
+				if r.Result.InputTokens > 0 {
+					tokIn = append(tokIn, float64(r.Result.InputTokens))
+				}
+				if r.Result.ModelLatencySumMS > 0 {
+					mlat = append(mlat, r.Result.ModelLatencySumMS)
+				}
+			}
 		}
 	}
 	sort.Float64s(lat)
+	sort.Float64s(tokIn)
+	sort.Float64s(mlat)
 	out := map[string]any{"window_s": window.Seconds(), "decisions": n, "per_hour": float64(n) / window.Hours(),
 		"verdicts": verdicts, "routes": routes, "rules": rules, "cost_usd": cost, "reused": reused, "debounced": debounced, "shadow": shadow, "error_rate": 0.0, "p50_ms": nil, "p99_ms": nil}
 	if n > 0 {
@@ -281,12 +301,53 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		out["p50_ms"] = lat[len(lat)/2]
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
 	}
+	model := map[string]any{"calls": calls, "retries": retries, "pair_errors": pairErrs, "errors_by_kind": errKinds,
+		"output_tokens": tokOut, "input_tokens_p50": nil, "input_tokens_p99": nil, "model_latency_p50_ms": nil, "model_latency_p99_ms": nil}
+	if len(tokIn) > 0 {
+		model["input_tokens_p50"] = tokIn[len(tokIn)/2]
+		model["input_tokens_p99"] = tokIn[min(int(float64(len(tokIn))*0.99), len(tokIn)-1)]
+		sum := 0.0
+		for _, t := range tokIn {
+			sum += t
+		}
+		model["input_tokens"] = int(sum)
+	}
+	if len(mlat) > 0 {
+		model["model_latency_p50_ms"] = mlat[len(mlat)/2]
+		model["model_latency_p99_ms"] = mlat[min(int(float64(len(mlat))*0.99), len(mlat)-1)]
+	}
+	if n > 0 {
+		model["cost_per_decision_usd"] = cost / float64(n)
+	}
+	out["model"] = model
 	out["drift"] = s.driftReport(time.Now())
 	out["history"] = map[string]any{"daily": daily.rows()}
 	if rs := s.resolutionStats(t0); rs != nil {
 		out["resolutions"] = rs
 	}
 	return out
+}
+
+// ErrorKind buckets a Result.Error for counting: connect (incl. timeouts), http_429, http_5xx, http_4xx,
+// circuit_open, bad_reply, other.
+func ErrorKind(e string) string {
+	switch {
+	case e == "":
+		return ""
+	case strings.HasPrefix(e, "ConnectError"):
+		return "connect"
+	case strings.HasPrefix(e, "CircuitOpen"):
+		return "circuit_open"
+	case strings.HasPrefix(e, "HTTP 429"):
+		return "http_429"
+	case strings.HasPrefix(e, "HTTP 5"):
+		return "http_5xx"
+	case strings.HasPrefix(e, "HTTP 4"):
+		return "http_4xx"
+	case strings.HasPrefix(e, "bad JSON"), strings.HasPrefix(e, "bad model JSON"):
+		return "bad_reply"
+	}
+	return "other"
 }
 
 // ---- jobs

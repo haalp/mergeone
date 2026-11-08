@@ -91,7 +91,7 @@ export GITHUB_TOKEN=... MERGEONE_WEBHOOK_SECRET=...
 mergeone serve --policy .mergeone.yaml --addr :8787
 ```
 
-Point a GitHub webhook (`pull_request` events) at `POST /webhook/github`. Decisions are idempotent per head SHA; the HTTP API also exposes `POST /decide`, `GET /verdict`, `GET /plan` (non-conflicting landing waves), `GET /stats`, `GET /healthz`. The gatelog is `.mergeone/gatelog.jsonl`.
+Point a GitHub webhook (`pull_request` events) at `POST /webhook/github`. Decisions are idempotent per head SHA; the HTTP API also exposes `POST /decide`, `GET /verdict`, `GET /plan` (non-conflicting landing waves), `GET /stats`, `GET /healthz`, `GET /metrics` (Prometheus text: decisions by verdict and rule, model errors by kind, retries, tokens, cost, a decision-latency histogram, queue depth, breaker state). The gatelog is `.mergeone/gatelog.jsonl`; every webhook-caused record carries the `X-GitHub-Delivery` id.
 
 **Agent (MCP)** — the agent asks before it merges:
 
