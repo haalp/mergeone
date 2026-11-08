@@ -1,0 +1,74 @@
+name: mergeone
+description: Run the mergeone merge gate on a pull request — typed decisions from a small model, a policy you own, pass / hold / block. Never merges.
+author: haalp
+branding: { icon: git-merge, color: purple }
+inputs:
+  policy:
+    description: Path to the policy file in the repository
+    default: .mergeone.yaml
+  version:
+    description: mergeone release to run (a tag such as v0.5.0, or latest)
+    default: latest
+  github-token:
+    description: Token for reading the PR and, with actions.enabled, writing the status, labels and comment
+    default: ${{ github.token }}
+  fail-on-hold:
+    description: Fail the job on hold as well as block (default: hold is a warning, a human decides)
+    default: "false"
+  args:
+    description: Extra flags for `mergeone pr` (for example `--mock` to run the pipeline without a model key)
+    default: ""
+outputs:
+  verdict:
+    description: pass | hold | block (error on a failed decision)
+    value: ${{ steps.decide.outputs.verdict }}
+  rule:
+    description: The policy rule that matched
+    value: ${{ steps.decide.outputs.rule }}
+  reason:
+    description: The rule's reason
+    value: ${{ steps.decide.outputs.reason }}
+runs:
+  using: composite
+  steps:
+    - name: install mergeone ${{ inputs.version }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        v="${{ inputs.version }}"
+        if [ "$v" = "latest" ]; then
+          v=$(curl -fsSL -H "Authorization: Bearer ${{ inputs.github-token }}" https://api.github.com/repos/haalp/mergeone/releases/latest | jq -r .tag_name)
+        fi
+        os=$(uname -s | tr '[:upper:]' '[:lower:]'); arch=$(uname -m); case "$arch" in x86_64) arch=amd64;; aarch64|arm64) arch=arm64;; esac
+        mkdir -p "$HOME/.mergeone-bin"
+        curl -fsSL "https://github.com/haalp/mergeone/releases/download/${v}/mergeone_${os}_${arch}.tar.gz" | tar xz -C "$HOME/.mergeone-bin"
+        curl -fsSL "https://github.com/haalp/mergeone/releases/download/${v}/checksums.txt" -o "$HOME/.mergeone-bin/checksums.txt" || true
+        if [ -s "$HOME/.mergeone-bin/checksums.txt" ]; then
+          # verify the archive we just extracted against the release checksums
+          curl -fsSL "https://github.com/haalp/mergeone/releases/download/${v}/mergeone_${os}_${arch}.tar.gz" -o "$HOME/.mergeone-bin/a.tgz"
+          (cd "$HOME/.mergeone-bin" && grep "mergeone_${os}_${arch}.tar.gz" checksums.txt | sed "s| .*| a.tgz|" | sha256sum -c -)
+        fi
+        mv "$HOME/.mergeone-bin/mergeone_${os}_${arch}" "$HOME/.mergeone-bin/mergeone"
+        echo "$HOME/.mergeone-bin" >> "$GITHUB_PATH"
+        echo "MERGEONE_ASSETS=$HOME/.mergeone-bin/assets" >> "$GITHUB_ENV"
+        "$HOME/.mergeone-bin/mergeone" version
+    - name: decide
+      id: decide
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        set +e
+        mergeone pr --policy "${{ inputs.policy }}" --assets "$MERGEONE_ASSETS" --base "origin/${{ github.base_ref }}" --head HEAD ${{ inputs.args }} > mergeone.json
+        code=$?
+        cat mergeone.json
+        v=$(jq -r '.verdict // "error"' mergeone.json 2>/dev/null || echo error)
+        echo "verdict=$v" >> "$GITHUB_OUTPUT"
+        echo "rule=$(jq -r '.rule // ""' mergeone.json 2>/dev/null)" >> "$GITHUB_OUTPUT"
+        echo "reason=$(jq -r '.reason // ""' mergeone.json 2>/dev/null)" >> "$GITHUB_OUTPUT"
+        case $code in
+          0) echo "mergeone: pass" ;;
+          1) echo "::warning title=mergeone::hold, $(jq -r '.route + ": " + .reason' mergeone.json)"
+             if [ "${{ inputs.fail-on-hold }}" = "true" ]; then exit 1; fi ;;
+          *) echo "::error title=mergeone::$(jq -r '.verdict + ": " + .reason' mergeone.json 2>/dev/null || echo error)"; exit 1 ;;
+        esac

@@ -331,7 +331,12 @@ func cmdIndex(args []string) int {
 func findAsset(dir, name string) string {
 	exe, _ := os.Executable()
 	home, _ := os.UserHomeDir()
-	for _, d := range []string{dir, filepath.Join(dir, ".mergeone"), filepath.Join(dir, "prompts"), filepath.Join(dir, "mergeone", "gate"), filepath.Join(dir, "assets"), filepath.Dir(exe), filepath.Join(filepath.Dir(exe), "assets"), filepath.Join(home, ".mergeone")} {
+	dirs := []string{dir, filepath.Join(dir, ".mergeone"), filepath.Join(dir, "prompts"), filepath.Join(dir, "mergeone", "gate"), filepath.Join(dir, "assets")}
+	if env := os.Getenv("MERGEONE_ASSETS"); env != "" { // the container image and the GitHub Action set it
+		dirs = append(dirs, env)
+	}
+	dirs = append(dirs, filepath.Dir(exe), filepath.Join(filepath.Dir(exe), "assets"), filepath.Join(home, ".mergeone"))
+	for _, d := range dirs {
 		p := filepath.Join(d, name)
 		if _, err := os.Stat(p); err == nil {
 			return p
