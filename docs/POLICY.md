@@ -254,6 +254,14 @@ call; records with the same `(repo, pr, patch_id)` and different `head_sha` coun
 The policy file itself is fuzzed (`go test ./internal/engine -fuzz=FuzzLoadPolicy`): any bytes either load or return
 a named error, never a crash at start.
 
+## Keys from the environment — v0.5
+
+Each model row names its key variable (`TYPESAFE_API_KEY` for `jev`, `PERPLEXITY_API_KEY` for `pplx` and
+`pplx-flash`, `ANTHROPIC_API_KEY` for `haiku`, `MERGEONE_LOCAL_KEY` optional for `*-local`). Two overrides exist for
+tools that hold one secret per plugin: `MERGEONE_MODEL_KEY`, used for whichever model the policy names when it is set
+and non-empty, and `MERGEONE_GITHUB_TOKEN`, used instead of `GITHUB_TOKEN` when set and non-empty. An empty override
+never shadows a set variable, so a blank field in a configuration dialog leaves `.env` in charge.
+
 ## Observability (`/stats`, `/metrics`, record fields) — v0.5
 
 Every number comes from the gatelog or from counters the gateway keeps since start; nothing is sampled or estimated.

@@ -83,6 +83,24 @@ func (r *Registry) Names() []string {
 	return out
 }
 
+// KeyFromEnv reads a model key: MERGEONE_MODEL_KEY when it is set and non-empty (one override for whichever model
+// the policy names — what the Claude Code plugin's configuration dialog fills), otherwise the model's own
+// variable (TYPESAFE_API_KEY, PERPLEXITY_API_KEY, …). An empty override never shadows a set variable.
+func KeyFromEnv(keyEnv string) string {
+	if k := os.Getenv("MERGEONE_MODEL_KEY"); k != "" {
+		return k
+	}
+	return os.Getenv(keyEnv)
+}
+
+// GitHubTokenFromEnv reads GITHUB_TOKEN, or MERGEONE_GITHUB_TOKEN when that is set and non-empty.
+func GitHubTokenFromEnv() string {
+	if t := os.Getenv("MERGEONE_GITHUB_TOKEN"); t != "" {
+		return t
+	}
+	return os.Getenv("GITHUB_TOKEN")
+}
+
 // Build instantiates a Spec. questionsPath is the jev_<qset>.json file (systemone/decide);
 // promptPath is the haiku_<qset>.md file (anthropic). modelIDOverride pins a different model id.
 func Build(s *Spec, questionsPath, promptPath, modelIDOverride string) (Decider, error) {
@@ -95,7 +113,7 @@ func Build(s *Spec, questionsPath, promptPath, modelIDOverride string) (Decider,
 	}
 	key := ""
 	if s.KeyEnv != "" {
-		key = os.Getenv(s.KeyEnv)
+		key = KeyFromEnv(s.KeyEnv)
 	}
 	if key == "" && !s.KeyOptional {
 		return nil, fmt.Errorf("model %s: %s not set", s.Name, s.KeyEnv)

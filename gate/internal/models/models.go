@@ -94,7 +94,7 @@ func NewPplx(questionsPath, modelID string) (*Jev, error) {
 }
 
 func newDecider(name, endpoint, keyEnv, modelID string, inPerMTok float64, questionsPath string) (*Jev, error) {
-	key := os.Getenv(keyEnv)
+	key := KeyFromEnv(keyEnv)
 	if key == "" {
 		return nil, fmt.Errorf("%s not set", keyEnv)
 	}
@@ -241,7 +241,7 @@ type Haiku struct {
 
 // NewHaiku builds a client from ANTHROPIC_API_KEY and prompts/haiku_v2.md.
 func NewHaiku(promptPath string) (*Haiku, error) {
-	key := os.Getenv("ANTHROPIC_API_KEY")
+	key := KeyFromEnv("ANTHROPIC_API_KEY")
 	if key == "" {
 		return nil, fmt.Errorf("ANTHROPIC_API_KEY not set")
 	}

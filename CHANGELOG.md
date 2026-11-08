@@ -21,6 +21,13 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
+## v0.5.1 — unreleased
+
+- 2026-11-08 cli: `mergeone pr` prints `repo`, `pr` and `head_sha` with the verdict (found by the Claude Code plugin's
+  `/mergeone:pr`, which could not show which commit was decided).
+- 2026-11-08 keys: `MERGEONE_MODEL_KEY` and `MERGEONE_GITHUB_TOKEN` as non-shadowing overrides for the model key and
+  the GitHub token (`docs/POLICY.md`, "Keys from the environment"); the plugin's configuration dialog fills them.
+
 ## v0.5.0 — 2026-11-08 (gateway hardening; no protocol change; nothing from runs 10–11 ships)
 
 The gateway as a thing a team can run for a week without reading its code: a defined failure mode, a shadow mode,

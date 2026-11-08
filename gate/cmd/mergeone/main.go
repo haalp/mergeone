@@ -314,7 +314,7 @@ func cmdIndex(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	gh := server.NewGitHub(os.Getenv("GITHUB_TOKEN"))
+	gh := server.NewGitHub(models.GitHubTokenFromEnv())
 	if gh == nil {
 		return fail(fmt.Errorf("GITHUB_TOKEN required"))
 	}
@@ -373,7 +373,7 @@ func cmdServe(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), *workers, *public)
+	gw := server.New(g, st, server.NewGitHub(models.GitHubTokenFromEnv()), *workers, *public)
 	gw.Memory = memoryOf(g)
 	gw.AllowUnsignedWebhooks = *allowUnsigned
 	if *webhookRate > 0 {
@@ -800,7 +800,7 @@ func cmdMCP(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), 4, "")
+	gw := server.New(g, st, server.NewGitHub(models.GitHubTokenFromEnv()), 4, "")
 	gw.Memory = memoryOf(g)
 	defer gw.Stop()
 	if inSession() {
