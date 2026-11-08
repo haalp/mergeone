@@ -484,7 +484,26 @@ func prPositional(args []string) (repo string, pr int, rest []string) {
 
 // verdictCode prints res as JSON and returns its exit code: 0 pass, 1 hold, 2 block.
 func verdictCode(res engine.Result) int {
-	b, _ := json.MarshalIndent(res, "", "  ")
+	return verdictCodeFor(res, "", 0, "")
+}
+
+// verdictCodeFor prints the result with the PR identity it was decided for (repo, pr, head_sha) when known —
+// a verdict is keyed on the head sha, so the reader must be able to see which commit it was — and exits 0 / 1 / 2
+// for pass / hold / block.
+func verdictCodeFor(res engine.Result, repo string, pr int, headSHA string) int {
+	out := map[string]any{}
+	b, _ := json.Marshal(res)
+	_ = json.Unmarshal(b, &out)
+	if repo != "" {
+		out["repo"] = repo
+	}
+	if pr > 0 {
+		out["pr"] = pr
+	}
+	if headSHA != "" {
+		out["head_sha"] = headSHA
+	}
+	b, _ = json.MarshalIndent(out, "", "  ")
 	fmt.Fprintln(stdout, string(b))
 	switch res.Verdict {
 	case "pass":
@@ -611,7 +630,7 @@ func cmdPR(args []string) int {
 		}
 		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, Context: rctx, State: state})
 	}
-	return verdictCode(res)
+	return verdictCodeFor(res, *ghRepo, *prNum, *headSHA)
 }
 
 // prFromEvent reads the PR number and head sha from a GitHub Actions pull_request event payload.
