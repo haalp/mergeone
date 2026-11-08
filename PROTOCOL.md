@@ -943,7 +943,9 @@ Each is a model-free or near-free change to the gateway; each needs a bar before
 ## R11.3 Pre-registered criteria
 
 - **R11-H1 (compact main call).** Same-day hosted `pplx-flash` control, full state, on the 705 test PRs; the compact
-  main call on the same PRs the same UTC day. Bar: mean v4 AUC Δ ≥ **−0.02** *and* every one of the eight questions
+  main call on the same PRs the same UTC day. Run 8 measured this comparison (R8-H1: v4 mean Δ +0.010 Jev, −0.001
+  pplx-flash, tokens −32 % / −42 %) and pre-registered a consequence for the pair call only; this hypothesis is the
+  main call's own bar, with a per-question clause run 8 did not have, and run 8's numbers are shown beside it. Bar: mean v4 AUC Δ ≥ **−0.02** *and* every one of the eight questions
   Δ ≥ **−0.03** *and* input tokens per PR ≤ **0.75×** the control's. Pass → `state: compact` becomes the default for
   the main call (full stays selectable); fail → full stays and the result is reported.
 - **R11-H2 (pair prefilter; no new model call).** On run 9's set (b) — each A with its ten retrieved candidates and

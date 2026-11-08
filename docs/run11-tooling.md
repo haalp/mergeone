@@ -17,9 +17,14 @@ protocol forbids. Scores and weights are in the module docstring and `WEIGHTS`; 
 
 ## R11-H1 — compact main call (hosted, ≈ $0.10)
 
-To be written at freeze: `scripts/run11_hosted.sh` runs the control (full state, `pplx-flash`) and the compact
-rendering on the 705 test PRs the same UTC day into `results/run11/{control,compact}/`; `mergeone.eval.run11_report`
-builds the table (mean v4 Δ, per-question Δ, tokens ratio) and the verdict.
+```bash
+scripts/run11_hosted.sh          # lab machine; refuses until tag r11-frozen exists; control first, then --compact, same UTC day
+scripts/run11_hosted.sh report   # python -m mergeone.eval.run11_report → results/run11/{metrics.json,tables.md}
+```
+
+Rows land in `results/run11/main/predictions_pplx-flash_test_all.jsonl` (control) and `…_compact.jsonl` (treatment),
+as run 8's v4 directory did; `run11_report.h1` scores them with run 8's `h1_v4` logic plus the per-question and token
+clauses.
 
 ## R11-H3 — team recalibration (conditional)
 
