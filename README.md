@@ -208,7 +208,7 @@ The gateway itself adds single-digit milliseconds: 350 decisions/s on one 2-vCPU
 
 ## Evidence, including what did not work
 
-mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Ten runs, twenty-two results; fourteen failed and are reported the same way.
+mergeone is also a benchmark, **gatebench**. Every claim was pre-registered in [`PROTOCOL.md`](PROTOCOL.md) before the data existed; thresholds are never edited after results exist; deviations are dated in [`CHANGELOG.md`](CHANGELOG.md); every table rebuilds with one command from `results/run*`. Eleven runs, twenty-four results; sixteen failed and are reported the same way.
 
 | run | question | result |
 |---|---|---|

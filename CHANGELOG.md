@@ -2,6 +2,18 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 11 complete (H1, H2) — 2026-11-08
+
+Two fails; H3 waits for its precondition. Hosted rows from the laptop 15:41:13Z (control) – 15:44:11Z (compact), 705/705
+each, 0 errors; H2 from run 9's recorded answers, no model call. Every number from `mergeone.eval.run11_report`;
+write-up `results/run11/README.md`.
+- R11-H1 ❌ compact main call: mean v4 Δ −0.003 [−0.020, 0.015] ✓, tokens 0.675× ✓, `tests_cover_change` −0.032 against
+  the −0.03 per-question clause ✗. Full state stays for the main call.
+- R11-H2 ❌ retrieval-order prefilter keeps the adjudicated duplicate for 0.913 (k'=5) / 0.891 (k'=3) of A's (bar 0.95).
+  Ten pair calls stay.
+- Spend $0.026. Observation, beside: the hosted endpoint reported 2,209 median input tokens per joint request (run 9:
+  17,050) — the provider's request handling moved again; same-day AUCs match run 10's control.
+
 ## Run 11 frozen — 2026-11-08
 
 PROTOCOL.md §R11 (compact main call, model-free pair prefilter on run 9's recorded answers, conditional team

@@ -16,9 +16,10 @@ competing fixes (4/7, 5/7) but nobody reads same-area pairs. `results/run10/READ
   (`resilience:`), `mode: shadow`, `mergeone replay --gatelog`, `mergeone policy check|test|scaffold`, one verdict
   comment per PR, `/metrics`, webhook replay cache and per-repo rate limit, Dockerfile + GitHub Action + signed
   releases with an SBOM.
-- Run 11 (PROTOCOL.md §R11, draft): compact state for the main call (R11-H1, ≈ $0.10), a model-free pair-call
-  prefilter measured on run 9's recorded answers (R11-H2, $0), team recalibration when ≥ 200 outcomes exist
-  (R11-H3). Freeze when the prefilter script is committed.
+- Run 11 (PROTOCOL.md §R11, frozen and run 2026-11-08): compact main call ❌ (mean −0.003, tokens 0.675×, one
+  question −0.032 against −0.03), retrieval-order prefilter ❌ (keeps the duplicate for 0.913, bar 0.95); team
+  recalibration waits for ≥ 200 outcomes. Nothing ships; `results/run11/README.md`. Next candidates, each its own
+  section: a compact rendering with a 3–4k diff budget; a better pair retrieval (four duplicates at rank 6–10).
 
 
 Run 9 (2026-11-06) is done: one pass, three fails. The hosted endpoint asked jointly equals the local checkpoint asked
