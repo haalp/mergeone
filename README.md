@@ -25,7 +25,7 @@ mergeone sits in front of your main branch. For every pull request it asks a sma
 curl -fsSL https://mergeone.dev/install.sh | sh        # macOS / Linux, one static binary → /usr/local/bin/mergeone
 ```
 
-Alternatives: a release archive from [Releases](https://github.com/haalp/mergeone/releases) (every release ships `checksums.txt`, signed keyless with Sigstore, and an SPDX SBOM), `go install github.com/haalp/mergeone/gate/cmd/mergeone@latest`, the container image `ghcr.io/haalp/mergeone:<tag>` (distroless, signed; `docker run ghcr.io/haalp/mergeone serve …`, the Dockerfile shows the mounts), or the GitHub Action:
+Alternatives: `brew install haalp/tap/mergeone` (macOS and Linux), a release archive from [Releases](https://github.com/haalp/mergeone/releases) (every release ships `checksums.txt`, signed keyless with Sigstore, and an SPDX SBOM), `go install github.com/haalp/mergeone/gate/cmd/mergeone@latest`, the container image `ghcr.io/haalp/mergeone:<tag>` (distroless, signed; `docker run ghcr.io/haalp/mergeone serve …`, the Dockerfile shows the mounts), or the GitHub Action:
 
 ```yaml
 - uses: haalp/mergeone@v0.5.0          # installs the release, runs `mergeone pr`; outputs verdict, rule, reason

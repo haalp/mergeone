@@ -65,8 +65,8 @@ Dated changes:
 - 2026-11-08 distribution: `Dockerfile` (distroless, `ghcr.io/haalp/mergeone:<tag>` built for amd64/arm64 and
   signed keyless on release), composite GitHub Action (`uses: haalp/mergeone@<tag>`; outputs verdict, rule,
   reason; `args: --mock` for a keyless dry run), release `checksums.txt` signed with Sigstore (`cosign sign-blob`,
-  bundle attached), SPDX SBOM per release, `MERGEONE_ASSETS` honoured by the asset search, Homebrew formula
-  template in `packaging/homebrew/` (the tap repository is still to be created). CI builds the image and runs the
+  bundle attached), SPDX SBOM per release, `MERGEONE_ASSETS` honoured by the asset search, Homebrew tap
+  `haalp/homebrew-tap` (`brew install haalp/tap/mergeone`; formula template in `packaging/homebrew/`). CI builds the image and runs the
   action on every PR.
 - 2026-11-08 init: the fallback registry knows `d3-flash-local` (run 10 added the row to `models.yaml`; the test
   that keeps the two equal had been failing since 2026-11-07).
