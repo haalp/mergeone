@@ -914,3 +914,66 @@ builder and `run10_report` (no model call) → GPU up, `serve_meta.json` → d3-
   GPU memory at rest 17 GB weights + activations on a 48 GB A40, no OOM at 32k. The row stays.
 - ~~Whether `pplx` full is still served under that name~~ — checked 2026-11-07: `pplx-decider-v1.2` and
   `pplx-decider-flash-v1.2` both answer at `/v1/decisions` (one toy request each, $0.00003).
+
+# R11 — three cheaper calls (draft 2026-11-08, not frozen)
+
+Numbers this section rests on: run 8 (`results/run8/README.md`, R8-H1), run 9 (`results/run9/README.md`, R9-H4's
+set (b) answers), run 10 (`results/run10/README.md`), the v0.5 gateway (`docs/POLICY.md`). Drafted after run 10;
+to be frozen before any model call, with a tag `r11-frozen`. Deviations go to CHANGELOG.md, dated.
+
+## R11.1 Why
+
+Run 10 said the decider is not the lever: a stronger model buys +0.034 AUC on one question at 10× the cost. The
+levers that remain are the ones that make the same decider cheaper without changing its answers: the state it reads
+for the main call (run 8 shrank only the pair call), the number of pair calls per PR (ten, every time, whatever the
+candidates look like), and the calibration map (fit once on the benchmark's val split, never on the team's own PRs).
+Each is a model-free or near-free change to the gateway; each needs a bar before it ships.
+
+## R11.2 Components
+
+- **Main-call compact state.** `render.Compact` (run 8: diff 2,000 chars, body 600, 20 files) applied to the v4
+  main call, not only the pair call. Policy key `state: compact | full` (default today: full for the main call).
+- **Pair-call prefilter.** Before the `same_change` calls, candidates are ranked by a model-free score the gateway
+  already has or can compute from metadata alone: the memory's retrieval score (`retrieval_v2`), changed-file
+  overlap (Jaccard over paths), title token overlap, and recency; only the top-`k'` go to the model. Policy key
+  `memory.prefilter_k` (default today: none — all `top_k: 10` candidates are called).
+- **Team recalibration.** `mergeone calibrate --from-gatelog`, which exists, measured: a map refit on a team's own
+  decided-and-closed PRs against the map shipped from the benchmark val split.
+
+## R11.3 Pre-registered criteria
+
+- **R11-H1 (compact main call).** Same-day hosted `pplx-flash` control, full state, on the 705 test PRs; the compact
+  main call on the same PRs the same UTC day. Bar: mean v4 AUC Δ ≥ **−0.02** *and* every one of the eight questions
+  Δ ≥ **−0.03** *and* input tokens per PR ≤ **0.75×** the control's. Pass → `state: compact` becomes the default for
+  the main call (full stays selectable); fail → full stays and the result is reported.
+- **R11-H2 (pair prefilter; no new model call).** On run 9's set (b) — each A with its ten retrieved candidates and
+  the per-candidate `same_change` answers already recorded in `results/run9/bf16/` — rank the ten candidates by the
+  prefilter score and keep the top `k'` ∈ {3, 5}. Bar, for a `k'` to ship as the default: the adjudicated duplicate is
+  among the kept candidates for ≥ **0.95** of the A's that have one, *and* duplicate-vs-rest AUC computed on the kept
+  candidates ≥ the full-ten AUC − **0.02**. The control is the same recorded answers with all ten (k' = 10). Pass →
+  `memory.prefilter_k` defaults to the smallest passing `k'` (the pair-call budget drops by 50–70 %); fail → ten stays.
+  The prefilter score's weights are fixed in `mergeone/eval/run11_prefilter.py` before the freeze and never tuned on
+  set (b).
+- **R11-H3 (team recalibration; conditional).** Runs only when one gateway's gatelog holds ≥ **200** decided PRs
+  with a recorded outcome (`merged`/`iterated`/`reverted`), ours or a consenting pilot's; until then the bar stands
+  and the hypothesis waits. Split the outcomes by time (first 70 % fit, last 30 % test). Bar: the refit map's ECE on
+  the test 30 % ≤ the shipped map's − **0.02** on at least five of eight questions *and* no question's AUC moves
+  (AUC is invariant to a monotone map; this is a check that the refit is monotone and the code path is right). Pass →
+  the portal's Health screen offers "refit from your PRs" with the measured gain shown; fail → the shipped map stays
+  and the gain is reported.
+
+## R11.4 What is not allowed
+
+- No bar moved after the freeze; no prompt or question edited; the compact renderer's limits are run 8's.
+- H2 makes no model call and uses no answer that is not already in `results/run9/`; its score weights are committed
+  before the freeze.
+- H3 does not run on fewer than 200 outcomes, and never on outcomes the gateway wrote for its own PRs only if those
+  are the only data (two repositories minimum, or the pilot's one).
+- Every H1 comparison is against the same-day control in `results/run11/`; run 8's compact numbers appear beside it.
+
+## R11.5 Budget and order
+
+Hosted only: H1 = 705 PRs × 2 renderings on `pplx-flash` ≈ $0.10 (run 9's measured hosted price); H2 $0; H3 $0
+(a refit, no model call). Order: freeze commit + tag → `run11_prefilter.py` and `run11_report` (no model call) → H2
+from recorded answers → H1 control then compact, same UTC day → report → `results/run11/README.md`. H3 when its
+precondition is met, as a dated addendum to the same run directory.

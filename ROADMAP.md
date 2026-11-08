@@ -12,6 +12,13 @@ competing fixes (4/7, 5/7) but nobody reads same-area pairs. `results/run10/READ
   section when there is a labelled set for it, not before;
 - v0.5 "intent rules": path- and kind-scoped rules in the policy language (`when: {paths: [...], is_logic_change: ...}`),
   no model change.
+- v0.5 hardening, shipped 2026-11-08 (no run needed, measurable from the gatelog): retries + circuit breaker
+  (`resilience:`), `mode: shadow`, `mergeone replay --gatelog`, `mergeone policy check|test|scaffold`, one verdict
+  comment per PR, `/metrics`, webhook replay cache and per-repo rate limit, Dockerfile + GitHub Action + signed
+  releases with an SBOM.
+- Run 11 (PROTOCOL.md §R11, draft): compact state for the main call (R11-H1, ≈ $0.10), a model-free pair-call
+  prefilter measured on run 9's recorded answers (R11-H2, $0), team recalibration when ≥ 200 outcomes exist
+  (R11-H3). Freeze when the prefilter script is committed.
 
 
 Run 9 (2026-11-06) is done: one pass, three fails. The hosted endpoint asked jointly equals the local checkpoint asked
