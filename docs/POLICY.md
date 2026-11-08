@@ -233,6 +233,27 @@ is marked as passed.
 call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
 `debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
+## Webhook hardening — v0.5
+
+`POST /webhook/github` goes through four checks before anything is queued, all in memory:
+
+1. **Signature.** `X-Hub-Signature-256` is verified against `MERGEONE_WEBHOOK_SECRET` (constant-time). With the
+   secret unset, a gateway bound to a non-loopback address refuses every delivery with 401 and logs the reason at
+   start; `mergeone serve --allow-unsigned-webhooks` accepts them (only behind a proxy that verifies). A loopback
+   bind (a tunnel or reverse proxy in front) accepts unsigned deliveries, as before.
+2. **Replay.** The `X-GitHub-Delivery` id is remembered for 24 h; a second delivery with the same id (GitHub's
+   *Redeliver*, or a replayed capture) answers `200 {"duplicate": true}` and enqueues nothing. Deliveries without an
+   id are not deduplicated. The id is on every record the delivery produced (`delivery_id`).
+3. **Rate limit.** One token bucket per repository, `--webhook-rate` events per minute (default 300, burst one
+   minute's worth). Beyond it the delivery gets `429` with `Retry-After`; GitHub keeps the failed delivery in the
+   repository's webhook log for redelivery, so nothing is lost silently, and one noisy repository cannot fill the
+   queue for the others. `/metrics` counts `mergeone_webhooks_total{action="duplicate"|"rate_limited"}`.
+4. **Payload.** Bodies are capped at 8 MB, unknown events and actions are acknowledged and ignored, a payload without
+   a repository is a 400.
+
+The policy file itself is fuzzed (`go test ./internal/engine -fuzz=FuzzLoadPolicy`): any bytes either load or return
+a named error, never a crash at start.
+
 ## Observability (`/stats`, `/metrics`, record fields) — v0.5
 
 Every number comes from the gatelog or from counters the gateway keeps since start; nothing is sampled or estimated.
@@ -261,6 +282,37 @@ that called the model), `mergeone_queue_jobs{status}`, `mergeone_mode_shadow`, `
 gatelog is the durable record.
 
 **`GET /healthz`**: `ok`, `workers`, `queue`, `model`, `mode`, `breaker`.
+
+## Policy tests (`mergeone policy check|test|scaffold`) — v0.5
+
+```bash
+mergeone policy check    [--policy .mergeone.yaml] [--json]          # load, validate, print the rules in order, the hash, every switch
+mergeone policy scaffold [--policy …] [--tests .mergeone-tests.yaml] # write a starter test file from the policy
+mergeone policy test     [--policy …] [--tests …] [--json]            # run it; exit 1 on any failed case
+```
+
+A test file is YAML, one case per entry:
+
+```yaml
+cases:
+  - name: weakened tests are blocked
+    probs: { weakens_tests: 0.8, needs_human_review: 0.2 }   # raw probabilities; run through the calibration map
+    expect: { verdict: block, rule: weakens-tests }            # route is checked when given, rule when given
+  - name: migrations always need a human
+    paths: [migrations/0007_users.sql]
+    expect: { verdict: hold, route: human, rule: always_human_paths }
+  - name: a quiet refactor passes
+    calibrated: true                                           # skip the map: these are the numbers the rules see
+    probs: { is_logic_change: 0.1 }
+    expect: { verdict: pass }
+```
+
+Questions not named are 0, so a rule fires only on what the case says. `paths` run the protected-path check first,
+as the gateway does. `scaffold` writes one case per rule at a probability just past its threshold (earlier rules'
+questions at 0, `calibrated: true`), one for the default and one per protected path — the baseline of what the
+policy does today, to edit as intent rather than regenerate. The three commands make no model call and no GitHub
+call; `policy test` in CI next to `replay --gatelog` is the pair: the cases say what you mean, the replay says what
+changes.
 
 ## Policy regression check (`mergeone replay --gatelog`) — v0.5
 

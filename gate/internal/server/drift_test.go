@@ -33,6 +33,7 @@ func TestGatewayDriftMonitor(t *testing.T) {
 	}
 	st, _ := store.Open(filepath.Join(dir, "gatelog.jsonl"))
 	gw := New(&engine.Gate{Policy: p, Model: testModel, Cal: cal}, st, nil, 0, "")
+	gw.AllowUnsignedWebhooks = true // tests call Handler directly without a secret
 	t.Cleanup(gw.Stop)
 
 	if r := gw.Decide("o/r", 1, "s0", "hold", nil, "api"); r.Rule != "maintainer-judgement" || r.Drift != nil {

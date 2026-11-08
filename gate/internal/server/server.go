@@ -46,12 +46,17 @@ type Gateway struct {
 	pending map[string]*pendingPush
 	// metrics (metrics.go): in-process counters for GET /metrics
 	metrics *metrics
+	// guard (webhookguard.go): delivery replay cache and per-repository rate limit
+	guard *webhookGuard
+	// AllowUnsignedWebhooks lets a non-loopback bind accept webhooks without MERGEONE_WEBHOOK_SECRET
+	// (serve --allow-unsigned-webhooks). Off by default: unsigned + public bind → 401.
+	AllowUnsignedWebhooks bool
 }
 
 // New starts the worker pool.
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{}),
-		pending: map[string]*pendingPush{}, metrics: newMetrics()}
+		pending: map[string]*pendingPush{}, metrics: newMetrics(), guard: newWebhookGuard(0)}
 	if g.Cal != nil {
 		var refit time.Time
 		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
@@ -434,6 +439,10 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 	})
 	mux.HandleFunc("POST /webhook/github", func(w http.ResponseWriter, r *http.Request) {
 		raw, _ := io.ReadAll(io.LimitReader(r.Body, 8<<20))
+		if webhookSecret == "" && !gw.BoundLocal && !gw.AllowUnsignedWebhooks {
+			writeJSON(w, 401, map[string]string{"error": "webhook secret not configured: set MERGEONE_WEBHOOK_SECRET (or serve --allow-unsigned-webhooks behind a proxy that verifies)"})
+			return
+		}
 		if webhookSecret != "" {
 			mac := hmac.New(sha256.New, []byte(webhookSecret))
 			mac.Write(raw)
@@ -444,6 +453,11 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			}
 		}
 		delivery := r.Header.Get("X-GitHub-Delivery")
+		if gw.guard.duplicate(delivery) {
+			gw.metrics.webhook(r.Header.Get("X-GitHub-Event"), "duplicate")
+			writeJSON(w, 200, map[string]any{"duplicate": true, "delivery": delivery})
+			return
+		}
 		if r.Header.Get("X-GitHub-Event") != "pull_request" {
 			gw.metrics.webhook(r.Header.Get("X-GitHub-Event"), "")
 			writeJSON(w, 200, map[string]string{"ignored": r.Header.Get("X-GitHub-Event")})
@@ -467,6 +481,16 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			return
 		}
 		repo, pr, sha := ev.Repository.FullName, ev.PullRequest.Number, ev.PullRequest.Head.SHA
+		if repo == "" {
+			writeJSON(w, 400, map[string]string{"error": "bad payload: no repository"})
+			return
+		}
+		if ok, wait := gw.guard.allow(repo); !ok {
+			gw.metrics.webhook("pull_request", "rate_limited")
+			w.Header().Set("Retry-After", strconv.Itoa(int(wait.Seconds())+1))
+			writeJSON(w, 429, map[string]any{"error": "rate limited: too many webhooks for " + repo, "retry_after_s": int(wait.Seconds()) + 1})
+			return
+		}
 		gw.metrics.webhook("pull_request", ev.Action)
 		switch ev.Action {
 		case "opened", "synchronize", "reopened", "ready_for_review":
@@ -515,9 +539,19 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 	return mux
 }
 
+// SetWebhookRate sets the per-repository webhook budget (events per minute; 0 = default 300).
+func (gw *Gateway) SetWebhookRate(perMinute int) { gw.guard = newWebhookGuard(perMinute) }
+
 // Serve runs the HTTP server until ctx is done.
 func (gw *Gateway) Serve(ctx context.Context, addr, webhookSecret string) error {
 	gw.BoundLocal = isLoopback(addr)
+	if webhookSecret == "" && !gw.BoundLocal {
+		if gw.AllowUnsignedWebhooks {
+			log.Printf("warning: MERGEONE_WEBHOOK_SECRET unset and --allow-unsigned-webhooks given: webhooks on %s are not verified", addr)
+		} else {
+			log.Printf("warning: MERGEONE_WEBHOOK_SECRET unset: POST /webhook/github on %s answers 401 until it is set (or --allow-unsigned-webhooks)", addr)
+		}
+	}
 	srv := &http.Server{Addr: addr, Handler: gw.Handler(webhookSecret), ReadHeaderTimeout: 10 * time.Second}
 	go func() { <-ctx.Done(); _ = srv.Shutdown(context.Background()) }()
 	log.Printf("mergeone gateway listening on %s (model=%s, workers=%d)", addr, gw.Gate.Model.Name(), gw.Workers)

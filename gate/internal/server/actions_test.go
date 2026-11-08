@@ -213,6 +213,7 @@ func newTestGateway(t *testing.T, policyYAML string, gh *GitHub) (*Gateway, stri
 		t.Fatal(err)
 	}
 	gw := New(&engine.Gate{Policy: p, Model: testModel, Cal: cal}, st, gh, 0, "https://gate.example")
+	gw.AllowUnsignedWebhooks = true // tests call Handler directly without a secret
 	t.Cleanup(gw.Stop)
 	return gw, logPath
 }
@@ -476,7 +477,6 @@ func TestActionsWorkerPath(t *testing.T) {
 		t.Fatal("opted-out job wrote to GitHub")
 	}
 }
-
 
 func TestActionsCommentUpdateMode(t *testing.T) {
 	f, gh := newFakeGH(t)

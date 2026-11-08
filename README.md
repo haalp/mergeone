@@ -91,7 +91,7 @@ export GITHUB_TOKEN=... MERGEONE_WEBHOOK_SECRET=...
 mergeone serve --policy .mergeone.yaml --addr :8787
 ```
 
-Point a GitHub webhook (`pull_request` events) at `POST /webhook/github`. Decisions are idempotent per head SHA; the HTTP API also exposes `POST /decide`, `GET /verdict`, `GET /plan` (non-conflicting landing waves), `GET /stats`, `GET /healthz`, `GET /metrics` (Prometheus text: decisions by verdict and rule, model errors by kind, retries, tokens, cost, a decision-latency histogram, queue depth, breaker state). The gatelog is `.mergeone/gatelog.jsonl`; every webhook-caused record carries the `X-GitHub-Delivery` id.
+Point a GitHub webhook (`pull_request` events) at `POST /webhook/github`. Deliveries are verified with the secret (without one, a non-loopback bind answers 401 until `MERGEONE_WEBHOOK_SECRET` is set or `--allow-unsigned-webhooks` is given), a redelivered `X-GitHub-Delivery` id is recognised and not decided twice, and each repository has a webhook budget (`--webhook-rate`, default 300/min; 429 + `Retry-After` beyond). Decisions are idempotent per head SHA; the HTTP API also exposes `POST /decide`, `GET /verdict`, `GET /plan` (non-conflicting landing waves), `GET /stats`, `GET /healthz`, `GET /metrics` (Prometheus text: decisions by verdict and rule, model errors by kind, retries, tokens, cost, a decision-latency histogram, queue depth, breaker state). The gatelog is `.mergeone/gatelog.jsonl`; every webhook-caused record carries the `X-GitHub-Delivery` id.
 
 **Agent (MCP)** — the agent asks before it merges:
 
@@ -166,15 +166,16 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 
 `GET /stats` (and `/api/stats`) gain `reused` and `debounced` counts for the window; `mergeone stats [--log …| --url …] [--window 24h]` prints them.
 
-Three commands look after the policy and the model over time:
+Four commands look after the policy and the model over time:
 
 ```bash
+mergeone policy check && mergeone policy test                    # what the policy does, and your own cases against it (mergeone policy scaffold writes a starter)
 mergeone replay --gatelog .mergeone/gatelog.jsonl --policy .mergeone.yaml   # which recorded verdicts would this policy change? (no model call; exit 1 on a flip)
 mergeone calibrate --from-gatelog --since 28d        # refit the calibration maps from your own decided-and-closed PRs (needs ≥ 200)
 mergeone drift-replay --predictions then.jsonl --predictions now.jsonl   # would the drift monitor flag this change of model?
 ```
 
-`replay --gatelog` re-runs every recorded decision's raw probabilities through the policy and calibration map as they are now and lists the verdicts that differ (`hold→pass 3`, by rule, with the PRs) — the check before a threshold edit or a gateway upgrade ships; put it in CI and a flip fails the step. `calibrate` writes `calibration_<model>_<question_set>.json` beside the policy (an existing file only with `--force`); nothing refits by itself, and a running gateway keeps its map until restarted. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
+`policy test` runs `.mergeone-tests.yaml` — cases of probabilities or paths with the verdict, route and rule you expect — with no model call (exit 1 on a failure, for CI); `policy scaffold` generates one case per rule, the default and each protected path from the policy as it stands. `replay --gatelog` re-runs every recorded decision's raw probabilities through the policy and calibration map as they are now and lists the verdicts that differ (`hold→pass 3`, by rule, with the PRs) — the check before a threshold edit or a gateway upgrade ships; put it in CI and a flip fails the step. `calibrate` writes `calibration_<model>_<question_set>.json` beside the policy (an existing file only with `--force`); nothing refits by itself, and a running gateway keeps its map until restarted. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
 
 ---
 

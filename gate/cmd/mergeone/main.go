@@ -82,6 +82,7 @@ var commands = map[string]func([]string) int{
 	"drift-replay": cmdDriftReplay,
 	"calibrate":    cmdCalibrate,
 	"stats":        cmdStats,
+	"policy":       cmdPolicy,
 }
 
 // run is the whole CLI for args (os.Args[1:]); it returns the exit code.
@@ -111,7 +112,7 @@ func run(args []string) int {
 	return cmd(args[1:])
 }
 
-const usageLine = "usage: mergeone <init|serve|pr|decide|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
+const usageLine = "usage: mergeone <init|serve|pr|decide|policy|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
 	fmt.Fprintln(stderr, usageLine)
@@ -348,6 +349,8 @@ func cmdServe(args []string) int {
 	mock := fs.Bool("mock", false, "use the mock model (no API key)")
 	assets := fs.String("assets", "", "directory with prompts and calibration files (default: policy dir)")
 	public := fs.String("public-url", os.Getenv("MERGEONE_PUBLIC_URL"), "public base URL for check-run details links")
+	allowUnsigned := fs.Bool("allow-unsigned-webhooks", false, "accept webhooks without MERGEONE_WEBHOOK_SECRET on a non-loopback bind (only behind a proxy that verifies them)")
+	webhookRate := fs.Int("webhook-rate", 0, "per-repository webhook budget, events per minute (default 300; 429 + Retry-After beyond)")
 	if code, ok := parseFlags(fs, args, 2); !ok {
 		return code
 	}
@@ -361,6 +364,10 @@ func cmdServe(args []string) int {
 	}
 	gw := server.New(g, st, server.NewGitHub(os.Getenv("GITHUB_TOKEN")), *workers, *public)
 	gw.Memory = memoryOf(g)
+	gw.AllowUnsignedWebhooks = *allowUnsigned
+	if *webhookRate > 0 {
+		gw.SetWebhookRate(*webhookRate)
+	}
 	ctx, cancel := interruptContext()
 	defer cancel()
 	if err := gw.Serve(ctx, *addr, os.Getenv("MERGEONE_WEBHOOK_SECRET")); err != nil {

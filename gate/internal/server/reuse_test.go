@@ -42,6 +42,7 @@ func gatewayWith(t *testing.T, policyYAML string, m engine.Model, gh *GitHub, wo
 		t.Fatal(err)
 	}
 	gw := New(&engine.Gate{Policy: p, Model: m, Cal: &engine.Calibrator{}}, st, gh, workers, "")
+	gw.AllowUnsignedWebhooks = true // tests call Handler directly without a secret
 	t.Cleanup(gw.Stop)
 	return gw
 }
