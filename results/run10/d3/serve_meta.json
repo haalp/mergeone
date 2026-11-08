@@ -1,0 +1,51 @@
+{
+  "row": "d3",
+  "weights": "vllm-sr/d3-flash",
+  "revision": "67e03e1bc157961c582ee7c6a35d9b15fada3dec",
+  "snapshot_dir": "/workspace/hf/hub/models--vllm-sr--d3-flash/snapshots/67e03e1bc157961c582ee7c6a35d9b15fada3dec",
+  "endpoint": "http://127.0.0.1:8000/v1/systemone",
+  "server": "d3_server.py (package's own)",
+  "batch_size": 8,
+  "dtype": "bf16 (vendor default; \u00a7R10.4)",
+  "served_as": "d3-flash",
+  "usd_per_hour": 0.59,
+  "vm_type": "runpod A40 secure EU-SE-1",
+  "started_at": "2026-11-08T00:05:51.638715+00:00",
+  "health": {
+    "status": "ready",
+    "model": "d3-flash",
+    "max_input_tokens": null,
+    "modalities": [
+      "text",
+      "image",
+      "video"
+    ],
+    "authentication": false
+  },
+  "v1_models": {
+    "models": [
+      {
+        "name": "d3-flash",
+        "description": "Typed decisions with a probability for every option",
+        "max_input_tokens": null,
+        "modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "image_max_pixels": 1638400,
+        "video": {
+          "fps": 2.0,
+          "max_frames": 32,
+          "max_pixels_per_frame": 200704,
+          "max_tokens_per_request": 16384,
+          "max_bytes": 32000000
+        }
+      }
+    ]
+  },
+  "gpu_name": "NVIDIA A40",
+  "driver": "595.91.07",
+  "memory_total": "46068 MiB",
+  "memory_used_at_start": "18391 MiB"
+}

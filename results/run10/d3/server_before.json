@@ -1,0 +1,36 @@
+{
+  "at": "2026-11-08T00:07:43.552612+00:00",
+  "health": {
+    "status": "ready",
+    "model": "d3-flash",
+    "max_input_tokens": null,
+    "modalities": [
+      "text",
+      "image",
+      "video"
+    ],
+    "authentication": false
+  },
+  "models": {
+    "models": [
+      {
+        "name": "d3-flash",
+        "description": "Typed decisions with a probability for every option",
+        "max_input_tokens": null,
+        "modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "image_max_pixels": 1638400,
+        "video": {
+          "fps": 2.0,
+          "max_frames": 32,
+          "max_pixels_per_frame": 200704,
+          "max_tokens_per_request": 16384,
+          "max_bytes": 32000000
+        }
+      }
+    ]
+  }
+}

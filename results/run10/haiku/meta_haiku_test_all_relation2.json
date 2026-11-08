@@ -1,0 +1,20 @@
+{
+  "model": "haiku",
+  "split": "test",
+  "variant": "all",
+  "n": 100,
+  "errors": 0,
+  "concurrency": 8,
+  "model_version": "relation2",
+  "finished_at": "2026-11-08T00:06:53.189097+00:00",
+  "host": "Hasanalps-MacBook-Pro-3.local",
+  "python": "3.12.15",
+  "qset": "relation2",
+  "mode": "joint",
+  "started_at": "2026-11-08T00:06:38.263669+00:00",
+  "wall_s": 14.925461053848267,
+  "predictions_file": "predictions_haiku_test_all.jsonl",
+  "other_rows_kept": 0,
+  "prompt_file": "prompts/haiku_relation2.md",
+  "prompt_sha256": "980e2c9273f0be0ab161b215104181ebc8122c43c55c7070dbb995a76f6afa07"
+}

@@ -1,0 +1,97 @@
+{
+  "model": "d3-flash-local",
+  "endpoint": "http://127.0.0.1:8000/v1/systemone",
+  "split": "val",
+  "started_at": "2026-11-08T00:05:52.034070+00:00",
+  "requests": [
+    {
+      "chars": 431,
+      "s": 0.49,
+      "input_tokens": 2295,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 2418,
+      "s": 1.45,
+      "input_tokens": 7455,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 3360,
+      "s": 12.18,
+      "input_tokens": 8943,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 4342,
+      "s": 12.86,
+      "input_tokens": 11207,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 5142,
+      "s": 1.98,
+      "input_tokens": 10263,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 5682,
+      "s": 13.91,
+      "input_tokens": 13831,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 5860,
+      "s": 14.78,
+      "input_tokens": 19567,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 5932,
+      "s": 14.26,
+      "input_tokens": 14551,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 6044,
+      "s": 2.98,
+      "input_tokens": 15303,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 6263,
+      "s": 3.12,
+      "input_tokens": 16007,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 6918,
+      "s": 15.03,
+      "input_tokens": 16335,
+      "error": null,
+      "model_version": "d3-flash"
+    },
+    {
+      "chars": 16824,
+      "s": 18.14,
+      "input_tokens": 30823,
+      "error": null,
+      "model_version": "d3-flash"
+    }
+  ],
+  "finished_at": "2026-11-08T00:07:43.337532+00:00",
+  "errors": 0,
+  "served_as": [
+    "d3-flash"
+  ]
+}

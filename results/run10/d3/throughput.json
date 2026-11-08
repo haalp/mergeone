@@ -1,0 +1,31 @@
+{
+  "step": "d3",
+  "arm": "run10",
+  "qset": "v4",
+  "split": "test",
+  "mode": "joint",
+  "n_items": 705,
+  "n_rows": 705,
+  "errors": 0,
+  "n_requests": 705,
+  "request_errors": 0,
+  "wall_s": 1907.2816078662872,
+  "wall_source": "predict meta",
+  "outer_wall_s": 1907.6921610832214,
+  "items_per_s": 0.36963602914867777,
+  "requests_per_s": 0.36963602914867777,
+  "concurrency": 32,
+  "decide_s": null,
+  "server": {
+    "served_as": null,
+    "dtype": null,
+    "fast_options_effective": null,
+    "batch_tokens": null,
+    "batch_max": null,
+    "batch_ms": null,
+    "gpu_name": null
+  },
+  "predict_meta": "meta_d3-flash-local_test_all_v4.json",
+  "started_at": "2026-11-08T00:07:44.003382+00:00",
+  "finished_at": "2026-11-08T00:39:31.284945+00:00"
+}

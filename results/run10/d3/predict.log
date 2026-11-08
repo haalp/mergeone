@@ -1,0 +1,108 @@
+=== d3/v4_test: mergeone predict --model d3-flash-local --qset v4 --split test --dataset data/run3/dataset.jsonl --run run10/d3 --concurrency 32 --append --only-missing-from results/run10/d3/predictions_d3-flash-local_test_all.jsonl
+705 rows not yet predicted (skipping 0)
+d3-flash-local test all: 50/705 errors=0 elapsed=118s
+d3-flash-local test all: 100/705 errors=0 elapsed=222s
+d3-flash-local test all: 150/705 errors=0 elapsed=309s
+d3-flash-local test all: 200/705 errors=0 elapsed=480s
+d3-flash-local test all: 250/705 errors=0 elapsed=644s
+d3-flash-local test all: 300/705 errors=0 elapsed=767s
+d3-flash-local test all: 350/705 errors=0 elapsed=917s
+d3-flash-local test all: 400/705 errors=0 elapsed=1084s
+d3-flash-local test all: 450/705 errors=0 elapsed=1224s
+d3-flash-local test all: 500/705 errors=0 elapsed=1365s
+d3-flash-local test all: 550/705 errors=0 elapsed=1501s
+d3-flash-local test all: 600/705 errors=0 elapsed=1630s
+d3-flash-local test all: 650/705 errors=0 elapsed=1757s
+d3-flash-local test all: 700/705 errors=0 elapsed=1897s
+d3-flash-local test all: 705/705 errors=0 elapsed=1907s
+{
+  "model": "d3-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 705,
+  "errors": 0,
+  "concurrency": 32,
+  "model_version": "d3-flash",
+  "finished_at": "2026-11-08T00:39:31.284945+00:00",
+  "host": "6009683b6e6a",
+  "python": "3.12.16",
+  "qset": "v4",
+  "mode": "joint",
+  "started_at": "2026-11-08T00:07:44.003382+00:00",
+  "wall_s": 1907.2816078662872,
+  "predictions_file": "predictions_d3-flash-local_test_all.jsonl",
+  "other_rows_kept": 0
+}
+=== d3/v4_val: mergeone predict --model d3-flash-local --qset v4 --split val --dataset data/run3/dataset.jsonl --run run10/d3 --concurrency 32 --append --only-missing-from results/run10/d3/predictions_d3-flash-local_val_all.jsonl
+1491 rows not yet predicted (skipping 0)
+d3-flash-local val all: 50/1491 errors=0 elapsed=115s
+d3-flash-local val all: 100/1491 errors=0 elapsed=263s
+d3-flash-local val all: 150/1491 errors=0 elapsed=394s
+d3-flash-local val all: 200/1491 errors=0 elapsed=554s
+d3-flash-local val all: 250/1491 errors=0 elapsed=711s
+d3-flash-local val all: 300/1491 errors=0 elapsed=836s
+d3-flash-local val all: 350/1491 errors=0 elapsed=942s
+d3-flash-local val all: 400/1491 errors=0 elapsed=1059s
+d3-flash-local val all: 450/1491 errors=0 elapsed=1183s
+d3-flash-local val all: 500/1491 errors=0 elapsed=1328s
+d3-flash-local val all: 550/1491 errors=0 elapsed=1472s
+d3-flash-local val all: 600/1491 errors=0 elapsed=1599s
+d3-flash-local val all: 650/1491 errors=0 elapsed=1725s
+d3-flash-local val all: 700/1491 errors=0 elapsed=1856s
+d3-flash-local val all: 750/1491 errors=0 elapsed=1962s
+d3-flash-local val all: 800/1491 errors=0 elapsed=2114s
+d3-flash-local val all: 850/1491 errors=0 elapsed=2237s
+d3-flash-local val all: 900/1491 errors=0 elapsed=2356s
+d3-flash-local val all: 950/1491 errors=0 elapsed=2460s
+d3-flash-local val all: 1000/1491 errors=0 elapsed=2584s
+d3-flash-local val all: 1050/1491 errors=0 elapsed=2732s
+d3-flash-local val all: 1100/1491 errors=0 elapsed=2866s
+d3-flash-local val all: 1150/1491 errors=0 elapsed=3008s
+d3-flash-local val all: 1200/1491 errors=0 elapsed=3164s
+d3-flash-local val all: 1250/1491 errors=0 elapsed=3307s
+d3-flash-local val all: 1300/1491 errors=0 elapsed=3431s
+d3-flash-local val all: 1350/1491 errors=0 elapsed=3551s
+d3-flash-local val all: 1400/1491 errors=0 elapsed=3674s
+d3-flash-local val all: 1450/1491 errors=0 elapsed=3797s
+d3-flash-local val all: 1491/1491 errors=0 elapsed=3931s
+{
+  "model": "d3-flash-local",
+  "split": "val",
+  "variant": "all",
+  "n": 1491,
+  "errors": 0,
+  "concurrency": 32,
+  "model_version": "d3-flash",
+  "finished_at": "2026-11-08T01:45:02.806991+00:00",
+  "host": "6009683b6e6a",
+  "python": "3.12.16",
+  "qset": "v4",
+  "mode": "joint",
+  "started_at": "2026-11-08T00:39:31.892487+00:00",
+  "wall_s": 3930.9145340919495,
+  "predictions_file": "predictions_d3-flash-local_val_all.jsonl",
+  "other_rows_kept": 0
+}
+=== d3/relation2: mergeone predict --model d3-flash-local --qset relation2 --split test --dataset results/run8/relation_pairs.jsonl --run run10/d3 --concurrency 32 --append --only-missing-from results/run10/d3/predictions_d3-flash-local_test_all.jsonl
+100 rows not yet predicted (skipping 0)
+/root/mergeone/results/run10/d3/predictions_d3-flash-local_test_all.jsonl: keeping 705 rows of other question sets / modes
+d3-flash-local test all: 50/100 errors=0 elapsed=62s
+d3-flash-local test all: 100/100 errors=0 elapsed=121s
+{
+  "model": "d3-flash-local",
+  "split": "test",
+  "variant": "all",
+  "n": 100,
+  "errors": 0,
+  "concurrency": 32,
+  "model_version": "d3-flash",
+  "finished_at": "2026-11-08T01:47:04.041919+00:00",
+  "host": "6009683b6e6a",
+  "python": "3.12.16",
+  "qset": "relation2",
+  "mode": "joint",
+  "started_at": "2026-11-08T01:45:03.100205+00:00",
+  "wall_s": 120.94175839424133,
+  "predictions_file": "predictions_d3-flash-local_test_all.jsonl",
+  "other_rows_kept": 705
+}

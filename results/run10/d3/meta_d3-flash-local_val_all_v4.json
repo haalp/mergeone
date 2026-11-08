@@ -1,0 +1,18 @@
+{
+  "model": "d3-flash-local",
+  "split": "val",
+  "variant": "all",
+  "n": 1491,
+  "errors": 0,
+  "concurrency": 32,
+  "model_version": "d3-flash",
+  "finished_at": "2026-11-08T01:45:02.806991+00:00",
+  "host": "6009683b6e6a",
+  "python": "3.12.16",
+  "qset": "v4",
+  "mode": "joint",
+  "started_at": "2026-11-08T00:39:31.892487+00:00",
+  "wall_s": 3930.9145340919495,
+  "predictions_file": "predictions_d3-flash-local_val_all.jsonl",
+  "other_rows_kept": 0
+}
