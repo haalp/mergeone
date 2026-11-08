@@ -952,8 +952,11 @@ Each is a model-free or near-free change to the gateway; each needs a bar before
   among the kept candidates for ≥ **0.95** of the A's that have one, *and* duplicate-vs-rest AUC computed on the kept
   candidates ≥ the full-ten AUC − **0.02**. The control is the same recorded answers with all ten (k' = 10). Pass →
   `memory.prefilter_k` defaults to the smallest passing `k'` (the pair-call budget drops by 50–70 %); fail → ten stays.
-  The prefilter score's weights are fixed in `mergeone/eval/run11_prefilter.py` before the freeze and never tuned on
-  set (b).
+  The scores are fixed in `mergeone/eval/run11_prefilter.py` before the freeze and never tuned on set (b): the
+  **primary** is the memory's own retrieval order (`retrieval`, the score the gateway already has at zero cost); two
+  secondaries are reported beside it and do not ship from this run — `overlap` (0.5·file Jaccard + 0.3·directory
+  Jaccard + 0.2·identifier Jaccard) and `blend` (0.5·rank score + 0.5·overlap). The 4 adjudicated B's run 9 forced into
+  slot 10 are ranked by the score like every other candidate.
 - **R11-H3 (team recalibration; conditional).** Runs only when one gateway's gatelog holds ≥ **200** decided PRs
   with a recorded outcome (`merged`/`iterated`/`reverted`), ours or a consenting pilot's; until then the bar stands
   and the hypothesis waits. Split the outcomes by time (first 70 % fit, last 30 % test). Bar: the refit map's ECE on
