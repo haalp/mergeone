@@ -341,12 +341,15 @@ func (p Portal) CORSOrigin() string {
 // Actions is the policy's `actions:` block: deterministic GitHub write-back of a verdict (commit status,
 // exclusive labels, one comment per head sha, reviewers). Off by default; used only in webhook/CI mode.
 type Actions struct {
-	Enabled       bool          `yaml:"enabled"`
-	StatusContext string        `yaml:"status_context"` // default "mergeone"
-	Comment       *bool         `yaml:"comment"`        // default true
-	OnPass        VerdictAction `yaml:"on_pass"`
-	OnHold        VerdictAction `yaml:"on_hold"`
-	OnBlock       VerdictAction `yaml:"on_block"`
+	Enabled       bool   `yaml:"enabled"`
+	StatusContext string `yaml:"status_context"` // default "mergeone"
+	Comment       *bool  `yaml:"comment"`        // default true
+	// CommentMode (v0.5): "update" (default) keeps one verdict comment per PR and edits it on every new head
+	// (the earlier heads are listed in it); "per_head" posts a new comment for every head, as v0.4 did.
+	CommentMode string        `yaml:"comment_mode"`
+	OnPass      VerdictAction `yaml:"on_pass"`
+	OnHold      VerdictAction `yaml:"on_hold"`
+	OnBlock     VerdictAction `yaml:"on_block"`
 	// QuestionSet is the policy's question_set (not a YAML key; LoadPolicy copies it here) so the verdict
 	// comment lists the questions the gate asked.
 	QuestionSet string `yaml:"-"`
@@ -402,8 +405,21 @@ func (a *Actions) Normalize() error {
 	if len(a.OnPass.Reviewers)+len(a.OnPass.TeamReviewers) > 0 {
 		return fmt.Errorf("actions.on_pass: reviewers are only requested on hold/block")
 	}
+	switch a.CommentMode {
+	case "":
+		a.CommentMode = CommentUpdate
+	case CommentUpdate, CommentPerHead:
+	default:
+		return fmt.Errorf("actions.comment_mode %q: want update or per_head", a.CommentMode)
+	}
 	return nil
 }
+
+// Comment modes.
+const (
+	CommentUpdate  = "update"
+	CommentPerHead = "per_head"
+)
 
 var condRE = regexp.MustCompile(`^\s*(>=|<=|>|<|==)\s*([0-9.]+)\s*$`)
 

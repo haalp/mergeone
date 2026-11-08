@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/haalp/mergeone/gate/internal/engine"
@@ -18,6 +19,12 @@ const maxCommentPages = 10
 
 // CommentMarker is the hidden line that makes the verdict comment idempotent per head sha.
 func CommentMarker(sha string) string { return "<!-- mergeone:" + sha + " -->" }
+
+// PRCommentMarker is the hidden line of the one verdict comment a PR keeps in comment_mode: update.
+const PRCommentMarker = "<!-- mergeone:verdict -->"
+
+// maxEarlierHeads bounds the "earlier heads" line of an updated comment.
+const maxEarlierHeads = 8
 
 // ActionsSkip returns why the action layer would do nothing for this PR head, or "" if it would run.
 func ActionsSkip(cfg engine.Actions, g *GitHub, repo string, pr int, sha string) string {
@@ -59,7 +66,11 @@ func ApplyActions(g *GitHub, cfg engine.Actions, repo string, pr int, sha string
 	a.status(cfg.StatusContext, va.Status, sha, res, targetURL)
 	a.labels(pr, va.Labels, allLabels(cfg))
 	if cfg.CommentEnabled() {
-		a.comment(pr, sha, res)
+		if cfg.CommentMode == engine.CommentPerHead {
+			a.comment(pr, sha, res)
+		} else {
+			a.commentUpdate(pr, sha, res)
+		}
 	}
 	if (res.Verdict == "hold" || res.Verdict == "block") && res.Route == "human" && len(va.Reviewers)+len(va.TeamReviewers) > 0 {
 		a.reviewers(pr, va.Reviewers, va.TeamReviewers)
@@ -220,6 +231,95 @@ func (a actor) commentOnce(pr int, marker, body string) {
 	if _, ok := a.call("comment", "POST", a.url("issues/%d/comments", pr), map[string]any{"body": body}, 201, 200); ok {
 		a.rep.Applied = append(a.rep.Applied, "comment")
 	}
+}
+
+// earlierHeadRE reads the heads an updated comment already lists: "`abc1234` hold".
+var earlierHeadRE = regexp.MustCompile("`([0-9a-f]{7,40})` (pass|hold|block)")
+
+// commentUpdate keeps one verdict comment per PR (PRCommentMarker): the first head posts it, every later
+// head edits it in place and lists the earlier heads with their verdicts. A head already in the comment
+// (its CommentMarker is present) changes nothing. When the comments cannot be listed, nothing is posted.
+func (a actor) commentUpdate(pr int, sha string, res engine.Result) {
+	var existing *ghComment
+	for page := 1; page <= maxCommentPages; page++ {
+		b, ok := a.call("comment", "GET", a.url("issues/%d/comments?per_page=100&page=%d", pr, page), nil, 200)
+		if !ok {
+			return // cannot prove there is no comment yet: do not risk a duplicate
+		}
+		var cs []ghComment
+		_ = json.Unmarshal(b, &cs)
+		for i := range cs {
+			if strings.Contains(cs[i].Body, PRCommentMarker) {
+				existing = &cs[i]
+			}
+		}
+		if existing != nil || len(cs) < 100 {
+			break
+		}
+	}
+	if existing != nil && strings.Contains(existing.Body, CommentMarker(sha)) {
+		return // this head is already the comment's subject
+	}
+	var earlier []string
+	if existing != nil {
+		earlier = earlierHeads(existing.Body)
+	}
+	body := CommentBody(sha, a.qset, res) + PRCommentMarker + "\n"
+	if len(earlier) > 0 {
+		body = strings.Replace(body, PRCommentMarker, "<sub>earlier heads: "+strings.Join(earlier, " · ")+"</sub>\n"+PRCommentMarker, 1)
+	}
+	if existing == nil {
+		if _, ok := a.call("comment", "POST", a.url("issues/%d/comments", pr), map[string]any{"body": body}, 201, 200); ok {
+			a.rep.Applied = append(a.rep.Applied, "comment")
+		}
+		return
+	}
+	if _, ok := a.call("comment", "PATCH", a.url("issues/comments/%d", existing.ID), map[string]any{"body": body}, 200); ok {
+		a.rep.Applied = append(a.rep.Applied, "comment~")
+	}
+}
+
+type ghComment struct {
+	ID   int64  `json:"id"`
+	Body string `json:"body"`
+}
+
+// earlierHeads returns the heads an updated comment should list: the comment's own head (from its sha
+// marker and verdict line) followed by the heads it already listed, newest first, capped.
+func earlierHeads(body string) []string {
+	var out []string
+	// the comment's current head: marker "<!-- mergeone:<sha> -->" and the "**mergeone: VERDICT**" line
+	if i := strings.Index(body, "<!-- mergeone:"); i >= 0 {
+		rest := body[i+len("<!-- mergeone:"):]
+		if j := strings.Index(rest, " -->"); j > 0 {
+			cur := rest[:j]
+			if cur != "verdict" {
+				v := "?"
+				for _, k := range []string{"PASS", "HOLD", "BLOCK"} {
+					if strings.Contains(body, "**mergeone: "+k+"**") {
+						v = strings.ToLower(k)
+					}
+				}
+				out = append(out, fmt.Sprintf("`%.7s` %s", cur, v))
+			}
+		}
+	}
+	for _, m := range earlierHeadRE.FindAllStringSubmatch(body, -1) {
+		out = append(out, fmt.Sprintf("`%.7s` %s", m[1], m[2]))
+	}
+	// dedupe, keep order, cap
+	seen := map[string]bool{}
+	kept := out[:0]
+	for _, h := range out {
+		if !seen[h] {
+			seen[h] = true
+			kept = append(kept, h)
+		}
+	}
+	if len(kept) > maxEarlierHeads {
+		kept = kept[:maxEarlierHeads]
+	}
+	return kept
 }
 
 func (a actor) reviewers(pr int, users, teams []string) {

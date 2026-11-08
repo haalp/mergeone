@@ -91,10 +91,21 @@ func (f *fakeGH) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		f.labels[pr] = keep
 		fmt.Fprint(w, `[]`)
+	case parts[0] == "issues" && parts[1] == "comments" && r.Method == "PATCH": // /issues/comments/{id}
+		id := 0
+		fmt.Sscan(parts[2], &id)
+		// comment ids are pr*1000+index
+		cpr, idx := id/1000, id%1000
+		if idx >= len(f.comments[cpr]) {
+			w.WriteHeader(404)
+			return
+		}
+		f.comments[cpr][idx] = body["body"].(string)
+		fmt.Fprint(w, `{}`)
 	case parts[0] == "issues" && parts[2] == "comments" && r.Method == "GET":
-		out := []map[string]string{}
-		for _, c := range f.comments[pr] {
-			out = append(out, map[string]string{"body": c})
+		out := []map[string]any{}
+		for i, c := range f.comments[pr] {
+			out = append(out, map[string]any{"id": pr*1000 + i, "body": c})
 		}
 		_ = json.NewEncoder(w).Encode(out)
 	case parts[0] == "issues" && parts[2] == "comments" && r.Method == "POST":
@@ -329,7 +340,7 @@ func TestActionsLabelsAreExclusive(t *testing.T) {
 
 func TestActionsCommentIdempotentPerSHA(t *testing.T) {
 	f, gh := newFakeGH(t)
-	gw, _ := newTestGateway(t, testRules+testActions, gh)
+	gw, _ := newTestGateway(t, testRules+testActions+"  comment_mode: per_head\n", gh)
 	cfg := gw.Gate.Policy.Actions
 	res := engine.Result{Verdict: "hold", Route: "domain-review", Rule: "concurrency-risk", Reason: "r", Probs: map[string]float64{"is_logic_change": 0.9}}
 	for i := 0; i < 3; i++ {
@@ -463,5 +474,46 @@ func TestActionsWorkerPath(t *testing.T) {
 	_ = gw.run(&store.Job{Payload: map[string]any{"repo": "o/r", "pr": float64(6), "head_sha": "w2", "source": "api", "state": "pass", "actions": false}})
 	if f.total() != n {
 		t.Fatal("opted-out job wrote to GitHub")
+	}
+}
+
+
+func TestActionsCommentUpdateMode(t *testing.T) {
+	f, gh := newFakeGH(t)
+	gw, _ := newTestGateway(t, testRules+testActions, gh)
+	cfg := gw.Gate.Policy.Actions
+	if cfg.CommentMode != engine.CommentUpdate {
+		t.Fatalf("default comment_mode should be update, got %q", cfg.CommentMode)
+	}
+	hold := engine.Result{Verdict: "hold", Route: "human", Rule: "maintainer-judgement", Reason: "r", Probs: map[string]float64{"is_logic_change": 0.9}}
+	pass := engine.Result{Verdict: "pass", Route: "auto-merge", Rule: "default", Probs: map[string]float64{"is_logic_change": 0.1}}
+	// first head posts
+	rep := ApplyActions(gh, cfg, "o/r", 11, "aaaaaaa1", hold, "")
+	if len(rep.Errors) != 0 || len(f.comments[11]) != 1 || !strings.Contains(f.comments[11][0], PRCommentMarker) || !strings.Contains(f.comments[11][0], CommentMarker("aaaaaaa1")) {
+		t.Fatalf("first head: %+v %v", rep, f.comments[11])
+	}
+	// same head again: nothing
+	before := f.total()
+	ApplyActions(gh, cfg, "o/r", 11, "aaaaaaa1", hold, "")
+	if len(f.comments[11]) != 1 || f.count("PATCH", "/issues/comments/") != 0 {
+		t.Fatalf("same head must not edit: %v (%d requests)", f.comments[11], f.total()-before)
+	}
+	// second head edits in place and lists the first
+	rep = ApplyActions(gh, cfg, "o/r", 11, "bbbbbbb2", pass, "")
+	if len(rep.Errors) != 0 || len(f.comments[11]) != 1 || f.count("PATCH", "/issues/comments/11000") != 1 {
+		t.Fatalf("second head should PATCH the one comment: %+v %v", rep, f.comments[11])
+	}
+	c := f.comments[11][0]
+	if !strings.Contains(c, "**mergeone: PASS**") || !strings.Contains(c, CommentMarker("bbbbbbb2")) || !strings.Contains(c, "earlier heads: `aaaaaaa` hold") || strings.Contains(c, CommentMarker("aaaaaaa1")) {
+		t.Fatalf("updated comment:\n%s", c)
+	}
+	if !contains(rep.Applied, "comment~") {
+		t.Errorf("report should say the comment was edited: %v", rep.Applied)
+	}
+	// third head keeps the history, newest first
+	ApplyActions(gh, cfg, "o/r", 11, "ccccccc3", hold, "")
+	c = f.comments[11][0]
+	if !strings.Contains(c, "earlier heads: `bbbbbbb` pass · `aaaaaaa` hold") || len(f.comments[11]) != 1 {
+		t.Fatalf("history:\n%s", c)
 	}
 }

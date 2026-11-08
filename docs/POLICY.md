@@ -358,7 +358,8 @@ The policy (`.mergeone.yaml`; the default is [`mergeone/gate/policy.yaml`](../me
 actions:
   enabled: false                 # default off
   status_context: mergeone       # commit status context
-  comment: true                  # one comment per head SHA (idempotent via a hidden <!-- mergeone:<sha> --> marker)
+  comment: true                  # the verdict comment (idempotent per head SHA via a hidden <!-- mergeone:<sha> --> marker)
+  comment_mode: update           # update (default, v0.5): one comment per PR, edited on every new head | per_head: a new comment per head (v0.4)
   on_pass:  { status: success, labels: ["mergeone:pass"] }
   on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [], team_reviewers: [] }
   on_block: { status: failure, labels: ["mergeone:block"] }
@@ -368,14 +369,14 @@ actions:
 |---|---|
 | status | `POST /repos/{o}/{r}/statuses/{sha}` — `state` from the verdict, `context` = `status_context`, `description` = `<verdict> · <rule> · <reason>` (≤ 140 chars), `target_url` = the gatelog entry (`<public-url>/verdict/{o}/{r}/{sha}`) when `--public-url` is set |
 | labels | `GET /issues/{n}/labels`, then `DELETE /issues/{n}/labels/{name}` for every label of the *other* verdicts that is present, and `POST /issues/{n}/labels` for this verdict's labels that are missing |
-| comment | `GET /issues/{n}/comments` (up to 10 pages of 100) looking for the marker; `POST /issues/{n}/comments` only if absent. Verdict and rule, reason, the questions of the policy's `question_set` with calibrated probabilities, `memory: candidate #N (duplicate_of p=…)` when the PR memory scored a candidate |
+| comment | `GET /issues/{n}/comments` (up to 10 pages of 100) looking for the markers. `comment_mode: update`: the PR's one verdict comment (`<!-- mergeone:verdict -->`) is `POST`ed by the first head and `PATCH`ed (`/issues/comments/{id}`) by every later head — the body is the new head's verdict and an `earlier heads: \`abc1234\` hold · …` line (up to 8, newest first); a head already in the comment changes nothing. `comment_mode: per_head`: `POST` only if no comment carries the head's marker. Body: verdict and rule, reason, the questions of the policy's `question_set` with calibrated probabilities, `memory: candidate #N (duplicate_of p=…)` when the PR memory scored a candidate |
 | reviewers | `GET /pulls/{n}/requested_reviewers`, then `POST /pulls/{n}/requested_reviewers` for the users/teams not yet requested |
 
 - `status` ∈ `success | failure | pending | error`; defaults are success / failure / failure. A missing `labels` key takes the default label; `labels: []` sets none.
 - Labels are exclusive: the exclusive set is every label named under `on_pass`, `on_hold` and `on_block`; applying one verdict removes the others. Other labels are never touched.
 - Reviewers are requested only when the verdict is `hold` or `block`, **and** the route is `human`, **and** that verdict's `reviewers` / `team_reviewers` list is non-empty (a hold routed to `dedup`, `stale` or `domain-review` requests nobody). `on_pass` with reviewers is a policy error.
 - **Never merges.** The commit status is what lets branch protection (require the `mergeone` status) or GitHub auto-merge proceed.
-- Idempotent for the same (PR, head sha, verdict): a decision served from the gatelog is not acted on again; labels and reviewers already present are not re-sent; the marker stops a second comment for the same sha.
+- Idempotent for the same (PR, head sha, verdict): a decision served from the gatelog is not acted on again; labels and reviewers already present are not re-sent; the marker stops a second comment (or a second edit) for the same sha. In `update` mode an agent that pushes twenty heads leaves one comment on the PR, not twenty; the report says `comment` for a post and `comment~` for an edit.
 - No retries. A failed call is recorded and the rest still run; failures **never change the verdict**. The report is added to the gatelog entry and to the response as `actions: {applied: [...], skipped: "...", errors: [...]}` (`skipped` says why nothing ran: disabled, no token, no PR number). The webhook answers `{queued}` at once, so its report is in the gatelog and in `GET /verdict/...`.
 - When enabled, the status and `mergeone:*` labels replace the gateway's check-run and `gate:*` / `route:*` labels. If a webhook job fails (and may be retried), only the status is posted with the `on_error` verdict; labels, comment and reviewers wait for a real verdict. `POST /decide` with `"actions": false` opts a call out (the load generator does).
 - CI mode: `mergeone pr` reads the PR number and head sha from `GITHUB_EVENT_PATH` and the repository from `GITHUB_REPOSITORY` (or `--pr`, `--head-sha`, `--gh-repo`, or `mergeone pr owner/name N`) and authenticates with `GITHUB_TOKEN`; with the token the PR itself is read from GitHub (`GITHUB_API_URL` overrides the API base). The exit code still follows the verdict.
