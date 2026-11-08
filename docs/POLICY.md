@@ -233,6 +233,24 @@ is marked as passed.
 call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
 `debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
+## Policy regression check (`mergeone replay --gatelog`) — v0.5
+
+```bash
+mergeone replay --gatelog .mergeone/gatelog.jsonl [--policy .mergeone.yaml] [--since 28d] [--json] [--max 20]
+```
+
+Every recorded decision is re-run, with no model call, through the policy file and the calibration map the gateway
+would load now: the record's `raw_probs` → calibration → rules. The report counts decisions that give the same
+verdict, route and rule, the ones that change, and the verdict flips by transition (`hold→pass`), groups changes by
+recorded rule → new rule, and lists the first `--max` changed PRs with their head SHAs. Records that never reached the
+model are not replayed and are counted by reason: `on_error`, `always_human_paths`, `max_rounds` (the pre-cap
+verdict was not recorded), `no_probs`. Exit code 1 when any verdict flips, so a CI step on the policy file fails on a
+change that would have decided a past PR differently; `--json` gives the same report as data.
+
+Use it before editing a threshold ("how many of last month's holds become passes at 0.6?"), before a gateway upgrade
+(same policy, new binary: the count must be 0 — it is also the test `go test ./cmd/mergeone` runs on fixtures), and
+after `mergeone calibrate` refits a map (the replay uses the new map; the gatelog keeps the old probabilities).
+
 ## Shadow mode (`mode: shadow`) — v0.5
 
 ```yaml

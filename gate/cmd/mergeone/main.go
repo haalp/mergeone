@@ -647,17 +647,27 @@ func cmdDecide(args []string) int {
 	return verdictCode(g.Decide(string(b), paths))
 }
 
-// replay dry-runs a policy over saved gatebench predictions: no API calls.
+// replay dry-runs a policy with no API calls: over saved gatebench predictions (--predictions: the verdict
+// distribution the policy gives), or over the gateway's own gatelog (--gatelog: which recorded verdicts the
+// current policy and calibration would change — the regression check before a policy or version change ships;
+// exit 1 when a verdict flips).
 func cmdReplay(args []string) int {
 	fs := flag.NewFlagSet("replay", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file")
 	preds := fs.String("predictions", "", "gatebench predictions_*.jsonl")
+	gatelog := fs.String("gatelog", "", "a gatelog.jsonl: re-run every recorded decision through the current policy and report the verdicts that change")
+	since := fs.String("since", "", "--gatelog: only records newer than this age (28d, 12h); default all")
+	asJSON := fs.Bool("json", false, "--gatelog: print the report as JSON")
+	maxChanges := fs.Int("max", 20, "--gatelog: changed decisions to list (0 = all)")
 	assets := fs.String("assets", "", "assets dir")
 	if code, ok := parseFlags(fs, args, 2); !ok {
 		return code
 	}
+	if *gatelog != "" {
+		return cmdReplayGatelog(*policy, *gatelog, *assets, *since, *asJSON, *maxChanges)
+	}
 	if *preds == "" {
-		return fail(fmt.Errorf("--predictions is required"))
+		return fail(fmt.Errorf("--predictions or --gatelog is required"))
 	}
 	g, err := buildGate(*policy, true, *assets)
 	if err != nil {

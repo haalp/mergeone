@@ -166,14 +166,15 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 
 `GET /stats` (and `/api/stats`) gain `reused` and `debounced` counts for the window; `mergeone stats [--log …| --url …] [--window 24h]` prints them.
 
-Two commands look after the model over time:
+Three commands look after the policy and the model over time:
 
 ```bash
+mergeone replay --gatelog .mergeone/gatelog.jsonl --policy .mergeone.yaml   # which recorded verdicts would this policy change? (no model call; exit 1 on a flip)
 mergeone calibrate --from-gatelog --since 28d        # refit the calibration maps from your own decided-and-closed PRs (needs ≥ 200)
 mergeone drift-replay --predictions then.jsonl --predictions now.jsonl   # would the drift monitor flag this change of model?
 ```
 
-`calibrate` writes `calibration_<model>_<question_set>.json` beside the policy (an existing file only with `--force`); nothing refits by itself, and a running gateway keeps its map until restarted. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
+`replay --gatelog` re-runs every recorded decision's raw probabilities through the policy and calibration map as they are now and lists the verdicts that differ (`hold→pass 3`, by rule, with the PRs) — the check before a threshold edit or a gateway upgrade ships; put it in CI and a flip fails the step. `calibrate` writes `calibration_<model>_<question_set>.json` beside the policy (an existing file only with `--force`); nothing refits by itself, and a running gateway keeps its map until restarted. Full reference: [`docs/POLICY.md`](docs/POLICY.md).
 
 ---
 
