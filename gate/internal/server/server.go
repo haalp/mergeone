@@ -19,6 +19,7 @@ import (
 
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/memory"
+	"github.com/haalp/mergeone/gate/internal/models"
 	"github.com/haalp/mergeone/gate/internal/patchid"
 	"github.com/haalp/mergeone/gate/internal/plan"
 	"github.com/haalp/mergeone/gate/internal/portal"
@@ -344,7 +345,11 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, 200, map[string]any{"ok": true, "workers": gw.Workers, "queue": gw.Store.QueueDepth(), "model": gw.Gate.Model.Name()})
+		h := map[string]any{"ok": true, "workers": gw.Workers, "queue": gw.Store.QueueDepth(), "model": gw.Gate.Model.Name()}
+		if r, ok := gw.Gate.Model.(*models.Resilient); ok {
+			h["breaker"] = r.Stats()
+		}
+		writeJSON(w, 200, h)
 	})
 	mux.HandleFunc("GET /stats", func(w http.ResponseWriter, r *http.Request) {
 		win := 86400

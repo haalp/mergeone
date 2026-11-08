@@ -63,6 +63,7 @@ var fallbackRegistry = map[string]models.Spec{
 	"h2o-lightning-4b": {KeyEnv: "MERGEONE_LOCAL_KEY", KeyOptional: true},
 	"laya":             {KeyEnv: "MERGEONE_LOCAL_KEY", KeyOptional: true},
 	"pplx-flash-local": {KeyEnv: "MERGEONE_LOCAL_KEY", KeyOptional: true},
+	"d3-flash-local":   {KeyEnv: "MERGEONE_LOCAL_KEY", KeyOptional: true},
 	"local":            {KeyEnv: "MERGEONE_LOCAL_KEY", KeyOptional: true},
 }
 

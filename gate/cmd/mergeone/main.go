@@ -200,7 +200,32 @@ func buildGate(policyPath string, mock bool, assetsDir string) (*engine.Gate, er
 		}
 		g.Memory = mem
 	}
+	if !mock && p.Model != "mock" {
+		g.Model = models.WithResilience(m, resilienceOpts(p))
+	}
 	return g, nil
+}
+
+// resilienceOpts turns the policy's `resilience:` block into wrapper options (defaults where absent).
+func resilienceOpts(p *engine.Policy) models.Resilience {
+	o := models.DefaultResilience()
+	if p.Resilience.Retries != nil {
+		o.Retries = *p.Resilience.Retries
+	}
+	if p.Resilience.BreakerFailures != nil {
+		o.BreakerFailures = *p.Resilience.BreakerFailures
+	}
+	b, mb, cd, _ := p.Resilience.Durations() // validated by LoadPolicy
+	if b > 0 {
+		o.Backoff = b
+	}
+	if mb > 0 {
+		o.MaxBackoff = mb
+	}
+	if cd > 0 {
+		o.BreakerCooldown = cd
+	}
+	return o
 }
 
 // buildModel resolves policy.model against prompts/models.yaml (+ an optional inline `provider:` block)

@@ -15,6 +15,7 @@ import (
 
 	"github.com/haalp/mergeone/gate/internal/calibrate"
 	"github.com/haalp/mergeone/gate/internal/engine"
+	"github.com/haalp/mergeone/gate/internal/models"
 	"github.com/haalp/mergeone/gate/internal/store"
 )
 
@@ -136,6 +137,9 @@ func parseAge(v string, def time.Duration) (time.Duration, error) {
 // stats is /stats and /api/stats: the store's Stats plus the portal sink and calibration blocks.
 func (gw *Gateway) stats(win time.Duration) map[string]any {
 	out := gw.Store.Stats(win)
+	if r, ok := gw.Gate.Model.(*models.Resilient); ok {
+		out["breaker"] = r.Stats()
+	}
 	if ps := gw.Portal.Stats(); ps != nil {
 		out["portal"] = ps
 	}

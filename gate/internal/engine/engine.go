@@ -73,6 +73,9 @@ type Decision struct {
 	CostUSD      float64            `json:"cost_usd"`
 	ModelVersion string             `json:"model_version"`
 	Error        string             `json:"error,omitempty"`
+	// Attempts is how many times the endpoint was called for this decision (1 = no retry); set by the
+	// resilience wrapper, 0 from a bare backend.
+	Attempts int `json:"attempts,omitempty"`
 }
 
 // Model is the one interface every decision backend implements.
@@ -107,6 +110,8 @@ type Result struct {
 	CappedRule string `json:"capped_rule,omitempty"`
 	// Actions is what the verdict-action layer wrote back to GitHub (webhook/CI mode only; nil elsewhere).
 	Actions *ActionsReport `json:"actions,omitempty"`
+	// Retries is the number of extra endpoint calls the main decision needed (resilience block); omitted when 0.
+	Retries int `json:"retries,omitempty"`
 }
 
 // ActionsReport records the GitHub writes made for one verdict. Errors never change the verdict.
@@ -207,6 +212,40 @@ type Policy struct {
 	// Debounce (v0.4, top-level `debounce:`, default 45s; 0 disables): synchronize events on one PR within
 	// this window are coalesced and only the PR's head when the timer fires is decided.
 	Debounce time.Duration `yaml:"-"`
+	// Resilience (v0.5, top-level `resilience:`): retries and the circuit breaker around every model call.
+	// Durations are Go strings ("500ms", "30s"). Absent keys take the defaults in the comments.
+	Resilience ResilienceSpec `yaml:"resilience"`
+}
+
+// ResilienceSpec is the `resilience:` block as written in policy.yaml.
+type ResilienceSpec struct {
+	Retries         *int   `yaml:"retries" json:"retries"`                             // extra attempts on a transient failure; default 2
+	Backoff         string `yaml:"backoff" json:"backoff,omitempty"`                   // first wait, doubled per attempt; default 500ms
+	MaxBackoff      string `yaml:"max_backoff" json:"max_backoff,omitempty"`           // cap; default 8s
+	BreakerFailures *int   `yaml:"breaker_failures" json:"breaker_failures"`           // consecutive failed decisions that open it; 0 off; default 5
+	BreakerCooldown string `yaml:"breaker_cooldown" json:"breaker_cooldown,omitempty"` // default 30s
+}
+
+// Durations parses the block's duration strings; an unparsable one is an error named for its key.
+func (r ResilienceSpec) Durations() (backoff, maxBackoff, cooldown time.Duration, err error) {
+	parse := func(key, v string) (time.Duration, error) {
+		if v == "" {
+			return 0, nil
+		}
+		d, err := time.ParseDuration(v)
+		if err != nil || d < 0 {
+			return 0, fmt.Errorf("resilience.%s %q: want a duration such as 500ms or 30s", key, v)
+		}
+		return d, nil
+	}
+	if backoff, err = parse("backoff", r.Backoff); err != nil {
+		return
+	}
+	if maxBackoff, err = parse("max_backoff", r.MaxBackoff); err != nil {
+		return
+	}
+	cooldown, err = parse("breaker_cooldown", r.BreakerCooldown)
+	return
 }
 
 // DefaultDebounce is the debounce window when the policy has no `debounce:` key.
@@ -414,6 +453,12 @@ func LoadPolicy(path string) (*Policy, error) {
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
+	if _, _, _, err := p.Resilience.Durations(); err != nil {
+		return nil, fmt.Errorf("policy %s: %w", path, err)
+	}
+	if p.Resilience.Retries != nil && *p.Resilience.Retries < 0 || p.Resilience.BreakerFailures != nil && *p.Resilience.BreakerFailures < 0 {
+		return nil, fmt.Errorf("policy %s: resilience.retries and breaker_failures want >= 0", path)
+	}
 	if err := p.compile(); err != nil {
 		return nil, err
 	}
@@ -619,12 +664,12 @@ func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 	if d.Error != "" {
 		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason, Rule: "on_error",
 			Probs: map[string]float64{}, RawProbs: map[string]float64{}, ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS,
-			CostUSD: d.CostUSD, InputSHA256: sha, Error: d.Error, TS: now}
+			CostUSD: d.CostUSD, InputSHA256: sha, Error: d.Error, TS: now, Retries: max(0, d.Attempts-1)}
 	}
 	cal := g.Cal.Apply(d.Probs)
 	rule, out := g.Match(cal)
 	res := Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
-		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now}
+		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now, Retries: max(0, d.Attempts-1)}
 	if deg := sortedKeys(g.degradedSet()); len(deg) > 0 {
 		res.Drift = deg
 	}

@@ -233,6 +233,42 @@ is marked as passed.
 call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
 `debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
+## Failure handling (`on_error`, `resilience:`) — v0.5
+
+What happens when the decision endpoint does not answer is defined, not accidental. Three layers, in order:
+
+```yaml
+on_error:                 # the verdict when the model cannot be asked (default below; fail closed)
+  verdict: hold
+  route: human
+  reason: "Decision model unavailable"
+resilience:               # retries and the circuit breaker around every model call (main and pair calls)
+  retries: 2              # extra attempts on a transient failure (default 2; 0 = one call only)
+  backoff: 500ms          # first wait; doubled per attempt, ±25 % jitter (default 500ms)
+  max_backoff: 8s         # cap on a wait (default 8s)
+  breaker_failures: 5     # consecutive failed decisions that open the breaker (default 5; 0 = never)
+  breaker_cooldown: 30s   # how long the breaker stays open before one probe call (default 30s)
+```
+
+**Retries** are for transient failures only: a connection error (which is how a client timeout surfaces), HTTP 429,
+HTTP 5xx. A 4xx other than 429 and a reply the gateway cannot read are returned at once — repeating them repeats the
+failure. Every attempt is one more call to the endpoint with the same body; decisions are idempotent on the server
+side (one record per head SHA), so a retry that lands after a timeout costs tokens, never a second verdict. The
+record carries `retries` (extra calls the main decision needed; absent when 0).
+
+**The breaker** counts failed *decisions* (after retries), shared by the main call and the pair calls. After
+`breaker_failures` in a row it opens: for `breaker_cooldown` every call fails immediately with
+`CircuitOpen: N consecutive failures, retrying at <time>` and the PR gets `on_error` — `hold → human`, with the error
+on the record — instead of waiting through another set of timeouts. When the cooldown ends one probe call is let
+through; success closes the breaker, failure reopens it for another cooldown. `GET /healthz` and `/stats` carry
+`breaker`: `state` (`closed` · `open` · `half_open`), `consecutive_failures`, `retry_at`, and totals for `calls`,
+`failures`, `retries`, `opened`, `short_circuited`.
+
+**What a held PR looks like.** The commit status is `mergeone: hold` with the `on_error` reason, the label is the
+hold label, the comment says the model was unavailable; nothing is passed and nothing is closed. A new push, or
+`POST /decide` for the same head once the endpoint is back, decides it normally. The verdict-reuse path needs an
+error-free earlier decision, so an `on_error` record is never copied to a later head.
+
 ## max_rounds (convergence cap)
 
 With agent authors and automated review a PR can loop: every push is a new head SHA and a new verdict. `max_rounds: N` stops the loop.
