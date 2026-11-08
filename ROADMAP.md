@@ -2,7 +2,17 @@
 
 Ordered. Each item ships only with a measurement in `results/`, per [PROTOCOL.md](PROTOCOL.md).
 
-## Now — after run 9: v0.4 (verdict reuse, debounce), the plugin, run 10
+## Now — after run 10: the plugin in the catalog, intent rules, a different relation signal
+
+Run 10 (2026-11-08) is done: one pass, three fails. The open d3-flash reads `needs_human_review` better than the
+hosted 4B control (0.792 vs 0.759) and costs 10× per PR on a 48 GB GPU, so nothing ships; stronger models read
+competing fixes (4/7, 5/7) but nobody reads same-area pairs. `results/run10/README.md`. What follows from it:
+- the gateway keeps pplx-flash on every rule; d3-flash is a documented, measured, not-shipped row;
+- the next relation attempt uses non-diff signals (issue, review thread, timing) for the same-area class — a protocol
+  section when there is a labelled set for it, not before;
+- v0.5 "intent rules": path- and kind-scoped rules in the policy language (`when: {paths: [...], is_logic_change: ...}`),
+  no model change.
+
 
 Run 9 (2026-11-06) is done: one pass, three fails. The hosted endpoint asked jointly equals the local checkpoint asked
 one question at a time (0.990 agreement, 7.27× the tokens) — run 7's drift was the provider's request decomposition.

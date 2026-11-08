@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-11-08T01:57:11+00:00",
+  "computed_at": "2026-11-08T01:58:50+00:00",
   "bootstrap": {
     "n": 1000,
     "seed": 7
@@ -1311,56 +1311,56 @@
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.6350389667898635,
-          "ece_mapped": 0.07279906519554198
+          "ece_mapped": 0.0699086809163856
         },
         "weakens_tests": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.0662738428364688,
-          "ece_mapped": 0.06624175778088294
+          "ece_mapped": 0.05723019564643299
         },
         "touches_concurrency": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.08024259613479579,
-          "ece_mapped": 0.07062639163196585
+          "ece_mapped": 0.05874223698985024
         },
         "needs_human_review": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.43741354947012656,
-          "ece_mapped": 0.06170576058778461
+          "ece_mapped": 0.06026629795170259
         },
         "exceeds_scope": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.0872864835610891,
-          "ece_mapped": 0.06515450718579635
+          "ece_mapped": 0.060292927120488754
         },
         "breaking_change": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.100491119813374,
-          "ece_mapped": 0.0654071086177784
+          "ece_mapped": 0.06267191006510474
         },
         "tests_cover_change": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.5376276989508566,
-          "ece_mapped": 0.07692523423545762
+          "ece_mapped": 0.07125147537020939
         },
         "hard_to_revert": {
           "n_val": 1491,
           "n_test": 705,
           "fitted": true,
           "ece_raw": 0.08784292409868175,
-          "ece_mapped": 0.06849039375541871
+          "ece_mapped": 0.06237030752775939
         }
       },
       "status": "ok"

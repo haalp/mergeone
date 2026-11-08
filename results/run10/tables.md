@@ -1,6 +1,6 @@
 # Run 10 — report tables
 
-computed 2026-11-08T01:57:11+00:00 · `python -m mergeone.eval.run10_report` · label `iterated` from data/run3/dataset.jsonl · bootstrap seed 7, 1000 resamples
+computed 2026-11-08T01:58:50+00:00 · `python -m mergeone.eval.run10_report` · label `iterated` from data/run3/dataset.jsonl · bootstrap seed 7, 1000 resamples
 
 ## Verdicts
 
@@ -141,14 +141,14 @@ Calibration map (isotonic on d3 val vs `iterated`, no bar): ok, 1491 val PRs.
 
 | question | n val | test ECE raw | test ECE mapped |
 |---|---|---|---|
-| is_logic_change | 1491 | 0.635 | 0.073 |
-| weakens_tests | 1491 | 0.066 | 0.066 |
-| touches_concurrency | 1491 | 0.080 | 0.071 |
-| needs_human_review | 1491 | 0.437 | 0.062 |
-| exceeds_scope | 1491 | 0.087 | 0.065 |
-| breaking_change | 1491 | 0.100 | 0.065 |
-| tests_cover_change | 1491 | 0.538 | 0.077 |
-| hard_to_revert | 1491 | 0.088 | 0.068 |
+| is_logic_change | 1491 | 0.635 | 0.070 |
+| weakens_tests | 1491 | 0.066 | 0.057 |
+| touches_concurrency | 1491 | 0.080 | 0.059 |
+| needs_human_review | 1491 | 0.437 | 0.060 |
+| exceeds_scope | 1491 | 0.087 | 0.060 |
+| breaking_change | 1491 | 0.100 | 0.063 |
+| tests_cover_change | 1491 | 0.538 | 0.071 |
+| hard_to_revert | 1491 | 0.088 | 0.062 |
 
 **R10-H4: fail** — bar: d3-flash vs the hosted control: AUC on each question ≥ control − 0.02 on at least six of eight; throughput ≥ 1.0 PR/s on the 48 GB GPU; agreement and mean |Δp| reported (no bar)
 

@@ -2,6 +2,21 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 10 complete — 2026-11-08
+
+One pass, three fails. All four rows on 2026-11-08 UTC: hosted control / full / haiku from the laptop 00:03:23Z –
+00:06:53Z (0 errors); d3-flash on one A40 (RunPod Secure, EU-SE-1, $0.59/h), server up 00:05:51Z, warm 12/12, timed
+v4 test 705/705 in 1,907 s (0.370 PR/s, c = 32), val 1,491, relation2 100, pod part done 01:47Z. Every table from
+`mergeone.eval.run10_report`; write-up `results/run10/README.md`.
+- R10-H2 ✅ d3-flash `needs_human_review` AUC 0.792 vs control 0.759 (+0.034, paired CI [0.003, 0.068]); full −0.016.
+- R10-H3 ❌ d3 per-PR cost $0.0025 = 10.2× the control (bar ≤ 5×) → the H2 pass does not ship; full 2.0×, haiku 15.5×.
+- R10-H1 ❌ competing + same-area: full 6/17, haiku 5/17, d3 3/17, control 2/17 (bar 0.40). Competing is read by the
+  stronger rows (4/7, 5/7); same-area by none (≤ 2/10).
+- R10-H4 ❌ d3-flash 7/8 questions ≥ control − 0.02 but 0.370 PR/s (bar 1.0).
+- Nothing ships. Spend: GPU ≈ $2.1 + $0.23 (pre-freeze check), Perplexity $0.052, Anthropic $0.038.
+- Tooling note, dated: `rsync` was not on the pod (the prep script's `apt-get` failed silently), so the Mac's 5-minute
+  pull copied nothing during the run; results were pulled with `scp` at the end and matched the pod byte for byte.
+
 ## Run 10 tooling — 2026-11-08 (after the freeze, before any run-10 model call)
 
 - 2026-11-07 22:30Z pod up (RunPod Secure 1 × A40, EU-SE-1, $0.59/h) for the `setup` stage only, ahead of the
