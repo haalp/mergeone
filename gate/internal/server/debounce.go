@@ -53,7 +53,7 @@ func (gw *Gateway) debouncePush(repo string, pr int, sha string) {
 		p.shas = append(p.shas, sha)
 	}
 	gw.pmu.Unlock()
-	if gw.GitHub != nil && sha != "" {
+	if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Shadow() {
 		go gw.postPendingStatus(repo, sha)
 	}
 }

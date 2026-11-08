@@ -42,6 +42,8 @@ type Record struct {
 	// DebouncedSHAs (v0.4) are the heads of this PR that were pushed during the debounce window and never
 	// decided, because a later push superseded them before the timer fired.
 	DebouncedSHAs []string `json:"debounced_shas,omitempty"`
+	// Shadow (v0.5) marks a decision made under `mode: shadow`: recorded, nothing written to GitHub.
+	Shadow bool `json:"shadow,omitempty"`
 }
 
 // OpenPR is what the planner sees.
@@ -244,7 +246,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	verdicts, routes, rules := map[string]int{}, map[string]int{}, map[string]int{}
 	var lat []float64
 	var cost float64
-	n, errs, reused, debounced := 0, 0, 0, 0
+	n, errs, reused, debounced, shadow := 0, 0, 0, 0, 0
 	daily := dailyAcc{}
 	for _, r := range s.recent {
 		if r.TS.Before(t0) {
@@ -260,6 +262,9 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 			reused++
 		}
 		debounced += len(r.DebouncedSHAs)
+		if r.Shadow {
+			shadow++
+		}
 		if r.Result.Error != "" {
 			errs++
 		} else if r.Result.LatencyMS > 0 {
@@ -268,7 +273,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	}
 	sort.Float64s(lat)
 	out := map[string]any{"window_s": window.Seconds(), "decisions": n, "per_hour": float64(n) / window.Hours(),
-		"verdicts": verdicts, "routes": routes, "rules": rules, "cost_usd": cost, "reused": reused, "debounced": debounced, "error_rate": 0.0, "p50_ms": nil, "p99_ms": nil}
+		"verdicts": verdicts, "routes": routes, "rules": rules, "cost_usd": cost, "reused": reused, "debounced": debounced, "shadow": shadow, "error_rate": 0.0, "p50_ms": nil, "p99_ms": nil}
 	if n > 0 {
 		out["error_rate"] = float64(errs) / float64(n)
 	}

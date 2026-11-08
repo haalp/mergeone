@@ -166,6 +166,10 @@ func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PR
 }
 
 func (gw *Gateway) decideReq(q decideReq) engine.Result {
+	shadow := gw.Gate.Policy.Shadow()
+	if shadow {
+		q.act = false // mode: shadow — decide and record, write nothing to GitHub
+	}
 	repo, pr, sha, state, meta, rctx, act := q.repo, q.pr, q.sha, q.state, q.meta, q.rctx, q.act
 	h := sha256.Sum256([]byte(state))
 	inputSHA := hex.EncodeToString(h[:])
@@ -213,7 +217,7 @@ func (gw *Gateway) decideReq(q decideReq) engine.Result {
 		}
 	}
 	rec := store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: q.source, Result: res, Context: rctx, State: state,
-		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced}
+		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced, Shadow: shadow}
 	if err := gw.Store.Record(rec); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
@@ -280,11 +284,12 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 			oe := gw.Gate.Policy.OnError
 			res := engine.Result{Verdict: oe.Verdict, Route: oe.Route, Reason: oe.Reason + ": " + err.Error(), Rule: "on_error",
 				Probs: map[string]float64{}, RawProbs: map[string]float64{}, Error: err.Error(), TS: time.Now().UTC()}
-			if gw.Gate.Policy.Actions.Enabled && act {
+			shadow := gw.Gate.Policy.Shadow()
+			if gw.Gate.Policy.Actions.Enabled && act && !shadow {
 				res.Actions = ApplyStatusOnly(gw.GitHub, gw.Gate.Policy.Actions, repo, pr, sha, res)
 			}
-			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res})
-			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled {
+			_ = gw.Store.Record(store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: "worker-error", Result: res, Shadow: shadow})
+			if gw.GitHub != nil && sha != "" && !gw.Gate.Policy.Actions.Enabled && !shadow {
 				gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, "")
 				gw.settleLegacyStatus(j, repo, sha, res)
 			}
@@ -333,7 +338,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 	}
 	// Legacy write-back (check-run + gate:/route: labels) stays as it was while actions are off;
 	// with actions enabled the commit status and mergeone:* labels replace it (one signal, one name).
-	if gw.GitHub != nil && !gw.Gate.Policy.Actions.Enabled {
+	if gw.GitHub != nil && !gw.Gate.Policy.Actions.Enabled && !gw.Gate.Policy.Shadow() {
 		gw.GitHub.PostCheck(repo, sha, gw.Gate.Policy.QuestionSet, res, gw.verdictURL(repo, sha))
 		gw.GitHub.SetLabels(repo, pr, res)
 		gw.settleLegacyStatus(j, repo, sha, res)
@@ -345,7 +350,7 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		h := map[string]any{"ok": true, "workers": gw.Workers, "queue": gw.Store.QueueDepth(), "model": gw.Gate.Model.Name()}
+		h := map[string]any{"ok": true, "workers": gw.Workers, "queue": gw.Store.QueueDepth(), "model": gw.Gate.Model.Name(), "mode": gw.Gate.Policy.Mode}
 		if r, ok := gw.Gate.Model.(*models.Resilient); ok {
 			h["breaker"] = r.Stats()
 		}

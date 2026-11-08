@@ -5,6 +5,10 @@
 # wins. Probabilities are calibrated (see calibration.json) before rules run.
 
 version: 1
+
+# enforce (default) writes verdicts to GitHub as `actions:` says; shadow decides and records every PR and writes
+# nothing — the gatelog, /stats and the portal show what the gate would have done (docs/POLICY.md, "Shadow mode").
+mode: enforce
 model: jev            # any key in prompts/models.yaml: jev | pplx | pplx-flash | haiku | clef | local | … (mergeone models)
 # model_id: pplx-decider-flash-v1.2   # optional pin
 # provider:           # optional: override/define the model inline (same keys as a models.yaml row).

@@ -233,6 +233,25 @@ is marked as passed.
 call; records with the same `(repo, pr, patch_id)` and different `head_sha` count rebases; the summed length of
 `debounced_shas` counts pushes never sent to the model. `mergeone stats` prints the first and last.
 
+## Shadow mode (`mode: shadow`) — v0.5
+
+```yaml
+mode: shadow     # enforce (default) | shadow
+```
+
+In shadow mode the gateway does everything it does in enforce mode except write to GitHub: webhooks are received
+and debounced, PRs are fetched and decided, verdicts are recorded with their input, patch id and policy hash, the
+drift monitor counts them, the portal receives them, and `GET /stats` and `mergeone stats` report them (`shadow`
+counts the decisions made in this mode; `mode` names the mode). No commit status, label, comment, pending status,
+check-run or reviewer request is made — `actions.enabled` is ignored while shadow is on, and the legacy check-run
+write-back is off too. A record made in shadow mode carries `shadow: true`.
+
+This is how a team starts: a week in shadow, a look at the gatelog or the portal's *Needs you* screen (every row is
+"what the gate would have done"), the thresholds adjusted, then `mode: enforce`. Switching modes does not re-ask the
+model: the next event on a head already decided in shadow applies the recorded verdict's actions (the decision is
+reused from the gatelog — same input, no error — and only the write-back runs). `mode` is not part of the policy hash,
+so verdict reuse across rebases works the same in both modes.
+
 ## Failure handling (`on_error`, `resilience:`) — v0.5
 
 What happens when the decision endpoint does not answer is defined, not accidental. Three layers, in order:

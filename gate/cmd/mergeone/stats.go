@@ -67,6 +67,9 @@ func cmdStats(args []string) int {
 	}
 	fmt.Fprintf(stdout, "reused   %d (verdict copied from an earlier head with the same patch_id; no model call; %.1f%% of decisions)\n", int(num("reused")), 100*share)
 	fmt.Fprintf(stdout, "debounced %d (heads superseded by a later push inside the debounce window; never decided)\n", int(num("debounced")))
+	if sh := int(num("shadow")); sh > 0 || st["mode"] == "shadow" {
+		fmt.Fprintf(stdout, "shadow   %d decisions recorded under mode: shadow (nothing written to GitHub; what the gate would have done)\n", sh)
+	}
 	for _, k := range []string{"verdicts", "routes", "rules"} {
 		m, _ := st[k].(map[string]any)
 		keys := make([]string, 0, len(m))

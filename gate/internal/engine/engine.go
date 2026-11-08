@@ -212,6 +212,10 @@ type Policy struct {
 	// Debounce (v0.4, top-level `debounce:`, default 45s; 0 disables): synchronize events on one PR within
 	// this window are coalesced and only the PR's head when the timer fires is decided.
 	Debounce time.Duration `yaml:"-"`
+	// Mode (v0.5): "enforce" (default) writes verdicts to GitHub as the actions block says; "shadow" decides
+	// and records every PR exactly the same way and writes nothing to GitHub — no status, label, comment,
+	// pending status or check-run. The gatelog, /stats and the portal show what the gate would have done.
+	Mode string `yaml:"mode"`
 	// Resilience (v0.5, top-level `resilience:`): retries and the circuit breaker around every model call.
 	// Durations are Go strings ("500ms", "30s"). Absent keys take the defaults in the comments.
 	Resilience ResilienceSpec `yaml:"resilience"`
@@ -247,6 +251,15 @@ func (r ResilienceSpec) Durations() (backoff, maxBackoff, cooldown time.Duration
 	cooldown, err = parse("breaker_cooldown", r.BreakerCooldown)
 	return
 }
+
+// Policy modes.
+const (
+	ModeEnforce = "enforce"
+	ModeShadow  = "shadow"
+)
+
+// Shadow reports whether the gateway must not write to GitHub.
+func (p *Policy) Shadow() bool { return p != nil && p.Mode == ModeShadow }
 
 // DefaultDebounce is the debounce window when the policy has no `debounce:` key.
 const DefaultDebounce = 45 * time.Second
@@ -452,6 +465,13 @@ func LoadPolicy(path string) (*Policy, error) {
 	}
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
+	}
+	switch p.Mode {
+	case "":
+		p.Mode = ModeEnforce
+	case ModeEnforce, ModeShadow:
+	default:
+		return nil, fmt.Errorf("policy %s: mode %q: want enforce or shadow", path, p.Mode)
 	}
 	if _, _, _, err := p.Resilience.Durations(); err != nil {
 		return nil, fmt.Errorf("policy %s: %w", path, err)

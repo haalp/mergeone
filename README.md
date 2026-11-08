@@ -112,6 +112,7 @@ The MCP tools (`gate_decide`, `gate_similar`) never write to GitHub.
 `.mergeone.yaml` is the whole product surface: which model, which question set, paths that always need a human, whether PR memory is on, the rules, the convergence cap, the drift monitor, the portal, and what to write back to the PR.
 
 ```yaml
+mode: enforce                  # shadow = decide and record every PR, write nothing to GitHub (the safe first week)
 model: jev                     # or pplx-flash, haiku, local, … — one YAML row, no code
 question_set: v2               # v2 (default, five questions) | v4 (opt-in, eight)
 always_human_paths: ["migrations/", "auth/"]
@@ -128,6 +129,7 @@ rules:
   - { name: duplicate-of,  when: { duplicate_of: ">= 0.7" },  verdict: hold,  route: dedup }
 default: { verdict: pass, route: auto-merge }
 on_error: { verdict: hold, route: human }      # fail closed
+resilience: { retries: 2, breaker_failures: 5, breaker_cooldown: 30s }   # defaults; transient model failures are retried, a dead endpoint holds at once
 drift: { enabled: true }       # default on; a rule that reads a drifted question holds for a human instead
 actions:                       # webhook / CI mode only; off by default; never merges
   enabled: false
@@ -139,7 +141,7 @@ portal:                        # optional: written by `mergeone init --portal <t
   token: ${MERGEONE_PORTAL_TOKEN}
 ```
 
-Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human. Verdict actions are deterministic GitHub calls and never change a verdict; the token needs statuses, pull requests and issues write.
+Rules run top to bottom on *calibrated* probabilities; first match wins; a model outage holds the PR for a human (after retries; a dead endpoint opens a circuit breaker and holds at once). `mode: shadow` runs the whole pipeline — webhooks, decisions, gatelog, portal, `mergeone stats` — and writes nothing to GitHub, so a team can read a week of "what it would have done" before a single label is set; switching to `enforce` applies the recorded verdicts on the next event without re-asking the model. Verdict actions are deterministic GitHub calls and never change a verdict; the token needs statuses, pull requests and issues write.
 
 - **`question_set`** — `v2` asks five questions. `v4` asks eight (`is_logic_change`, `weakens_tests`, `touches_concurrency`, `needs_human_review`, `exceeds_scope`, `breaking_change`, `tests_cover_change`, `hard_to_revert`); calibration maps ship for `jev`, `haiku` and `pplx-flash`. `v3` runs only with a `calibration_<model>_v3.json` of your own; without one the gateway refuses to start. The check-run and the verdict comment list the questions of the set you chose.
 - **`memory.pair_state`** — the duplicate check compares the PR with each of `top_k` similar recent PRs in one small call each. `compact` sends shortened diffs and bodies (32–42 % fewer tokens, pair AUC within 0.02 of `full` in run 8, bar −0.02); the main decision always sees the full PR.

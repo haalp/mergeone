@@ -137,6 +137,7 @@ func parseAge(v string, def time.Duration) (time.Duration, error) {
 // stats is /stats and /api/stats: the store's Stats plus the portal sink and calibration blocks.
 func (gw *Gateway) stats(win time.Duration) map[string]any {
 	out := gw.Store.Stats(win)
+	out["mode"] = gw.Gate.Policy.Mode
 	if r, ok := gw.Gate.Model.(*models.Resilient); ok {
 		out["breaker"] = r.Stats()
 	}
