@@ -1014,8 +1014,8 @@ than the margin. From run 12 on:
 
 ## R12.0c Tokens are watched like answers
 
-The hosted endpoint's reported input tokens per joint request moved 2,3xx → 17,050 → 2,209 across runs 5, 9 and 11
-under one model name. Every run records the control's median input tokens; a change of more than 2× against the
+The hosted endpoint's reported input tokens per joint request was 17,050 in run 9 (2026-11-06) and 2,209 in run 11
+(2026-11-08) under one model name (`results/run9/README.md`, `results/run11/README.md`). Every run records the control's median input tokens; a change of more than 2× against the
 previous run's control is a dated CHANGELOG line and every cost ratio in that run is computed from same-day rows
 only (already the practice since run 7; now a rule). The gateway's drift monitor gains a tokens-per-decision signal
 by a separate, measured change.
