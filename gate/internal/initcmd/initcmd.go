@@ -5,6 +5,7 @@ package initcmd
 import (
 	"bytes"
 	"embed"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -31,6 +32,7 @@ const (
 	PolicyFile   = ".mergeone.yaml"
 	WorkflowFile = ".github/workflows/mergeone.yml"
 	ClaudeFile   = "CLAUDE.md"
+	MCPFile      = ".mcp.json"
 	ClaudeMarker = "<!-- mergeone:init -->"
 	ReadmeURL    = "https://github.com/haalp/mergeone#readme"
 	MCPCommand   = "claude mcp add mergeone -- mergeone mcp --policy .mergeone.yaml"
@@ -292,6 +294,30 @@ func secretEnvs(s models.Spec) []string {
 	return out
 }
 
+// WriteMCPJSON adds the `mergeone` stdio server to the repository's .mcp.json (project scope), creating the file
+// or merging into an existing one; other servers are kept. Returns false when the entry is already there.
+func WriteMCPJSON(path string) (bool, error) {
+	doc := map[string]any{}
+	if b, err := os.ReadFile(path); err == nil {
+		if err := json.Unmarshal(b, &doc); err != nil {
+			return false, fmt.Errorf("%s: %w (not touched)", path, err)
+		}
+	} else if !os.IsNotExist(err) {
+		return false, err
+	}
+	servers, _ := doc["mcpServers"].(map[string]any)
+	if servers == nil {
+		servers = map[string]any{}
+	}
+	if _, ok := servers["mergeone"]; ok {
+		return false, nil
+	}
+	servers["mergeone"] = map[string]any{"command": "mergeone", "args": []string{"mcp", "--policy", PolicyFile}}
+	doc["mcpServers"] = servers
+	b, _ := json.MarshalIndent(doc, "", "  ")
+	return true, os.WriteFile(path, append(b, '\n'), 0o644)
+}
+
 // ClaudeSnippet is the three lines for CLAUDE.md (the marker is added when written).
 func ClaudeSnippet(base string) string {
 	return "## Merge gate (mergeone)\n" +
@@ -525,9 +551,26 @@ func writeRest(o Options, env Env, pr printer, d Detection, spec models.Spec, wo
 	}
 	fmt.Fprintln(out)
 
+	if o.MCP && o.Write {
+		wrote, err := WriteMCPJSON(filepath.Join(o.Dir, MCPFile))
+		if err != nil {
+			fmt.Fprintln(env.Stderr, "error:", err)
+			return ExitError
+		}
+		if wrote {
+			pr.line("✓", MCPFile, "project MCP server `mergeone` (mergeone mcp --policy .mergeone.yaml)")
+		} else {
+			pr.line("·", MCPFile, "already declares the mergeone server; unchanged")
+		}
+	}
 	if o.MCP {
 		fmt.Fprintln(out, "Agent (MCP)")
-		fmt.Fprintln(out, "  "+MCPCommand)
+		if o.Write {
+			fmt.Fprintln(out, "  "+MCPFile+" declares the server for this repository (project scope; teammates get it on checkout).")
+			fmt.Fprintln(out, "  User scope instead: "+MCPCommand)
+		} else {
+			fmt.Fprintln(out, "  "+MCPCommand)
+		}
 		if !o.Write {
 			fmt.Fprintln(out, "  CLAUDE.md snippet (or rerun with --mcp --write):")
 		}

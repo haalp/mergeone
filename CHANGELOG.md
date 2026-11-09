@@ -23,6 +23,12 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 
 ## v0.5.1 — unreleased
 
+- 2026-11-09 init: `mergeone init --mcp --write` writes the `mergeone` stdio server into the repository's `.mcp.json`
+  (project scope, merged into an existing file, idempotent) instead of only printing a `claude mcp add` command. The
+  Claude Code plugin no longer bundles the server (the directory accepts local MCP servers only from verified
+  organisations); the repository's own `.mcp.json` is where it belongs anyway — teammates get it on checkout and can
+  review it.
+
 - 2026-11-08 cli: `mergeone pr` prints `repo`, `pr` and `head_sha` with the verdict (found by the Claude Code plugin's
   `/mergeone:pr`, which could not show which commit was decided).
 - 2026-11-08 keys: `MERGEONE_MODEL_KEY` and `MERGEONE_GITHUB_TOKEN` as non-shadowing overrides for the model key and
