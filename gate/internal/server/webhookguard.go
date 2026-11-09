@@ -71,6 +71,17 @@ func (g *webhookGuard) duplicate(delivery string) bool {
 	return false
 }
 
+// forget drops a delivery id that was not accepted (rate limited, bad payload), so GitHub's redelivery of it is
+// decided instead of being answered as a duplicate.
+func (g *webhookGuard) forget(delivery string) {
+	if g == nil || delivery == "" {
+		return
+	}
+	g.mu.Lock()
+	delete(g.seen, delivery)
+	g.mu.Unlock()
+}
+
 // allow takes one token from repo's bucket; when the bucket is empty it returns false and the wait until the
 // next token.
 func (g *webhookGuard) allow(repo string) (bool, time.Duration) {

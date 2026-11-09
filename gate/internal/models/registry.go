@@ -83,15 +83,9 @@ func (r *Registry) Names() []string {
 	return out
 }
 
-// KeyFromEnv reads a model key: MERGEONE_MODEL_KEY when it is set and non-empty (one override for whichever model
-// the policy names — what the Claude Code plugin's configuration dialog fills), otherwise the model's own
-// variable (TYPESAFE_API_KEY, PERPLEXITY_API_KEY, …). An empty override never shadows a set variable.
-func KeyFromEnv(keyEnv string) string {
-	if k := os.Getenv("MERGEONE_MODEL_KEY"); k != "" {
-		return k
-	}
-	return os.Getenv(keyEnv)
-}
+// KeyFromEnv reads a model's key from its own variable (TYPESAFE_API_KEY, PERPLEXITY_API_KEY, …). There is no
+// shared override: one variable for every provider would hand a key to whichever endpoint the policy names.
+func KeyFromEnv(keyEnv string) string { return os.Getenv(keyEnv) }
 
 // GitHubTokenFromEnv reads GITHUB_TOKEN, or MERGEONE_GITHUB_TOKEN when that is set and non-empty.
 func GitHubTokenFromEnv() string {

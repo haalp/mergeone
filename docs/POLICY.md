@@ -247,20 +247,34 @@ call; records with the same `(repo, pr, patch_id)` and different `head_sha` coun
 3. **Rate limit.** One token bucket per repository, `--webhook-rate` events per minute (default 300, burst one
    minute's worth). Beyond it the delivery gets `429` with `Retry-After`; GitHub keeps the failed delivery in the
    repository's webhook log for redelivery, so nothing is lost silently, and one noisy repository cannot fill the
-   queue for the others. `/metrics` counts `mergeone_webhooks_total{action="duplicate"|"rate_limited"}`.
+   queue for the others. A delivery refused here (or for a bad payload) is not remembered by the replay check, so
+   its redelivery is decided. `/metrics` counts `mergeone_webhooks_total{action="duplicate"|"rate_limited"}`.
 4. **Payload.** Bodies are capped at 8 MB, unknown events and actions are acknowledged and ignored, a payload without
    a repository is a 400.
 
 The policy file itself is fuzzed (`go test ./internal/engine -fuzz=FuzzLoadPolicy`): any bytes either load or return
 a named error, never a crash at start.
 
-## Keys from the environment — v0.5
+## Keys from the environment
 
 Each model row names its key variable (`TYPESAFE_API_KEY` for `jev`, `PERPLEXITY_API_KEY` for `pplx` and
-`pplx-flash`, `ANTHROPIC_API_KEY` for `haiku`, `MERGEONE_LOCAL_KEY` optional for `*-local`). Two overrides exist for
-tools that hold one secret per plugin: `MERGEONE_MODEL_KEY`, used for whichever model the policy names when it is set
-and non-empty, and `MERGEONE_GITHUB_TOKEN`, used instead of `GITHUB_TOKEN` when set and non-empty. An empty override
-never shadows a set variable, so a blank field in a configuration dialog leaves `.env` in charge.
+`pplx-flash`, `ANTHROPIC_API_KEY` for `haiku`, `MERGEONE_LOCAL_KEY` optional for `*-local`). There is no shared
+model-key override: one variable for every provider would hand a key to whichever endpoint the policy names.
+`MERGEONE_GITHUB_TOKEN`, when set and non-empty, is used instead of `GITHUB_TOKEN`. `MERGEONE_METRICS_TOKEN` guards
+`/metrics` off loopback.
+
+## What the gatelog keeps (`log_state`) — v0.5.1
+
+```yaml
+log_state: full    # full (default) | hash
+```
+
+Every record carries `input_sha256`, the hash of what the model read. `full` also keeps that input — the rendered PR
+state: title, body, file list and the bounded diff — as `state`, the audit trail that lets a verdict be re-examined;
+with a `portal` block the same record, state included, is posted to the portal and kept there. `hash` keeps only the
+state's title and summary lines (what the portal's rows show): no body, no diff, in the gatelog or the portal. Choose
+`hash` when the diff must not leave the machine that decided it; `mergeone replay --gatelog` and `mergeone calibrate`
+work either way (they read probabilities, not the state).
 
 ## Observability (`/stats`, `/metrics`, record fields) — v0.5
 
@@ -279,8 +293,8 @@ the resilience layer made for the main decision), `cost_usd`, `error`, `reused_f
 `bad_reply` · `other`), `input_tokens`, `input_tokens_p50` / `p99` per decision that called the model,
 `output_tokens`, `model_latency_p50_ms` / `p99_ms`, `cost_per_decision_usd`.
 
-**`GET /metrics`** is the same information as Prometheus text (no auth; bind the gateway to loopback or a private
-network, or put it behind the reverse proxy that already fronts the webhook): `mergeone_decisions_total{verdict,rule,
+**`GET /metrics`** is the same information as Prometheus text. On a loopback bind it is open; on any other bind it
+needs `Authorization: Bearer $MERGEONE_METRICS_TOKEN` (403 without, and when the variable is unset): `mergeone_decisions_total{verdict,rule,
 source}`, `mergeone_model_errors_total{kind}`, `mergeone_model_calls_total`, `mergeone_model_retries_total`,
 `mergeone_pair_call_errors_total`, `mergeone_model_tokens_total{direction}`, `mergeone_model_cost_usd_total`,
 `mergeone_verdicts_reused_total`, `mergeone_pushes_debounced_total`, `mergeone_shadow_decisions_total`,
@@ -382,7 +396,11 @@ failure. Every attempt is one more call to the endpoint with the same body; deci
 side (one record per head SHA), so a retry that lands after a timeout costs tokens, never a second verdict. The
 record carries `retries` (extra calls the main decision needed; absent when 0).
 
-**The breaker** counts failed *decisions* (after retries), shared by the main call and the pair calls. After
+A 429 or 503 that carries `Retry-After` (seconds) is waited out for at least that long, capped at 30 s.
+
+**The breaker** counts failed *main calls* (after retries). Pair calls go through the same retries and are refused
+while it is open, but a failed pair call does not count toward opening it — one PR's ten pair calls failing together
+is one bad moment, not ten failed decisions. After
 `breaker_failures` in a row it opens: for `breaker_cooldown` every call fails immediately with
 `CircuitOpen: N consecutive failures, retrying at <time>` and the PR gets `on_error` — `hold → human`, with the error
 on the record — instead of waiting through another set of timeouts. When the cooldown ends one probe call is let

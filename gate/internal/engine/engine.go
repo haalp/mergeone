@@ -76,6 +76,9 @@ type Decision struct {
 	// Attempts is how many times the endpoint was called for this decision (1 = no retry); set by the
 	// resilience wrapper, 0 from a bare backend.
 	Attempts int `json:"attempts,omitempty"`
+	// RetryAfter is the endpoint's Retry-After on a 429/503, when it sent one; the resilience wrapper waits at
+	// least that long (capped) before the next attempt.
+	RetryAfter time.Duration `json:"-"`
 }
 
 // Model is the one interface every decision backend implements.
@@ -222,6 +225,10 @@ type Policy struct {
 	// and records every PR exactly the same way and writes nothing to GitHub — no status, label, comment,
 	// pending status or check-run. The gatelog, /stats and the portal show what the gate would have done.
 	Mode string `yaml:"mode"`
+	// LogState (v0.5.1): what of the model's input the gatelog (and so the portal) keeps. "full" (default) keeps the
+	// rendered PR state, bounded diff included — the audit trail. "hash" keeps only the title and summary lines
+	// (what the portal's rows show); the input's sha256 is on every record either way.
+	LogState string `yaml:"log_state"`
 	// Resilience (v0.5, top-level `resilience:`): retries and the circuit breaker around every model call.
 	// Durations are Go strings ("500ms", "30s"). Absent keys take the defaults in the comments.
 	Resilience ResilienceSpec `yaml:"resilience"`
@@ -263,6 +270,20 @@ const (
 	ModeEnforce = "enforce"
 	ModeShadow  = "shadow"
 )
+
+// LoggedState is what Record.State holds for a rendered state under the policy's log_state.
+func (p *Policy) LoggedState(state string) string {
+	if p == nil || p.LogState != "hash" {
+		return state
+	}
+	var keep []string
+	for _, l := range strings.Split(state, "\n") {
+		if strings.HasPrefix(l, "PULL REQUEST TITLE: ") || strings.HasPrefix(l, "SUMMARY: ") {
+			keep = append(keep, l)
+		}
+	}
+	return strings.Join(keep, "\n")
+}
 
 // Shadow reports whether the gateway must not write to GitHub.
 func (p *Policy) Shadow() bool { return p != nil && p.Mode == ModeShadow }
@@ -487,6 +508,13 @@ func LoadPolicy(path string) (*Policy, error) {
 	}
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
+	}
+	switch p.LogState {
+	case "":
+		p.LogState = "full"
+	case "full", "hash":
+	default:
+		return nil, fmt.Errorf("policy %s: log_state %q: want full or hash", path, p.LogState)
 	}
 	switch p.Mode {
 	case "":
@@ -792,7 +820,7 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 	}
 	if conc == 1 || len(cands) <= 1 {
 		for i, c := range cands {
-			ds[i] = g.Model.Decide(c.PairState, []string{"same_change"})
+			ds[i] = g.decidePair(c.PairState)
 		}
 		return pairStage{cands, ds, rend, fallback}
 	}
@@ -803,11 +831,24 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 		sem <- struct{}{}
 		go func(i int) {
 			defer func() { <-sem; wg.Done() }()
-			ds[i] = g.Model.Decide(cands[i].PairState, []string{"same_change"})
+			ds[i] = g.decidePair(cands[i].PairState)
 		}(i)
 	}
 	wg.Wait()
 	return pairStage{cands, ds, rend, fallback}
+}
+
+// PairDecider is implemented by a model wrapper that treats pair calls differently from the main call (the
+// resilience wrapper: a failed pair call does not count toward the circuit breaker).
+type PairDecider interface {
+	DecidePair(state string, questions []string) Decision
+}
+
+func (g *Gate) decidePair(state string) Decision {
+	if pd, ok := g.Model.(PairDecider); ok {
+		return pd.DecidePair(state, []string{"same_change"})
+	}
+	return g.Model.Decide(state, []string{"same_change"})
 }
 
 // DecideFor is Decide plus the run-4 signals when a PR memory is configured:

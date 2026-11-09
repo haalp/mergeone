@@ -5,12 +5,14 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -226,6 +228,7 @@ func (gw *Gateway) decideReq(q decideReq) engine.Result {
 	}
 	rec := store.Record{Repo: repo, PR: pr, HeadSHA: sha, Source: q.source, Result: res, Context: rctx, State: state,
 		PatchID: pid, PolicyHash: phash, ReusedFrom: reusedFrom, DebouncedSHAs: q.debounced, Shadow: shadow, DeliveryID: q.deliveryID}
+	rec.State = gw.Gate.Policy.LoggedState(rec.State)
 	if err := gw.Store.Record(rec); err != nil {
 		log.Printf("gatelog write failed: %v", err)
 	}
@@ -370,6 +373,15 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		writeJSON(w, 200, h)
 	})
 	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
+		// off loopback, /metrics needs a bearer token (MERGEONE_METRICS_TOKEN): rule names and repository
+		// activity are not public data. On a loopback bind it is open, for a local scraper.
+		if !gw.BoundLocal {
+			tok := os.Getenv("MERGEONE_METRICS_TOKEN")
+			if tok == "" || subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+tok)) != 1 {
+				writeJSON(w, 403, map[string]string{"error": "/metrics needs Authorization: Bearer $MERGEONE_METRICS_TOKEN when the server is not bound to localhost"})
+				return
+			}
+		}
 		var br *models.BreakerStats
 		if rm, ok := gw.Gate.Model.(*models.Resilient); ok {
 			b := rm.Stats()
@@ -482,11 +494,13 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		}
 		repo, pr, sha := ev.Repository.FullName, ev.PullRequest.Number, ev.PullRequest.Head.SHA
 		if repo == "" {
+			gw.guard.forget(delivery)
 			writeJSON(w, 400, map[string]string{"error": "bad payload: no repository"})
 			return
 		}
 		if ok, wait := gw.guard.allow(repo); !ok {
 			gw.metrics.webhook("pull_request", "rate_limited")
+			gw.guard.forget(delivery) // not accepted: the redelivery must be decided, not called a duplicate
 			w.Header().Set("Retry-After", strconv.Itoa(int(wait.Seconds())+1))
 			writeJSON(w, 429, map[string]any{"error": "rate limited: too many webhooks for " + repo, "retry_after_s": int(wait.Seconds()) + 1})
 			return

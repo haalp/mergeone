@@ -21,7 +21,25 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
-## v0.5.1 — unreleased
+## v0.5.1 — 2026-11-09 (fixes found by reading v0.5.0 back the day after)
+
+Five defects in the v0.5.0 hardening code, one privacy switch, and the three changes the plugin work asked for.
+Nothing changes a verdict rule or a threshold.
+
+- 2026-11-09 webhook **fix**: a delivery refused with 429 (or a bad payload) was remembered by the replay check, so
+  GitHub's redelivery was answered `duplicate` and never decided. Refused deliveries are now forgotten.
+- 2026-11-09 resilience **fix**: every failed pair call counted toward the circuit breaker, so one PR whose ten pair
+  calls failed together opened it for every repository. Only main calls count now; pair calls are still retried and
+  still refused while it is open.
+- 2026-11-09 resilience **fix**: `Retry-After` on a 429/503 was ignored (first retry after ≈ 0.5 s whatever the
+  endpoint asked). It is honoured, capped at 30 s.
+- 2026-11-09 keys **removed**: `MERGEONE_MODEL_KEY` (added 2026-11-08, never released) — one override for every
+  provider would send a key to whichever endpoint the policy names. `MERGEONE_GITHUB_TOKEN` stays.
+- 2026-11-09 server **fix**: `/metrics` was open on any bind. Off loopback it needs
+  `Authorization: Bearer $MERGEONE_METRICS_TOKEN`.
+- 2026-11-09 gatelog: `log_state: hash` keeps only the title and summary lines of the model's input in the gatelog and
+  the portal record (default `full`, unchanged: the rendered PR state with its bounded diff). The plugin README had
+  said the gatelog held no diff; it does by default, and the README now says so.
 
 - 2026-11-09 init: `mergeone init --mcp --write` writes the `mergeone` stdio server into the repository's `.mcp.json`
   (project scope, merged into an existing file, idempotent) instead of only printing a `claude mcp add` command. The
@@ -31,8 +49,7 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 
 - 2026-11-08 cli: `mergeone pr` prints `repo`, `pr` and `head_sha` with the verdict (found by the Claude Code plugin's
   `/mergeone:pr`, which could not show which commit was decided).
-- 2026-11-08 keys: `MERGEONE_MODEL_KEY` and `MERGEONE_GITHUB_TOKEN` as non-shadowing overrides for the model key and
-  the GitHub token (`docs/POLICY.md`, "Keys from the environment"); the plugin's configuration dialog fills them.
+- 2026-11-08 keys: `MERGEONE_GITHUB_TOKEN`, used instead of `GITHUB_TOKEN` when set and non-empty.
 
 ## v0.5.0 — 2026-11-08 (gateway hardening; no protocol change; nothing from runs 10–11 ships)
 

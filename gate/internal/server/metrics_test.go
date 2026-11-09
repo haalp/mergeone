@@ -11,6 +11,7 @@ import (
 
 func TestMetricsExposition(t *testing.T) {
 	gw, _ := newTestGateway(t, testRules, nil)
+	gw.BoundLocal = true // /metrics is open on a loopback bind
 	postDecide(t, gw, 1, "m1", "pass")
 	postDecide(t, gw, 1, "m2", "hold")
 	postDecide(t, gw, 2, "m3", "block")
@@ -59,6 +60,7 @@ func TestWebhookDeliveryIDOnRecord(t *testing.T) {
 	// no GitHub client: the worker cannot fetch the PR, so the decision is the fail-closed worker-error
 	// record — which must still carry the delivery id.
 	gw := gatewayWith(t, testRules+"debounce: 0\n", testModel, nil, 1)
+	gw.BoundLocal = true
 	ev := map[string]any{"action": "opened", "repository": map[string]any{"full_name": "o/r"},
 		"pull_request": map[string]any{"number": 9, "head": map[string]any{"sha": "d1"}}}
 	b, _ := json.Marshal(ev)

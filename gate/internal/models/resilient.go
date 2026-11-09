@@ -138,7 +138,7 @@ func (r *Resilient) admit() (ok bool, retryAt time.Time) {
 	return true, time.Time{}
 }
 
-func (r *Resilient) settle(ok bool, attempts int) {
+func (r *Resilient) settle(ok bool, attempts int, counts bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.retries += attempts - 1
@@ -148,6 +148,13 @@ func (r *Resilient) settle(ok bool, attempts int) {
 		return
 	}
 	r.failures++
+	if !counts {
+		if !r.openUntil.IsZero() && !r.now().Before(r.openUntil) { // a failed probe reopens whatever call it was
+			r.openUntil = r.now().Add(r.Opts.BreakerCooldown)
+			r.opened++
+		}
+		return
+	}
 	r.consecutive++
 	if r.Opts.BreakerFailures > 0 && r.consecutive >= r.Opts.BreakerFailures {
 		if r.openUntil.IsZero() || !r.now().Before(r.openUntil) {
@@ -159,6 +166,20 @@ func (r *Resilient) settle(ok bool, attempts int) {
 
 // Decide calls the inner model with retries; a short-circuited call returns at once with ErrCircuitOpen.
 func (r *Resilient) Decide(state string, questions []string) engine.Decision {
+	return r.decide(state, questions, true)
+}
+
+// DecidePair is Decide for a pair call: retried the same way and refused while the breaker is open, but a
+// failure does not count toward opening it — one PR's ten pair calls failing together is one bad moment, not ten
+// failed decisions; the main call is what the breaker watches. A success still closes it.
+func (r *Resilient) DecidePair(state string, questions []string) engine.Decision {
+	return r.decide(state, questions, false)
+}
+
+// MaxRetryAfter caps how long an endpoint's Retry-After is honoured.
+const MaxRetryAfter = 30 * time.Second
+
+func (r *Resilient) decide(state string, questions []string, counts bool) engine.Decision {
 	ok, retryAt := r.admit()
 	if !ok {
 		return engine.Decision{Probs: nan(questions), ModelVersion: "",
@@ -172,10 +193,14 @@ func (r *Resilient) Decide(state string, questions []string) engine.Decision {
 		if d.Error == "" || !Retryable(d.Error) || attempts > r.Opts.Retries {
 			break
 		}
-		r.sleep(r.backoff(attempts))
+		wait := r.backoff(attempts)
+		if ra := min(d.RetryAfter, MaxRetryAfter); ra > wait {
+			wait = ra
+		}
+		r.sleep(wait)
 	}
 	d.Attempts = attempts
-	r.settle(d.Error == "", attempts)
+	r.settle(d.Error == "", attempts, counts)
 	return d
 }
 

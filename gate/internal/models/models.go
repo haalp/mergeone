@@ -14,6 +14,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -164,7 +166,7 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
-		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw)}
+		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw), RetryAfter: retryAfter(resp)}
 	}
 	var out struct {
 		Model     string               `json:"model"`
@@ -307,7 +309,7 @@ func (h *Haiku) Decide(state string, questions []string) engine.Decision {
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
-		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: h.ModelID, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw)}
+		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: h.ModelID, Error: fmt.Sprintf("HTTP %d: %.300s", resp.StatusCode, raw), RetryAfter: retryAfter(resp)}
 	}
 	var out struct {
 		Model   string `json:"model"`
@@ -395,4 +397,12 @@ func nan(qs []string) map[string]float64 {
 		m[q] = math.NaN()
 	}
 	return m
+}
+
+// retryAfter reads a Retry-After header given in seconds (the form API providers send); 0 when absent or a date.
+func retryAfter(resp *http.Response) time.Duration {
+	if n, err := strconv.Atoi(strings.TrimSpace(resp.Header.Get("Retry-After"))); err == nil && n > 0 {
+		return time.Duration(n) * time.Second
+	}
+	return 0
 }

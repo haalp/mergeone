@@ -628,7 +628,7 @@ func cmdPR(args []string) int {
 			st.SetOnRecord(func(r store.Record) { sink.Enqueue(r) })
 			defer sink.Close(10 * time.Second)
 		}
-		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, Context: rctx, State: state})
+		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, Context: rctx, State: g.Policy.LoggedState(state)})
 	}
 	return verdictCodeFor(res, *ghRepo, *prNum, *headSHA)
 }
