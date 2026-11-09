@@ -982,3 +982,40 @@ Hosted only: H1 = 705 PRs × 2 renderings on `pplx-flash` ≈ $0.10 (run 9's mea
 (a refit, no model call). Order: freeze commit + tag → `run11_prefilter.py` and `run11_report` (no model call) → H2
 from recorded answers → H1 control then compact, same UTC day → report → `results/run11/README.md`. H3 when its
 precondition is met, as a dated addendum to the same run directory.
+
+# R12 — preconditions (draft 2026-11-09, not frozen; no hypothesis yet)
+
+Two things eleven runs taught about the measuring itself. They bind run 12 and later; nothing above is re-read or
+re-scored under them.
+
+## R12.0a A fresh holdout
+
+The 705 test PRs have been the test split of every run since run 3. The bars were always written first, but which
+hypothesis to try next was chosen after reading results on those same PRs, so the split is no longer unseen in the
+sense that matters. Before run 12 makes a model call: a **holdout-2** set is built from PRs opened after the run-3
+collection date in the same repositories, with the same `iterated` label rule and the same exclusions, collected by
+the existing collector at a pinned commit, and **not scored by any model** until a frozen section names it. Run 12's
+primary comparisons are on holdout-2; the 705 are reported beside them as the series' continuity, never as the
+verdict. Target size: at least as many positives as the 705 have (≈ 56); the count is fixed in the freeze.
+
+## R12.0b Bars are written on intervals, with their power stated
+
+R10-H2 passed by 0.004 and R11-H1 failed by 0.002; both point estimates sat inside intervals several times wider
+than the margin. From run 12 on:
+
+- A **"no worse than"** bar (non-inferiority) passes when the lower end of the paired 95 % bootstrap CI of the
+  difference is ≥ −margin; a **"better than"** bar passes when the lower end is > 0 and the point estimate ≥ the
+  stated gain. A point estimate alone never decides.
+- Each frozen bar states the smallest difference the comparison can detect on its split (from the control's
+  bootstrap spread on that split, computed before the freeze from control rows only). A bar whose margin is below
+  that is not frozen: either the margin, the split, or the hypothesis changes first.
+- Per-question clauses use the same rule per question and state how many of the questions are tested, so the
+  family-wise chance of one false fail is written down (eight questions at 95 % each is ≈ 34 % under no effect).
+
+## R12.0c Tokens are watched like answers
+
+The hosted endpoint's reported input tokens per joint request moved 2,3xx → 17,050 → 2,209 across runs 5, 9 and 11
+under one model name. Every run records the control's median input tokens; a change of more than 2× against the
+previous run's control is a dated CHANGELOG line and every cost ratio in that run is computed from same-day rows
+only (already the practice since run 7; now a rule). The gateway's drift monitor gains a tokens-per-decision signal
+by a separate, measured change.
