@@ -138,6 +138,11 @@ func parseAge(v string, def time.Duration) (time.Duration, error) {
 func (gw *Gateway) stats(win time.Duration) map[string]any {
 	out := gw.Store.Stats(win)
 	out["mode"] = gw.Gate.Policy.Mode
+	if b := gw.Gate.Policy.Budget; b.DailyUSD > 0 || b.PerRepoDailyUSD > 0 {
+		bs := gw.spend.snapshot()
+		bs["daily_usd"], bs["per_repo_daily_usd"] = b.DailyUSD, b.PerRepoDailyUSD
+		out["budget"] = bs
+	}
 	if r, ok := gw.Gate.Model.(*models.Resilient); ok {
 		out["breaker"] = r.Stats()
 	}

@@ -210,6 +210,9 @@ func buildGateOpts(policyPath string, mock bool, assetsDir string, withMemory bo
 	if !mock && p.Model != "mock" {
 		g.Model = models.WithResilience(m, resilienceOpts(p))
 	}
+	if g.Memory != nil && (p.Memory.PairCache == nil || *p.Memory.PairCache) {
+		g.PairCache = engine.NewPairCache()
+	}
 	return g, nil
 }
 

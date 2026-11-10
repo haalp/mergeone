@@ -48,6 +48,9 @@ type Gateway struct {
 	pending map[string]*pendingPush
 	// metrics (metrics.go): in-process counters for GET /metrics
 	metrics *metrics
+	// flights and spend (flight.go): one decision per PR at a time, and the daily budget
+	flights flights
+	spend   *spend
 	// guard (webhookguard.go): delivery replay cache and per-repository rate limit
 	guard *webhookGuard
 	// AllowUnsignedWebhooks lets a non-loopback bind accept webhooks without MERGEONE_WEBHOOK_SECRET
@@ -59,6 +62,7 @@ type Gateway struct {
 func New(g *engine.Gate, st *store.Store, gh *GitHub, workers int, publicURL string) *Gateway {
 	gw := &Gateway{Gate: g, Store: st, GitHub: gh, PublicURL: publicURL, Workers: workers, stop: make(chan struct{}),
 		pending: map[string]*pendingPush{}, metrics: newMetrics(), guard: newWebhookGuard(0)}
+	gw.spend = newSpend(st.CostSince(time.Now().UTC().Truncate(24 * time.Hour)))
 	if g.Cal != nil {
 		var refit time.Time
 		if m := g.Cal.Meta; m != nil && m.Source == "gatelog" {
@@ -166,13 +170,24 @@ type decideReq struct {
 	meta                     engine.PRMeta
 	rctx                     map[string]any
 	act                      bool
-	patchID                  string   // "" = derived from the state (patchid.State)
-	deliveryID               string   // X-GitHub-Delivery of the webhook that caused this decision
-	debounced                []string // heads skipped by the webhook debounce, recorded on this decision
+	patchID                  string          // "" = derived from the state (patchid.State)
+	deliveryID               string          // X-GitHub-Delivery of the webhook that caused this decision
+	ctx                      context.Context // nil = not cancellable
+	debounced                []string        // heads skipped by the webhook debounce, recorded on this decision
 }
 
 func (gw *Gateway) decide(repo string, pr int, sha, state string, meta engine.PRMeta, rctx map[string]any, source string, act bool) engine.Result {
 	return gw.decideReq(decideReq{repo: repo, pr: pr, sha: sha, state: state, meta: meta, rctx: rctx, source: source, act: act})
+}
+
+// budgetResult is the verdict of a head that was not sent to the model because a budget ceiling is reached. It
+// carries an Error so it is never served as that head's cached verdict or copied to a rebase: the next event
+// after 00:00 UTC decides the head normally.
+func (gw *Gateway) budgetResult(inputSHA, which string, spent, limit float64) engine.Result {
+	o := gw.Gate.Policy.Budget.OnExceeded
+	return engine.Result{Verdict: o.Verdict, Route: o.Route, Reason: o.Reason, Rule: "budget", Probs: map[string]float64{},
+		RawProbs: map[string]float64{}, InputSHA256: inputSHA, TS: time.Now().UTC(),
+		Error: fmt.Sprintf("BudgetExceeded: budget.%s $%.4f of $%.4f spent today (UTC)", which, spent, limit)}
 }
 
 func (gw *Gateway) decideReq(q decideReq) engine.Result {
@@ -210,7 +225,19 @@ func (gw *Gateway) decideReq(q decideReq) engine.Result {
 		reusedFrom = old.HeadSHA
 	} else {
 		meta.Repo, meta.Number = repo, pr
-		res = gw.Gate.DecideFor(state, meta)
+		if which, spent, limit := gw.spend.exceeded(gw.Gate.Policy.Budget, repo); which != "" {
+			res = gw.budgetResult(inputSHA, which, spent, limit)
+		} else {
+			ctx := q.ctx
+			if ctx == nil {
+				ctx = context.Background()
+			}
+			res = gw.Gate.DecideForCtx(ctx, state, meta)
+			if res.Error == engine.ErrCanceled {
+				return res // superseded by a newer head: no record, no write-back
+			}
+			gw.spend.add(repo, res.CostUSD)
+		}
 		if pr > 0 && gw.Gate.Policy.MaxRounds > 0 { // no PR number → no rounds to count
 			gw.Gate.ApplyMaxRounds(&res, gw.Store.NonPassRounds(repo, pr, sha))
 		}
@@ -342,8 +369,20 @@ func (gw *Gateway) run(j *store.Job) (err error) {
 		}
 	}
 	deliveryID, _ := j.Payload["delivery_id"].(string)
+	ctx, end, ok, old := gw.flights.begin(repo, pr, sha)
+	if !ok {
+		gw.metrics.count("joined") // this head is already being decided; that decision records the verdict
+		return nil
+	}
+	defer end()
+	if old != "" {
+		gw.metrics.count("superseded")
+	}
 	res := gw.decideReq(decideReq{repo: repo, pr: pr, sha: sha, state: state, meta: meta, rctx: rctx, source: source, act: act,
-		patchID: pid, debounced: debounced, deliveryID: deliveryID})
+		patchID: pid, debounced: debounced, deliveryID: deliveryID, ctx: ctx})
+	if res.Error == engine.ErrCanceled {
+		return nil // a newer head took over; its job decides
+	}
 	gw.Store.UpsertOpenPR(repo, pr, sha, paths)
 	if gw.Memory != nil && meta.Title != "" {
 		mf := make([]memory.FileStat, 0, len(files))
@@ -509,6 +548,9 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 		switch ev.Action {
 		case "opened", "synchronize", "reopened", "ready_for_review":
 			if ev.Action == "synchronize" {
+				if gw.flights.supersede(repo, pr, sha) != "" { // stop paying for the head this push replaced
+					gw.metrics.count("superseded")
+				}
 				gw.GitHub.InvalidateHead(repo, pr, sha)
 				if gw.debounceWindow() > 0 {
 					gw.debouncePush(repo, pr, sha, delivery)
@@ -525,6 +567,9 @@ func (gw *Gateway) Handler(webhookSecret string) http.Handler {
 			}
 			writeJSON(w, 200, map[string]any{"queued": gw.Submit(repo, pr, sha, "webhook", extra)})
 		case "closed":
+			if gw.flights.supersede(repo, pr, "") != "" { // nothing left to decide
+				gw.metrics.count("superseded")
+			}
 			gw.Store.ClosePR(repo, pr, ev.PullRequest.Merged)
 			// Outcome for the slow drift signal and calibrate: merged from the event; iterated is the gateway's
 			// proxy for the run-5 label (force_pushes >= 2): decided on >= 3 distinct heads. reverted comes

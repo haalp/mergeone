@@ -6,6 +6,7 @@
 package engine
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -121,6 +122,8 @@ type Result struct {
 	OutputTokens int `json:"output_tokens,omitempty"`
 	ModelCalls   int `json:"model_calls,omitempty"`
 	PairErrors   int `json:"pair_errors,omitempty"`
+	// PairCacheHits (v0.6) counts pair answers served from the pair cache (identical input answered before).
+	PairCacheHits int `json:"pair_cache_hits,omitempty"`
 }
 
 // ActionsReport records the GitHub writes made for one verdict. Errors never change the verdict.
@@ -200,8 +203,13 @@ type Policy struct {
 		// PairState is how A and B are rendered for the same_change pair call: "compact" (default from
 		// v0.3; PROTOCOL.md §R8 C1, R8-H1) or "full" (the run-4 rendering). The main call is always full.
 		PairState string `yaml:"pair_state"`
+		// PairCache (v0.6, default true): reuse a same_change answer when the identical pair input was answered
+		// in the last 24 h. false = every pair call is made on every decision.
+		PairCache *bool `yaml:"pair_cache"`
 	} `yaml:"memory"`
-	Actions Actions `yaml:"actions"`
+	// Budget (v0.6): a ceiling on model spend per UTC day; see BudgetSpec.
+	Budget  BudgetSpec `yaml:"budget"`
+	Actions Actions    `yaml:"actions"`
 	// MaxRounds caps review loops: after this many non-pass verdicts on one PR, route to a human (0 = off).
 	MaxRounds int `yaml:"max_rounds"`
 	// Drift monitor (docs/drift-monitor.md): on by default since v0.3 (run 8 R8-H5; LoadPolicy sets it when the
@@ -232,6 +240,16 @@ type Policy struct {
 	// Resilience (v0.5, top-level `resilience:`): retries and the circuit breaker around every model call.
 	// Durations are Go strings ("500ms", "30s"). Absent keys take the defaults in the comments.
 	Resilience ResilienceSpec `yaml:"resilience"`
+}
+
+// BudgetSpec is the `budget:` block: ceilings on model spend at list price per UTC day, for the whole gateway
+// and per repository. 0 = no ceiling. When a ceiling is reached new heads are not sent to the model: they get
+// OnExceeded (default hold → human, "Daily model budget reached") until 00:00 UTC. Verdict reuse and the pair
+// cache cost nothing and keep working.
+type BudgetSpec struct {
+	DailyUSD        float64 `yaml:"daily_usd" json:"daily_usd"`
+	PerRepoDailyUSD float64 `yaml:"per_repo_daily_usd" json:"per_repo_daily_usd"`
+	OnExceeded      Outcome `yaml:"on_exceeded" json:"on_exceeded"`
 }
 
 // ResilienceSpec is the `resilience:` block as written in policy.yaml.
@@ -509,6 +527,15 @@ func LoadPolicy(path string) (*Policy, error) {
 	if p.MaxRounds < 0 {
 		return nil, fmt.Errorf("policy %s: max_rounds %d: want >= 0", path, p.MaxRounds)
 	}
+	if p.Budget.DailyUSD < 0 || p.Budget.PerRepoDailyUSD < 0 {
+		return nil, fmt.Errorf("policy %s: budget.daily_usd and per_repo_daily_usd want >= 0", path)
+	}
+	if p.Budget.OnExceeded.Verdict == "" {
+		p.Budget.OnExceeded = Outcome{Verdict: "hold", Route: "human", Reason: "Daily model budget reached"}
+	}
+	if v := p.Budget.OnExceeded.Verdict; v != "hold" && v != "block" {
+		return nil, fmt.Errorf("policy %s: budget.on_exceeded.verdict %q: want hold or block (a budget never passes a PR)", path, v)
+	}
 	switch p.LogState {
 	case "":
 		p.LogState = "full"
@@ -673,6 +700,8 @@ type Gate struct {
 	// PairConcurrency bounds the same_change calls in flight for one decision (default 8; 1 = sequential).
 	// It changes latency only: aggregation is in candidate order whatever the completion order.
 	PairConcurrency int
+	// PairCache (v0.6) answers a pair call whose exact input was answered before; nil = every pair call is made.
+	PairCache *PairCache
 	// Degraded returns the questions the drift monitor currently flags (nil = none). Read only when
 	// policy drift.enabled is true.
 	Degraded func() map[string]bool
@@ -756,12 +785,21 @@ func inputSHA(state string) string {
 // Decide runs the full pipeline for one change. It never panics on model
 // failure: on_error applies (fail closed).
 func (g *Gate) Decide(state string, paths []string) Result {
+	return g.DecideCtx(context.Background(), state, paths)
+}
+
+// DecideCtx is Decide with a context (see DecideForCtx).
+func (g *Gate) DecideCtx(ctx context.Context, state string, paths []string) Result {
 	sha := inputSHA(state)
 	now := time.Now().UTC()
 	if r := g.precheck(sha, now, paths); r != nil {
 		return *r
 	}
-	return g.finish(g.Model.Decide(state, g.questions()), sha, now)
+	res := g.finish(g.callMain(ctx, state), sha, now)
+	if ctx.Err() != nil {
+		res.Error = ErrCanceled
+	}
+	return res
 }
 
 // Pair-call renderings (policy memory.pair_state).
@@ -776,6 +814,7 @@ type pairStage struct {
 	ds       []Decision // ds[i] answers cands[i]
 	render   string     // compact | full: what the pair calls were sent
 	fallback int        // candidates sent full under compact because the state is not a render_state text
+	cached   []bool     // cached[i]: ds[i] came from the pair cache (no call was made)
 }
 
 // pairRender is the policy's pair-call rendering ("" = compact, the default).
@@ -806,7 +845,7 @@ func (g *Gate) renderPairs(state string, cands []Candidate) (string, int) {
 
 // pairs retrieves the top-k candidates and asks same_change for each, at most PairConcurrency at a time.
 // Results are indexed by candidate, so the caller aggregates in candidate order.
-func (g *Gate) pairs(state string, meta PRMeta) pairStage {
+func (g *Gate) pairs(ctx context.Context, state string, meta PRMeta) pairStage {
 	k := g.PairK
 	if k <= 0 {
 		k = 5
@@ -814,15 +853,16 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 	cands := g.Memory.Candidates(meta, state, k)
 	rend, fallback := g.renderPairs(state, cands)
 	ds := make([]Decision, len(cands))
+	hit := make([]bool, len(cands))
 	conc := g.PairConcurrency
 	if conc <= 0 {
 		conc = 8
 	}
 	if conc == 1 || len(cands) <= 1 {
 		for i, c := range cands {
-			ds[i] = g.decidePair(c.PairState)
+			ds[i], hit[i] = g.decidePair(ctx, c.PairState)
 		}
-		return pairStage{cands, ds, rend, fallback}
+		return pairStage{cands, ds, rend, fallback, hit}
 	}
 	sem := make(chan struct{}, conc)
 	var wg sync.WaitGroup
@@ -831,24 +871,17 @@ func (g *Gate) pairs(state string, meta PRMeta) pairStage {
 		sem <- struct{}{}
 		go func(i int) {
 			defer func() { <-sem; wg.Done() }()
-			ds[i] = g.decidePair(cands[i].PairState)
+			ds[i], hit[i] = g.decidePair(ctx, cands[i].PairState)
 		}(i)
 	}
 	wg.Wait()
-	return pairStage{cands, ds, rend, fallback}
+	return pairStage{cands, ds, rend, fallback, hit}
 }
 
 // PairDecider is implemented by a model wrapper that treats pair calls differently from the main call (the
 // resilience wrapper: a failed pair call does not count toward the circuit breaker).
 type PairDecider interface {
 	DecidePair(state string, questions []string) Decision
-}
-
-func (g *Gate) decidePair(state string) Decision {
-	if pd, ok := g.Model.(PairDecider); ok {
-		return pd.DecidePair(state, []string{"same_change"})
-	}
-	return g.Model.Decide(state, []string{"same_change"})
 }
 
 // DecideFor is Decide plus the run-4 signals when a PR memory is configured:
@@ -860,8 +893,14 @@ func (g *Gate) decidePair(state string) Decision {
 // PairConcurrency at a time. Result.LatencyMS is then the wall clock of the whole decision and
 // Result.ModelLatencySumMS the sum over every model call counted (the pre-parallel LatencyMS).
 func (g *Gate) DecideFor(state string, meta PRMeta) Result {
+	return g.DecideForCtx(context.Background(), state, meta)
+}
+
+// DecideForCtx is DecideFor with a context: when ctx is cancelled the calls in flight are abandoned, the ones
+// not yet started are not made, and the result carries Error == ErrCanceled (the caller drops it).
+func (g *Gate) DecideForCtx(ctx context.Context, state string, meta PRMeta) Result {
 	if g.Memory == nil || meta.Repo == "" {
-		return g.decideForNoMemory(state, meta)
+		return g.decideForNoMemory(ctx, state, meta)
 	}
 	t0 := time.Now()
 	sha := inputSHA(state)
@@ -870,9 +909,12 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 		return *r
 	}
 	mainCh := make(chan Decision, 1)
-	go func() { mainCh <- g.Model.Decide(state, g.questions()) }()
-	ps := g.pairs(state, meta)
+	go func() { mainCh <- g.callMain(ctx, state) }()
+	ps := g.pairs(ctx, state, meta)
 	res := g.finish(<-mainCh, sha, now)
+	if ctx.Err() != nil {
+		res.Error = ErrCanceled
+	}
 	if res.Error != "" {
 		res.LatencyMS = wallMS(t0)
 		return res // pair answers are discarded, as when they were never asked
@@ -887,9 +929,12 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 		res.CostUSD += d.CostUSD
 		res.InputTokens += d.InputTokens
 		res.OutputTokens += d.OutputTokens
-		if d.Error != "" {
+		switch {
+		case ps.cached[i]:
+			res.PairCacheHits++
+		case d.Error != "":
 			res.PairErrors++
-		} else {
+		default:
 			res.ModelCalls++
 		}
 		p := d.Probs["same_change"]
@@ -919,8 +964,8 @@ func (g *Gate) DecideFor(state string, meta PRMeta) Result {
 
 // decideForNoMemory is DecideFor without a memory (or without a repo): unchanged from before the pair stage
 // was parallelised, LatencyMS is the main call's latency.
-func (g *Gate) decideForNoMemory(state string, meta PRMeta) Result {
-	res := g.Decide(state, meta.Paths)
+func (g *Gate) decideForNoMemory(ctx context.Context, state string, meta PRMeta) Result {
+	res := g.DecideCtx(ctx, state, meta.Paths)
 	if res.Error != "" || res.Rule == "always_human_paths" || g.Model == nil {
 		return res
 	}

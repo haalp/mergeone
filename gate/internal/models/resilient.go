@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -164,22 +165,40 @@ func (r *Resilient) settle(ok bool, attempts int, counts bool) {
 	}
 }
 
+// release ends a call that was admitted but neither succeeded nor failed (cancelled).
+func (r *Resilient) release() {
+	r.mu.Lock()
+	r.probing = false
+	r.mu.Unlock()
+}
+
 // Decide calls the inner model with retries; a short-circuited call returns at once with ErrCircuitOpen.
 func (r *Resilient) Decide(state string, questions []string) engine.Decision {
-	return r.decide(state, questions, true)
+	return r.decide(context.Background(), state, questions, true)
+}
+
+// DecideCtx is Decide with a context: no attempt is started after ctx is cancelled, and a cancelled call is
+// neither a success nor a failure for the breaker.
+func (r *Resilient) DecideCtx(ctx context.Context, state string, questions []string) engine.Decision {
+	return r.decide(ctx, state, questions, true)
+}
+
+// DecidePairCtx is DecidePair with a context.
+func (r *Resilient) DecidePairCtx(ctx context.Context, state string, questions []string) engine.Decision {
+	return r.decide(ctx, state, questions, false)
 }
 
 // DecidePair is Decide for a pair call: retried the same way and refused while the breaker is open, but a
 // failure does not count toward opening it — one PR's ten pair calls failing together is one bad moment, not ten
 // failed decisions; the main call is what the breaker watches. A success still closes it.
 func (r *Resilient) DecidePair(state string, questions []string) engine.Decision {
-	return r.decide(state, questions, false)
+	return r.decide(context.Background(), state, questions, false)
 }
 
 // MaxRetryAfter caps how long an endpoint's Retry-After is honoured.
 const MaxRetryAfter = 30 * time.Second
 
-func (r *Resilient) decide(state string, questions []string, counts bool) engine.Decision {
+func (r *Resilient) decide(ctx context.Context, state string, questions []string, counts bool) engine.Decision {
 	ok, retryAt := r.admit()
 	if !ok {
 		return engine.Decision{Probs: nan(questions), ModelVersion: "",
@@ -189,7 +208,16 @@ func (r *Resilient) decide(state string, questions []string, counts bool) engine
 	attempts := 0
 	for {
 		attempts++
-		d = r.Inner.Decide(state, questions)
+		if cd, ok := r.Inner.(engine.ContextDecider); ok {
+			d = cd.DecideCtx(ctx, state, questions)
+		} else {
+			d = r.Inner.Decide(state, questions)
+		}
+		if ctx.Err() != nil { // superseded: not this endpoint's failure, and nothing to retry
+			d.Error, d.Attempts = engine.ErrCanceled, attempts
+			r.release()
+			return d
+		}
 		if d.Error == "" || !Retryable(d.Error) || attempts > r.Opts.Retries {
 			break
 		}

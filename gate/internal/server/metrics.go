@@ -30,7 +30,9 @@ type metrics struct {
 	debounced int
 	shadow    int
 	cost      float64
-	latBucket []int // decision latency histogram counts per bucket (cumulative on output)
+	pairHits  int
+	events    map[string]int // superseded, joined
+	latBucket []int          // decision latency histogram counts per bucket (cumulative on output)
 	latSum    float64
 	latCount  int
 }
@@ -39,7 +41,7 @@ type metrics struct {
 var latencyBuckets = []float64{0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60, 120, 300}
 
 func newMetrics() *metrics {
-	return &metrics{decisions: map[[3]string]int{}, errors: map[string]int{}, webhooks: map[[2]string]int{}, latBucket: make([]int, len(latencyBuckets)+1)}
+	return &metrics{decisions: map[[3]string]int{}, errors: map[string]int{}, webhooks: map[[2]string]int{}, events: map[string]int{}, latBucket: make([]int, len(latencyBuckets)+1)}
 }
 
 // observe records one decision as it is written to the gatelog.
@@ -57,6 +59,7 @@ func (m *metrics) observe(rec store.Record) {
 	m.retries += r.Retries
 	m.calls += r.ModelCalls
 	m.pairErrs += r.PairErrors
+	m.pairHits += r.PairCacheHits
 	m.tokIn += r.InputTokens
 	m.tokOut += r.OutputTokens
 	m.cost += r.CostUSD
@@ -74,6 +77,16 @@ func (m *metrics) observe(rec store.Record) {
 		m.latSum += s
 		m.latCount++
 	}
+}
+
+// count bumps a named event counter (decisions that were cancelled or dropped and so have no record).
+func (m *metrics) count(name string) {
+	if m == nil {
+		return
+	}
+	m.mu.Lock()
+	m.events[name]++
+	m.mu.Unlock()
 }
 
 func (m *metrics) webhook(event, action string) {
@@ -101,6 +114,9 @@ func (m *metrics) write(w io.Writer, queue map[string]int, breaker *models.Break
 	p("# HELP mergeone_model_calls_total Model calls that answered (main and pair calls).\n# TYPE mergeone_model_calls_total counter\nmergeone_model_calls_total %d\n", m.calls)
 	p("# HELP mergeone_model_retries_total Extra model calls made by the resilience layer.\n# TYPE mergeone_model_retries_total counter\nmergeone_model_retries_total %d\n", m.retries)
 	p("# HELP mergeone_pair_call_errors_total Pair calls that failed (the candidate counts as not a duplicate).\n# TYPE mergeone_pair_call_errors_total counter\nmergeone_pair_call_errors_total %d\n", m.pairErrs)
+	p("# HELP mergeone_pair_cache_hits_total Pair answers served from the pair cache (no model call).\n# TYPE mergeone_pair_cache_hits_total counter\nmergeone_pair_cache_hits_total %d\n", m.pairHits)
+	p("# HELP mergeone_decisions_superseded_total Decisions cancelled because a newer head of the PR arrived.\n# TYPE mergeone_decisions_superseded_total counter\nmergeone_decisions_superseded_total %d\n", m.events["superseded"])
+	p("# HELP mergeone_jobs_joined_total Jobs dropped because their head was already being decided.\n# TYPE mergeone_jobs_joined_total counter\nmergeone_jobs_joined_total %d\n", m.events["joined"])
 	p("# HELP mergeone_model_tokens_total Tokens the endpoints reported, by direction.\n# TYPE mergeone_model_tokens_total counter\nmergeone_model_tokens_total{direction=\"input\"} %d\nmergeone_model_tokens_total{direction=\"output\"} %d\n", m.tokIn, m.tokOut)
 	p("# HELP mergeone_model_cost_usd_total Model cost at list price.\n# TYPE mergeone_model_cost_usd_total counter\nmergeone_model_cost_usd_total %.6f\n", m.cost)
 	p("# HELP mergeone_verdicts_reused_total Verdicts copied from an earlier head with the same patch id (no model call).\n# TYPE mergeone_verdicts_reused_total counter\nmergeone_verdicts_reused_total %d\n", m.reused)

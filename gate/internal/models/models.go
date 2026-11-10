@@ -4,6 +4,7 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/binary"
@@ -139,6 +140,11 @@ func (j *Jev) AddQuestions(path string) error {
 }
 
 func (j *Jev) Decide(state string, questions []string) engine.Decision {
+	return j.DecideCtx(context.Background(), state, questions)
+}
+
+// DecideCtx is Decide with a context: a cancelled context abandons the request (Error == engine.ErrCanceled).
+func (j *Jev) DecideCtx(ctx context.Context, state string, questions []string) engine.Decision {
 	qs := map[string]JevQuestion{}
 	for _, q := range questions {
 		if def, ok := j.Questions[q]; ok {
@@ -153,7 +159,7 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	j.pinMu.Unlock()
 	body, _ := json.Marshal(map[string]any{"state": state, "model": model, "questions": qs})
 	t0 := time.Now()
-	req, _ := http.NewRequest("POST", j.Endpoint, bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(ctx, "POST", j.Endpoint, bytes.NewReader(body))
 	if j.Key != "" {
 		req.Header.Set("Authorization", "Bearer "+j.Key)
 	}
@@ -161,7 +167,7 @@ func (j *Jev) Decide(state string, questions []string) engine.Decision {
 	resp, err := j.Client.Do(req)
 	lat := float64(time.Since(t0).Microseconds()) / 1000
 	if err != nil {
-		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: "ConnectError: " + err.Error()}
+		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: model, Error: connectErr(ctx, err)}
 	}
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(resp.Body)
@@ -272,6 +278,11 @@ func (h *Haiku) SetPairPrompt(path string) error {
 }
 
 func (h *Haiku) Decide(state string, questions []string) engine.Decision {
+	return h.DecideCtx(context.Background(), state, questions)
+}
+
+// DecideCtx is Decide with a context.
+func (h *Haiku) DecideCtx(ctx context.Context, state string, questions []string) engine.Decision {
 	props := map[string]any{}
 	pair := len(questions) == 1 && questions[0] == "same_change"
 	for _, q := range questions {
@@ -297,14 +308,14 @@ func (h *Haiku) Decide(state string, questions []string) engine.Decision {
 		"messages":      []map[string]any{{"role": "user", "content": state}},
 	})
 	t0 := time.Now()
-	req, _ := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(ctx, "POST", "https://api.anthropic.com/v1/messages", bytes.NewReader(body))
 	req.Header.Set("x-api-key", h.Key)
 	req.Header.Set("anthropic-version", "2023-06-01")
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := h.Client.Do(req)
 	lat := float64(time.Since(t0).Microseconds()) / 1000
 	if err != nil {
-		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: h.ModelID, Error: "ConnectError: " + err.Error()}
+		return engine.Decision{Probs: nan(questions), LatencyMS: lat, ModelVersion: h.ModelID, Error: connectErr(ctx, err)}
 	}
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(resp.Body)
@@ -405,4 +416,12 @@ func retryAfter(resp *http.Response) time.Duration {
 		return time.Duration(n) * time.Second
 	}
 	return 0
+}
+
+// connectErr names a failed request: engine.ErrCanceled when the caller cancelled it, a ConnectError otherwise.
+func connectErr(ctx context.Context, err error) string {
+	if ctx.Err() != nil {
+		return engine.ErrCanceled
+	}
+	return "ConnectError: " + err.Error()
 }

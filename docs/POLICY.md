@@ -255,6 +255,44 @@ call; records with the same `(repo, pr, patch_id)` and different `head_sha` coun
 The policy file itself is fuzzed (`go test ./internal/engine -fuzz=FuzzLoadPolicy`): any bytes either load or return
 a named error, never a crash at start.
 
+## Spending less on the same answers (`memory.pair_cache`, cancellation, `budget:`) — v0.6
+
+Three mechanisms, none of which changes what the model is asked or how an answer is turned into a verdict.
+
+**Pair cache** (`memory.pair_cache`, default `true`). A PR with PR memory on costs one main call and up to
+`top_k` pair calls per decision, and most of the cost is the pair calls. The answer to a pair call is remembered for
+24 h under the sha256 of the model name and the exact pair input; a later decision whose pair input for a candidate
+is byte-identical takes the answer from memory and makes no call. A pushed PR therefore asks again only about the
+candidates whose rendered pair changed. The record counts `pair_cache_hits`; `model_calls` counts only calls made.
+Errors are never cached; the cache is in memory (20,000 answers, oldest dropped first) and empty after a restart.
+`pair_cache: false` makes every pair call on every decision, as before v0.6.
+
+**One decision per PR, and cancellation.** When a push arrives for a PR whose earlier head is still being
+decided, that decision is cancelled: requests in flight are abandoned, pair calls not yet started are not made,
+nothing is recorded for the superseded head and nothing is written to GitHub for it. The cancel happens when the
+push webhook arrives (before the debounce window), when the newer head's job starts, and when the PR is closed. A
+second job for a head that is already being decided is dropped; the first one records the verdict. A cancelled call
+is neither a failure nor a success for the circuit breaker. `/metrics` counts
+`mergeone_decisions_superseded_total` and `mergeone_jobs_joined_total`.
+
+**Budget.**
+
+```yaml
+budget:
+  daily_usd: 5            # ceiling for the whole gateway per UTC day, at list price (0 = none, the default)
+  per_repo_daily_usd: 1   # ceiling per repository per UTC day (0 = none)
+  on_exceeded: { verdict: hold, route: human, reason: "Daily model budget reached" }   # the default; hold or block
+```
+
+When a ceiling is reached, a head that would need the model is not sent to it: it gets `on_exceeded` with rule
+`budget` and the error `BudgetExceeded: budget.<key> $spent of $limit spent today (UTC)`. A budget can hold or block,
+never pass. Verdict reuse (same patch) and cached pair answers cost nothing and keep working. The ceiling is checked
+before a decision starts, so the day's spend can exceed it by at most the decisions already in flight. Counters
+reset at 00:00 UTC and are rebuilt from the gatelog at start. Because the budget record carries an error it is never
+served as that head's cached verdict or copied to a rebase: the next event for the head after the reset decides it
+normally (re-run from the PR, or `POST /decide`). `GET /stats` carries `budget: {day, spent_usd, daily_usd,
+per_repo_daily_usd}` when a ceiling is set, and `model.errors_by_kind.budget` counts the held heads.
+
 ## Keys from the environment
 
 Each model row names its key variable (`TYPESAFE_API_KEY` for `jev`, `PERPLEXITY_API_KEY` for `pplx` and

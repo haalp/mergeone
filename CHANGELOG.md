@@ -21,6 +21,29 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
+## v0.6.0 — unreleased (the same answers for less)
+
+No model input, question, threshold or rule changes; what changes is how many calls are made and paid for.
+Reference: `docs/POLICY.md`, "Spending less on the same answers".
+
+- 2026-11-10 engine: **pair cache** (`memory.pair_cache`, default true). A `same_change` answer is reused for 24 h
+  when the pair input is byte-identical (key: sha256 of model name and pair state). Record field `pair_cache_hits`;
+  `model_calls` counts only calls made. Why: with `top_k: 10` the pair calls are ten of a decision's eleven calls,
+  and between two pushes of one PR most candidates do not change.
+- 2026-11-10 gateway: **cancellation and one decision per PR**. A newer head cancels the decision in flight for
+  the older one (on the push webhook, at the newer job's start, on close): requests are abandoned through
+  `context`, unstarted pair calls are not made, nothing is recorded or written for the superseded head. A duplicate
+  job for a head already in flight is dropped. Cancelled calls do not count for the breaker. Before this, a head
+  replaced after the debounce window ran all its calls to the end.
+- 2026-11-10 gateway: **`budget:`** — `daily_usd` and `per_repo_daily_usd` ceilings per UTC day; beyond them a head
+  is held (`on_exceeded`, rule `budget`, error `BudgetExceeded: …`) instead of sent to the model; never a pass.
+  `/stats` gains `budget`, `/metrics` gains `mergeone_pair_cache_hits_total`,
+  `mergeone_decisions_superseded_total`, `mergeone_jobs_joined_total`.
+- 2026-11-10 note: the worry that "a stale job decides a stale head" did not hold. A webhook job
+  fetches the PR when it runs and decides the head it finds, and a second decision of that head is served from the
+  gatelog. What was missing — and is now there — is the two cases above: a decision already running for the old
+  head, and two jobs for one head running at once.
+
 ## v0.5.1 — 2026-11-09 (fixes found by reading v0.5.0 back the day after)
 
 Five defects in the v0.5.0 hardening code, one privacy switch, and the three changes the plugin work asked for.

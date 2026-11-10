@@ -251,6 +251,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	var lat, tokIn, mlat []float64
 	var cost float64
 	n, errs, reused, debounced, shadow, retries, calls, pairErrs, tokOut := 0, 0, 0, 0, 0, 0, 0, 0, 0
+	pairHits := 0
 	errKinds := map[string]int{}
 	daily := dailyAcc{}
 	for _, r := range s.recent {
@@ -273,6 +274,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		retries += r.Result.Retries
 		calls += r.Result.ModelCalls
 		pairErrs += r.Result.PairErrors
+		pairHits += r.Result.PairCacheHits
 		tokOut += r.Result.OutputTokens
 		if r.Result.Error != "" {
 			errs++
@@ -301,7 +303,7 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 		out["p50_ms"] = lat[len(lat)/2]
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
 	}
-	model := map[string]any{"calls": calls, "retries": retries, "pair_errors": pairErrs, "errors_by_kind": errKinds,
+	model := map[string]any{"calls": calls, "retries": retries, "pair_errors": pairErrs, "pair_cache_hits": pairHits, "errors_by_kind": errKinds,
 		"output_tokens": tokOut, "input_tokens_p50": nil, "input_tokens_p99": nil, "model_latency_p50_ms": nil, "model_latency_p99_ms": nil}
 	if len(tokIn) > 0 {
 		model["input_tokens_p50"] = tokIn[len(tokIn)/2]
@@ -328,6 +330,20 @@ func (s *Store) Stats(window time.Duration) map[string]any {
 	return out
 }
 
+// CostSince sums model cost at list price per repository over the records newer than t (from the in-memory
+// ring: the last 100k records). The gateway seeds its budget counters with it at start.
+func (s *Store) CostSince(t time.Time) map[string]float64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out := map[string]float64{}
+	for _, r := range s.recent {
+		if !r.TS.Before(t) {
+			out[r.Repo] += r.Result.CostUSD
+		}
+	}
+	return out
+}
+
 // ErrorKind buckets a Result.Error for counting: connect (incl. timeouts), http_429, http_5xx, http_4xx,
 // circuit_open, bad_reply, other.
 func ErrorKind(e string) string {
@@ -338,6 +354,8 @@ func ErrorKind(e string) string {
 		return "connect"
 	case strings.HasPrefix(e, "CircuitOpen"):
 		return "circuit_open"
+	case strings.HasPrefix(e, "BudgetExceeded"):
+		return "budget"
 	case strings.HasPrefix(e, "HTTP 429"):
 		return "http_429"
 	case strings.HasPrefix(e, "HTTP 5"):
