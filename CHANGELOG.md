@@ -21,7 +21,7 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
-## v0.6.0 — unreleased (the same answers for less)
+## v0.6.0 — 2026-11-10 (the same answers for less)
 
 No model input, question, threshold or rule changes; what changes is how many calls are made and paid for.
 Reference: `docs/POLICY.md`, "Spending less on the same answers".
