@@ -12,6 +12,7 @@ results/*.log
 data/run3/discover_stage*.json
 data/run3/collect.log
 data/run3/*.jsonl
+data/run12/*.jsonl
 data/run4/memory/
 data/run4/*.jsonl
 !data/run4/labels.jsonl

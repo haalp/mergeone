@@ -225,6 +225,15 @@ def cmd_fetch(a):
             done.add((d["repo"], d["number"]))
             done_state[d["repo"]]["is:merged" if d["labels"]["merged"] else "is:unmerged is:closed"] += 1
         print(f"resuming: {len(done)} PRs already in {out}", file=sys.stderr, flush=True)
+    # holdout collection (PROTOCOL R12.0a): only PRs created after a date, never one an earlier set already holds
+    created = f" created:>{a.created_after}" if getattr(a, "created_after", None) else ""
+    for ex in getattr(a, "exclude", None) or []:
+        for l in Path(ex).open():
+            d = json.loads(l)
+            done.add((d["repo"], d["number"]))
+    only = set(getattr(a, "only", None) or [])
+    if only:
+        repos = [r for r in repos if r["repo"] in only]
     with out.open("a") as f:
         for ri, rmeta in enumerate(repos):
             repo = rmeta["repo"]
@@ -233,7 +242,7 @@ def cmd_fetch(a):
             cands = []
             for qual in agent_quals:
                 for state in ("is:merged", "is:unmerged is:closed"):
-                    cands += [(it, state) for it in gh.search_prs(f"repo:{repo} is:pr {state} {qual}", pages=2)]
+                    cands += [(it, state) for it in gh.search_prs(f"repo:{repo} is:pr {state} {qual}{created}", pages=2)]
             seen = set()
             per_state = {"is:merged": 0, "is:unmerged is:closed": 0}
             half = a.per_repo // 2
@@ -322,6 +331,9 @@ def main(argv=None):
     f.add_argument("--repos", default="data/run3/repos.json")
     f.add_argument("--per-repo", type=int, default=150)
     f.add_argument("--out", default="data/run3/agent_prs.jsonl")
+    f.add_argument("--created-after", default=None, help="YYYY-MM-DD: only PRs created after this date (holdout collection)")
+    f.add_argument("--exclude", nargs="*", default=[], help="agent_prs.jsonl files whose (repo, number) pairs are never fetched again")
+    f.add_argument("--only", nargs="*", default=[], help="restrict to these owner/name repositories")
     f.set_defaults(fn=cmd_fetch)
     a = ap.parse_args(argv)
     a.fn(a)

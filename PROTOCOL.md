@@ -1019,3 +1019,39 @@ The hosted endpoint's reported input tokens per joint request was 17,050 in run 
 previous run's control is a dated CHANGELOG line and every cost ratio in that run is computed from same-day rows
 only (already the practice since run 7; now a rule). The gateway's drift monitor gains a tokens-per-decision signal
 by a separate, measured change.
+
+## R12.1 Candidate hypotheses (draft 2026-11-12; nothing frozen, no model call made)
+
+Two candidates came out of run 11, each the specific thing its failure pointed at. They are written here under the
+R12.0 rules so that the freeze only has to fill in numbers that depend on holdout-2's size.
+
+**R12-H1 — spend the diff budget on the files that answer the questions.** Run 11's compact rendering cut the diff at
+2,000 characters in file order and lost `tests_cover_change` (−0.032, paired CI [−0.095, 0.020]) while the other seven
+questions moved by less than 0.02. The rendering today makes no difference between a lockfile, generated code and a
+test file. Treatment: a `focused` rendering with the same total budget as `full`'s diff head, filled in priority
+order — test files, then source files, then configuration, then lockfiles / generated / vendored paths last (the
+classifier is path-based and committed before the freeze; no model reads it). Control: `full`, same day, same PRs.
+- Primary (non-inferiority, R12.0b): on holdout-2, the lower end of the paired 95 % CI of the mean v4 AUC difference
+  (focused − full) ≥ −m₁.
+- Secondary (superiority on the one question the idea is about): `tests_cover_change` difference with its paired CI;
+  passes only if the lower end is > 0. Reported either way; it does not gate shipping.
+- Shipping rule: `focused` becomes selectable when the primary passes, and the default only if the secondary also
+  passes. Input tokens are reported (same budget, so no token clause).
+- Power statement to complete at freeze: on the 705, the paired CI half-width was ≈ 0.018 for the eight-question
+  mean and ≈ 0.058 for `tests_cover_change` alone (run 11, `results/run11/tables.md`). m₁ is set no smaller than the
+  half-width expected at holdout-2's positive count (scaling by 1/√positives from the 705's 58), and is written into
+  the frozen text with that arithmetic.
+
+**R12-H2 — retrieve the duplicate before asking about it.** Run 11: the memory's order keeps the adjudicated
+duplicate in its top 5 for 42 of 46 PRs and in its top 10 for 45. Treatment: `retrieval_v3` = the current score plus
+changed-file overlap and a recency window, weights committed before the freeze and fit on nothing from set (b).
+- This hypothesis cannot be frozen on 46 duplicates: with n = 46 even 46/46 has a 95 % lower bound of 0.92, so no
+  bar on recall@5 near 0.95 can pass or fail honestly (R12.0b: "a bar whose margin is below what the split can
+  detect is not frozen"). Precondition: an adjudicated pair set of at least **150 duplicates**, built from holdout-2's
+  PRs by the run-6 labelling procedure (two passes, adjudication of disagreements), before any retrieval is scored.
+- Bar, to be frozen once the set exists: recall@5 with an exact (Clopper–Pearson) 95 % lower bound ≥ 0.90, and
+  recall@10 not below the current retrieval's on the same pairs (paired, McNemar).
+
+**Order.** Holdout-2 is collected and its manifest committed (`mergeone.data.prepare_holdout2`); the `focused`
+renderer and its path classifier are written and tested without a model; R12-H1 is frozen with m₁ and run (hosted,
+two renderings × holdout-2, same day). R12-H2 waits for its labelled set.
