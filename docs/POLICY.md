@@ -343,6 +343,77 @@ gatelog is the durable record.
 
 **`GET /healthz`**: `ok`, `workers`, `queue`, `model`, `mode`, `breaker`.
 
+## Path rules (`paths`, `paths_only`) — v0.7
+
+A rule can be narrowed to a part of the repository. The two keys sit beside `when:` and read the PR's changed-file
+list, never the model:
+
+```yaml
+rules:
+  - name: migrations-need-a-human
+    paths: ["migrations/", "**/*.sql"]     # at least one changed file matches one of these
+    when: { is_logic_change: ">= 0.3" }    # and the usual conditions hold (optional)
+    verdict: hold
+    route: human
+    reason: "Schema change"
+  - name: docs-only
+    paths_only: ["docs/**", "*.md"]        # every changed file matches one of these
+    verdict: pass
+    route: auto-merge
+    reason: "Documentation only"
+```
+
+Globs: `*` matches inside one path segment, `**` across segments, `?` one character; a trailing `/` means that
+directory and everything under it; a pattern without a slash (`*.md`) matches the file name at any depth. A rule may
+carry `paths`, `paths_only`, `when`, or any mix — all of them must hold. A rule with a path condition **never matches
+when the changed files are unknown** (a `POST /decide` with a bare state and no paths): the gate does not guess where
+a change is. Rules still run top to bottom and the first match wins, so a `docs-only` pass placed above a
+model-based hold lets documentation through whatever the model says — put it where you mean it.
+
+`always_human_paths` is unchanged and still runs first, before the model is asked; a path rule runs after the model
+and can combine a location with an answer. When the policy has path rules the record keeps `changed_paths` (up to
+300) so that `mergeone explain` and `mergeone replay --gatelog` evaluate the same thing the gate did; a policy
+without them hashes and records exactly as before. `mergeone policy test` cases take `paths:`, and `policy scaffold`
+writes one for every rule that needs it.
+
+## Reading a verdict (`mergeone pr`, `mergeone explain`) — v0.7
+
+On a terminal `mergeone pr` prints a verdict block instead of JSON; in a pipe, in CI and with `--json` it prints the
+same JSON as before (`--human` forces the block). Exit codes are unchanged: 0 pass, 1 hold, 2 block.
+
+```
+HOLD → human           acme/api#412 @ 9f2c1ab04e
+  rule     needs-human  (Model asked for maintainer judgement)
+  because  needs_human_review 0.62 >= 0.50 (by 0.12)
+  nearest  migrations → hold/human: is_logic_change 0.25 >= 0.30 is false (0.05 away)
+  answers  needs_human_review 0.62 · weakens_tests 0.55 · is_logic_change 0.25 · touches_concurrency 0.02
+  model    jev-1.14.0 · 334 ms · $0.000037 · 1 call
+  The gate never merges or closes a pull request; this is a verdict, not an action.
+```
+
+`because` is the rule that fired with each condition's calibrated probability and its margin; `nearest` is the rule
+above it that came closest to firing and by how much — the number to look at before moving a threshold.
+
+`mergeone explain [head-sha | #N | owner/name#N]` prints the same block for a decision already in the gatelog (the
+last one when no reference is given), followed by every rule in order with each condition marked ✓ or ✗, the path
+conditions, and the default. It evaluates the rules **as the policy file is now** on the recorded answers, makes no
+model call, and says so when the result would differ from what was recorded. `--json` gives the trace as data.
+
+## Checking a setup (`mergeone doctor`) — v0.7
+
+```bash
+mergeone doctor [--policy .mergeone.yaml] [--repo owner/name] [--url https://gate.example] [--offline] [--json]
+```
+
+One line per thing a decision needs, in order: the binary, the policy (mode, model, rules), the calibration map, the
+model key (the variable's name, never its value), **one real model call** on a fixed two-line README diff (no
+repository content is sent; a fraction of a cent), the GitHub token and whether it can read `--repo` and its pull
+requests, the gatelog path, and the portal block. With `--url` it also checks a running gateway: `/healthz`, its
+mode and circuit breaker, and the webhook secret — it sends a ping with a wrong signature (which must be refused)
+and one signed with `MERGEONE_WEBHOOK_SECRET` from this environment (which must be accepted), so a mismatch between
+the gateway and the repository's webhook settings is found before GitHub's first delivery. Each failure names its
+fix. `--offline` makes no network call. Exit 0 when nothing failed (warnings allowed), 1 otherwise.
+
 ## Policy tests (`mergeone policy check|test|scaffold`) — v0.5
 
 ```bash

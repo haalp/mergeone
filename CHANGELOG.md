@@ -21,6 +21,25 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
+## v0.7.0 — unreleased (rules that know where a change is, and a CLI that says why)
+
+No model input, question or threshold changes. Reference: `docs/POLICY.md`, "Path rules", "Reading a verdict",
+"Checking a setup".
+
+- 2026-11-12 engine: **path rules**. A rule takes `paths` (at least one changed file matches) and `paths_only`
+  (every changed file matches) beside `when`; globs with `*`, `**`, `?`, trailing `/`. A path rule never matches
+  when the changed files are unknown. The record keeps `changed_paths` (≤ 300) when the policy has path rules; a
+  policy without them hashes and records exactly as before. `replay --gatelog`, `policy test` and `policy scaffold`
+  understand them.
+- 2026-11-12 cli: **`mergeone explain [ref]`** — a recorded decision's verdict with every rule in order, each
+  condition's probability and margin, the path conditions, and the nearest rule that did not fire; evaluated on the
+  policy as it is now, with a note when that differs from the record. No model call.
+- 2026-11-12 cli: **`mergeone pr` prints a readable verdict block on a terminal** (rule, because, nearest, answers,
+  model line). Pipes, CI and `--json` get the same JSON as before; `--human` forces the block; exit codes unchanged.
+- 2026-11-12 cli: **`mergeone doctor`** — policy, calibration map, model key, one real model call on a fixed README
+  diff, GitHub token access to a repository and its pull requests, gatelog, portal; with `--url`, a running gateway's
+  health and whether it verifies webhook signatures with this environment's secret. Never prints a secret.
+
 ## v0.6.0 — 2026-11-10 (the same answers for less)
 
 No model input, question, threshold or rule changes; what changes is how many calls are made and paid for.

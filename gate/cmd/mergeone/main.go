@@ -83,6 +83,8 @@ var commands = map[string]func([]string) int{
 	"calibrate":    cmdCalibrate,
 	"stats":        cmdStats,
 	"policy":       cmdPolicy,
+	"explain":      cmdExplain,
+	"doctor":       cmdDoctor,
 }
 
 // run is the whole CLI for args (os.Args[1:]); it returns the exit code.
@@ -112,7 +114,7 @@ func run(args []string) int {
 	return cmd(args[1:])
 }
 
-const usageLine = "usage: mergeone <init|serve|pr|decide|policy|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
+const usageLine = "usage: mergeone <init|doctor|serve|pr|decide|explain|policy|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
 	fmt.Fprintln(stderr, usageLine)
@@ -508,6 +510,11 @@ func verdictCodeFor(res engine.Result, repo string, pr int, headSHA string) int 
 	}
 	b, _ = json.MarshalIndent(out, "", "  ")
 	fmt.Fprintln(stdout, string(b))
+	return exitCodeOf(res)
+}
+
+// exitCodeOf is the CLI's verdict exit code: 0 pass, 1 hold, 2 block.
+func exitCodeOf(res engine.Result) int {
 	switch res.Verdict {
 	case "pass":
 		return 0
@@ -527,6 +534,8 @@ func cmdPR(args []string) int {
 	logPath := fs.String("log", ".mergeone/gatelog.jsonl", "gatelog path")
 	mock := fs.Bool("mock", false, "mock model")
 	assets := fs.String("assets", "", "assets dir")
+	asJSON := fs.Bool("json", false, "print the result as JSON (the default when stdout is not a terminal)")
+	human := fs.Bool("human", false, "print the readable verdict block (the default on a terminal)")
 	// With a PR (owner/name N, --gh-repo/--pr, or GitHub Actions' GITHUB_REPOSITORY/GITHUB_EVENT_PATH) and
 	// GITHUB_TOKEN, the PR is fetched from GitHub as the webhook does: title, body, author, base, files and diff for
 	// that head sha. With policy actions.enabled the verdict is also written back to the PR (status, labels,
@@ -632,6 +641,14 @@ func cmdPR(args []string) int {
 			defer sink.Close(10 * time.Second)
 		}
 		_ = st.Record(store.Record{Repo: logRepo, PR: *prNum, HeadSHA: logSHA, Source: "cli", Result: res, Context: rctx, State: g.Policy.LoggedState(state)})
+	}
+	if *human || (!*asJSON && stdoutIsTTY()) {
+		var trace []engine.RuleTrace
+		if res.Error == "" && len(res.RawProbs) > 0 && res.Rule != "always_human_paths" {
+			trace, _, _ = g.Explain(effectiveProbs(g, res), res.ChangedPaths)
+		}
+		printVerdict(stdout, res, trace, *ghRepo, *prNum, *headSHA)
+		return exitCodeOf(res)
 	}
 	return verdictCodeFor(res, *ghRepo, *prNum, *headSHA)
 }

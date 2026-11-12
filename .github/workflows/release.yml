@@ -32,7 +32,7 @@ jobs:
         if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
         run: |
           ./dist/mergeone_linux_amd64 version | grep -qx "mergeone ${GITHUB_REF_NAME}"
-          for c in init serve pr decide policy replay drift-replay calibrate stats loadtest index models mcp; do
+          for c in init doctor serve pr decide explain policy replay drift-replay calibrate stats loadtest index models mcp; do
             ./dist/mergeone_linux_amd64 "$c" -h >/dev/null 2>&1 || { echo "subcommand $c missing"; exit 1; }
           done
           ./dist/mergeone_linux_amd64 policy check --policy mergeone/gate/policy.yaml --assets dist/assets >/dev/null

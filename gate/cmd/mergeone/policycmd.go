@@ -89,6 +89,12 @@ func policyCheck(policyPath, assets string, asJSON bool) int {
 		for _, q := range sortedKeysStr(r.When) {
 			conds = append(conds, q+" "+r.When[q])
 		}
+		if len(r.Paths) > 0 {
+			conds = append(conds, "paths "+strings.Join(r.Paths, ","))
+		}
+		if len(r.PathsOnly) > 0 {
+			conds = append(conds, "paths_only "+strings.Join(r.PathsOnly, ","))
+		}
 		fmt.Fprintf(stdout, "  %2d. %-24s when %-40s → %s/%s\n", i+1, r.Name, strings.Join(conds, " and "), r.Verdict, r.Route)
 	}
 	fmt.Fprintf(stdout, "default %s/%s · on_error %s/%s · always_human_paths %v\n", p.Default.Verdict, p.Default.Route, p.OnError.Verdict, p.OnError.Route, p.AlwaysHumanPaths)
@@ -138,7 +144,7 @@ func runPolicyCase(g *engine.Gate, c policyCase) caseResult {
 			probs = g.Cal.Apply(probs)
 		}
 		var out engine.Outcome
-		rule, out = g.Match(probs)
+		rule, out = g.MatchPaths(probs, c.Paths)
 		verdict, route = out.Verdict, out.Route
 	}
 	got := verdict + "/" + route + "/" + rule
@@ -241,8 +247,16 @@ func policyScaffold(policyPath, testsPath, assets string) int {
 			op, val := parseCond(cond)
 			probs[q] = firingValue(op, val)
 		}
-		fmt.Fprintf(&sb, "  - name: %s\n    calibrated: true\n    probs: {%s}\n    expect: { verdict: %s, route: %s, rule: %s }\n",
-			yamlStr("rule "+r.Name+" fires"), probsYAML(probs), r.Verdict, r.Route, r.Name)
+		pathsLine := ""
+		if ex := examplePaths(r); len(ex) > 0 {
+			q := make([]string, len(ex))
+			for i, e := range ex {
+				q[i] = yamlStr(e)
+			}
+			pathsLine = "    paths: [" + strings.Join(q, ", ") + "]\n"
+		}
+		fmt.Fprintf(&sb, "  - name: %s\n    calibrated: true\n%s    probs: {%s}\n    expect: { verdict: %s, route: %s, rule: %s }\n",
+			yamlStr("rule "+r.Name+" fires"), pathsLine, probsYAML(probs), r.Verdict, r.Route, r.Name)
 	}
 	fmt.Fprintf(&sb, "  - name: nothing matches\n    calibrated: true\n    probs: {}\n    expect: { verdict: %s, route: %s, rule: default }\n", p.Default.Verdict, p.Default.Route)
 	for _, ph := range p.AlwaysHumanPaths {
@@ -255,6 +269,28 @@ func policyScaffold(policyPath, testsPath, assets string) int {
 	fmt.Fprintf(stdout, "wrote %s (%d rules, 1 default, %d protected paths); run: mergeone policy test --policy %s --tests %s\n",
 		testsPath, len(p.Rules), len(p.AlwaysHumanPaths), policyPath, testsPath)
 	return 0
+}
+
+// examplePaths is a changed-file list that satisfies a rule's path conditions: one file per `paths` pattern's
+// first entry, or one inside `paths_only`.
+func examplePaths(r engine.Rule) []string {
+	fill := func(pat string) string {
+		p := strings.TrimPrefix(strings.TrimPrefix(pat, "./"), "/")
+		if strings.HasSuffix(p, "/") {
+			return p + "example.txt"
+		}
+		p = strings.ReplaceAll(p, "**/", "")
+		p = strings.ReplaceAll(p, "**", "example")
+		p = strings.ReplaceAll(p, "*", "example")
+		return strings.ReplaceAll(p, "?", "x")
+	}
+	switch {
+	case len(r.PathsOnly) > 0:
+		return []string{fill(r.PathsOnly[0])} // inside paths_only; scaffold cannot also satisfy an unrelated paths list
+	case len(r.Paths) > 0:
+		return []string{fill(r.Paths[0])}
+	}
+	return nil
 }
 
 func parseCond(c string) (op string, val float64) {

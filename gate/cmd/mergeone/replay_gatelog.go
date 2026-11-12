@@ -76,7 +76,7 @@ func replayGatelog(g *engine.Gate, r io.Reader, since time.Time, policyPath, log
 			continue
 		}
 		rep.Replayed++
-		rule, out := g.Match(g.Cal.Apply(rec.Result.RawProbs))
+		rule, out := g.MatchPaths(g.Cal.Apply(rec.Result.RawProbs), rec.Result.ChangedPaths)
 		wasRule := rec.Result.Rule
 		was, now := rec.Result.Verdict+"/"+rec.Result.Route+"/"+wasRule, out.Verdict+"/"+out.Route+"/"+rule
 		rep.Verdicts["recorded"][rec.Result.Verdict]++

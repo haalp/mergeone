@@ -133,6 +133,7 @@ rules:
   - { name: needs-human,   when: { needs_human_review: ">= 0.5" }, verdict: hold,  route: human }
   - { name: duplicate-of,  when: { duplicate_of: ">= 0.7" },  verdict: hold,  route: dedup }
 default: { verdict: pass, route: auto-merge }
+# a rule can also be scoped by location: paths: ["migrations/"] (any changed file) / paths_only: ["docs/**", "*.md"] (all of them)
 on_error: { verdict: hold, route: human }      # fail closed
 resilience: { retries: 2, breaker_failures: 5, breaker_cooldown: 30s }   # defaults; transient model failures are retried, a dead endpoint holds at once
 drift: { enabled: true }       # default on; a rule that reads a drifted question holds for a human instead
@@ -170,6 +171,8 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 | `debounced_shas` | debounced decisions | heads pushed during the window and never decided |
 
 `GET /stats` (and `/api/stats`) gain `reused` and `debounced` counts for the window; `mergeone stats [--log …| --url …] [--window 24h]` prints them.
+
+`mergeone doctor` checks the whole setup in one go — policy, calibration map, the model key and one real call, the GitHub token's access, and a running gateway's webhook secret — and names the fix for anything missing. On a terminal `mergeone pr` prints the verdict with the rule that fired, by how much, and the nearest rule that did not; `mergeone explain #412` does the same for any recorded decision, rule by rule.
 
 Four commands look after the policy and the model over time:
 

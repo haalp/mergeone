@@ -114,6 +114,8 @@ type Result struct {
 	CappedRule string `json:"capped_rule,omitempty"`
 	// Actions is what the verdict-action layer wrote back to GitHub (webhook/CI mode only; nil elsewhere).
 	Actions *ActionsReport `json:"actions,omitempty"`
+	// ChangedPaths (v0.7) is the PR's changed-file list, kept only when the policy has path rules (bounded).
+	ChangedPaths []string `json:"changed_paths,omitempty"`
 	// Retries is the number of extra endpoint calls the main decision needed (resilience block); omitted when 0.
 	Retries int `json:"retries,omitempty"`
 	// InputTokens / OutputTokens (v0.5) sum the main call and every pair call, as the endpoints reported them;
@@ -169,12 +171,17 @@ type Outcome struct {
 
 // Rule is one policy rule: all conditions must hold (AND); first match wins.
 type Rule struct {
-	Name    string            `yaml:"name"`
-	When    map[string]string `yaml:"when"`
-	Verdict string            `yaml:"verdict"`
-	Route   string            `yaml:"route"`
-	Reason  string            `yaml:"reason"`
-	conds   []cond
+	Name string            `yaml:"name"`
+	When map[string]string `yaml:"when"`
+	// Paths / PathsOnly (v0.7, pathrules.go): at least one changed file matches / every changed file matches.
+	Paths     []string `yaml:"paths"`
+	PathsOnly []string `yaml:"paths_only"`
+	Verdict   string   `yaml:"verdict"`
+	Route     string   `yaml:"route"`
+	Reason    string   `yaml:"reason"`
+	conds     []cond
+	pathAny   []pathGlob
+	pathOnly  []pathGlob
 }
 
 type cond struct {
@@ -339,10 +346,13 @@ func (p *Policy) Hash() string {
 	type rule struct {
 		Name, Verdict, Route, Reason string
 		When                         map[string]string
+		// omitted when empty, so a policy without path rules hashes exactly as it did before v0.7
+		Paths     []string `json:",omitempty"`
+		PathsOnly []string `json:",omitempty"`
 	}
 	rules := make([]rule, len(p.Rules))
 	for i, r := range p.Rules {
-		rules[i] = rule{r.Name, r.Verdict, r.Route, r.Reason, r.When}
+		rules[i] = rule{r.Name, r.Verdict, r.Route, r.Reason, r.When, r.Paths, r.PathsOnly}
 	}
 	b, _ := json.Marshal(map[string]any{
 		"version": p.Version, "model": p.Model, "model_id": p.ModelID, "provider": p.Provider,
@@ -570,6 +580,13 @@ func LoadPolicy(path string) (*Policy, error) {
 func (p *Policy) compile() error {
 	for i := range p.Rules {
 		r := &p.Rules[i]
+		var gerr error
+		if r.pathAny, gerr = compileGlobs(r.Paths); gerr != nil {
+			return fmt.Errorf("rule %q: paths: %w", r.Name, gerr)
+		}
+		if r.pathOnly, gerr = compileGlobs(r.PathsOnly); gerr != nil {
+			return fmt.Errorf("rule %q: paths_only: %w", r.Name, gerr)
+		}
 		r.conds = r.conds[:0]
 		keys := make([]string, 0, len(r.When))
 		for k := range r.When {
@@ -759,7 +776,7 @@ func (g *Gate) precheck(sha string, now time.Time, paths []string) *Result {
 }
 
 // finish turns the main (policy question set) decision into a result (on_error on model failure).
-func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
+func (g *Gate) finish(d Decision, sha string, now time.Time, files []string) Result {
 	if d.Error != "" {
 		return Result{Verdict: g.Policy.OnError.Verdict, Route: g.Policy.OnError.Route, Reason: g.Policy.OnError.Reason, Rule: "on_error",
 			Probs: map[string]float64{}, RawProbs: map[string]float64{}, ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS,
@@ -767,12 +784,18 @@ func (g *Gate) finish(d Decision, sha string, now time.Time) Result {
 			InputTokens: d.InputTokens, OutputTokens: d.OutputTokens}
 	}
 	cal := g.Cal.Apply(d.Probs)
-	rule, out := g.Match(cal)
+	rule, out := g.MatchPaths(cal, files)
 	res := Result{Verdict: out.Verdict, Route: out.Route, Reason: out.Reason, Rule: rule, Probs: cal, RawProbs: d.Probs,
 		ModelVersion: d.ModelVersion, LatencyMS: d.LatencyMS, ModelLatencySumMS: d.LatencyMS, CostUSD: d.CostUSD, InputSHA256: sha, TS: now, Retries: max(0, d.Attempts-1),
 		InputTokens: d.InputTokens, OutputTokens: d.OutputTokens, ModelCalls: 1}
 	if deg := sortedKeys(g.degradedSet()); len(deg) > 0 {
 		res.Drift = deg
+	}
+	if g.Policy.HasPathRules() { // kept so the verdict can be explained and replayed; bounded
+		res.ChangedPaths = files
+		if len(files) > MaxChangedPaths {
+			res.ChangedPaths = files[:MaxChangedPaths]
+		}
 	}
 	return res
 }
@@ -795,7 +818,7 @@ func (g *Gate) DecideCtx(ctx context.Context, state string, paths []string) Resu
 	if r := g.precheck(sha, now, paths); r != nil {
 		return *r
 	}
-	res := g.finish(g.callMain(ctx, state), sha, now)
+	res := g.finish(g.callMain(ctx, state), sha, now, paths)
 	if ctx.Err() != nil {
 		res.Error = ErrCanceled
 	}
@@ -911,7 +934,7 @@ func (g *Gate) DecideForCtx(ctx context.Context, state string, meta PRMeta) Resu
 	mainCh := make(chan Decision, 1)
 	go func() { mainCh <- g.callMain(ctx, state) }()
 	ps := g.pairs(ctx, state, meta)
-	res := g.finish(<-mainCh, sha, now)
+	res := g.finish(<-mainCh, sha, now, meta.Paths)
 	if ctx.Err() != nil {
 		res.Error = ErrCanceled
 	}
@@ -988,7 +1011,7 @@ func (g *Gate) rematch(res *Result, extra map[string]any) {
 		return
 	}
 	res.Extra = extra
-	rule, out := g.Match(res.Probs)
+	rule, out := g.MatchPaths(res.Probs, res.ChangedPaths)
 	res.Rule, res.Verdict, res.Route, res.Reason = rule, out.Verdict, out.Route, out.Reason
 	if n, ok := extra["duplicate_candidate"].(int); ok && rule == "duplicate-of" {
 		res.Reason = fmt.Sprintf("%s (#%d)", out.Reason, n)
@@ -1018,6 +1041,12 @@ func wallMS(t0 time.Time) float64 { return float64(time.Since(t0).Microseconds()
 // the PR gets on_drift with reason drift:<question>. Rules above it ran as usual; with on_drift: ignore
 // every rule runs.
 func (g *Gate) Match(probs map[string]float64) (string, Outcome) {
+	return g.MatchPaths(probs, nil)
+}
+
+// MatchPaths is Match with the PR's changed files, for rules that carry `paths` / `paths_only`. A rule with a
+// path condition does not match when files is empty.
+func (g *Gate) MatchPaths(probs map[string]float64, files []string) (string, Outcome) {
 	degraded := g.degradedSet()
 	for i := range g.Policy.Rules {
 		r := &g.Policy.Rules[i]
@@ -1037,6 +1066,9 @@ func (g *Gate) Match(probs map[string]float64) (string, Outcome) {
 				ok = false
 				break
 			}
+		}
+		if ok {
+			ok, _ = r.pathsOK(files)
 		}
 		if ok {
 			return r.Name, Outcome{r.Verdict, r.Route, r.Reason}
