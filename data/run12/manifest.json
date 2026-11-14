@@ -1,0 +1,41 @@
+{
+  "protocol": "PROTOCOL.md R12.0a",
+  "split": "holdout2",
+  "source": "mergeone.data.agent_prs fetch --created-after \u2026 --exclude run 3 --only <test repos>",
+  "created_after": "2026-10-16",
+  "repos": [
+    "Azure/azure-sdk-for-net",
+    "Comfy-Org/ComfyUI_frontend",
+    "VocaHQ/vocalinux",
+    "compdemocracy/polis",
+    "mattermost/mattermost",
+    "microsoft/semantic-kernel",
+    "microsoft/vscode",
+    "mozilla-ai/otari"
+  ],
+  "n_rows": 360,
+  "per_repo": {
+    "Azure/azure-sdk-for-net": 13,
+    "Comfy-Org/ComfyUI_frontend": 18,
+    "VocaHQ/vocalinux": 10,
+    "compdemocracy/polis": 139,
+    "mattermost/mattermost": 92,
+    "microsoft/vscode": 26,
+    "mozilla-ai/otari": 62
+  },
+  "labels": {
+    "approved_by_human": 149,
+    "bad_outcome": 82,
+    "change_requested": 23,
+    "closed_unmerged": 61,
+    "discussed": 48,
+    "merged": 299,
+    "merged_untouched": 151,
+    "rejected": 82
+  },
+  "iterated_positives": 0,
+  "revert_label_not_final": 360,
+  "dropped": {},
+  "scored_by_any_model": false,
+  "prepared_at": "2026-11-14T12:58:21.491603+00:00"
+}
