@@ -40,4 +40,22 @@ def test_v4_maps_reproduce(model, monkeypatch):
     with tempfile.TemporaryDirectory() as d:
         main(["fit-calibration", "--run", "results/run5", "--model", model, "--qset", "v4", "--from-qset", "v3",
               "--label", "iterated", "--dataset", "data/run3/dataset.jsonl", "--out", d])
-        assert (Path(d) / f"calibration_{model}_v4.json").read_text() == (GATE / f"calibration_{model}_v4.json").read_text()
+        got = json.loads((Path(d) / f"calibration_{model}_v4.json").read_text())
+        want = json.loads((GATE / f"calibration_{model}_v4.json").read_text())
+        _assert_same(got, want)
+
+
+def _assert_same(got, want, path="$"):
+    """Same structure and keys; floats equal to 1e-12 (the last printed digit differs between linux/x86 and macOS/arm64)."""
+    if isinstance(want, dict):
+        assert isinstance(got, dict) and list(got) == list(want), path
+        for k in want:
+            _assert_same(got[k], want[k], f"{path}.{k}")
+    elif isinstance(want, list):
+        assert isinstance(got, list) and len(got) == len(want), path
+        for i, (g, w) in enumerate(zip(got, want)):
+            _assert_same(g, w, f"{path}[{i}]")
+    elif isinstance(want, float):
+        assert isinstance(got, (int, float)) and not isinstance(got, bool) and got == pytest.approx(want, rel=1e-12, abs=1e-12), path
+    else:
+        assert got == want and type(got) is type(want), path
