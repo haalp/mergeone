@@ -21,7 +21,7 @@ recalibration) frozen before any model call; tag `r11-frozen`. Tooling committed
 (scores and weights fixed; refuses to run without `--i-have-frozen-the-protocol`), `mergeone/eval/run11_report.py`,
 `scripts/run11_hosted.sh` (refuses without the tag), `docs/run11-tooling.md`. Budget ≈ $0.10 hosted.
 
-## v0.7.0 — unreleased (rules that know where a change is, and a CLI that says why)
+## v0.7.0 — 2026-11-14 (rules that know where a change is, and a CLI that says why)
 
 No model input, question or threshold changes. Reference: `docs/POLICY.md`, "Path rules", "Reading a verdict",
 "Checking a setup".
