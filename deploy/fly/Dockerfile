@@ -1,5 +1,5 @@
 # The pilot gateway: the released image plus a policy baked in. Build context is this directory.
-ARG MERGEONE_VERSION=0.6.0
+ARG MERGEONE_VERSION=0.7.0
 
 # PR memory lives in .mergeone/ beside the policy; the image is read-only there and has no shell,
 # so the directory is a link onto the volume (memory then survives a deploy, like the gatelog).
