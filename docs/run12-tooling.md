@@ -41,6 +41,10 @@ control's block from the same fetched text. `render_focused` changes nothing els
 
 ## Next, before a freeze
 
-- A runner that renders both states for every holdout-2 PR from `diffs.jsonl` and scores them (written before the freeze, refuses to run without the tag).
+- `python -m mergeone.data.prepare_holdout2 renderings` → `data/run12/h1_full.jsonl`, `h1_focused.jsonl` (gitignored) and
+  `h1_renderings.json` (counts: rows, positives, how many states differ, PRs left out and why). No model.
+- `scripts/run12_hosted.sh`: control then treatment, same day, one run directory each; refuses without the tag `r12-frozen`.
+- `mergeone.eval.run12_report` (not written yet): paired bootstrap CIs under R12.0b; must exist before the freeze.
+- Collection dates: 2026-11-28, then every 14 days; last 2027-01-09 (PROTOCOL.md R12.0a).
 - m₁ from holdout-2's positive count (R12.0b), written into the frozen text.
 - For R12-H2: a labelled duplicate set of ≥ 150 from holdout-2 (run 6's procedure).

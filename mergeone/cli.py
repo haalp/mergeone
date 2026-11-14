@@ -603,7 +603,7 @@ def main(argv=None):
     sub.add_parser("train-gbm").set_defaults(fn=cmd_train_gbm)
     p = sub.add_parser("predict")
     p.add_argument("--model", required=True, help="rules | gbm | any key in prompts/models.yaml (jev, pplx, pplx-flash, haiku, clef, local, …)")
-    p.add_argument("--split", required=True, choices=["train", "val", "test"])
+    p.add_argument("--split", required=True, choices=["train", "val", "test", "holdout2"])
     p.add_argument("--run", default="run1")
     p.add_argument("--limit", type=int)
     p.add_argument("--concurrency", type=int, default=8)

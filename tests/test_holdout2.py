@@ -92,3 +92,34 @@ def test_fetch_diffs_resumes_and_flags_changed_prs(tmp_path, monkeypatch):
     rows = [json.loads(l) for l in out.open()]
     assert [(r["number"], len(r["diff"]), r["capped"], r["chars"], r["prefix_matches"]) for r in rows] == [(1, 4500, True, 5000, True), (2, 8, False, 8, False)]
     assert H.fetch_diffs(raw, out, gh=object()) == {"unavailable": 1} and calls == [1, 2, 3, 3]
+
+
+def test_build_renderings_same_prs_two_states(tmp_path):
+    def sec(path, n):
+        head = f"diff --git a/{path} b/{path}\n"
+        return head + "+" + "x" * (n - len(head) - 2) + "\n"
+    run3_raw, raw, diffs = tmp_path / "run3.jsonl", tmp_path / "raw.jsonl", tmp_path / "diffs.jsonl"
+    (tmp_path / "m.json").write_text(json.dumps({"split_assignment": {"o/test": "test"}}))
+    (tmp_path / "repos.json").write_text(json.dumps([{"repo": "o/test", "by_agent": {"copilot": 9}}]))
+    _w(run3_raw, [raw_row("o/test", 1, "2026-10-01T00:00:00Z", "2026-10-16T19:30:52Z")])
+    big = sec("a.lock", 5000) + sec("src/a_test.go", 300)          # the test file is past the first 4,000 characters
+    small = sec("src/b.go", 200)
+    rows = [raw_row("o/test", n, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z", fp=fp) for n, fp in ((10, 3), (11, 0), (12, 0), (13, 0))]
+    rows[0]["diff_head"], rows[0]["diff_truncated"] = big[:4000], True
+    rows[1]["diff_head"], rows[1]["diff_truncated"] = small, False
+    rows[2]["diff_head"] = "stale"
+    _w(raw, rows)
+    _w(diffs, [{"repo": "o/test", "number": 10, "diff": big, "capped": False, "prefix_matches": True},
+               {"repo": "o/test", "number": 11, "diff": small, "capped": False, "prefix_matches": True},
+               {"repo": "o/test", "number": 12, "diff": "new", "capped": False, "prefix_matches": False}])
+    H.build(raw, tmp_path / "repos.json", run3_raw, tmp_path / "m.json", tmp_path / "h2.jsonl", tmp_path / "manifest.json")
+    st = H.build_renderings(raw, diffs, tmp_path / "h2.jsonl", tmp_path / "full.jsonl", tmp_path / "foc.jsonl", tmp_path / "st.json")
+    assert (st["rows"], st["iterated_positives"], st["states_differ"], st["states_differ_among_positives"]) == (2, 1, 1, 1)
+    assert st["dropped"] == {"diff_changed": 1, "no_diff": 1} and st["scored_by_any_model"] is False
+    assert st["focused_chars_shown_by_class"] == {"low": 3700, "source": 200, "test": 300}
+    full = [json.loads(l) for l in (tmp_path / "full.jsonl").open()]
+    foc = [json.loads(l) for l in (tmp_path / "foc.jsonl").open()]
+    assert [(r["number"], r["rendering"]) for r in full] == [(10, "full"), (11, "full")] and [r["number"] for r in foc] == [10, 11]
+    assert "a_test.go" not in full[0]["state"] and "a_test.go" in foc[0]["state"] and len(full[0]["state"]) == len(foc[0]["state"])
+    assert full[1]["state"] == foc[1]["state"]                      # one file: nothing to reorder
+    assert {k: v for k, v in full[0].items() if k not in ("state", "state_words", "rendering")} == {k: v for k, v in foc[0].items() if k not in ("state", "state_words", "rendering")}

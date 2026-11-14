@@ -27,7 +27,7 @@ from pathlib import Path
 
 from . import agent_prs
 from .features import render_state, structural_features
-from .focused import DIFF_BUDGET, FULL_DIFF_CAP
+from .focused import DIFF_BUDGET, FULL_DIFF_CAP, focused_diff, full_from_diff, render_focused
 from .prepare_run3 import outcome_labels, to_merged_pr
 
 RUN3_RAW = Path("data/run3/agent_prs.jsonl")
@@ -40,6 +40,9 @@ CANDIDATES = Path("data/run12/repos_candidates.json")   # agent_prs discover --o
 REPOS12 = Path("data/run12/repos.json")                 # the widened repository list (R12.0a as amended 2026-11-14)
 DIFFS = Path("data/run12/diffs.jsonl")                  # whole diffs, one per PR (gitignored); both R12-H1 renderings read it
 N_NEW_REPOS = 40
+H1_FULL = Path("data/run12/h1_full.jsonl")              # R12-H1 control rows (gitignored)
+H1_FOCUSED = Path("data/run12/h1_focused.jsonl")        # R12-H1 treatment rows: the same PRs, the diff block reordered
+H1_STATS = Path("data/run12/h1_renderings.json")        # counts only; committed with the freeze
 SPLIT = "holdout2"
 
 
@@ -183,11 +186,61 @@ def build(raw: Path, repos_path: Path, run3_raw: Path, run3_manifest: Path, out:
     return manifest
 
 
+def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, out_full: Path = H1_FULL,
+                     out_focused: Path = H1_FOCUSED, stats_path: Path = H1_STATS) -> dict:
+    """The two R12-H1 datasets: the same holdout-2 PRs, in the same order, once with the `full` state and once with
+    the `focused` one. A PR is left out of both when its whole diff is missing, when the diff changed since collection
+    (its first 4,000 characters are no longer the stored diff_head), or when the control rebuilt from the fetched diff
+    is not the dataset's own state. No model is called; the stats count rows, positives and how many states differ."""
+    raws = {}
+    for l in raw.open():
+        r = json.loads(l)
+        raws[(r["repo"], r["number"])] = r
+    dfs = {}
+    for l in diffs.open():
+        d = json.loads(l)
+        dfs[(d["repo"], d["number"])] = d
+    n, dropped, shown = Counter(), Counter(), Counter()
+    out_full.parent.mkdir(parents=True, exist_ok=True)
+    with out_full.open("w") as ff, out_focused.open("w") as fo:
+        for l in holdout.open():
+            row = json.loads(l)
+            key = (row["repo"], row["number"])
+            d = dfs.get(key)
+            if d is None:
+                dropped["no_diff"] += 1
+                continue
+            if not d.get("prefix_matches"):
+                dropped["diff_changed"] += 1
+                continue
+            p = to_merged_pr(raws[key])
+            head, trunc = full_from_diff(d["diff"], d.get("capped", False))
+            if head != p.diff_head or trunc != p.diff_truncated or render_state(p) != row["state"]:
+                dropped["control_not_reproduced"] += 1
+                continue
+            foc = render_focused(p, d["diff"], d.get("capped", False))
+            for _, cls, chars in focused_diff(d["diff"], d.get("capped", False))[2]:
+                shown[cls] += chars
+            pos = bool(row["labels"].get("iterated"))
+            n["rows"] += 1
+            n["iterated_positives"] += pos
+            n["states_differ"] += foc != row["state"]
+            n["states_differ_among_positives"] += pos and foc != row["state"]
+            ff.write(json.dumps({**row, "rendering": "full"}) + "\n")
+            fo.write(json.dumps({**row, "state": foc, "state_words": render_focused(p, d["diff"], d.get("capped", False), numbers_as_words=True),
+                                 "rendering": "focused"}) + "\n")
+    stats = {"protocol": "PROTOCOL.md R12.1 (R12-H1)", **{k: int(n[k]) for k in ("rows", "iterated_positives", "states_differ", "states_differ_among_positives")},
+             "dropped": dict(dropped), "focused_chars_shown_by_class": dict(sorted(shown.items())), "diff_budget": DIFF_BUDGET,
+             "scored_by_any_model": False}
+    stats_path.write_text(json.dumps(stats, indent=2))
+    return stats
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     default_repos = str(REPOS12 if REPOS12.exists() else RUN3_REPOS)
-    for name in ("select", "collect", "diffs", "prepare"):
+    for name in ("select", "collect", "diffs", "prepare", "renderings"):
         s = sub.add_parser(name)
         s.add_argument("--repos", default=default_repos if name != "select" else str(RUN3_REPOS))
         s.add_argument("--run3-raw", default=str(RUN3_RAW))
@@ -201,6 +254,8 @@ def main(argv=None) -> int:
             s.add_argument("--created-after", default=None, help="override the cut-off (default: run 3's last closed date)")
         elif name == "diffs":
             s.add_argument("--out", default=str(DIFFS))
+        elif name == "renderings":
+            pass
         else:
             s.add_argument("--out", default=str(OUT))
             s.add_argument("--manifest", default=str(MANIFEST))
@@ -211,6 +266,9 @@ def main(argv=None) -> int:
         return 0
     if a.cmd == "collect":
         return collect(a)
+    if a.cmd == "renderings":
+        print(json.dumps(build_renderings(Path(a.raw)), indent=2))
+        return 0
     if a.cmd == "diffs":
         print(f"{a.out}: {fetch_diffs(Path(a.raw), Path(a.out))}")
         return 0

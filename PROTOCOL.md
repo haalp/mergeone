@@ -1019,6 +1019,18 @@ repository's PRs are read:
 - If the widened set still has fewer than 56 `iterated` positives, R12-H1 is not frozen on `iterated` and that is
   a dated CHANGELOG line; the label rule is not changed to make the count.
 
+**Result of the widening and what follows (2026-11-14, draft; no model call made).** 2,329 PRs from 43 of the 48
+repositories, **50** `iterated` positives (all in new repositories). That is below 56, so R12-H1 is not frozen on this
+set. The count is a property of the collection, not of any model's answers, so collecting again does not touch a
+result; to keep even that from becoming a choice made by looking, the schedule is written now:
+
+- The same 48 repositories, the same rule and the same collector are run again on **2026-11-28** and, if needed, every
+  14 days after (`prepare_holdout2 collect` resumes; it only adds PRs). The repository list is not changed again.
+- R12-H1 is frozen on the first collection with ≥ 56 `iterated` positives, with m₁ computed from that count
+  (R12.1). Rows closed in the last 30 days keep their `reverted_within_30d` label marked not final, as now.
+- If the collection of **2027-01-09** still has fewer than 56, R12-H1 is withdrawn as unmeasurable on this target and
+  that is published like a result.
+
 ## R12.0b Bars are written on intervals, with their power stated
 
 R10-H2 passed by 0.004 and R11-H1 failed by 0.002; both point estimates sat inside intervals several times wider

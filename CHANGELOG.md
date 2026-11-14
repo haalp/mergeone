@@ -13,7 +13,11 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - Widened holdout-2 collected the same day (`data/run12/manifest.json`): 2,329 PRs created after 2026-10-16 from 43 of the
   48 repositories (36 new, 7 of run 3's test repositories), **50 `iterated` positives** — all 50 in new repositories,
   0 in run 3's. The amended R12.0a asks for at least 56. By its own last clause **R12-H1 is not frozen on `iterated`
-  with this set**; the label rule is not changed to make the count. What happens next is undecided.
+  with this set**; the label rule is not changed to make the count.
+- Decision, written into R12.0a before any further collection: the same 48 repositories are collected again on
+  2026-11-28 and every 14 days after; R12-H1 is frozen on the first collection with ≥ 56 positives; withdrawn if
+  2027-01-09 still has fewer. `prepare_holdout2 renderings` and `scripts/run12_hosted.sh` (refuses without the tag
+  `r12-frozen`) are written; the report builder is not yet.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 
