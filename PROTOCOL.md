@@ -998,6 +998,27 @@ the existing collector at a pinned commit, and **not scored by any model** until
 primary comparisons are on holdout-2; the 705 are reported beside them as the series' continuity, never as the
 verdict. Target size: at least as many positives as the 705 have (≈ 56); the count is fixed in the freeze.
 
+**Amended 2026-11-14 (draft, before any freeze; no model call made).** The first collection under the text above —
+360 PRs created 2026-10-17 … 2026-11-12 in seven of the eight test repositories (`data/run12/manifest.json`) — has
+**0** `iterated` positives (run 3, same repositories: 58 of 680). The collector counts correctly: the timeline of a
+run-3 positive still reports its force pushes and the new PRs' timelines have none; `compdemocracy/polis`, the source
+of 44 of the 58, went from 44/120 to 0/139. A target with no positives cannot be scored, and waiting does not fix a
+repository that stopped force-pushing. Holdout-2 is therefore widened, by a rule written here before any new
+repository's PRs are read:
+
+- A fresh discovery with the run-3 collector and its run-3 thresholds (`agent_prs discover`, ≥ 500 stars, ≥ 20 closed
+  agent PRs, not a fork, not archived; `--pages 10`). Every repository run 3 used — validation or test, all 26 — is
+  removed. The remaining repositories are ordered by their agent-PR count and the **first 40** are taken; no other
+  property of a repository is looked at.
+- From those 40 and the original eight: agent PRs created after 2026-10-16, at most 200 per repository, same label
+  rule, same exclusions, not scored by any model until a frozen section names the set.
+- What this changes in the reading: holdout-2 is "later PRs, mostly in repositories no calibration map has seen", a
+  harder test than "later PRs in the same repositories". The control runs the same day on the same PRs, so the
+  comparison stays paired; the 705 stay beside it as the series' continuity. Rows from the original eight are also
+  reported as their own line.
+- If the widened set still has fewer than 56 `iterated` positives, R12-H1 is not frozen on `iterated` and that is
+  a dated CHANGELOG line; the label rule is not changed to make the count.
+
 ## R12.0b Bars are written on intervals, with their power stated
 
 R10-H2 passed by 0.004 and R11-H1 failed by 0.002; both point estimates sat inside intervals several times wider
@@ -1031,6 +1052,11 @@ questions moved by less than 0.02. The rendering today makes no difference betwe
 test file. Treatment: a `focused` rendering with the same total budget as `full`'s diff head, filled in priority
 order — test files, then source files, then configuration, then lockfiles / generated / vendored paths last (the
 classifier is path-based and committed before the freeze; no model reads it). Control: `full`, same day, same PRs.
+  The stored `diff_head` is already the first 4,000 characters in file order, so both renderings are built from the PR's
+  whole diff, fetched once per PR before the freeze (`mergeone.data.focused`: `full_from_diff` gives the control's
+  block, `focused_diff` the treatment's; title, body, SUMMARY, FILES CHANGED and the DIFF header's wording are identical).
+  Path classes, in the order they are checked: lockfiles / generated / vendored / binary (last), tests, configuration
+  and docs, everything else (source).
 - Primary (non-inferiority, R12.0b): on holdout-2, the lower end of the paired 95 % CI of the mean v4 AUC difference
   (focused − full) ≥ −m₁.
 - Secondary (superiority on the one question the idea is about): `tests_cover_change` difference with its paired CI;

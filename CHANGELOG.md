@@ -2,6 +2,15 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## Run 12 preparation — 2026-11-14 (draft; nothing frozen, no model call)
+
+- Holdout-2 as first defined (later PRs in run 3's test repositories) is collected: 360 PRs, seven repositories,
+  **0 `iterated` positives** (run 3: 58 of 680 in the same repositories). The label rule and the collector are unchanged
+  and checked against a run-3 positive. PROTOCOL.md R12.0a is amended, dated, before any freeze: the set is widened by
+  a fixed rule (fresh discovery, run-3 thresholds, all 26 run-3 repositories removed, first 40 by agent-PR count).
+- `mergeone/data/focused.py`: the `focused` rendering and its path classifier (R12-H1), with tests. Both renderings
+  need the PR's whole diff; the dataset's `diff_head` is not enough.
+
 ## Run 11 complete (H1, H2) — 2026-11-08
 
 Two fails; H3 waits for its precondition. Hosted rows from the laptop 15:41:13Z (control) – 15:44:11Z (compact), 705/705
