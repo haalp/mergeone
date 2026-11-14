@@ -204,6 +204,27 @@ def _diff_head(gh, repo, num):
     return t[:4000], len(t) > 4000
 
 
+def full_diff(gh, repo, num):
+    """The PR's whole unified diff, or None when GitHub does not serve it (gone, or too large: HTTP 406)."""
+    for attempt in range(4):
+        try:
+            r = gh.c.get(f"/repos/{repo}/pulls/{num}", headers={"Accept": "application/vnd.github.diff"})
+        except httpx.TransportError:
+            time.sleep(5 * (attempt + 1))
+            continue
+        gh.calls += 1
+        if r.status_code == 200:
+            return r.text
+        if r.status_code in (403, 429):
+            time.sleep(min(int(r.headers.get("Retry-After", 60)), 900))
+            continue
+        if r.status_code >= 500:
+            time.sleep(5 * (attempt + 1))
+            continue
+        return None
+    return None
+
+
 def _reverts(gh, repo, since_iso):
     """Merged PRs titled Revert since `since`, for revert matching."""
     out = []

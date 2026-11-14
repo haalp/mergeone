@@ -37,7 +37,7 @@ def test_build_filters_and_manifest(tmp_path):
     m = H.build(raw, tmp_path / "repos.json", run3_raw, tmp_path / "m.json", out, man, now=datetime(2026, 11, 12, tzinfo=timezone.utc))
     assert m["created_after"] == "2026-10-16" and m["n_rows"] == 2 and m["repos"] == ["o/test"]
     assert m["iterated_positives"] == 1 and m["labels"]["closed_unmerged"] == 1 and m["revert_label_not_final"] == 2  # both closed inside the last 30 days
-    assert m["dropped"] == {"duplicate": 1, "in_run3": 1, "created_on_or_before_cutoff": 1, "not_a_test_repo": 1}
+    assert m["dropped"] == {"duplicate": 1, "in_run3": 1, "created_on_or_before_cutoff": 1, "not_a_holdout_repo": 1}
     assert m["scored_by_any_model"] is False
     rows = [json.loads(l) for l in out.open()]
     assert {r["split"] for r in rows} == {"holdout2"} and rows[0]["default_branch"] == "trunk"
@@ -50,3 +50,45 @@ def test_cutoff_and_test_repos(tmp_path):
     assert H.cutoff_date(tmp_path / "r.jsonl") == "2026-03-04"
     (tmp_path / "m.json").write_text(json.dumps({"split_assignment": {"z/z": "test", "a/a": "test", "v/v": "val"}}))
     assert H.test_repos(tmp_path / "m.json") == ["a/a", "z/z"]
+
+
+def test_select_repos_and_widened_build(tmp_path):
+    run3_repos, cands, out = tmp_path / "repos3.json", tmp_path / "cands.json", tmp_path / "repos12.json"
+    (tmp_path / "m.json").write_text(json.dumps({"split_assignment": {"o/test": "test", "o/val": "val"}}))
+    run3_repos.write_text(json.dumps([{"repo": "o/test", "default_branch": "trunk", "by_agent": {"copilot": 9}, "agent_prs_seen": 9},
+                                      {"repo": "o/val", "by_agent": {"copilot": 9}, "agent_prs_seen": 9}]))
+    cands.write_text(json.dumps([{"repo": "O/Val", "agent_prs_seen": 999, "by_agent": {"copilot": 999}},     # run 3 used it (any case): never
+                                 {"repo": "n/small", "agent_prs_seen": 30, "by_agent": {"copilot": 30}},
+                                 {"repo": "n/big", "agent_prs_seen": 80, "by_agent": {"copilot": 80}, "default_branch": "dev"},
+                                 {"repo": "n/mid", "agent_prs_seen": 50, "by_agent": {"copilot": 50}}]))
+    rows = H.select_repos(cands, run3_repos, tmp_path / "m.json", out, n_new=2)
+    assert [(r["repo"], r["origin"]) for r in rows] == [("o/test", "run3_test"), ("n/big", "new"), ("n/mid", "new")]
+    assert H.holdout_repos(out, tmp_path / "m.json") == {"o/test": "run3_test", "n/big": "new", "n/mid": "new"}
+    assert H.holdout_repos(run3_repos, tmp_path / "m.json") == {"o/test": "run3_test"}
+
+    run3_raw, raw = tmp_path / "run3.jsonl", tmp_path / "raw.jsonl"
+    _w(run3_raw, [raw_row("o/test", 1, "2026-10-01T00:00:00Z", "2026-10-16T19:30:52Z")])
+    _w(raw, [raw_row("o/test", 10, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z"),
+             raw_row("n/big", 5, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z", fp=2),
+             raw_row("n/small", 6, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z", fp=4),     # not among the first 2: dropped
+             raw_row("o/val", 7, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z", fp=4)])
+    m = H.build(raw, out, run3_raw, tmp_path / "m.json", tmp_path / "h2.jsonl", tmp_path / "manifest.json",
+                now=datetime(2026, 12, 30, tzinfo=timezone.utc))
+    assert m["n_rows"] == 2 and m["dropped"] == {"not_a_holdout_repo": 2} and m["iterated_positives"] == 1
+    assert m["by_origin"] == {"new": {"rows": 1, "repos": 1, "iterated_positives": 1}, "run3_test": {"rows": 1, "repos": 1, "iterated_positives": 0}}
+    got = [json.loads(l) for l in (tmp_path / "h2.jsonl").open()]
+    assert {(r["repo"], r["origin"], r["default_branch"]) for r in got} == {("o/test", "run3_test", "trunk"), ("n/big", "new", "dev")}
+
+
+def test_fetch_diffs_resumes_and_flags_changed_prs(tmp_path, monkeypatch):
+    raw, out = tmp_path / "raw.jsonl", tmp_path / "diffs.jsonl"
+    a, b = raw_row("o/a", 1, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z"), raw_row("o/a", 2, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z")
+    a["diff_head"], b["diff_head"] = "x" * 4000, "old"
+    _w(raw, [a, b, raw_row("o/a", 3, "2026-10-20T00:00:00Z", "2026-10-22T00:00:00Z")])
+    served = {1: "x" * 5000, 2: "new diff", 3: None}
+    calls = []
+    monkeypatch.setattr(H.agent_prs, "full_diff", lambda gh, repo, num: (calls.append(num), served[num])[1])
+    assert H.fetch_diffs(raw, out, gh=object(), cap=4500) == {"fetched": 2, "prefix_mismatch": 1, "unavailable": 1}
+    rows = [json.loads(l) for l in out.open()]
+    assert [(r["number"], len(r["diff"]), r["capped"], r["chars"], r["prefix_matches"]) for r in rows] == [(1, 4500, True, 5000, True), (2, 8, False, 8, False)]
+    assert H.fetch_diffs(raw, out, gh=object()) == {"unavailable": 1} and calls == [1, 2, 3, 3]
