@@ -10,6 +10,10 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   a fixed rule (fresh discovery, run-3 thresholds, all 26 run-3 repositories removed, first 40 by agent-PR count).
 - `mergeone/data/focused.py`: the `focused` rendering and its path classifier (R12-H1), with tests. Both renderings
   need the PR's whole diff; the dataset's `diff_head` is not enough.
+- Widened holdout-2 collected the same day (`data/run12/manifest.json`): 2,329 PRs created after 2026-10-16 from 43 of the
+  48 repositories (36 new, 7 of run 3's test repositories), **50 `iterated` positives** — all 50 in new repositories,
+  0 in run 3's. The amended R12.0a asks for at least 56. By its own last clause **R12-H1 is not frozen on `iterated`
+  with this set**; the label rule is not changed to make the count. What happens next is undecided.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 
