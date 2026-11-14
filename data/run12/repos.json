@@ -1,0 +1,532 @@
+[
+ {
+  "repo": "microsoft/vscode",
+  "stars": 193657,
+  "language": "TypeScript",
+  "agent_prs_seen": 1893,
+  "by_agent": {
+   "copilot": 1893
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "Azure/azure-sdk-for-net",
+  "stars": 6067,
+  "language": "C#",
+  "agent_prs_seen": 728,
+  "by_agent": {
+   "copilot": 728
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "compdemocracy/polis",
+  "stars": 1219,
+  "language": "Python",
+  "agent_prs_seen": 413,
+  "by_agent": {
+   "claude-code": 413
+  },
+  "default_branch": "edge",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "Comfy-Org/ComfyUI_frontend",
+  "stars": 2068,
+  "language": "TypeScript",
+  "agent_prs_seen": 372,
+  "by_agent": {
+   "claude-app": 372
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "mattermost/mattermost",
+  "stars": 39339,
+  "language": "TypeScript",
+  "agent_prs_seen": 237,
+  "by_agent": {
+   "cursor": 237
+  },
+  "default_branch": "master",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "VocaHQ/vocalinux",
+  "stars": 941,
+  "language": "Python",
+  "agent_prs_seen": 50,
+  "by_agent": {
+   "devin": 50
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "mozilla-ai/otari",
+  "stars": 523,
+  "language": "Python",
+  "agent_prs_seen": 31,
+  "by_agent": {
+   "claude-app": 31
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "microsoft/semantic-kernel",
+  "stars": 28665,
+  "language": "C#",
+  "agent_prs_seen": 25,
+  "by_agent": {
+   "copilot": 25
+  },
+  "default_branch": "main",
+  "origin": "run3_test"
+ },
+ {
+  "repo": "manaflow-ai/cmux",
+  "stars": 28796,
+  "language": "Swift",
+  "agent_prs_seen": 16610,
+  "by_agent": {
+   "claude-code": 16610
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "airbytehq/airbyte",
+  "stars": 22378,
+  "language": "Python",
+  "agent_prs_seen": 4005,
+  "by_agent": {
+   "devin": 4005
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "agentconnect-md/agentconnect",
+  "stars": 1531,
+  "language": "TypeScript",
+  "agent_prs_seen": 2653,
+  "by_agent": {
+   "claude-code": 2653
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "fern-api/fern",
+  "stars": 3837,
+  "language": "TypeScript",
+  "agent_prs_seen": 1375,
+  "by_agent": {
+   "devin": 1375
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "epam/ketcher",
+  "stars": 937,
+  "language": "TypeScript",
+  "agent_prs_seen": 1090,
+  "by_agent": {
+   "copilot": 1090
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "Z3Prover/z3",
+  "stars": 12932,
+  "language": "C++",
+  "agent_prs_seen": 963,
+  "by_agent": {
+   "copilot": 963
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "morluto/rea",
+  "stars": 459012,
+  "language": "TypeScript",
+  "agent_prs_seen": 947,
+  "by_agent": {
+   "claude-code": 947
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "omacom/omarchy",
+  "stars": 46979,
+  "language": "Shell",
+  "agent_prs_seen": 731,
+  "by_agent": {
+   "claude-code": 731
+  },
+  "default_branch": "quattro",
+  "origin": "new"
+ },
+ {
+  "repo": "kody-hq/kody",
+  "stars": 959,
+  "language": "TypeScript",
+  "agent_prs_seen": 540,
+  "by_agent": {
+   "devin": 540
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "dotnet/sdk",
+  "stars": 3248,
+  "language": "C#",
+  "agent_prs_seen": 454,
+  "by_agent": {
+   "copilot": 454
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "novuhq/novu",
+  "stars": 40340,
+  "language": "TypeScript",
+  "agent_prs_seen": 430,
+  "by_agent": {
+   "cursor": 430
+  },
+  "default_branch": "next",
+  "origin": "new"
+ },
+ {
+  "repo": "elastic/kibana",
+  "stars": 21376,
+  "language": "TypeScript",
+  "agent_prs_seen": 388,
+  "by_agent": {
+   "copilot": 384,
+   "claude-app": 4
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "shader-slang/slang",
+  "stars": 5814,
+  "language": "C++",
+  "agent_prs_seen": 321,
+  "by_agent": {
+   "copilot": 144,
+   "claude-code": 177
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "getsentry/sentry",
+  "stars": 45775,
+  "language": "Python",
+  "agent_prs_seen": 320,
+  "by_agent": {
+   "cursor": 320
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "modu-ai/moai-adk",
+  "stars": 1255,
+  "language": "Go",
+  "agent_prs_seen": 302,
+  "by_agent": {
+   "claude-code": 302
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "MetaMask/metamask-mobile",
+  "stars": 3101,
+  "language": "TypeScript",
+  "agent_prs_seen": 299,
+  "by_agent": {
+   "cursor": 299
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "envoyproxy/envoy",
+  "stars": 29231,
+  "language": "C++",
+  "agent_prs_seen": 291,
+  "by_agent": {
+   "copilot": 291
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "marin-community/marin",
+  "stars": 4101,
+  "language": "Python",
+  "agent_prs_seen": 266,
+  "by_agent": {
+   "claude-app": 266
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "unoplatform/uno",
+  "stars": 10120,
+  "language": "C#",
+  "agent_prs_seen": 240,
+  "by_agent": {
+   "copilot": 240
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "scylladb/scylladb",
+  "stars": 15835,
+  "language": "C++",
+  "agent_prs_seen": 224,
+  "by_agent": {
+   "claude-code": 224
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "electron-userland/electron-builder",
+  "stars": 14710,
+  "language": "TypeScript",
+  "agent_prs_seen": 223,
+  "by_agent": {
+   "claude-app": 223
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "hashintel/hash",
+  "stars": 1691,
+  "language": "TypeScript",
+  "agent_prs_seen": 183,
+  "by_agent": {
+   "claude-app": 183
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "grafana/grafana",
+  "stars": 77899,
+  "language": "TypeScript",
+  "agent_prs_seen": 116,
+  "by_agent": {
+   "cursor": 116
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "CherryHQ/cherry-studio",
+  "stars": 53510,
+  "language": "TypeScript",
+  "agent_prs_seen": 115,
+  "by_agent": {
+   "copilot": 115
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "dr5hn/countries-states-cities-database",
+  "stars": 10013,
+  "language": "Python",
+  "agent_prs_seen": 101,
+  "by_agent": {
+   "copilot": 101
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "freelensapp/freelens",
+  "stars": 5821,
+  "language": "TypeScript",
+  "agent_prs_seen": 101,
+  "by_agent": {
+   "claude-app": 101
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "supabase/supabase",
+  "stars": 115010,
+  "language": "TypeScript",
+  "agent_prs_seen": 97,
+  "by_agent": {
+   "claude-app": 97
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "YoungCan-Wang/WyckoffTradingAgent",
+  "stars": 776,
+  "language": "Python",
+  "agent_prs_seen": 94,
+  "by_agent": {
+   "cursor": 94
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "openenv/OpenEnv",
+  "stars": 2851,
+  "language": "Python",
+  "agent_prs_seen": 73,
+  "by_agent": {
+   "cursor": 73
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "MCPJam/inspector",
+  "stars": 2317,
+  "language": "TypeScript",
+  "agent_prs_seen": 71,
+  "by_agent": {
+   "devin": 71
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "fluentmigrator/fluentmigrator",
+  "stars": 3518,
+  "language": "C#",
+  "agent_prs_seen": 70,
+  "by_agent": {
+   "copilot": 70
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "modelcontextprotocol/modelcontextprotocol",
+  "stars": 9687,
+  "language": "TypeScript",
+  "agent_prs_seen": 68,
+  "by_agent": {
+   "claude-app": 68
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "firecrawl/firecrawl",
+  "stars": 201719,
+  "language": "TypeScript",
+  "agent_prs_seen": 62,
+  "by_agent": {
+   "claude-app": 62
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "invertase/docs.page",
+  "stars": 679,
+  "language": "TypeScript",
+  "agent_prs_seen": 56,
+  "by_agent": {
+   "claude-app": 56
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "cypress-io/cypress",
+  "stars": 51027,
+  "language": "TypeScript",
+  "agent_prs_seen": 43,
+  "by_agent": {
+   "cursor": 43
+  },
+  "default_branch": "develop",
+  "origin": "new"
+ },
+ {
+  "repo": "dotnet/SqlClient",
+  "stars": 1007,
+  "language": "C#",
+  "agent_prs_seen": 39,
+  "by_agent": {
+   "copilot": 39
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "vitessio/vitess",
+  "stars": 21419,
+  "language": "Go",
+  "agent_prs_seen": 38,
+  "by_agent": {
+   "cursor": 38
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "owid/owid-grapher",
+  "stars": 1574,
+  "language": "TypeScript",
+  "agent_prs_seen": 37,
+  "by_agent": {
+   "claude-app": 37
+  },
+  "default_branch": "master",
+  "origin": "new"
+ },
+ {
+  "repo": "koala73/worldmonitor",
+  "stars": 90632,
+  "language": "TypeScript",
+  "agent_prs_seen": 36,
+  "by_agent": {
+   "devin": 36
+  },
+  "default_branch": "main",
+  "origin": "new"
+ },
+ {
+  "repo": "SonarSource/sonarlint-vscode",
+  "stars": 627,
+  "language": "CSS",
+  "agent_prs_seen": 33,
+  "by_agent": {
+   "cursor": 33
+  },
+  "default_branch": "master",
+  "origin": "new"
+ }
+]
