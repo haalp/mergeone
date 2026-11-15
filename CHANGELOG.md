@@ -24,6 +24,9 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `focused` shows, 5.28 M of 7.98 M are from test files: tests come first and often fill the 4,000-character budget.
   Whether the rendering stays as written (one variable: order) or the budget is split between tests and source is
   open until the freeze.
+- `mergeone/eval/run12_report.py`: R12-H1 on intervals (primary: lower end of the mean's paired CI ≥ −m₁; secondary:
+  `tests_cover_change` lower end > 0; shipping rule; tokens against run 11's control). m₁ is unset in the code until
+  the freeze, and the builder gives no verdict without it.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 

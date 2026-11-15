@@ -2,12 +2,14 @@
 # R12-H1 — the focused rendering against its same-day full-state control, hosted pplx-flash, holdout-2.
 # Run from the lab machine (data/run12/h1_full.jsonl and h1_focused.jsonl on disk; PERPLEXITY_API_KEY in .env).
 #   scripts/run12_hosted.sh            # refuses until the protocol is frozen (tag r12-frozen must exist)
+#   scripts/run12_hosted.sh report     # tables only
 set -euo pipefail
 cd "$(dirname "$0")/.."
 set -a; [ -f .env ] && source .env; set +a
 # the Python package (gatebench), not the Go binary of the same name: prefer the repo's venv
 PY=${PY:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}
 predict() { "$PY" -m mergeone.cli predict "$@"; }
+if [ "${1:-}" = "report" ]; then "$PY" -m mergeone.eval.run12_report; exit 0; fi
 git rev-parse -q --verify refs/tags/r12-frozen >/dev/null || { echo "refusing: tag r12-frozen does not exist (PROTOCOL.md R12 not frozen)"; exit 2; }
 for f in data/run12/h1_full.jsonl data/run12/h1_focused.jsonl data/run12/h1_renderings.json; do
   [ -f "$f" ] || { echo "$f missing (python -m mergeone.data.prepare_holdout2 renderings)"; exit 2; }
@@ -21,3 +23,4 @@ predict --model pplx-flash --qset v4 --split holdout2 --dataset data/run12/h1_fu
 date -u +"%Y-%m-%dT%H:%M:%SZ focused start" | tee -a results/run12/run.log
 predict --model pplx-flash --qset v4 --split holdout2 --dataset data/run12/h1_focused.jsonl --run run12/focused --concurrency "${CONC:-4}"
 date -u +"%Y-%m-%dT%H:%M:%SZ done" | tee -a results/run12/run.log
+"$PY" -m mergeone.eval.run12_report
