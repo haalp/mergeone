@@ -18,6 +18,12 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   2026-11-28 and every 14 days after; R12-H1 is frozen on the first collection with ≥ 56 positives; withdrawn if
   2027-01-09 still has fewer. `prepare_holdout2 renderings` and `scripts/run12_hosted.sh` (refuses without the tag
   `r12-frozen`) are written; the report builder is not yet.
+- 2026-11-15, whole diffs and the two renderings (no model): 2,315 of 2,329 diffs fetched; 14 are not served by GitHub
+  and 2 changed after collection, so 16 PRs are left out of both renderings. 2,313 PRs remain, 49 `iterated`
+  positives. The `focused` state differs from `full` for 1,448 PRs (36 of the 49 positives). Of the diff characters
+  `focused` shows, 5.28 M of 7.98 M are from test files: tests come first and often fill the 4,000-character budget.
+  Whether the rendering stays as written (one variable: order) or the budget is split between tests and source is
+  open until the freeze.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 
