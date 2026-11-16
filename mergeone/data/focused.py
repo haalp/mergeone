@@ -114,3 +114,20 @@ def render_focused(p: MergedPR, full_diff: str, capped: bool = False, numbers_as
 def full_from_diff(full_diff: str, capped: bool = False, budget: int = DIFF_BUDGET) -> tuple[str, bool]:
     """What the collector stores as diff_head for this diff: the control's diff block, from the same fetched text."""
     return full_diff[:budget], capped or len(full_diff) > budget
+
+
+_INDEX_RE = re.compile(r"^index [0-9a-f]+\.\.[0-9a-f]+", re.M)
+
+
+def same_diff_prefix(stored_head: str, full_diff: str) -> bool:
+    """True when `stored_head` (a diff_head collected earlier) is the start of `full_diff` up to the length of the
+    abbreviated blob hashes on `index` lines. GitHub lengthens those abbreviations as a repository grows, so a diff
+    fetched weeks later can differ from the stored one by one hex digit per file and nothing else. The stored head's
+    last, possibly cut, line is not compared."""
+    if full_diff.startswith(stored_head):
+        return True
+    cut = stored_head.rfind("\n")
+    if cut < 0:
+        return False
+    norm = lambda t: _INDEX_RE.sub("index", t)
+    return norm(full_diff).startswith(norm(stored_head[:cut + 1]))

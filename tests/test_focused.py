@@ -74,3 +74,12 @@ def test_render_focused_differs_from_full_only_in_the_diff_block():
     assert len(full) == len(foc)                                              # same budget
     assert "a.test.ts" not in full[cut_full:] and foc[cut_foc:].index("a.test.ts") < foc[cut_foc:].index("src/a.go b/") < foc[cut_foc:].index("yarn.lock")
     assert F.render_focused(p, d, numbers_as_words=True).count("IN WORDS:") == 1
+
+
+def test_same_diff_prefix_ignores_only_the_index_hash_length():
+    old = "diff --git a/x.py b/x.py\nindex 7e389d120..6c3301537 100644\n--- a/x.py\n+++ b/x.py\n+a\n+bb"
+    new = "diff --git a/x.py b/x.py\nindex 7e389d120c..6c33015375 100644\n--- a/x.py\n+++ b/x.py\n+a\n+bbbb\n+more\n"
+    assert F.same_diff_prefix(old, new) and F.same_diff_prefix(new[:30], new)
+    assert not F.same_diff_prefix(old.replace("+a", "+z"), new)                 # a changed line is a changed diff
+    assert not F.same_diff_prefix(old.replace("100644", "100755"), new)        # so is a changed mode
+    assert not F.same_diff_prefix("stale", "new")

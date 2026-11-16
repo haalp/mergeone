@@ -139,3 +139,21 @@ def test_diffs_repo_filter_and_renderings_split_filter(tmp_path, monkeypatch):
              "state": render_state(to_merged_pr(r)), "split": sp} for r, sp in ((a, "test"), (b, "val"))])
     st = H.build_renderings(raw, out, ds, tmp_path / "f.jsonl", tmp_path / "g.jsonl", tmp_path / "s.json", split="test")
     assert st["rows"] == 1 and st["iterated_positives"] == 1 and st["dropped"] == {} and st["set"].startswith("run 3 test")
+
+
+def test_renderings_rebuild_both_states_when_only_index_hashes_grew(tmp_path):
+    from mergeone.data.features import render_state
+    from mergeone.data.prepare_run3 import outcome_labels, to_merged_pr
+    old = "diff --git a/z.lock b/z.lock\nindex 7e389d120..6c3301537 100644\n+" + "x" * 4200 + "\ndiff --git a/t/test_a.py b/t/test_a.py\nindex 111111111..222222222 100644\n+t\n"
+    new = old.replace("7e389d120..6c3301537", "7e389d120c..6c33015375").replace("111111111..222222222", "1111111111..2222222222")
+    r = raw_row("o/test", 1, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", fp=2)
+    r["diff_head"], r["diff_truncated"] = old[:4000], True
+    raw, diffs, ds = tmp_path / "raw.jsonl", tmp_path / "diffs.jsonl", tmp_path / "ds.jsonl"
+    _w(raw, [r])
+    _w(diffs, [{"repo": "o/test", "number": 1, "diff": new, "capped": False, "prefix_matches": False}])
+    _w(ds, [{"pr_number": to_merged_pr(r).pr_number, "repo": "o/test", "number": 1, "labels": outcome_labels(r), "state": render_state(to_merged_pr(r)), "split": "test"}])
+    st = H.build_renderings(raw, diffs, ds, tmp_path / "f.jsonl", tmp_path / "g.jsonl", tmp_path / "s.json", split="test")
+    assert st["rows"] == 1 and st["dropped"] == {} and st["control_rebuilt_index_hash_length"] == 1 and st["states_differ"] == 1
+    full, foc = json.loads((tmp_path / "f.jsonl").read_text()), json.loads((tmp_path / "g.jsonl").read_text())
+    assert "7e389d120c..6c33015375" in full["state"] and len(full["state"]) == len(foc["state"])     # both from the fetched diff
+    assert "test_a.py b/t/test_a.py" not in full["state"] and "1111111111..2222222222" in foc["state"]

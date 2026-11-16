@@ -22,12 +22,13 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import agent_prs
 from .features import render_state, structural_features
-from .focused import DIFF_BUDGET, FULL_DIFF_CAP, focused_diff, full_from_diff, render_focused
+from .focused import DIFF_BUDGET, FULL_DIFF_CAP, focused_diff, full_from_diff, render_focused, same_diff_prefix
 from .prepare_run3 import outcome_labels, to_merged_pr
 
 RUN3_RAW = Path("data/run3/agent_prs.jsonl")
@@ -196,8 +197,9 @@ def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, 
                      out_focused: Path = H1_FOCUSED, stats_path: Path = H1_STATS, split: str | None = None) -> dict:
     """The two R12-H1 datasets: the same holdout-2 PRs, in the same order, once with the `full` state and once with
     the `focused` one. A PR is left out of both when its whole diff is missing, when the diff changed since collection
-    (its first 4,000 characters are no longer the stored diff_head), or when the control rebuilt from the fetched diff
-    is not the dataset's own state. No model is called; the stats count rows, positives and how many states differ."""
+    (its start is no longer the stored diff_head beyond the length of the abbreviated hashes on `index` lines), or when
+    the control rebuilt from the fetched diff is not the dataset's own state. When only those hash lengths differ, both
+    states are built from the fetched diff, so the pair still differs in file order alone. No model is called; the stats count rows, positives and how many states differ."""
     raws = {}
     for l in raw.open():
         r = json.loads(l)
@@ -218,26 +220,33 @@ def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, 
             if d is None:
                 dropped["no_diff"] += 1
                 continue
-            if not d.get("prefix_matches"):
-                dropped["diff_changed"] += 1
-                continue
             p = to_merged_pr(raws[key])
             head, trunc = full_from_diff(d["diff"], d.get("capped", False))
-            if head != p.diff_head or trunc != p.diff_truncated or render_state(p) != row["state"]:
-                dropped["control_not_reproduced"] += 1
+            if head == p.diff_head:
+                # the fetched diff starts with the stored one: the control is the dataset's own state, and must be
+                if trunc != p.diff_truncated or render_state(p) != row["state"]:
+                    dropped["control_not_reproduced"] += 1
+                    continue
+            elif same_diff_prefix(p.diff_head, d["diff"]):
+                # only the abbreviated blob hashes on `index` lines grew: both states are built from the fetched diff
+                p = replace(p, diff_head=head, diff_truncated=trunc)
+                n["control_rebuilt_index_hash_length"] += 1
+            else:
+                dropped["diff_changed"] += 1
                 continue
+            full_state = render_state(p)
             foc = render_focused(p, d["diff"], d.get("capped", False))
             for _, cls, chars in focused_diff(d["diff"], d.get("capped", False))[2]:
                 shown[cls] += chars
             pos = bool(row["labels"].get("iterated"))
             n["rows"] += 1
             n["iterated_positives"] += pos
-            n["states_differ"] += foc != row["state"]
-            n["states_differ_among_positives"] += pos and foc != row["state"]
-            ff.write(json.dumps({**row, "rendering": "full"}) + "\n")
+            n["states_differ"] += foc != full_state
+            n["states_differ_among_positives"] += pos and foc != full_state
+            ff.write(json.dumps({**row, "state": full_state, "state_words": render_state(p, numbers_as_words=True), "rendering": "full"}) + "\n")
             fo.write(json.dumps({**row, "state": foc, "state_words": render_focused(p, d["diff"], d.get("capped", False), numbers_as_words=True),
                                  "rendering": "focused"}) + "\n")
-    stats = {"protocol": "PROTOCOL.md R12.1 (R12-H1)", "set": "run 3 test split (the 705)" if split else "holdout-2", **{k: int(n[k]) for k in ("rows", "iterated_positives", "states_differ", "states_differ_among_positives")},
+    stats = {"protocol": "PROTOCOL.md R12.1 (R12-H1)", "set": "run 3 test split (the 705)" if split else "holdout-2", **{k: int(n[k]) for k in ("rows", "iterated_positives", "states_differ", "states_differ_among_positives", "control_rebuilt_index_hash_length")},
              "dropped": dict(dropped), "focused_chars_shown_by_class": dict(sorted(shown.items())), "diff_budget": DIFF_BUDGET,
              "scored_by_any_model": False}
     stats_path.write_text(json.dumps(stats, indent=2))
