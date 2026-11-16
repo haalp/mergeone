@@ -32,6 +32,12 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - 2026-11-16, the 705 beside (R12.0a): `prepare_holdout2 diffs --set run3test` fetches the whole diffs of run 3's test
   PRs, `renderings --set run3test` writes the same two states for them, the hosted script scores both the same day and
   the report prints them in their own section with no bar and no verdict.
+- 2026-11-16, the 705's whole diffs (no model): 698 of 705 fetched, 7 not served by GitHub. 130 of the 698 no longer
+  start with the stored `diff_head` — in every one the only difference is the abbreviated blob hash on `index` lines,
+  one hex digit longer than in October (104 of them in `microsoft/vscode`). Rule, written before the freeze: such a
+  diff is the same diff; for those PRs both states are built from the fetched text, so the pair still differs in file
+  order alone, and the count is reported (`control_rebuilt_index_hash_length`). 698 PRs, all 58 positives; the two
+  states differ for 392 (46 of the 58). The same rule returns 2 PRs to holdout-2: 2,315 PRs, 49 positives, 1,449 differ.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 
