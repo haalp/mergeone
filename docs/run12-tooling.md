@@ -46,8 +46,8 @@ control's block from the same fetched text. `render_focused` changes nothing els
 - `scripts/run12_hosted.sh`: control then treatment, same day, one run directory each; refuses without the tag `r12-frozen`.
 - `python -m mergeone.eval.run12_report` → `results/run12/metrics.json`, `tables.md`: paired bootstrap CIs under R12.0b.
   `H1_MARGIN` (m₁) is `None` until the freeze commit sets it; until then the builder prints the numbers and no verdict.
-- Open for the freeze: R12.0a asks for the 705 beside holdout-2; that needs the whole diffs of run 3's test PRs (`diffs`
-  on `data/run3/agent_prs.jsonl`) and a second pair of rendering files.
+- The 705 beside: `python -m mergeone.data.prepare_holdout2 diffs --set run3test` → `data/run3/diffs_test.jsonl`, then
+  `renderings --set run3test` → `data/run12/h1_705_full.jsonl`, `h1_705_focused.jsonl`, `h1_705_renderings.json`.
 - Collection dates: 2026-11-28, then every 14 days; last 2027-01-09 (PROTOCOL.md R12.0a).
 - m₁ from holdout-2's positive count (R12.0b), written into the frozen text.
 - For R12-H2: a labelled duplicate set of ≥ 150 from holdout-2 (run 6's procedure).

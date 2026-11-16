@@ -27,6 +27,11 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - `mergeone/eval/run12_report.py`: R12-H1 on intervals (primary: lower end of the mean's paired CI ≥ −m₁; secondary:
   `tests_cover_change` lower end > 0; shipping rule; tokens against run 11's control). m₁ is unset in the code until
   the freeze, and the builder gives no verdict without it.
+- 2026-11-16, decided before the freeze: the `focused` rendering stays as written — one variable, the order of the
+  diff's files; no split of the budget between tests and source. A split budget is a later hypothesis if this one fails.
+- 2026-11-16, the 705 beside (R12.0a): `prepare_holdout2 diffs --set run3test` fetches the whole diffs of run 3's test
+  PRs, `renderings --set run3test` writes the same two states for them, the hosted script scores both the same day and
+  the report prints them in their own section with no bar and no verdict.
 
 ## Run 11 complete (H1, H2) — 2026-11-08
 

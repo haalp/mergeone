@@ -95,3 +95,29 @@ def test_token_drift_against_the_previous_control_is_flagged(tmp_path, monkeypat
     assert t["moved_more_than_2x"] is True and t["ratio_median"] == 1.0 and "moved more than 2×" in R12.tables(rep)
     _setup(tmp_path, tokens_ctrl=2400)
     assert R12.build(tmp_path)["R12-H1"]["tokens"]["moved_more_than_2x"] is False
+
+
+def test_the_705_is_reported_beside_and_never_decides(tmp_path, monkeypatch):
+    monkeypatch.setattr(R12, "H1_MARGIN", 0.03)
+    monkeypatch.setattr(R12.RR, "BOOT_N", 60)
+    _setup(tmp_path, noise_focused=0.02)
+    rep = R12.build(tmp_path)
+    assert rep["beside_705"]["status"].startswith(R12.NOT_RUN) and rep["verdicts"] == {"R12-H1": "pass"}
+    assert "Beside: the same two renderings on the 705" in R12.tables(rep)
+    # the 705 rows: focused is noise there, and the verdict does not move
+    rng = np.random.default_rng(1)
+    full, foc, ds = [], [], []
+    for i in range(120):
+        t = i % 3 == 0
+        base = {q: 0.8 if t else 0.2 for q in DECISIONS_V4}
+        full.append({**_row(10_000 + i, base, {"iterated": t}, 2000), "split": "test"})
+        foc.append({**_row(10_000 + i, {q: float(rng.random()) for q in DECISIONS_V4}, {"iterated": t}, 2000), "split": "test"})
+        ds.append({"pr_number": 10_000 + i, "labels": {"iterated": t}})
+    _w(tmp_path / "results/run12/full/predictions_pplx-flash_test_all.jsonl", full)
+    _w(tmp_path / "results/run12/focused/predictions_pplx-flash_test_all.jsonl", foc)
+    _w(tmp_path / "data/run12/h1_705_full.jsonl", ds)
+    (tmp_path / "data/run12/h1_705_renderings.json").write_text(json.dumps({"rows": 120, "states_differ": 70, "dropped": {}}))
+    rep = R12.build(tmp_path)
+    b = rep["beside_705"]
+    assert b["status"] == "ok" and b["n_paired"] == 120 and b["paired_positives"] == 40 and b["mean"]["delta"] < -0.2
+    assert rep["verdicts"] == {"R12-H1": "pass"} and "the two states differ for 70 of 120" in R12.tables(rep)

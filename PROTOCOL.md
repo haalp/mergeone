@@ -1069,6 +1069,8 @@ classifier is path-based and committed before the freeze; no model reads it). Co
   block, `focused_diff` the treatment's; title, body, SUMMARY, FILES CHANGED and the DIFF header's wording are identical).
   Path classes, in the order they are checked: lockfiles / generated / vendored / binary (last), tests, configuration
   and docs, everything else (source).
+  Decided 2026-11-16, before the freeze: the budget is not split between classes (tests can fill it); order is the
+  one variable. The same two renderings are also scored on the 705, reported beside (R12.0a), with no bar.
 - Primary (non-inferiority, R12.0b): on holdout-2, the lower end of the paired 95 % CI of the mean v4 AUC difference
   (focused − full) ≥ −m₁.
 - Secondary (superiority on the one question the idea is about): `tests_cover_change` difference with its paired CI;

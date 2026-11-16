@@ -7,6 +7,8 @@ Inputs:
   results/run12/focused/predictions_pplx-flash_holdout2_all.jsonl   the focused rendering, the same PRs
   data/run12/h1_full.jsonl                                           labels (iterated) and each PR's origin
   data/run12/h1_renderings.json                                      how many PRs, positives and differing states
+  results/run12/{full,focused}/predictions_pplx-flash_test_all.jsonl the same two renderings on the 705 (beside; no bar)
+  data/run12/h1_705_full.jsonl, h1_705_renderings.json               the 705's labels and counts
 
 R12-H1, written on intervals (R12.0b): Δ = focused − control, paired bootstrap over the PRs both answered.
   primary   (non-inferiority)  lower end of the 95 % CI of the eight-question mean Δ ≥ −m₁
@@ -35,6 +37,11 @@ TREAT = RUN_DIR / "focused" / f"predictions_{MODEL}_{SPLIT}_all.jsonl"
 DATASET = Path("data/run12/h1_full.jsonl")
 RENDERINGS = Path("data/run12/h1_renderings.json")
 SECONDARY_Q = "tests_cover_change"
+# the 705 beside holdout-2 (R12.0a): the same two renderings on run 3's test PRs; continuity, never the verdict
+CTRL_705 = RUN_DIR / "full" / f"predictions_{MODEL}_test_all.jsonl"
+TREAT_705 = RUN_DIR / "focused" / f"predictions_{MODEL}_test_all.jsonl"
+DATASET_705 = Path("data/run12/h1_705_full.jsonl")
+RENDERINGS_705 = Path("data/run12/h1_705_renderings.json")
 
 H1_MARGIN: float | None = None          # m₁; set once, in the freeze commit, never after results exist
 PREV_CONTROL_TOKENS = 2209.0            # run 11's control, median input tokens per joint request (results/run11/README.md)
@@ -88,10 +95,28 @@ def h1(inp: Inputs) -> dict:
     return out
 
 
+def beside_705(inp: Inputs) -> dict:
+    """The same comparison on the 705. Reported beside R12-H1; it has no bar and changes no verdict."""
+    treat = latest(inp.jsonl(TREAT_705), "v4")
+    if not treat:
+        return {"status": f"{NOT_RUN} ({TREAT_705} has no v4 rows)"}
+    ctrl = latest(inp.jsonl(CTRL_705), "v4")
+    if not ctrl:
+        return {"status": f"control {NOT_RUN} ({CTRL_705} has no v4 rows)"}
+    ds = inp.jsonl(DATASET_705)
+    if ds is not None:
+        y, src = {r["pr_number"]: int(bool(r["labels"][RR.ITER])) for r in ds}, str(DATASET_705)
+    else:
+        y, src = RR.iter_labels(inp, treat, ctrl)
+    common = [k for k in treat if k in ctrl and k in y]
+    return {"status": "ok", "label_source": src, "n_paired": len(common), "paired_positives": int(sum(y[k] for k in common)),
+            "renderings": inp.json(RENDERINGS_705), **compare_v4(treat, ctrl, y, baseline_of(ctrl, y))}
+
+
 def build(root: Path = Path(".")) -> dict:
     inp = Inputs(root)
     h = h1(inp)
-    out = {"built_at": _now(), "protocol": "PROTOCOL.md R12.0, R12.1", "R12-H1": h, "inputs": inp.seen}
+    out = {"built_at": _now(), "protocol": "PROTOCOL.md R12.0, R12.1", "R12-H1": h, "beside_705": beside_705(inp), "inputs": inp.seen}
     if h.get("status") != "ok":
         out["verdicts"] = {"R12-H1": NOT_RUN}
     else:
@@ -106,7 +131,7 @@ def tables(c: dict) -> str:
          "", f"## R12-H1 — focused rendering vs same-day full-state control ({MODEL}, holdout-2, v4)", ""]
     h = c["R12-H1"]
     if h.get("status") != "ok":
-        return "\n".join(L + [h.get("status", NOT_RUN)]) + "\n"
+        return "\n".join(L + [h.get("status", NOT_RUN)] + _tables_705(c)) + "\n"
     n = h["n"]
     L += [f"{n['paired']} PRs answered by both ({n['paired_positives']} `iterated` positives); control {n['control']}, focused {n['focused']}.",
           "by origin: " + "; ".join(f"{o} {v['paired']} PRs, {v['positives']} positives" for o, v in h["by_origin"].items()) if h["by_origin"] else "by origin: —"]
@@ -128,7 +153,24 @@ def tables(c: dict) -> str:
               f"{'not set' if h['margin'] is None else _d(-h['margin'])} → {NOT_FROZEN if h['margin'] is None else _mark(h['clauses']['primary'])}",
           f"secondary: lower end of `{SECONDARY_Q}`'s CI {_f((h['questions'][SECONDARY_Q].get('ci95') or [None])[0])} against 0 → {_mark(h['clauses']['secondary'])}",
           f"ships: {h['ships'] if h['ships'] is not None else '—'}"]
-    return "\n".join(L) + "\n"
+    return "\n".join(L + _tables_705(c)) + "\n"
+
+
+def _tables_705(c: dict) -> list[str]:
+    b = c.get("beside_705") or {}
+    L = ["", "## Beside: the same two renderings on the 705 (run 3's test PRs) — continuity, no bar, no verdict", ""]
+    if b.get("status") != "ok":
+        return L + [b.get("status", NOT_RUN)]
+    r = b.get("renderings")
+    L.append(f"{b['n_paired']} PRs answered by both ({b['paired_positives']} positives)"
+             + (f"; the two states differ for {r['states_differ']} of {r['rows']}; left out {r.get('dropped') or {}}." if r else "."))
+    L += ["", "| question | control AUC | focused AUC | Δ | paired 95 % CI |", "|---|---|---|---|---|"]
+    for q in DECISIONS_V4:
+        v = b["questions"][q]
+        L.append(f"| `{q}` | {_f(v['baseline'])} | {_f(v['auc'])} | {_d(v['delta'])} | {_ci(v.get('ci95'))} |")
+    m = b["mean"]
+    L.append(f"| **mean (8)** | {_f(m['baseline'])} | {_f(m['auc'])} | {_d(m['delta'])} | {_ci(m.get('ci95'))} |")
+    return L
 
 
 def main(argv=None) -> int:

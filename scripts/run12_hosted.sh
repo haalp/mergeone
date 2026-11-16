@@ -11,10 +11,11 @@ PY=${PY:-$([ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)}
 predict() { "$PY" -m mergeone.cli predict "$@"; }
 if [ "${1:-}" = "report" ]; then "$PY" -m mergeone.eval.run12_report; exit 0; fi
 git rev-parse -q --verify refs/tags/r12-frozen >/dev/null || { echo "refusing: tag r12-frozen does not exist (PROTOCOL.md R12 not frozen)"; exit 2; }
-for f in data/run12/h1_full.jsonl data/run12/h1_focused.jsonl data/run12/h1_renderings.json; do
+for f in data/run12/h1_full.jsonl data/run12/h1_focused.jsonl data/run12/h1_renderings.json data/run12/h1_705_full.jsonl data/run12/h1_705_focused.jsonl; do
   [ -f "$f" ] || { echo "$f missing (python -m mergeone.data.prepare_holdout2 renderings)"; exit 2; }
 done
 [ "$(wc -l < data/run12/h1_full.jsonl)" = "$(wc -l < data/run12/h1_focused.jsonl)" ] || { echo "the two renderings do not hold the same number of PRs"; exit 2; }
+[ "$(wc -l < data/run12/h1_705_full.jsonl)" = "$(wc -l < data/run12/h1_705_focused.jsonl)" ] || { echo "the two 705 renderings do not hold the same number of PRs"; exit 2; }
 : "${PERPLEXITY_API_KEY:?PERPLEXITY_API_KEY not set}"
 mkdir -p results/run12/full results/run12/focused
 # control first (full state), then the treatment, the same UTC day; one run directory per rendering so neither file can overwrite the other
@@ -22,5 +23,10 @@ date -u +"%Y-%m-%dT%H:%M:%SZ control start" | tee -a results/run12/run.log
 predict --model pplx-flash --qset v4 --split holdout2 --dataset data/run12/h1_full.jsonl --run run12/full --concurrency "${CONC:-4}"
 date -u +"%Y-%m-%dT%H:%M:%SZ focused start" | tee -a results/run12/run.log
 predict --model pplx-flash --qset v4 --split holdout2 --dataset data/run12/h1_focused.jsonl --run run12/focused --concurrency "${CONC:-4}"
+# the 705 beside (R12.0a: continuity, never the verdict): the same two renderings on run 3's test PRs, the same day
+date -u +"%Y-%m-%dT%H:%M:%SZ 705 control start" | tee -a results/run12/run.log
+predict --model pplx-flash --qset v4 --split test --dataset data/run12/h1_705_full.jsonl --run run12/full --concurrency "${CONC:-4}"
+date -u +"%Y-%m-%dT%H:%M:%SZ 705 focused start" | tee -a results/run12/run.log
+predict --model pplx-flash --qset v4 --split test --dataset data/run12/h1_705_focused.jsonl --run run12/focused --concurrency "${CONC:-4}"
 date -u +"%Y-%m-%dT%H:%M:%SZ done" | tee -a results/run12/run.log
 "$PY" -m mergeone.eval.run12_report

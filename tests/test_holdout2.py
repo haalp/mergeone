@@ -123,3 +123,19 @@ def test_build_renderings_same_prs_two_states(tmp_path):
     assert "a_test.go" not in full[0]["state"] and "a_test.go" in foc[0]["state"] and len(full[0]["state"]) == len(foc[0]["state"])
     assert full[1]["state"] == foc[1]["state"]                      # one file: nothing to reorder
     assert {k: v for k, v in full[0].items() if k not in ("state", "state_words", "rendering")} == {k: v for k, v in foc[0].items() if k not in ("state", "state_words", "rendering")}
+
+
+def test_diffs_repo_filter_and_renderings_split_filter(tmp_path, monkeypatch):
+    raw, out = tmp_path / "raw.jsonl", tmp_path / "diffs.jsonl"
+    a, b = raw_row("o/test", 1, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", fp=2), raw_row("o/val", 2, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z")
+    _w(raw, [a, b])
+    monkeypatch.setattr(H.agent_prs, "full_diff", lambda gh, repo, num: "+x")
+    assert H.fetch_diffs(raw, out, gh=object(), repos={"o/test"}) == {"fetched": 1, "prefix_mismatch": 0}
+    assert [json.loads(l)["repo"] for l in out.open()] == ["o/test"]
+    from mergeone.data.features import render_state
+    from mergeone.data.prepare_run3 import outcome_labels, to_merged_pr
+    ds = tmp_path / "dataset.jsonl"
+    _w(ds, [{"pr_number": to_merged_pr(r).pr_number, "repo": r["repo"], "number": r["number"], "labels": outcome_labels(r),
+             "state": render_state(to_merged_pr(r)), "split": sp} for r, sp in ((a, "test"), (b, "val"))])
+    st = H.build_renderings(raw, out, ds, tmp_path / "f.jsonl", tmp_path / "g.jsonl", tmp_path / "s.json", split="test")
+    assert st["rows"] == 1 and st["iterated_positives"] == 1 and st["dropped"] == {} and st["set"].startswith("run 3 test")

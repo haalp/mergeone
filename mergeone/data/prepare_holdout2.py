@@ -43,6 +43,12 @@ N_NEW_REPOS = 40
 H1_FULL = Path("data/run12/h1_full.jsonl")              # R12-H1 control rows (gitignored)
 H1_FOCUSED = Path("data/run12/h1_focused.jsonl")        # R12-H1 treatment rows: the same PRs, the diff block reordered
 H1_STATS = Path("data/run12/h1_renderings.json")        # counts only; committed with the freeze
+# the 705 beside holdout-2 (R12.0a: "reported beside them as the series' continuity, never as the verdict")
+RUN3_DATASET = Path("data/run3/dataset.jsonl")
+RUN3_DIFFS = Path("data/run3/diffs_test.jsonl")
+T705_FULL = Path("data/run12/h1_705_full.jsonl")
+T705_FOCUSED = Path("data/run12/h1_705_focused.jsonl")
+T705_STATS = Path("data/run12/h1_705_renderings.json")
 SPLIT = "holdout2"
 
 
@@ -95,7 +101,7 @@ def collect(a) -> int:
     return 0
 
 
-def fetch_diffs(raw: Path = RAW, out: Path = DIFFS, gh=None, cap: int = FULL_DIFF_CAP) -> dict:
+def fetch_diffs(raw: Path = RAW, out: Path = DIFFS, gh=None, cap: int = FULL_DIFF_CAP, repos: set[str] | None = None) -> dict:
     """One whole diff per collected PR (resumable). `prefix_matches` says whether its first 4,000 characters are the
     row's stored diff_head; a PR whose diff changed since collection is reported and not rendered."""
     done = set()
@@ -109,7 +115,7 @@ def fetch_diffs(raw: Path = RAW, out: Path = DIFFS, gh=None, cap: int = FULL_DIF
     with out.open("a") as f:
         for l in raw.open():
             r = json.loads(l)
-            if (r["repo"], r["number"]) in done:
+            if (r["repo"], r["number"]) in done or (repos is not None and r["repo"] not in repos):
                 continue
             t = agent_prs.full_diff(gh, r["repo"], r["number"])
             if t is None:
@@ -187,7 +193,7 @@ def build(raw: Path, repos_path: Path, run3_raw: Path, run3_manifest: Path, out:
 
 
 def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, out_full: Path = H1_FULL,
-                     out_focused: Path = H1_FOCUSED, stats_path: Path = H1_STATS) -> dict:
+                     out_focused: Path = H1_FOCUSED, stats_path: Path = H1_STATS, split: str | None = None) -> dict:
     """The two R12-H1 datasets: the same holdout-2 PRs, in the same order, once with the `full` state and once with
     the `focused` one. A PR is left out of both when its whole diff is missing, when the diff changed since collection
     (its first 4,000 characters are no longer the stored diff_head), or when the control rebuilt from the fetched diff
@@ -205,6 +211,8 @@ def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, 
     with out_full.open("w") as ff, out_focused.open("w") as fo:
         for l in holdout.open():
             row = json.loads(l)
+            if split is not None and row.get("split") != split:
+                continue
             key = (row["repo"], row["number"])
             d = dfs.get(key)
             if d is None:
@@ -229,7 +237,7 @@ def build_renderings(raw: Path = RAW, diffs: Path = DIFFS, holdout: Path = OUT, 
             ff.write(json.dumps({**row, "rendering": "full"}) + "\n")
             fo.write(json.dumps({**row, "state": foc, "state_words": render_focused(p, d["diff"], d.get("capped", False), numbers_as_words=True),
                                  "rendering": "focused"}) + "\n")
-    stats = {"protocol": "PROTOCOL.md R12.1 (R12-H1)", **{k: int(n[k]) for k in ("rows", "iterated_positives", "states_differ", "states_differ_among_positives")},
+    stats = {"protocol": "PROTOCOL.md R12.1 (R12-H1)", "set": "run 3 test split (the 705)" if split else "holdout-2", **{k: int(n[k]) for k in ("rows", "iterated_positives", "states_differ", "states_differ_among_positives")},
              "dropped": dict(dropped), "focused_chars_shown_by_class": dict(sorted(shown.items())), "diff_budget": DIFF_BUDGET,
              "scored_by_any_model": False}
     stats_path.write_text(json.dumps(stats, indent=2))
@@ -253,9 +261,10 @@ def main(argv=None) -> int:
             s.add_argument("--per-repo", type=int, default=200)
             s.add_argument("--created-after", default=None, help="override the cut-off (default: run 3's last closed date)")
         elif name == "diffs":
-            s.add_argument("--out", default=str(DIFFS))
+            s.add_argument("--out", default=None)
+            s.add_argument("--set", choices=["holdout2", "run3test"], default="holdout2", help="run3test: the whole diffs of run 3's test PRs (the 705)")
         elif name == "renderings":
-            pass
+            s.add_argument("--set", choices=["holdout2", "run3test"], default="holdout2")
         else:
             s.add_argument("--out", default=str(OUT))
             s.add_argument("--manifest", default=str(MANIFEST))
@@ -267,10 +276,19 @@ def main(argv=None) -> int:
     if a.cmd == "collect":
         return collect(a)
     if a.cmd == "renderings":
-        print(json.dumps(build_renderings(Path(a.raw)), indent=2))
+        if a.set == "run3test":
+            st = build_renderings(Path(a.run3_raw), RUN3_DIFFS, RUN3_DATASET, T705_FULL, T705_FOCUSED, T705_STATS, split="test")
+        else:
+            st = build_renderings(Path(a.raw))
+        print(json.dumps(st, indent=2))
         return 0
     if a.cmd == "diffs":
-        print(f"{a.out}: {fetch_diffs(Path(a.raw), Path(a.out))}")
+        if a.set == "run3test":
+            out = Path(a.out or RUN3_DIFFS)
+            print(f"{out}: {fetch_diffs(Path(a.run3_raw), out, repos=set(test_repos(Path(a.run3_manifest))))}")
+        else:
+            out = Path(a.out or DIFFS)
+            print(f"{out}: {fetch_diffs(Path(a.raw), out)}")
         return 0
     m = build(Path(a.raw), Path(a.repos), Path(a.run3_raw), Path(a.run3_manifest), Path(a.out), Path(a.manifest))
     print(f"holdout-2: {m['n_rows']} PRs created after {m['created_after']} from {len(m['per_repo'])} of {len(m['repos'])} repositories; "
