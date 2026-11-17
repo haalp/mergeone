@@ -71,6 +71,7 @@ func main() {
 // exit code instead of exiting, so a session survives a verdict, a bad flag or an error.
 var commands = map[string]func([]string) int{
 	"init":         cmdInit,
+	"connect":      cmdConnect,
 	"serve":        cmdServe,
 	"pr":           cmdPR,
 	"decide":       cmdDecide,
@@ -114,7 +115,7 @@ func run(args []string) int {
 	return cmd(args[1:])
 }
 
-const usageLine = "usage: mergeone <init|doctor|serve|pr|decide|explain|policy|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
+const usageLine = "usage: mergeone <init|connect|doctor|serve|pr|decide|explain|policy|replay|drift-replay|calibrate|stats|loadtest|index|models|mcp|version> [flags]"
 
 func usage() {
 	fmt.Fprintln(stderr, usageLine)

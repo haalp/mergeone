@@ -2,6 +2,17 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.7.1 — unreleased (connecting a gateway to the portal without copying a token)
+
+- **`mergeone connect`** (run in the clone): asks the portal for a short code, opens `/connect?code=…`, waits for the
+  confirmation in the browser, and receives the repository's ingest token once. Stored in `.mergeone/portal-token`
+  beside the policy (0600, `.git/info/exclude`), never printed unless `--print-env` asks; a `portal:` block is added
+  to a policy that has none; one empty batch is sent so the portal shows the gateway as connected. An expired or
+  refused code changes nothing on disk.
+- The policy loader reads the portal token from `$MERGEONE_PORTAL_TOKEN` as before and, when that is empty, from
+  `.mergeone/portal-token` beside the policy. A policy without a `portal:` block is unaffected.
+- Portal side (private repository): `/api/connect/start`, `/api/connect/poll`, `/api/connect/request`, migration 0002.
+
 ## Run 12 preparation — 2026-11-14 (draft; nothing frozen, no model call)
 
 - Holdout-2 as first defined (later PRs in run 3's test repositories) is collected: 360 PRs, seven repositories,

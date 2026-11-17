@@ -142,7 +142,7 @@ actions:                       # webhook / CI mode only; off by default; never m
   on_pass:  { status: success, labels: ["mergeone:pass"] }
   on_hold:  { status: failure, labels: ["mergeone:hold"], reviewers: [] }
   on_block: { status: failure, labels: ["mergeone:block"] }
-portal:                        # optional: written by `mergeone init --portal <token>`
+portal:                        # optional: written by `mergeone connect` (or `init --portal <token>`)
   url: https://app.mergeone.dev
   token: ${MERGEONE_PORTAL_TOKEN}
 ```
@@ -173,6 +173,8 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 `GET /stats` (and `/api/stats`) gain `reused` and `debounced` counts for the window; `mergeone stats [--log …| --url …] [--window 24h]` prints them.
 
 `mergeone doctor` checks the whole setup in one go — policy, calibration map, the model key and one real call, the GitHub token's access, and a running gateway's webhook secret — and names the fix for anything missing. On a terminal `mergeone pr` prints the verdict with the rule that fired, by how much, and the nearest rule that did not; `mergeone explain #412` does the same for any recorded decision, rule by rule.
+
+`mergeone connect` links the clone to the portal (app.mergeone.dev): it opens the portal with a short code, you confirm it in the browser, and the repository's token is stored beside the policy without being shown or committed.
 
 Four commands look after the policy and the model over time:
 

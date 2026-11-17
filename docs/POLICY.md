@@ -143,6 +143,17 @@ All four keys are optional; without the block the gateway behaves as before. `me
 prints `export MERGEONE_PORTAL_TOKEN=<token>` (the only place the token appears), so the policy can be committed.
 `--inline-token` writes the token itself into the file instead.
 
+**`mergeone connect`** does the same without a token passing through your hands: run it in the clone (after
+`mergeone init`), it reads `owner/name` from the origin remote, asks the portal for a short code and opens
+`<url>/connect?code=XXXX-XXXX`. You confirm the code there, signed in with GitHub and with the mergeone App installed
+on that repository; the portal then gives the token to the waiting command, once. The command stores it in
+`.mergeone/portal-token` beside the policy (mode 0600, added to `.git/info/exclude`), adds the `portal:` block above
+if the policy has none, and sends one empty batch so the portal shows the gateway as connected. The token is not
+printed. Where it is read from: `$MERGEONE_PORTAL_TOKEN` when set, else that file. For a gateway on another machine,
+`mergeone connect --print-env` also prints `MERGEONE_PORTAL_TOKEN=<token>` on stdout for its secret store. Flags:
+`--policy`, `--repo owner/name`, `--portal-url`, `--no-browser`, `--timeout` (default 10 m, the code's lifetime).
+A code that expires or is refused changes nothing on disk.
+
 **Outbound.** With `url` and `token` set, each `store.Record` written by `serve`, `mcp` or `pr` is also queued for
 `POST <url>/ingest` with `Authorization: Bearer <token>` and body `{"records": [Record, ...], "events": [Event, ...]}`:
 batches of up to 100 or every second, asynchronous, never in a verdict's path. `events` (present only when the batch

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -372,6 +373,21 @@ type Portal struct {
 	Origin   string `yaml:"origin"`    // CORS origin allowed on /api/* (default: the origin of url)
 }
 
+// PortalTokenFile is where `mergeone connect` stores a repository's portal token: .mergeone/portal-token beside the
+// policy, mode 0600. The policy's own token (usually ${MERGEONE_PORTAL_TOKEN}) wins when it is set.
+func PortalTokenFile(policyPath string) string {
+	return filepath.Join(filepath.Dir(policyPath), ".mergeone", "portal-token")
+}
+
+// ReadPortalTokenFile returns the stored token, or "" when there is none.
+func ReadPortalTokenFile(policyPath string) string {
+	b, err := os.ReadFile(PortalTokenFile(policyPath))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
 // CORSOrigin is the origin /api/* answers CORS requests for: Origin, else scheme://host of URL.
 func (p Portal) CORSOrigin() string {
 	if p.Origin != "" {
@@ -525,6 +541,10 @@ func LoadPolicy(path string) (*Policy, error) {
 	}
 	p.Portal.URL = strings.TrimRight(os.ExpandEnv(p.Portal.URL), "/")
 	p.Portal.Token = os.ExpandEnv(p.Portal.Token)
+	if p.Portal.URL != "" && p.Portal.Token == "" {
+		// `mergeone connect` keeps the repository's portal token beside the policy, outside the repository's history
+		p.Portal.Token = ReadPortalTokenFile(path)
+	}
 	p.Portal.APIToken = os.ExpandEnv(p.Portal.APIToken)
 	p.Portal.Origin = os.ExpandEnv(p.Portal.Origin)
 	switch p.Memory.PairState {

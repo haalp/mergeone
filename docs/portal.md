@@ -11,6 +11,9 @@ portal:
   api_token: ${MERGEONE_API_TOKEN}  # optional: lets the portal read this gateway's /api/* routes
 ```
 
+`mergeone connect`, run in the clone, links it without a token to copy: it opens the portal's `/connect` page with a
+short code, you confirm it there, and the token goes to `.mergeone/portal-token` beside the policy (never printed,
+excluded from git locally). The gateway reads `$MERGEONE_PORTAL_TOKEN` when set, else that file. By hand instead:
 `mergeone init --portal <token>` writes `url` and `token: "${MERGEONE_PORTAL_TOKEN}"` and prints the
 `export MERGEONE_PORTAL_TOKEN=…` line to run where the gateway runs; `--inline-token` writes the token into the file. The full reference is `docs/POLICY.md` → "Portal".
 
