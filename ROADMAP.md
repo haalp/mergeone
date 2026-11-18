@@ -202,3 +202,7 @@ signal, pre-registered.
 - Serving row (run 9 draft): the decision calls are prefill-bound and the vendor path already batches; the levers are
   fewer tokens (a grouped pair call, ≈ 2.7–3.3× at k = 10) and FP8 on Ada, not prefix caching (the checkpoint's
   attention is noncausal). Diagnosis, technique table and draft §R9: [`docs/research/inference.md`](docs/research/inference.md).
+- A macOS menu-bar item for "Needs you": the count of held PRs in the bar, the list one click away, each row opening
+  its detail in the portal. A reader of the portal's queue, nothing more: no verdicts, no merges. Shelved until
+  connecting a gateway is one command (`mergeone connect`, v0.7.1) and the portal has users to notify; a full
+  desktop app is not planned (three builds to sign and update for three screens that already live in a browser).
