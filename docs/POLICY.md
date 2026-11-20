@@ -151,7 +151,8 @@ on that repository; the portal then gives the token to the waiting command, once
 if the policy has none, and sends one empty batch so the portal shows the gateway as connected. The token is not
 printed. Where it is read from: `$MERGEONE_PORTAL_TOKEN` when set, else that file. For a gateway on another machine,
 `mergeone connect --print-env` also prints `MERGEONE_PORTAL_TOKEN=<token>` on stdout for its secret store. Flags:
-`--policy`, `--repo owner/name`, `--portal-url`, `--no-browser`, `--timeout` (default 10 m, the code's lifetime).
+`--policy`, `--repo owner/name`, `--portal-url` (default: the policy's `portal.url`, else `https://app.mergeone.dev`),
+`--no-browser`, `--timeout` (default 10 m, the code's lifetime).
 A code that expires or is refused changes nothing on disk.
 
 **Outbound.** With `url` and `token` set, each `store.Record` written by `serve`, `mcp` or `pr` is also queued for

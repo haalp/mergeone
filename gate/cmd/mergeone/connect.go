@@ -164,7 +164,7 @@ func excludeLocally(dir string) {
 func cmdConnect(args []string) int {
 	fs := flag.NewFlagSet("connect", flag.ContinueOnError)
 	policy := fs.String("policy", ".mergeone.yaml", "policy file (from `mergeone init`)")
-	portalURL := fs.String("portal-url", initcmd.DefaultPortalURL, "the portal's base URL")
+	portalURL := fs.String("portal-url", "", "the portal's base URL (default: portal.url in the policy, else "+initcmd.DefaultPortalURL+")")
 	repo := fs.String("repo", "", "owner/name (default: the origin remote of this clone)")
 	noBrowser := fs.Bool("no-browser", false, "print the link instead of opening a browser")
 	printEnv := fs.Bool("print-env", false, "also print "+initcmd.PortalTokenEnv+"=<token> on stdout, for a gateway that runs elsewhere (a secret: do not paste it into a log)")
@@ -172,13 +172,20 @@ func cmdConnect(args []string) int {
 	if code, ok := parseFlags(fs, args, 2); !ok {
 		return code
 	}
-	base := strings.TrimRight(*portalURL, "/")
-	if !strings.HasPrefix(base, "https://") && !strings.HasPrefix(base, "http://") {
-		fmt.Fprintf(stderr, "error: --portal-url %q: want an http(s) URL\n", *portalURL)
-		return 2
-	}
 	if _, err := os.Stat(*policy); err != nil {
 		fmt.Fprintf(stderr, "error: %s not found. Run `mergeone init` in this clone first, then `mergeone connect`.\n", *policy)
+		return 2
+	}
+	if *portalURL == "" {
+		// a policy that already names a portal (a self-hosted one, say) is connected to that portal, not to the default
+		*portalURL = initcmd.DefaultPortalURL
+		if p, err := engine.LoadPolicy(*policy); err == nil && p.Portal.URL != "" {
+			*portalURL = p.Portal.URL
+		}
+	}
+	base := strings.TrimRight(*portalURL, "/")
+	if !strings.HasPrefix(base, "https://") && !strings.HasPrefix(base, "http://") {
+		fmt.Fprintf(stderr, "error: portal URL %q: want an http(s) URL\n", *portalURL)
 		return 2
 	}
 	dir := filepath.Dir(*policy)

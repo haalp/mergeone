@@ -185,3 +185,19 @@ func TestConnectFailuresChangeNothing(t *testing.T) {
 		t.Errorf("bad portal url: exit %d", code)
 	}
 }
+
+func TestConnectUsesThePortalThePolicyNames(t *testing.T) {
+	srv, _, seen := fakePortal(t, http.StatusOK)
+	dir, _, errb, opened := connectEnv(t)
+	policy := filepath.Join(dir, ".mergeone.yaml")
+	if err := os.WriteFile(policy, []byte("model: jev\nrules: []\nportal:\n  url: "+srv.URL+"\n  token: ${MERGEONE_PORTAL_TOKEN}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// no --portal-url: the default would be app.mergeone.dev; the policy's own portal is the one asked
+	if code := cmdConnect([]string{"--policy", policy}); code != 0 {
+		t.Fatalf("exit %d\n%s", code, errb)
+	}
+	if !strings.HasPrefix(*opened, srv.URL+"/connect?code=") || seen.Load().(string) != "Bearer "+testPortalToken {
+		t.Errorf("opened %q, ingest bearer %q", *opened, seen.Load())
+	}
+}
