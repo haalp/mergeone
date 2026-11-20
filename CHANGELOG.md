@@ -12,6 +12,8 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
 - The policy loader reads the portal token from `$MERGEONE_PORTAL_TOKEN` as before and, when that is empty, from
   `.mergeone/portal-token` beside the policy. A policy without a `portal:` block is unaffected.
 - Portal side (private repository): `/api/connect/start`, `/api/connect/poll`, `/api/connect/request`, migration 0002.
+- `MERGEONE_STATE_DIR` / `serve --state-dir`: where PR memory is kept when the policy's own directory is not writable
+  (a policy baked into a container image). Default unchanged: `.mergeone/` beside the policy.
 
 ## Run 12 preparation — 2026-11-14 (draft; nothing frozen, no model call)
 

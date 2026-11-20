@@ -204,7 +204,7 @@ func buildGateOpts(policyPath string, mock bool, assetsDir string, withMemory bo
 				return nil, fmt.Errorf("memory enabled but pair prompt missing: %w", err)
 			}
 		}
-		mem, err := memory.Open(filepath.Join(filepath.Dir(policyPath), ".mergeone", "memory"))
+		mem, err := memory.Open(filepath.Join(stateDir(policyPath), "memory"))
 		if err != nil {
 			return nil, err
 		}
@@ -299,6 +299,15 @@ func cmdModels(args []string) int {
 	return 0
 }
 
+// stateDir is where the gateway keeps what it writes for itself (PR memory): $MERGEONE_STATE_DIR when set, else
+// .mergeone/ beside the policy. A container whose policy is baked into a read-only image points it at its volume.
+func stateDir(policyPath string) string {
+	if d := os.Getenv("MERGEONE_STATE_DIR"); d != "" {
+		return d
+	}
+	return filepath.Join(filepath.Dir(policyPath), ".mergeone")
+}
+
 func memoryOf(g *engine.Gate) *memory.Store {
 	if m, ok := g.Memory.(*memory.Store); ok {
 		return m
@@ -308,7 +317,7 @@ func memoryOf(g *engine.Gate) *memory.Store {
 
 func cmdIndex(args []string) int {
 	fs := flag.NewFlagSet("index", flag.ContinueOnError)
-	policy := fs.String("policy", ".mergeone.yaml", "policy file (memory dir is <policy dir>/.mergeone/memory)")
+	policy := fs.String("policy", ".mergeone.yaml", "policy file (memory dir is <policy dir>/.mergeone/memory, or $MERGEONE_STATE_DIR/memory)")
 	days := fs.Int("days", 180, "how far back to index")
 	if code, ok := parseFlags(fs, args, 2); !ok {
 		return code
@@ -316,7 +325,7 @@ func cmdIndex(args []string) int {
 	if fs.NArg() < 1 {
 		return fail(fmt.Errorf("usage: mergeone index owner/name [--days 180]"))
 	}
-	mem, err := memory.Open(filepath.Join(filepath.Dir(*policy), ".mergeone", "memory"))
+	mem, err := memory.Open(filepath.Join(stateDir(*policy), "memory"))
 	if err != nil {
 		return fail(err)
 	}
@@ -367,9 +376,13 @@ func cmdServe(args []string) int {
 	assets := fs.String("assets", "", "directory with prompts and calibration files (default: policy dir)")
 	public := fs.String("public-url", os.Getenv("MERGEONE_PUBLIC_URL"), "public base URL for check-run details links")
 	allowUnsigned := fs.Bool("allow-unsigned-webhooks", false, "accept webhooks without MERGEONE_WEBHOOK_SECRET on a non-loopback bind (only behind a proxy that verifies them)")
+	state := fs.String("state-dir", os.Getenv("MERGEONE_STATE_DIR"), "directory for PR memory (default: .mergeone/ beside the policy); same as $MERGEONE_STATE_DIR")
 	webhookRate := fs.Int("webhook-rate", 0, "per-repository webhook budget, events per minute (default 300; 429 + Retry-After beyond)")
 	if code, ok := parseFlags(fs, args, 2); !ok {
 		return code
+	}
+	if *state != "" {
+		_ = os.Setenv("MERGEONE_STATE_DIR", *state)
 	}
 	g, err := buildGate(*policy, *mock, *assets)
 	if err != nil {

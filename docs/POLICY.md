@@ -410,6 +410,15 @@ last one when no reference is given), followed by every rule in order with each 
 conditions, and the default. It evaluates the rules **as the policy file is now** on the recorded answers, makes no
 model call, and says so when the result would differ from what was recorded. `--json` gives the trace as data.
 
+## Where the gateway writes
+
+Two things are written by the gateway itself: the gatelog (`--log`, default `.mergeone/gatelog.jsonl`) and PR memory
+(`.mergeone/memory/` beside the policy). When the policy sits somewhere the process cannot write — a policy baked
+into a read-only container image — set `MERGEONE_STATE_DIR` (or `serve --state-dir`) to a writable directory, usually
+the volume the gatelog is on; memory then lives in `<state dir>/memory` and survives a redeploy. Every command that
+opens memory (`serve`, `pr`, `mcp`, `index`) reads the variable. The portal token from `mergeone connect` stays beside
+the policy (`.mergeone/portal-token`); a container takes it from `$MERGEONE_PORTAL_TOKEN` instead.
+
 ## Checking a setup (`mergeone doctor`) — v0.7
 
 ```bash
