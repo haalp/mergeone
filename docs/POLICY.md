@@ -410,6 +410,14 @@ last one when no reference is given), followed by every rule in order with each 
 conditions, and the default. It evaluates the rules **as the policy file is now** on the recorded answers, makes no
 model call, and says so when the result would differ from what was recorded. `--json` gives the trace as data.
 
+## Reading the log
+
+`mergeone log` lists the gatelog one decision per line, newest last: time (UTC), verdict → route, `owner/name#N @ head`,
+the rule, and a bracketed note when the verdict was reused from an earlier head, made in shadow mode, came with a
+model error, or superseded debounced pushes. Filters: `-n 20` (0 = all), `--verdict pass|hold|block`, `--repo`,
+`--pr`, `--since 24h`; `--json` prints the matching records as JSON lines without the rendered state. It reads the
+file and nothing else. `mergeone explain <head sha>` then opens one line rule by rule.
+
 ## Where the gateway writes
 
 Two things are written by the gateway itself: the gatelog (`--log`, default `.mergeone/gatelog.jsonl`) and PR memory
