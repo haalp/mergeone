@@ -176,6 +176,8 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 
 `mergeone connect` links the clone to the portal (app.mergeone.dev): it opens the portal with a short code, you confirm it in the browser, and the repository's token is stored beside the policy without being shown or committed.
 
+`mergeone log` lists the gatelog one decision per line (`--verdict hold`, `--pr N`, `--since 24h`, `--json`); `mergeone explain <head sha>` opens one of them rule by rule. Neither calls a model.
+
 Four commands look after the policy and the model over time:
 
 ```bash
