@@ -53,3 +53,6 @@ results/run9/pairs_b.jsonl
 
 # run 10 (pod logs: snapshot record, pip freeze, server log)
 results/run10/logs/
+
+# local installs
+*.egg-info/
