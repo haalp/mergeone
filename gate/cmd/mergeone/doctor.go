@@ -73,7 +73,7 @@ func cmdDoctor(args []string) int {
 		}
 		spec := d.checkAssets(p, assetsDir)
 		d.checkModel(p, spec, assetsDir)
-		d.checkPortal(p)
+		d.checkPortal(p, *policy)
 	}
 	d.checkGitHub(*repo, p)
 	d.checkGatelog(*logPath)
@@ -241,19 +241,51 @@ func (d *doctor) checkModel(p *engine.Policy, spec *models.Spec, assetsDir strin
 	d.add("model", "ok", fmt.Sprintf("%s answered all %d %s questions in %.0f ms ($%.6f, %s)", m.Name(), len(engine.Questions(p.QuestionSet)), p.QuestionSet, dec.LatencyMS, dec.CostUSD, dec.ModelVersion), "")
 }
 
-func (d *doctor) checkPortal(p *engine.Policy) {
+func (d *doctor) checkPortal(p *engine.Policy, policyPath string) {
 	if p.Portal.URL == "" {
 		return
 	}
 	if p.Portal.Token == "" {
-		d.add("portal", "fail", "portal.url is set but the token is empty (MERGEONE_PORTAL_TOKEN unset?)", "export MERGEONE_PORTAL_TOKEN=… — the portal issues it per repository")
+		d.add("portal", "fail", "portal.url is set but there is no token: $MERGEONE_PORTAL_TOKEN is empty and "+engine.PortalTokenFile(policyPath)+" does not exist",
+			"run `mergeone connect` in this clone, or export MERGEONE_PORTAL_TOKEN=… where the gateway runs")
 		return
+	}
+	// say where the token came from (never the token): the environment wins over the file `mergeone connect` writes
+	from := "$MERGEONE_PORTAL_TOKEN"
+	if os.Getenv("MERGEONE_PORTAL_TOKEN") == "" {
+		if engine.ReadPortalTokenFile(policyPath) == p.Portal.Token {
+			from = engine.PortalTokenFile(policyPath)
+		} else {
+			from = "the policy file"
+		}
 	}
 	note := "records are posted to " + p.Portal.URL + "/ingest"
 	if p.LogState != "hash" {
 		note += " with the rendered PR state, diff included (log_state: hash sends title and summary only)"
 	}
-	d.add("portal", "ok", note, "")
+	if d.offline {
+		d.add("portal", "skip", note+"; token from "+from+"; --offline: not checked against the portal", "")
+		return
+	}
+	// an empty batch: the portal checks the token and stores nothing
+	req, _ := http.NewRequest("POST", strings.TrimRight(p.Portal.URL, "/")+"/ingest", strings.NewReader(`{"records":[]}`))
+	req.Header.Set("Authorization", "Bearer "+p.Portal.Token)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := d.client.Do(req)
+	if err != nil {
+		d.add("portal", "fail", "cannot reach "+p.Portal.URL+": "+err.Error(), "")
+		return
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1<<16))
+	resp.Body.Close()
+	switch {
+	case resp.StatusCode == http.StatusOK:
+		d.add("portal", "ok", note+"; the portal accepts the token from "+from, "")
+	case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden:
+		d.add("portal", "fail", fmt.Sprintf("the portal refuses the token from %s (HTTP %d): revoked, or for another portal", from, resp.StatusCode), "run `mergeone connect` in this clone for a new one")
+	default:
+		d.add("portal", "warn", fmt.Sprintf("%s/ingest answered HTTP %d to an empty batch; token from %s", p.Portal.URL, resp.StatusCode, from), "")
+	}
 }
 
 func (d *doctor) checkGitHub(repo string, p *engine.Policy) {

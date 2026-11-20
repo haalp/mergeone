@@ -227,3 +227,49 @@ func TestDoctorGitHubAndGatewayChecks(t *testing.T) {
 		t.Fatalf("unverified gateway: %d\n%s", code, out)
 	}
 }
+
+func TestDoctorPortalTokenSourceAndAcceptance(t *testing.T) {
+	const tok = "mo_pt_doctorDOCTORdoctorDOCTORdoctorDOCTORdoctor01"
+	accept := tok
+	portal := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/ingest" || r.Header.Get("Authorization") != "Bearer "+accept {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		_, _ = w.Write([]byte(`{"received":0}`))
+	}))
+	defer portal.Close()
+	dir := t.TempDir()
+	pol := writeFile(t, dir, "policy.yaml", humanPolicy+"portal:\n  url: "+portal.URL+"\n  token: ${MERGEONE_PORTAL_TOKEN}\n")
+	logp := filepath.Join(dir, "g", "gatelog.jsonl")
+	t.Setenv("GITHUB_TOKEN", "")
+	t.Setenv("MERGEONE_GITHUB_TOKEN", "")
+	t.Setenv("MERGEONE_PORTAL_TOKEN", "")
+
+	// no token anywhere: a failure that names `mergeone connect`
+	code, out := capture(t, "doctor", "--policy", pol, "--log", logp)
+	if code != 1 || !strings.Contains(out, "FAIL  portal") || !strings.Contains(out, "mergeone connect") {
+		t.Fatalf("no token: %d\n%s", code, out)
+	}
+	// the file `mergeone connect` writes: accepted, and named as the source; the token itself never appears
+	if err := os.MkdirAll(filepath.Join(dir, ".mergeone"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(dir, ".mergeone"), "portal-token", tok+"\n")
+	code, out = capture(t, "doctor", "--policy", pol, "--log", logp)
+	if code != 0 || !strings.Contains(out, "ok    portal") || !strings.Contains(out, filepath.Join(".mergeone", "portal-token")) || strings.Contains(out, tok) {
+		t.Fatalf("token file: %d\n%s", code, out)
+	}
+	// the environment wins, and a token the portal refuses is a failure
+	t.Setenv("MERGEONE_PORTAL_TOKEN", "mo_pt_revoked")
+	code, out = capture(t, "doctor", "--policy", pol, "--log", logp)
+	if code != 1 || !strings.Contains(out, "FAIL  portal") || !strings.Contains(out, "refuses the token from $MERGEONE_PORTAL_TOKEN") || strings.Contains(out, "mo_pt_revoked") {
+		t.Fatalf("refused: %d\n%s", code, out)
+	}
+	// --offline does not call the portal
+	accept = "nothing"
+	code, out = capture(t, "doctor", "--policy", pol, "--log", logp, "--offline")
+	if code != 0 || !strings.Contains(out, "skip  portal") {
+		t.Fatalf("offline: %d\n%s", code, out)
+	}
+}
