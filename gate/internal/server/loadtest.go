@@ -81,6 +81,23 @@ func LoadtestContext(ctx context.Context, url string, rate float64, n int) error
 	if len(lat) > 0 {
 		out["p50_ms"] = lat[len(lat)/2]
 		out["p99_ms"] = lat[min(int(float64(len(lat))*0.99), len(lat)-1)]
+		out["max_ms"] = lat[len(lat)-1]
+		// where the slow requests are: a tail that sits in the first requests is a cold start (connections, first
+		// use of a code path), one spread over the run is the gateway. Positions are in issue order.
+		slow, first, last := 0, -1, -1
+		for i, r := range results {
+			if (r.status == 200 || r.status == 202) && r.latencyMS > 1000 {
+				slow++
+				if first < 0 {
+					first = i
+				}
+				last = i
+			}
+		}
+		out["over_1s"] = slow
+		if slow > 0 {
+			out["over_1s_first"], out["over_1s_last"] = first, last
+		}
 	}
 	b, _ := json.Marshal(out)
 	fmt.Println(string(b))
