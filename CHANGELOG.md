@@ -2,7 +2,7 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## v0.7.1 — unreleased (connecting a gateway to the portal without copying a token)
+## v0.7.1 — 2026-11-22 (connecting a gateway to the portal without copying a token)
 
 - **`mergeone connect`** (run in the clone): asks the portal for a short code, opens `/connect?code=…`, waits for the
   confirmation in the browser, and receives the repository's ingest token once. Stored in `.mergeone/portal-token`
@@ -18,6 +18,11 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   token came from (the environment, or the file `connect` wrote), never the token; `--offline` skips the call.
 - `MERGEONE_STATE_DIR` / `serve --state-dir`: where PR memory is kept when the policy's own directory is not writable
   (a policy baked into a container image). Default unchanged: `.mergeone/` beside the policy.
+- `mergeone loadtest` also reports the slowest request and where the requests over one second sit in the run.
+- Known and open at this tag: the CI throughput job has failed since 2026-11-17 (100× load, p99 ≈ 1.3 s against a
+  0.5 s bar): about 35 requests around the 21st to 24th second of the run wait one second on the GitHub runner. It
+  does not reproduce on two cores locally (max 479 ms) and predates everything in this release; the cause is not
+  found. The bar is not moved.
 
 ## Run 12 preparation — 2026-11-14 (draft; nothing frozen, no model call)
 
