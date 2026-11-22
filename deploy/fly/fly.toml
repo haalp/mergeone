@@ -5,6 +5,9 @@ primary_region = "fra"
 [build]
   dockerfile = "Dockerfile"
 
+[env]
+  MERGEONE_STATE_DIR = "/data"   # PR memory in /data/memory, beside the gatelog (v0.7.1+)
+
 [mounts]
   source = "mergeone_data"
   destination = "/data"

@@ -21,9 +21,8 @@ content type `application/json`, the same secret, event "Pull requests".
 - The policy is `policy.yaml` here (the shipped default, `mode: shadow`, portal block). Edit, `fly deploy`.
 - Read the log: `fly ssh console -C "mergeone stats --log /data/gatelog.jsonl"`; copy it off with `fly sftp get`.
 - The image is distroless: there is no shell; `fly ssh console -C` runs the binary directly.
-- PR memory is written beside the policy by default, and the image's policy directory is read-only. Up to image 0.7.0
-  the `Dockerfile` here links `/policy/.mergeone` onto the volume. From 0.7.1 the gateway reads `MERGEONE_STATE_DIR`:
-  set `MERGEONE_STATE_DIR = "/data"` under `[env]` in `fly.toml` and the link stage can go (the memory directory is
-  `/data/memory` either way, so nothing moves on the volume).
+- PR memory is written beside the policy by default, and the image's policy directory is read-only: `fly.toml` sets
+  `MERGEONE_STATE_DIR = "/data"`, so memory lives in `/data/memory` on the volume and survives a deploy. (Images up to
+  0.7.0 do not read the variable; the `Dockerfile` then linked `/policy/.mergeone` onto the volume, same directory.)
 - A machine on a Fly trial account is stopped after five minutes and started again by the next request: webhooks
   are not lost, but the gateway is not always on until the account has a payment method.
