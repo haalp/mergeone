@@ -47,9 +47,12 @@ jobs:
           import json, os
           a=json.load(open('/tmp/load100.json')); b=json.load(open('/tmp/load1000.json'))
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write("### throughput (2-vCPU runner, Go gateway, mock 300 ms model)\n\n| load | rate/s | p50 ms | p99 ms | errors |\n|---|---|---|---|---|\n")
-              f.write(f"| 100x (3M/day) | {a['achieved_rate']:.1f} | {a['p50_ms']:.0f} | {a['p99_ms']:.0f} | {a['error_rate']} |\n")
-              f.write(f"| 1000x (30M/day) | {b['achieved_rate']:.1f} | {b['p50_ms']:.0f} | {b['p99_ms']:.0f} | {b['error_rate']} |\n")
+              # max and the requests over one second (with their positions in the run) are written before the asserts, so a
+              # failed run still says whether its tail was a stall in one place or spread over the run
+              where = lambda r: f"{r['over_1s']} (requests {r['over_1s_first']}–{r['over_1s_last']})" if r.get('over_1s') else "0"
+              f.write("### throughput (2-vCPU runner, Go gateway, mock 300 ms model)\n\n| load | rate/s | p50 ms | p99 ms | max ms | over 1 s | errors |\n|---|---|---|---|---|---|---|\n")
+              f.write(f"| 100x (3M/day) | {a['achieved_rate']:.1f} | {a['p50_ms']:.0f} | {a['p99_ms']:.0f} | {a['max_ms']:.0f} | {where(a)} | {a['error_rate']} |\n")
+              f.write(f"| 1000x (30M/day) | {b['achieved_rate']:.1f} | {b['p50_ms']:.0f} | {b['p99_ms']:.0f} | {b['max_ms']:.0f} | {where(b)} | {b['error_rate']} |\n")
           assert a["error_rate"] == 0 and a["p99_ms"] <= 500, a
           assert b["error_rate"] == 0 and b["p99_ms"] <= 600, b
           print("OK")
