@@ -411,6 +411,17 @@ last one when no reference is given), followed by every rule in order with each 
 conditions, and the default. It evaluates the rules **as the policy file is now** on the recorded answers, makes no
 model call, and says so when the result would differ from what was recorded. `--json` gives the trace as data.
 
+## The related check (v0.8)
+
+`actions.related_context: mergeone/related` adds a second commit status that answers one question: does another open
+pull request look like the same change? `success` when nothing related was found; `failure` when the calibrated
+`duplicate_of` is at or above `actions.related_threshold` (default 0.7) or the route is `dedup`, with the other pull
+request named in the description; `error` when the comparison could not be made. It needs `memory.enabled: true`
+(the policy is refused otherwise) and its own name, different from `status_context`. An `approve` resolution by a
+named person through `POST /api/resolve` sets it to `success` for that head ("kept by <login>"); no resolution
+changes the verdict's own status. (The hosted portal does not write this status yet.) It exists so that a team can require this one check beside another tool's approval check:
+[docs/claude-ship.md](claude-ship.md).
+
 ## Reading the log
 
 `mergeone log` lists the gatelog one decision per line, newest last: time (UTC), verdict → route, `owner/name#N @ head`,

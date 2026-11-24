@@ -2,6 +2,17 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.8.0 — unreleased (the cross-PR question as its own check)
+
+- **`actions.related_context`** (with `related_threshold`, default 0.7): a second commit status that says only whether
+  another open pull request looks like the same change. Fails closed (`error` when the comparison could not be
+  made); needs `memory.enabled`. An `approve` resolution by a named person through `POST /api/resolve` answers it for
+  that head; the verdict's own status is still never written by a resolution. The hosted portal does not write it yet. No protocol change: it reports the `duplicate_of` answer the gate
+  already computes.
+- `docs/claude-ship.md`: running mergeone beside Claude Ship (Anthropic, beta 2026-11-23) — the related check as a
+  required status next to its approval check. What is measured (duplicates only, runs 6B and 11) and what is
+  untested (everything inside Claude Ship) is said there.
+
 ## v0.7.1 — 2026-11-22 (connecting a gateway to the portal without copying a token)
 
 - **`mergeone connect`** (run in the clone): asks the portal for a short code, opens `/connect?code=…`, waits for the

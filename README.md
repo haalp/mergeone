@@ -178,6 +178,8 @@ Gatelog record fields added in v0.4 (also posted to the portal, also in `GET /ap
 
 `mergeone log` lists the gatelog one decision per line (`--verdict hold`, `--pr N`, `--since 24h`, `--json`); `mergeone explain <head sha>` opens one of them rule by rule. Neither calls a model.
 
+Running another reviewer or approver on the same repository (Claude Ship, for one)? mergeone can report just the cross-PR question — is another open pull request the same change — as its own required check: [docs/claude-ship.md](docs/claude-ship.md).
+
 Four commands look after the policy and the model over time:
 
 ```bash

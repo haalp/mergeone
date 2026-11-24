@@ -391,7 +391,8 @@ func (gw *Gateway) apiCalibrate(w http.ResponseWriter, r *http.Request, _ string
 }
 
 // ResolutionLabels are the labels a resolution sets (exclusive among themselves; verdict labels and
-// the commit status are left as they are, so an approval never lets auto-merge proceed by itself).
+// the verdict's commit status are left as they are, so an approval never lets auto-merge proceed by itself).
+// The one status a resolution does write is the cross-PR check, when the policy names one (ApplyResolution).
 var ResolutionLabels = map[string]string{"approve": "mergeone:approved", "link_duplicate": "mergeone:duplicate", "request_rebase": "mergeone:rebase"}
 
 // ResolveMarker makes the resolution comment idempotent per (head sha, action).
@@ -400,7 +401,10 @@ func ResolveMarker(sha, action string) string {
 }
 
 // ApplyResolution mirrors a portal resolution on the PR through the verdict-action path: one label and
-// one comment. It never merges, closes, or changes the commit status.
+// one comment. It never merges, closes, or changes the verdict's commit status. With actions.related_context set,
+// a person's "approve" on a decision the related check had failed answers that check for this head: the status
+// becomes success and names who decided. A wrong duplicate call must have a way out that is a person's decision
+// and is on the record; "link_duplicate" and "request_rebase" leave the check as it is.
 func ApplyResolution(g *GitHub, cfg engine.Actions, res store.Resolution) *engine.ActionsReport {
 	rep := &engine.ActionsReport{Applied: []string{}, Errors: []string{}}
 	if s := ActionsSkip(cfg, g, res.Repo, res.PR, res.HeadSHA); s != "" {
@@ -415,6 +419,16 @@ func ApplyResolution(g *GitHub, cfg engine.Actions, res store.Resolution) *engin
 	a.labels(res.PR, []string{ResolutionLabels[res.Action]}, excl)
 	if cfg.CommentEnabled() {
 		a.commentOnce(res.PR, ResolveMarker(res.HeadSHA, res.Action), ResolutionComment(res))
+	}
+	if cfg.RelatedContext != "" && res.Action == "approve" && res.Login != "" {
+		desc := "kept by " + res.Login + ": not the same change as another open pull request"
+		if res.TargetPR > 0 {
+			desc = fmt.Sprintf("kept by %s: not the same change as #%d", res.Login, res.TargetPR)
+		}
+		body := map[string]any{"state": "success", "context": cfg.RelatedContext, "description": desc}
+		if _, ok := a.call("related status", "POST", a.url("statuses/%s", res.HeadSHA), body, 201, 200); ok {
+			rep.Applied = append(rep.Applied, "related:success")
+		}
 	}
 	return rep
 }

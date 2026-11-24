@@ -411,10 +411,19 @@ type Actions struct {
 	Comment       *bool  `yaml:"comment"`        // default true
 	// CommentMode (v0.5): "update" (default) keeps one verdict comment per PR and edits it on every new head
 	// (the earlier heads are listed in it); "per_head" posts a new comment for every head, as v0.4 did.
-	CommentMode string        `yaml:"comment_mode"`
-	OnPass      VerdictAction `yaml:"on_pass"`
-	OnHold      VerdictAction `yaml:"on_hold"`
-	OnBlock     VerdictAction `yaml:"on_block"`
+	CommentMode string `yaml:"comment_mode"`
+	// RelatedContext (v0.8, optional): a second commit status that answers one question only: does another open
+	// pull request look like the same change? Set it (e.g. "mergeone/related") to require that check in a branch
+	// rule beside another reviewer's or approver's own checks, without adopting the whole verdict. It is success
+	// when nothing related was found, failure when the duplicate answer is at or above RelatedThreshold (or the
+	// decision's route is dedup), error when the comparison could not be made. Needs memory.enabled.
+	RelatedContext string `yaml:"related_context"`
+	// RelatedThreshold is the calibrated duplicate_of probability from which the related check fails (default 0.7,
+	// the shipped duplicate-of rule's own threshold).
+	RelatedThreshold float64       `yaml:"related_threshold"`
+	OnPass           VerdictAction `yaml:"on_pass"`
+	OnHold           VerdictAction `yaml:"on_hold"`
+	OnBlock          VerdictAction `yaml:"on_block"`
 	// QuestionSet is the policy's question_set (not a YAML key; LoadPolicy copies it here) so the verdict
 	// comment lists the questions the gate asked.
 	QuestionSet string `yaml:"-"`
@@ -469,6 +478,15 @@ func (a *Actions) Normalize() error {
 	}
 	if len(a.OnPass.Reviewers)+len(a.OnPass.TeamReviewers) > 0 {
 		return fmt.Errorf("actions.on_pass: reviewers are only requested on hold/block")
+	}
+	if a.RelatedThreshold == 0 {
+		a.RelatedThreshold = 0.7
+	}
+	if a.RelatedThreshold < 0 || a.RelatedThreshold > 1 {
+		return fmt.Errorf("actions.related_threshold %v: want a probability in (0, 1]", a.RelatedThreshold)
+	}
+	if a.RelatedContext != "" && a.RelatedContext == a.StatusContext {
+		return fmt.Errorf("actions.related_context %q is the verdict's own status_context: give the related check its own name", a.RelatedContext)
 	}
 	switch a.CommentMode {
 	case "":
@@ -593,6 +611,9 @@ func LoadPolicy(path string) (*Policy, error) {
 		return nil, fmt.Errorf("policy %s: %w", path, err)
 	}
 	p.Actions.QuestionSet = p.QuestionSet
+	if p.Actions.RelatedContext != "" && !p.Memory.Enabled {
+		return nil, fmt.Errorf("actions.related_context needs memory.enabled: true (without PR memory the check would report nothing related for every pull request)")
+	}
 	return &p, nil
 }
 

@@ -64,6 +64,7 @@ func ApplyActions(g *GitHub, cfg engine.Actions, repo string, pr int, sha string
 	}
 	a := actor{g: g, repo: repo, rep: rep, qset: cfg.QuestionSet}
 	a.status(cfg.StatusContext, va.Status, sha, res, targetURL)
+	a.related(cfg, sha, res, targetURL)
 	a.labels(pr, va.Labels, allLabels(cfg))
 	if cfg.CommentEnabled() {
 		if cfg.CommentMode == engine.CommentPerHead {
@@ -88,9 +89,50 @@ func ApplyStatusOnly(g *GitHub, cfg engine.Actions, repo string, pr int, sha str
 	}
 	_ = cfg.Normalize()
 	if va, ok := cfg.For(res.Verdict); ok {
-		actor{g: g, repo: repo, rep: rep}.status(cfg.StatusContext, va.Status, sha, res, "")
+		a := actor{g: g, repo: repo, rep: rep}
+		a.status(cfg.StatusContext, va.Status, sha, res, "")
+		a.related(cfg, sha, res, "")
 	}
 	return rep
+}
+
+// RelatedStatus is what the cross-PR check (actions.related_context) says for one decision: the state and a
+// description within GitHub's 140 characters. It answers one question — does another open pull request look like
+// the same change — and fails closed: a decision that errored, or whose comparisons with open pull requests did
+// not all answer, is "error", never "success".
+func RelatedStatus(res engine.Result, threshold float64) (state, desc string) {
+	target := toInt(res.Extra["duplicate_candidate"])
+	dup, has := res.Probs["duplicate_of"]
+	switch {
+	case res.Route == "dedup" || (has && dup >= threshold):
+		if target > 0 {
+			return "failure", fmt.Sprintf("looks like the same change as #%d (%.2f); a maintainer decides, nothing is closed", target, dup)
+		}
+		return "failure", fmt.Sprintf("looks like the same change as another open pull request (%.2f); a maintainer decides", dup)
+	case res.Error != "":
+		return "error", "could not compare with the open pull requests: the decision failed; push again or re-run"
+	case res.PairErrors > 0:
+		return "error", fmt.Sprintf("%d comparison(s) with open pull requests did not answer; push again or re-run", res.PairErrors)
+	case !has:
+		return "error", "PR memory gave no duplicate answer for this head; is the repository indexed (mergeone index)?"
+	default:
+		return "success", "no open pull request looks like the same change"
+	}
+}
+
+// related posts the cross-PR check when the policy names one.
+func (a actor) related(cfg engine.Actions, sha string, res engine.Result, targetURL string) {
+	if cfg.RelatedContext == "" {
+		return
+	}
+	state, desc := RelatedStatus(res, cfg.RelatedThreshold)
+	body := map[string]any{"state": state, "context": cfg.RelatedContext, "description": desc}
+	if targetURL != "" {
+		body["target_url"] = targetURL
+	}
+	if _, ok := a.call("related status", "POST", a.url("statuses/%s", sha), body, 201, 200); ok {
+		a.rep.Applied = append(a.rep.Applied, "related:"+state)
+	}
 }
 
 type actor struct {
