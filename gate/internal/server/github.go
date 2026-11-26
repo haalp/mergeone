@@ -262,3 +262,18 @@ func (g *GitHub) SetLabels(repo string, pr int, res engine.Result) {
 }
 
 var _ = path.Dir
+
+// Login is the GitHub login the gateway's token belongs to: the person (or bot) a local resolution is recorded as.
+func (g *GitHub) Login() (string, error) {
+	b, code, err := g.do("GET", g.API+"/user", "application/vnd.github+json", nil)
+	if err != nil {
+		return "", err
+	}
+	var u struct {
+		Login string `json:"login"`
+	}
+	if code != 200 || json.Unmarshal(b, &u) != nil || u.Login == "" {
+		return "", fmt.Errorf("GitHub did not name the token's user (HTTP %d)", code)
+	}
+	return u.Login, nil
+}

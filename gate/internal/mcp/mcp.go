@@ -172,6 +172,59 @@ func newServer(gw *server.Gateway, fromGit StateFn) *mcpserver.MCPServer {
 		return jsonResult(map[string]any{"as_of": time.Now().UTC().Format(time.RFC3339), "count": len(rows), "holds": rows, "never_merges": true}), nil
 	})
 
+	s.AddTool(gomcp.NewTool("gate_board",
+		gomcp.WithDescription("Everything a read-only board shows, in one answer: the pull requests that wait for a person (with the related check's answer when the policy sets actions.related_context), "+
+			"the braid graph (open pull requests as nodes, duplicate_of edges), the gatelog's stats over a window (verdict mix, cost, drift, how often people agreed), and the policy's mode. "+
+			"Read from the gatelog as it is on disk now. No model call; nothing is written."),
+		gomcp.WithString("repo", gomcp.Description("owner/name; omit for every repository in the log")),
+		gomcp.WithNumber("since_days", gomcp.DefaultNumber(14), gomcp.Description("how far back the braid goes")),
+		gomcp.WithNumber("window_days", gomcp.DefaultNumber(7), gomcp.Description("the window of the stats")),
+	), func(ctx context.Context, req gomcp.CallToolRequest) (*gomcp.CallToolResult, error) {
+		repo, _ := req.Params.Arguments["repo"].(string)
+		days := func(k string, def float64) time.Duration {
+			if v, ok := req.Params.Arguments[k].(float64); ok && v > 0 && v <= 365 {
+				def = v
+			}
+			return time.Duration(def * 24 * float64(time.Hour))
+		}
+		return jsonResult(server.Board(store.View(gw.Store.Path()), gw.Gate.Policy, repo, time.Now().Add(-days("since_days", 14)), days("window_days", 7))), nil
+	})
+
+	s.AddTool(gomcp.NewTool("gate_resolve",
+		gomcp.WithDescription("Record a person's answer to a held or blocked pull request head: approve (keep it as it is), link_duplicate, or request_rebase. "+
+			"Written to the gatelog and, when the policy's actions are on, mirrored as the gateway's own label and comment; an approve also answers the related check for that head. "+
+			"It never merges or closes a pull request and never changes the verdict's own status. Recorded under the GitHub login of the gateway's token; refused without one."),
+		gomcp.WithString("repo", gomcp.Required()),
+		gomcp.WithNumber("pr", gomcp.Required()),
+		gomcp.WithString("head_sha", gomcp.Required(), gomcp.Description("the head the verdict was made on; a newer push needs a new verdict")),
+		gomcp.WithString("action", gomcp.Required(), gomcp.Enum("approve", "link_duplicate", "request_rebase")),
+		gomcp.WithNumber("target_pr", gomcp.Description("the other pull request, for link_duplicate; defaults to the gate's candidate")),
+	), func(ctx context.Context, req gomcp.CallToolRequest) (*gomcp.CallToolResult, error) {
+		a := req.Params.Arguments
+		body := server.ResolveRequest{}
+		body.Repo, _ = a["repo"].(string)
+		body.HeadSHA, _ = a["head_sha"].(string)
+		body.Action, _ = a["action"].(string)
+		if v, ok := a["pr"].(float64); ok {
+			body.PR = int(v)
+		}
+		if v, ok := a["target_pr"].(float64); ok {
+			body.TargetPR = int(v)
+		}
+		if gw.GitHub == nil {
+			return errResult("a resolution is recorded under a GitHub login, and this gateway has no GITHUB_TOKEN to take one from; set it for `mergeone mcp`, or decide on the portal"), nil
+		}
+		login, err := gw.GitHub.Login()
+		if err != nil {
+			return errResult("could not read the token's GitHub login: " + err.Error()), nil
+		}
+		res, _, err := gw.Resolve(store.View(gw.Store.Path()), body, login)
+		if err != nil {
+			return errResult(err.Error()), nil
+		}
+		return jsonResult(map[string]any{"ok": true, "resolution": res, "never_merges": true}), nil
+	})
+
 	s.AddTool(gomcp.NewTool("gate_stats",
 		gomcp.WithDescription("Gateway throughput and verdict mix over a time window."),
 		gomcp.WithNumber("window_s", gomcp.DefaultNumber(3600)),

@@ -198,6 +198,15 @@ type QueueRow struct {
 	Deletions int       `json:"deletions,omitempty"`
 	// Duplicate is set when the gate named another pull request as the same change.
 	Duplicate *QueueMatch `json:"duplicate,omitempty"`
+	// Related is what the cross-PR check says for this decision, when the policy sets actions.related_context.
+	Related *RelatedRow `json:"related,omitempty"`
+}
+
+// RelatedRow is RelatedStatus for one row: computed from the recorded result, not read back from GitHub.
+type RelatedRow struct {
+	Context     string `json:"context"`
+	State       string `json:"state"`
+	Description string `json:"description"`
 }
 
 // QueueMatch is the other pull request of a duplicate hold.
@@ -211,6 +220,11 @@ type QueueMatch struct {
 // QueueRows is store.Queue as rows: every open pull request whose latest head needs a person and has no resolution
 // yet, oldest first, optionally for one repository.
 func QueueRows(st *store.Store, repo string) []QueueRow {
+	return QueueRowsFor(st, repo, engine.Actions{})
+}
+
+// QueueRowsFor is QueueRows with the related check's answer on each row when act.RelatedContext is set.
+func QueueRowsFor(st *store.Store, repo string, act engine.Actions) []QueueRow {
 	out := []QueueRow{}
 	for _, h := range st.Queue(repo) {
 		n := nodeOf(h)
@@ -223,6 +237,10 @@ func QueueRows(st *store.Store, repo string) []QueueRow {
 				m.Title, m.Verdict = mn.Title, rec.Result.Verdict
 			}
 			row.Duplicate = m
+		}
+		if act.RelatedContext != "" {
+			state, desc := RelatedStatus(h.Result, act.RelatedThreshold)
+			row.Related = &RelatedRow{Context: act.RelatedContext, State: state, Description: desc}
 		}
 		out = append(out, row)
 	}
@@ -268,7 +286,15 @@ func (gw *Gateway) apiGraph(w http.ResponseWriter, r *http.Request, _ string) {
 			return
 		}
 	}
-	recs := gw.Store.PRRecords(q.Get("repo"), since)
+	nodes, edges := GraphOf(gw.Store, q.Get("repo"), since)
+	writeJSON(w, 200, map[string]any{"nodes": nodes, "edges": edges})
+}
+
+// GraphOf is the braid's data: the latest record of every open pull request decided at or after since as a node,
+// and one `duplicate_of` edge where the gate named another pull request that is also in the set. No other edge
+// type is drawn: typed relations are not validated.
+func GraphOf(st *store.Store, repo string, since time.Time) ([]GraphNode, []GraphEdge) {
+	recs := st.PRRecords(repo, since)
 	nodes := make([]GraphNode, 0, len(recs))
 	have := map[string]bool{}
 	for _, rec := range recs {
@@ -285,7 +311,59 @@ func (gw *Gateway) apiGraph(w http.ResponseWriter, r *http.Request, _ string) {
 		edges = append(edges, GraphEdge{Source: prID(rec.Repo, rec.PR), Target: prID(rec.Repo, t), Relation: "duplicate_of",
 			P: rec.Result.Probs["duplicate_of"]})
 	}
-	writeJSON(w, 200, map[string]any{"nodes": nodes, "edges": edges})
+	return nodes, edges
+}
+
+// Board is everything a read-only board shows, in one answer: the pull requests that wait for a person, the braid
+// graph, the store's Stats over window, and the policy facts the copy depends on. Every number is a gatelog field.
+func Board(st *store.Store, pol *engine.Policy, repo string, since time.Time, window time.Duration) map[string]any {
+	nodes, edges := GraphOf(st, repo, since)
+	return map[string]any{"as_of": time.Now().UTC().Format(time.RFC3339), "holds": QueueRowsFor(st, repo, pol.Actions),
+		"graph": map[string]any{"nodes": nodes, "edges": edges}, "stats": st.Stats(window),
+		"policy": map[string]any{"mode": pol.Mode, "model": pol.Model, "actions": pol.Actions.Enabled,
+			"related_context": pol.Actions.RelatedContext, "related_threshold": pol.Actions.RelatedThreshold},
+		"never_merges": true}
+}
+
+// ResolveRequest is a person's answer to a held or blocked head.
+type ResolveRequest struct {
+	Repo     string `json:"repo"`
+	PR       int    `json:"pr"`
+	HeadSHA  string `json:"head_sha"`
+	Action   string `json:"action"`
+	TargetPR int    `json:"target_pr"`
+}
+
+// Resolve records a person's answer and mirrors it as the gateway's own label and comment. It never merges or
+// closes. look is where the decision is read from (the gateway's store, or a fresh view of the gatelog when the
+// caller is another process); the resolution is always written through gw.Store. The int is an HTTP-style status.
+func (gw *Gateway) Resolve(look *store.Store, body ResolveRequest, login string) (store.Resolution, int, error) {
+	if body.Repo == "" || body.PR <= 0 || body.HeadSHA == "" {
+		return store.Resolution{}, 400, fmt.Errorf("need repo, pr, head_sha, action")
+	}
+	if !store.ResolveActions[body.Action] {
+		return store.Resolution{}, 400, fmt.Errorf("action must be approve, link_duplicate or request_rebase")
+	}
+	rec := look.Latest(body.Repo, body.HeadSHA)
+	if rec == nil || (rec.PR != 0 && rec.PR != body.PR) {
+		return store.Resolution{}, 404, fmt.Errorf("no decision for that PR head")
+	}
+	if body.Action == "link_duplicate" && body.TargetPR == 0 {
+		body.TargetPR = toInt(rec.Result.Extra["duplicate_candidate"])
+		if body.TargetPR <= 0 {
+			return store.Resolution{}, 400, fmt.Errorf("link_duplicate needs target_pr (no duplicate candidate on record)")
+		}
+	}
+	res := store.Resolution{Repo: body.Repo, PR: body.PR, HeadSHA: body.HeadSHA, Action: body.Action, TargetPR: body.TargetPR,
+		Login: login, Verdict: rec.Result.Verdict, Route: rec.Result.Route, Rule: rec.Result.Rule}
+	if gw.Gate.Policy.Actions.Enabled {
+		res.Actions = ApplyResolution(gw.GitHub, gw.Gate.Policy.Actions, res)
+	}
+	res, err := gw.Store.Resolve(res)
+	if err != nil {
+		return res, 500, fmt.Errorf("resolution not recorded: %w", err)
+	}
+	return res, 200, nil
 }
 
 // nodeOf builds a graph node from Record.Context, falling back to the rendered state for title and size when the
@@ -331,41 +409,14 @@ func (gw *Gateway) apiVerdict(w http.ResponseWriter, r *http.Request, _ string) 
 }
 
 func (gw *Gateway) apiResolve(w http.ResponseWriter, r *http.Request, login string) {
-	var body struct {
-		Repo     string `json:"repo"`
-		PR       int    `json:"pr"`
-		HeadSHA  string `json:"head_sha"`
-		Action   string `json:"action"`
-		TargetPR int    `json:"target_pr"`
-	}
-	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&body); err != nil || body.Repo == "" || body.PR <= 0 || body.HeadSHA == "" {
+	var body ResolveRequest
+	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&body); err != nil {
 		writeJSON(w, 400, map[string]string{"error": "need repo, pr, head_sha, action"})
 		return
 	}
-	if !store.ResolveActions[body.Action] {
-		writeJSON(w, 400, map[string]string{"error": "action must be approve, link_duplicate or request_rebase"})
-		return
-	}
-	rec := gw.Store.Latest(body.Repo, body.HeadSHA)
-	if rec == nil || (rec.PR != 0 && rec.PR != body.PR) {
-		writeJSON(w, 404, map[string]string{"error": "no decision for that PR head"})
-		return
-	}
-	if body.Action == "link_duplicate" && body.TargetPR == 0 {
-		body.TargetPR = toInt(rec.Result.Extra["duplicate_candidate"])
-		if body.TargetPR <= 0 {
-			writeJSON(w, 400, map[string]string{"error": "link_duplicate needs target_pr (no duplicate candidate on record)"})
-			return
-		}
-	}
-	res := store.Resolution{Repo: body.Repo, PR: body.PR, HeadSHA: body.HeadSHA, Action: body.Action, TargetPR: body.TargetPR,
-		Login: login, Verdict: rec.Result.Verdict, Route: rec.Result.Route, Rule: rec.Result.Rule}
-	if gw.Gate.Policy.Actions.Enabled {
-		res.Actions = ApplyResolution(gw.GitHub, gw.Gate.Policy.Actions, res)
-	}
-	res, err := gw.Store.Resolve(res)
+	res, code, err := gw.Resolve(gw.Store, body, login)
 	if err != nil {
-		writeJSON(w, 500, map[string]string{"error": "resolution not recorded: " + err.Error()})
+		writeJSON(w, code, map[string]string{"error": err.Error()})
 		return
 	}
 	writeJSON(w, 200, map[string]any{"ok": true, "logged_at": res.TS.Format(time.RFC3339Nano), "resolution": res})

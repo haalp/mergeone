@@ -2,6 +2,18 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
+## v0.8.1 — unreleased (a board over MCP)
+
+- MCP: **`gate_board`** answers, in one read, what a board shows: the pull requests that wait for a person (each with
+  the related check's state when `actions.related_context` is set, computed from the recorded result), the braid
+  graph (`duplicate_of` edges only), the gatelog's `Stats` and the policy's mode. No model call, nothing written.
+- MCP: **`gate_resolve`** records a person's answer (`approve`, `link_duplicate`, `request_rebase`) to a held or
+  blocked head, the same path as `POST /api/resolve`: gatelog, then the gateway's own label and comment when
+  actions are on. Recorded under the GitHub login of the gateway's token and refused without one. It never merges
+  or closes.
+- Not done: the MCP library in use (mcp-go v0.17.0) cannot mark a tool read-only, so a client may ask before
+  `gate_board` and `gate_queue` too.
+
 ## v0.8.0 — 2026-11-26 (the cross-PR question as its own check)
 
 - **`actions.related_context`** (with `related_threshold`, default 0.7): a second commit status that says only whether
