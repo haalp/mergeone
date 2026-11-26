@@ -2,7 +2,7 @@
 
 Protocol changes after freeze are listed here with a reason. Metric thresholds in PROTOCOL.md §6 are never edited after results exist.
 
-## v0.8.0 — unreleased (the cross-PR question as its own check)
+## v0.8.0 — 2026-11-26 (the cross-PR question as its own check)
 
 - **`actions.related_context`** (with `related_threshold`, default 0.7): a second commit status that says only whether
   another open pull request looks like the same change. Fails closed (`error` when the comparison could not be
