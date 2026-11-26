@@ -179,6 +179,56 @@ func (gw *Gateway) apiQueue(w http.ResponseWriter, r *http.Request, _ string) {
 	writeJSON(w, 200, map[string]any{"holds": holds, "matches": matches})
 }
 
+// QueueRow is one pull request that waits for a person, in the compact form a list shows: what the gate said and
+// why, never the rendered state or the diff.
+type QueueRow struct {
+	Repo      string    `json:"repo"`
+	PR        int       `json:"pr"`
+	Title     string    `json:"title,omitempty"`
+	Author    string    `json:"author,omitempty"`
+	HeadSHA   string    `json:"head_sha"`
+	TS        time.Time `json:"ts"`
+	Verdict   string    `json:"verdict"`
+	Route     string    `json:"route"`
+	Rule      string    `json:"rule"`
+	Reason    string    `json:"reason"`
+	Shadow    bool      `json:"shadow,omitempty"`
+	Files     int       `json:"files,omitempty"`
+	Additions int       `json:"additions,omitempty"`
+	Deletions int       `json:"deletions,omitempty"`
+	// Duplicate is set when the gate named another pull request as the same change.
+	Duplicate *QueueMatch `json:"duplicate,omitempty"`
+}
+
+// QueueMatch is the other pull request of a duplicate hold.
+type QueueMatch struct {
+	PR          int     `json:"pr"`
+	Title       string  `json:"title,omitempty"`
+	Probability float64 `json:"probability"`
+	Verdict     string  `json:"verdict,omitempty"` // the gate's latest verdict on it, when it has one
+}
+
+// QueueRows is store.Queue as rows: every open pull request whose latest head needs a person and has no resolution
+// yet, oldest first, optionally for one repository.
+func QueueRows(st *store.Store, repo string) []QueueRow {
+	out := []QueueRow{}
+	for _, h := range st.Queue(repo) {
+		n := nodeOf(h)
+		row := QueueRow{Repo: h.Repo, PR: h.PR, Title: n.Title, Author: n.Author, HeadSHA: h.HeadSHA, TS: h.TS, Verdict: h.Result.Verdict,
+			Route: h.Result.Route, Rule: h.Result.Rule, Reason: h.Result.Reason, Shadow: h.Shadow, Files: n.Files, Additions: n.Additions, Deletions: n.Deletions}
+		if t := toInt(h.Result.Extra["duplicate_candidate"]); t > 0 {
+			m := &QueueMatch{PR: t, Probability: h.Result.Probs["duplicate_of"]}
+			if rec := st.LatestForPR(h.Repo, t); rec != nil {
+				mn := nodeOf(*rec)
+				m.Title, m.Verdict = mn.Title, rec.Result.Verdict
+			}
+			row.Duplicate = m
+		}
+		out = append(out, row)
+	}
+	return out
+}
+
 // GraphNode and GraphEdge are the portal's graph shapes.
 type GraphNode struct {
 	ID        string `json:"id"`

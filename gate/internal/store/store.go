@@ -100,6 +100,40 @@ type Job struct {
 
 const maxRecent = 100_000
 
+// View loads the gatelog and its events file as they are on disk right now, read-only: no file is created or held
+// open, and Record on the result fails. It is for readers that must see what another process has written since they
+// started (the MCP server's gate_queue next to a gateway or `mergeone pr` writing the same log). A missing log is an
+// empty view.
+func View(path string) *Store {
+	s := &Store{path: path, bySHA: map[string]*Record{}, byPR: map[string]*Record{}, shasPR: map[string]map[string]string{}, open: map[string]map[int]OpenPR{}, jobs: map[string]*Job{},
+		drift: newDriftLog(), resolved: map[string]int{}, closed: map[string]time.Time{},
+		outcomes: map[string]*PROutcome{}, lastGood: map[string]*Record{}, byPatch: map[string]*Record{}}
+	s.cond = sync.NewCond(&s.mu)
+	if f, err := os.Open(path); err == nil {
+		sc := bufio.NewScanner(f)
+		sc.Buffer(make([]byte, 1<<20), 64<<20)
+		for sc.Scan() {
+			var r Record
+			if json.Unmarshal(sc.Bytes(), &r) == nil {
+				s.index(&r)
+			}
+		}
+		f.Close()
+	}
+	if f, err := os.Open(eventsPath(path)); err == nil {
+		sc := bufio.NewScanner(f)
+		sc.Buffer(make([]byte, 1<<20), 16<<20)
+		for sc.Scan() {
+			var e Event
+			if json.Unmarshal(sc.Bytes(), &e) == nil {
+				s.indexEvent(e)
+			}
+		}
+		f.Close()
+	}
+	return s
+}
+
 // Open loads (or creates) the gatelog at path and rebuilds the indexes.
 func Open(path string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {

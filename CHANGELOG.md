@@ -10,6 +10,9 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   `POST /api/resolve`, or the hosted portal with that person's token); the verdict's own status is still never written
   by a resolution. The record's `actions.related` carries the check's context and state. No protocol change: it reports the `duplicate_of` answer the gate
   already computes.
+- MCP: **`gate_queue`** lists the pull requests that wait for a person (verdict, rule, reason, the other pull request
+  of a duplicate hold), read from the gatelog as it is on disk at the call, so a reader sees what a gateway or
+  `mergeone pr` wrote after the MCP server started. No model call; rows never carry the rendered state.
 - `docs/claude-ship.md`: running mergeone beside Claude Ship (Anthropic, beta 2026-11-23) — the related check as a
   required status next to its approval check. What is measured (duplicates only, runs 6B and 11) and what is
   untested (everything inside Claude Ship) is said there.

@@ -18,6 +18,7 @@ import (
 	"github.com/haalp/mergeone/gate/internal/engine"
 	"github.com/haalp/mergeone/gate/internal/plan"
 	"github.com/haalp/mergeone/gate/internal/server"
+	"github.com/haalp/mergeone/gate/internal/store"
 )
 
 // StateFn renders a PR state from a local git repo (injected by main to avoid an import cycle).
@@ -159,6 +160,16 @@ func newServer(gw *server.Gateway, fromGit StateFn) *mcpserver.MCPServer {
 			out = append(out, row)
 		}
 		return jsonResult(map[string]any{"repo": repo, "candidates": out, "memory_size": gw.Memory.Repo(repo).Len()}), nil
+	})
+
+	s.AddTool(gomcp.NewTool("gate_queue",
+		gomcp.WithDescription("Pull requests that wait for a person: the latest head of every open PR the gate held or blocked and nobody has answered yet, oldest first. "+
+			"Each row has the verdict, route, rule and reason, and for a duplicate hold the other pull request. Read from the gatelog as it is on disk now, so it includes what a running gateway or `mergeone pr` wrote since this server started. No model call; nothing is written."),
+		gomcp.WithString("repo", gomcp.Description("owner/name; omit for every repository in the log")),
+	), func(ctx context.Context, req gomcp.CallToolRequest) (*gomcp.CallToolResult, error) {
+		repo, _ := req.Params.Arguments["repo"].(string)
+		rows := server.QueueRows(store.View(gw.Store.Path()), repo)
+		return jsonResult(map[string]any{"as_of": time.Now().UTC().Format(time.RFC3339), "count": len(rows), "holds": rows, "never_merges": true}), nil
 	})
 
 	s.AddTool(gomcp.NewTool("gate_stats",
