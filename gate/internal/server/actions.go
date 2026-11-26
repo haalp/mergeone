@@ -132,6 +132,7 @@ func (a actor) related(cfg engine.Actions, sha string, res engine.Result, target
 	}
 	if _, ok := a.call("related status", "POST", a.url("statuses/%s", sha), body, 201, 200); ok {
 		a.rep.Applied = append(a.rep.Applied, "related:"+state)
+		a.rep.Related = &engine.RelatedCheck{Context: cfg.RelatedContext, State: state}
 	}
 }
 

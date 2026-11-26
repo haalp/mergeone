@@ -134,6 +134,15 @@ type ActionsReport struct {
 	Applied []string `json:"applied"`           // writes performed, e.g. "status:failure", "label+:mergeone:hold"
 	Skipped string   `json:"skipped,omitempty"` // why the whole layer did nothing (disabled, no token, no PR number)
 	Errors  []string `json:"errors"`
+	// Related (v0.8) is the cross-PR check as it was written for this head: its status context and state. A portal
+	// that answers the check for a person ("not a duplicate") needs the context's name; nil when the policy has none.
+	Related *RelatedCheck `json:"related,omitempty"`
+}
+
+// RelatedCheck is the cross-PR commit status of one head (actions.related_context).
+type RelatedCheck struct {
+	Context string `json:"context"`
+	State   string `json:"state"` // success | failure | error
 }
 
 // PRMeta is what the PR memory needs about the change under decision (all optional).

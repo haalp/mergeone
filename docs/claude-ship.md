@@ -48,11 +48,12 @@ It fails closed: anything short of a completed comparison is not `success`. A ne
 answer. The gateway never merges and never closes either pull request.
 
 **A wrong call has a way out, and it is a person's.** A maintainer answers the held decision "Not a duplicate — let
-it through" (an `approve` resolution, recorded with their login). Through the gateway's own `POST /api/resolve` the
-gateway then sets `mergeone/related` to `success` for that head, with "kept by <login>" in the description. "Mark
-as duplicate" and "Ask to rebase" leave the check failed, and no resolution touches the verdict's own status.
-The hosted portal (app.mergeone.dev) records the same resolution and mirrors its label and comment, but does not
-write this status yet; until it does, answer through the gateway's API, or push a new head.
+it through" (an `approve` resolution, recorded with their login). `mergeone/related` is then set to `success` for
+that head, with "kept by <login>" in the description: by the gateway when the answer comes through its own
+`POST /api/resolve`, by the hosted portal (app.mergeone.dev) with the signed-in person's GitHub token when it comes
+from there. The portal's path needs push access for that person and the "Commit statuses: read and write"
+permission on the mergeone GitHub App; when either is missing the portal says so and the check stays as it was.
+"Mark as duplicate" and "Ask to rebase" leave the check failed, and no resolution touches the verdict's own status.
 
 If you want only this question from mergeone and nothing else, reduce the policy's `rules` to the `duplicate-of`
 rule and leave `default` at `pass`; the decision model is still called once per head (a fraction of a cent).

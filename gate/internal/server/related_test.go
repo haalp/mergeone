@@ -65,6 +65,9 @@ func TestRelatedCheckIsASecondStatusAndAPersonCanAnswerIt(t *testing.T) {
 	if got := statusesOf(f, "mergeone/related"); len(got) != 1 || got[0] != "failure" {
 		t.Fatalf("related statuses: %v", got)
 	}
+	if rep.Related == nil || rep.Related.Context != "mergeone/related" || rep.Related.State != "failure" {
+		t.Fatalf("the report does not carry the related check: %+v", rep.Related)
+	}
 	// link_duplicate and request_rebase leave the check failed; an approval by a named person answers it
 	for _, action := range []string{"link_duplicate", "request_rebase"} {
 		ApplyResolution(gh, cfg, store.Resolution{Repo: "o/r", PR: 7, HeadSHA: "sha1", Action: action, TargetPR: 12, Login: "ada"})
