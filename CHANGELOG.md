@@ -88,6 +88,14 @@ Protocol changes after freeze are listed here with a reason. Metric thresholds i
   order alone, and the count is reported (`control_rebuilt_index_hash_length`). 698 PRs, all 58 positives; the two
   states differ for 392 (46 of the 58). The same rule returns 2 PRs to holdout-2: 2,315 PRs, 49 positives, 1,449 differ.
 
+- 2026-11-28, scheduled recollection (same 48 repositories, same rule, same collector; no model call): 2,767 PRs
+  from 43 repositories (2,335 from 36 new, 432 from 7 of run 3's test repositories), **77 `iterated` positives**,
+  all in new repositories. 17 PRs whose diff GitHub does not serve are left out of the scorable set: 2,750 PRs,
+  **76 positives**. The rule asks for 56, so the count condition of R12.0a is met on this collection. The two
+  renderings differ for 1,699 of 2,750 PRs (54 of the 76 positives). R12.1's formula gives
+  m₁ = 0.018·√(58/76) = 0.0157. **Nothing is frozen by this line**: the freeze commit and the tag `r12-frozen`
+  are still to be made, and no model is called before them.
+
 ## Run 11 complete (H1, H2) — 2026-11-08
 
 Two fails; H3 waits for its precondition. Hosted rows from the laptop 15:41:13Z (control) – 15:44:11Z (compact), 705/705
